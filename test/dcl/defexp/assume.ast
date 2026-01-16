@@ -1,0 +1,16 @@
+Package assm 
+
+%% Test assumptions in Define dcls.
+
+Define{assume} f ?x:[Natural] = x.
+
+Expect f: `a -> `a.
+
+%% x should have type [Natural].
+
+Let x = f(nil).
+
+%% There should be a complaint about unsatisfied expectation of f.
+
+%Package
+

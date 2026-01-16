@@ -1,0 +1,37 @@
+%% File: prime.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=========================================================
+Package 		Astarte_prime
+
+			Interface
+===========================================================
+
+Expect
+  prime?	: Natural -> Boolean
+  
+  		%" prime?(n) is true if n is prime, and false if
+		%" n < 2 or n is composite. 
+		%"
+		%" The algorithm is Rabin's Monte Carlo algorithm, and
+		%" can err, but does so with low probability.  prime?
+		%" performs well on large numbers.
+		;
+	
+  factors	: Natural -> [Natural]
+  
+  		%" factors(n) is a list of the prime factors of n,
+		%" in nondescending order.  
+		%" 
+		%" The algorithm is Pollard's rho algorithm.  It
+		%" performs well on numbers with fairly small
+		%" factors (say, up to about a billion).  It
+		%" is slow on large composite numbers with no 
+		%" small factors.
+		;
+%Expect
+
+%Package

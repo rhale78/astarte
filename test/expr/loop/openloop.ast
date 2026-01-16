@@ -1,0 +1,16 @@
+Package TestOpenLoop 
+
+%% Test open loops
+
+Import "misc/check".
+
+Execute
+  open Loop (?i,?sum) = (0, 0) first
+    exitcase i == 10 => Let sumsq = sum*sum.
+    loopcase else => continue(i+1,sum+i)
+  %Loop
+  Line[i $$ 10, sum $$ 10, sumsq $$ 10].
+  Check["        10        45      2025"].
+%Execute
+
+%Package

@@ -1,0 +1,52 @@
+/*******************************************************************
+ * File:    gc/gcstate.doc
+ * Purpose: describe state garbage collector
+ * Author:  Karl Abrahamson
+ *******************************************************************/
+
+seen_states: A list of states.  Each state s in seen_states has each of its
+	     boxes in marked_boxes, and, for each box b in marked_boxes,
+	     the content of box b in state s has been marked.
+
+marked_boxes: A set of boxes.  See seen_states.
+
+External interface:
+-------------------
+
+mark_state_gc(s):  
+		
+		   For each box b in s, place b in marked_boxes if not already
+			there
+		   For each state t in the tree below s, mark t.
+		   For each box b in marked_boxes, mark the content of b in s.
+		   Add s to seen_states.
+
+mark_box_gc(b): Mark the content of box b in each state s in seen_states.
+		Place b in marked_boxes.
+
+
+mark_box_range_gc(a,b,s): Mark the content of box x in each state s in 
+			  seen_states, for each x in
+			  {a,...,b} that is not in set s.  Return the
+			  set s union {a,...,b}.
+
+
+Internal:
+-----------
+
+mark_all_state_gc(s): 
+		For each box b in state s, place b in marked_boxes and
+		mark each state node in the tree below s.
+
+mark_state_with_gc(s,mins,maxs,bs,minbs,maxbs):
+		For each b in set bs, mark the content of b in state s.
+		All boxes in s are known to lie between mins and maxs.
+		All members of set bs are known to lie between minbs
+		and maxbs.
+
+mark_range_gc(minb, maxb, s, mins, maxs):
+		Mark the contents of boxes minb to maxb in state s.
+		All boxes in s are known to lie between mins and maxs.
+
+
+

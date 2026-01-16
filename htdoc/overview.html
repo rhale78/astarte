@@ -1,0 +1,133 @@
+<HTML>
+<head>
+<title>Astarte: overview</title>
+</head>
+<body>
+<center>
+<a href="asthelp.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="example.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> M3. Overview </font></h1>
+</center>
+
+<menu>
+ <li><a href=#main>Reading this documentation</a>
+ <li><a href=#topics>Topics</a>
+ <li><a href=#tutorials>Tutorials</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Reading this documentation</font></h2>
+
+A simple program has the form
+<pre>
+   Package <i>name</i>
+     <i>declaration</i>
+     ...
+     <i>declaration</i>
+   %Package
+</pre>
+where <i>name</i> is the name of the package and <i>declaration</i>
+is a declaration.  See this
+<a href=example.html>example package</a>.
+
+<p>To learn how to use Astarte from this manual, either follow the next
+links or select a topic from this page or the main page.  
+
+<p>In exploring this documentation, you will inevitably come across
+features that have not yet been described.  Don't let that bother you.
+Look at the parts that you understand.
+
+<a name=topics></a>
+<hr>
+<h2><font color=mediumblue>Topics</font></h2>
+
+<dl>
+
+<p><dt>M4. <a href="syntax.html">General lexical and syntactic issues</a>
+<dd> This page discusses what the syntax of the language looks like.
+You should read it before reading the other pages.
+
+<p><dt>M5. <a href="novice.html">Notes for the new user</a>
+<dd> This page gives some hints to new users that will help you
+stay out of traps.  It is a good idea to read it.
+
+<p><dt>E1. <a href="expressions.html">Expressions</a>
+<dd> Expressions compute values.  There are also kinds of expressions
+whose value is void.  They are called statements.  <em> Statements are
+a special kind of expression.</em>  Use this section to find
+out how to write expressions.
+
+<p><dt>T1. <a href="types.html">Type System</a>
+<dd> The type system is polymorphic.  You can write some
+programs without knowing anything about the type system, since
+the compiler will insert type information for you if you 
+leave it out.  This part of the manual describes how to use
+the type system when you need to.
+
+<p><dt>L1. <a href="library.html">Library</a>
+<dd> The library section describes the primitive functions and types,
+as well as those that are provided in library packages.  Even
+basic operators, such as +, are considered part of the library.
+
+<p><dt>D1. <a href="declarations.html">Declarations and packages</a>
+<dd> 
+Each Astarte file contains a package.  This section 
+describes the structure of a package, and how to link
+different packages together.
+
+<p>At the top level, a package consists of a sequence of
+declarations.  Declarations are used to do things such
+as
+<P><table>
+<tr><td> Create new types
+<tr><td> Create functions
+<tr><td> Cause expressions to be evaluated
+<tr><td> Import other packages
+</table>
+
+<p><dt><a href=bnf.html>Syntax</a>
+<dd>This gives a BNF style description of the syntax of Astarte.
+Use it if you do not understand the syntax of a construct.
+
+<p><dt><a href="indx.html">Index</a>
+<dd> This is an alphabetical index of topics.
+</dl>
+ 
+<a name=tutorials></a>
+<hr>
+<h2><font color=mediumblue>Tutorials</font></h2>
+
+A small collection of tutorials on selected topics is
+available.  Topics include
+<dl>
+<p><dt><a href="trouble.html">Trouble shooting</a>
+<dd> This tutorial tells what to do when things go wrong 
+and you don't understand why.
+
+<p><dt><a href="functionalprog.html">Functional programming</a>
+<dd> This tutorial gives examples of writing programs in a functional style,
+where programs do not use side effects, but work by computing new
+values from old ones.
+
+<p><dt><a href="readmat.html">Reading files and pattern matching in strings</a>
+<dd> This tutorial explains how to read files using pattern matching.  
+This is the easiest way to get data into the program.
+
+</dl>
+
+<hr>
+<center>
+<a href="asthelp.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="example.html">Next</a>
+</center>
+</body>
+</HTML>

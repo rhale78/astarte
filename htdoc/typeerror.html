@@ -1,0 +1,228 @@
+<HTML>
+<head>
+<title>Astarte: understanding type errors</title>
+</head>
+<body>
+<center>
+<a href="infer.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="pausetype.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T10. Understanding Type Errors </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main> Type errors: an example</a>
+  <li> <a href=#example> Another example</a>
+  <li> <a href=#exampl> Yet another example</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Type errors: an example</font></h2>
+
+The compiler detects a type error when it encounters an expression
+that must have two different, conflicting types.  It reports the
+two types, and shows you the expression, and the line where that
+expression starts.  For example, 
+the following declaration tries to
+define a function foo(x,n) that returns the (n-1)-st member of list x.
+(Operator # is the list indexing operation).  The declaration contains
+a type error.
+<font color=darkorange>
+<b><pre>
+  Define foo(?x,?n) = x#(n-1).
+</pre></b>
+</font>
+The following message is given by the compiler.
+<b><pre>
+  Cannot match species.  I have inferred one species, but it seems now that
+  another is required.  Compare the two species.  If you can't see what is
+  wrong, try making an assumption to tell the inference mechanism what you
+  intended.  Use Assume x:S %Assume.  Note that this error can
+  result from sending the wrong number of arguments to a function.
+
+  Expression(line 5): #
+  Current species: (([`a],Natural) -&gt; `a)
+  Now need:        ((`b,RRING`c) -&gt; `d)
+  Use advisory show or cmd line option -s to see result of inference.
+</pre></b>
+The type inference mechanism has encountered inconsistent requirements
+for the type of #.  It appears that it must both have type
+(([`a],Natural) -&gt; `a) and type ((`b,RRING`c) -&gt; `d).  Comparing these
+types shows the following correspondences.
+<b><pre>
+       ( [`a]   ,  Natural )  -&gt;  `a
+       ( `b     ,  RRING`c )  -&gt;  `d
+</pre></b>
+There is no inconsistency between [`a] and `b, since variable `b
+could just be [`a].  Similarly, there is no inconsistency between
+`a and `d, since variables `a and `d might be the same.  The inconsistency
+is between RRING`c and Natural.  Variable RRING`c must stand for a 
+species in RRING, which includes Integer, Rational and Real.  It
+cannot stand for Natural.
+
+<p> The problem is that the # operator requires that its second
+argument be a natural number.  But the subtraction operator cannot
+return a natural number; it only works on integers, rational numbers
+and real numbers.  This tells you what is wrong.  The problem can
+be avoided by using -- instead of -.  Declaration
+<font color=#D00090>
+<b><pre>
+  Define foo(?x,?n) = x#(n--1).
+</pre></b>
+</font>
+has no type errors.  Of course, you should be sure that this is
+what you want.  Remember that n -- 1 is |n-1|, so if n = 0, then
+n--1 = 1.
+
+<a name=example></a>
+<hr>
+<h2><font color=mediumblue> Another example </font></h2>
+
+Consider the following definition.  It is trying to define a function 
+sum that computes the sum of the members of a list.
+<font color=darkorange>
+<b><pre>
+  Define sum by
+    case sum []       = []
+    case sum (?h::?t) = h + sum(t)
+  %Define
+</pre></b>
+</font>
+A compilation of this lead to the following partial listing.
+<b><pre>
+   5 Define sum by
+   6   case sum []       = []
+   7   case sum (?h::?t) = h + sum(t)
+   8 %Define
+
+###Line 7, file ..../specerr2.ast:
+  Error:
+  Cannot match species.  I have inferred one species, but it seems now that
+  another is required.  Compare the two species.  If you can't see what is
+  wrong, try making an assumption to tell the inference mechanism what you
+  intended.  Use Assume x:S %Assume.  Note that this error can
+  result from sending the wrong number of arguments to a function.
+
+  Expression(line 7): Try Match(::(?h,?t))...e(fail noCaseEx)%Try
+  Current species: REAL`a
+  Now need:        [`b]
+  Use advisory show or cmd line option -s to see result of inference.
+</pre></b>
+The compiler is working on an expression at line 7.  In this case, the
+expression mentioned is not very valuable: it is part of the compiler's
+internal form of this definition.  But notice that the mismatch is
+between REAL`a on one hand and [`b] on the other.  This indicates that
+there is a conflict: something must both be a number and a list.  The
+problem is that, at line 6, the result of function sum is a list, but
+at line 7, it is a number.  The error is reported at line 7 because
+line 6, by itself, looks fine.  Yet, it is line 6 that is in error.
+The sum of the numbers in an empty list is 0, not [].
+
+<p>You can improve type error reporting 
+by telling the compiler what
+you are thinking. In the case of function sum, you might want sum
+to take a list of natural numbers and produce a natural number.  So
+you can write
+<font color=#D00090>
+<b><pre>
+  Assume sum: [Natural] -&gt; Natural.
+</pre></b>
+</font>
+If you add this before the faulty definition of sum, the 
+compiler listing looks like this. 
+<b><pre>
+   5 Assume sum: [Natural] -&gt; Natural.
+   6 
+   7 Define sum by
+   8   case sum []       = []
+   9   case sum (?h::?t) = h + sum(t)
+  10 %Define
+
+###Line 8, file ..../specerr2.ast:
+  Error:
+  Cannot match species.  I have inferred one species, but it seems now that
+  another is required.  Compare the two species.  If you can't see what is
+  wrong, try making an assumption to tell the inference mechanism what you
+  intended.  Use Assume x:S %Assume.  Note that this error can
+  result from sending the wrong number of arguments to a function.
+
+  Expression(line 8): nil
+  Current species: [`a]
+  Now need:        Natural
+  Use advisory show or cmd line option -s to see result of inference.
+</pre></b>
+Now the error is reported at the line where the error really is.
+The problem is that nil (the name for []) is a list, but it should
+have type Natural.
+
+<a name=exampl></a>
+<hr>
+<h2><font color=mediumblue> Yet another example </font></h2>
+
+Here is another type error example.  The following definition is
+compiled.
+<font color=darkorange>
+<b><pre>
+   Define sum() by
+     case sum []       = 0
+     case sum (?h::?t) = h + sum(t)
+   %Define
+</pre></b>
+</font>
+The listing looks like this.
+<b><pre>
+   5 Define sum() by
+   6   case sum []       = 0
+   7   case sum (?h::?t) = h + sum(t)
+   8 %Define
+
+###Line 6, file ..../specerr.ast:
+  Error:
+  Cannot match species.  I have inferred one species, but it seems now that
+  another is required.  Compare the two species.  If you can't see what is
+  wrong, try making an assumption to tell the inference mechanism what you
+  intended.  Use Assume x:S %Assume.  Note that this error can
+  result from sending the wrong number of arguments to a function.
+
+  Expression(line 6): nil
+  Current species: ()
+  Now need:        [`a]
+  Use advisory show or cmd line option -s to see result of inference.
+</pre></b>
+The problem here is that, in the heading
+<b><pre>
+   Define sum() by
+</pre></b>
+the definition indicates that sum has a parameter of species ().
+(Species () only has one member (also called ()), and so
+there is no information present in something of species ()).  The
+species mismatch occurs when the compiler sees sum [], indicating that
+the parameter of sum is a list.  That is not consistent with the 
+parameter having species ().  The correct definition is
+<font color=#D00090>
+<b><pre>
+   Define sum by
+     case sum []       = 0
+     case sum (?h::?t) = h + sum(t)
+   %Define
+</pre></b>
+
+<hr>
+<center>
+<a href="infer.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="pausetype.html">Next</a>
+</center>
+</body>
+</HTML>

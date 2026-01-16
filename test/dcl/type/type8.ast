@@ -1,0 +1,19 @@
+Package testSpecies8 
+
+%% Test constructor definition
+
+Import "misc/check".
+
+Extension
+  Species A = ().
+  Species B = makeB ().
+  Species C(`x) = ().
+  Species D = j | k(Natural).
+%Extension
+
+Execute
+  Line[$a, " ", $makeB, " ", $(c:C(Natural)), " ", $j, " ", $k(3)].
+  Check["a makeB c j k(3)"].
+%Execute  
+
+%Package

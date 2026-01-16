@@ -1,0 +1,151 @@
+<HTML>
+<head>
+<title>Astarte: default declarations</title>
+</head>
+<body>
+<center>
+<a href="stdconstraint.html">Prev</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href="aspecies.html">Next</a>
+</center>
+<hr>
+
+<font color=brown>
+<center>
+<h1><font color=mediumblue> T24. Defaults </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main> Defaults</a>
+  <li> <a href=#change> Changing defaults</a>
+  <li> <a href=#secondary> Secondary defaults</a>
+  <li> <a href=#constrant> Constraints and run-time defaults</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Defaults</font></h2>
+
+Occasionally, type inference encounters a variable that needs to
+be bound to a species, but for which no information is available
+to say how the binding should be done.  In that case, a default is
+chosen.
+
+<a name=dangerous></a>
+<p> Some defaults are considered relatively benign.  For example,
+defaulting a variable INTEGER`a to Natural rarely has much of
+an impact on a program.  Some defaults, although they must be done,
+are more suspicious, and the programmer is warned about them.  They are
+called dangerous defaults.  For example, defaulting variable `a to
+() is considered a dangerous default.
+
+<a name=standard></a>
+<p>The standard genera and communities have defaults defined for them.  
+The standard defaults are as follows.  Defaults marked with an asterisk(*)
+are dangerous.
+
+<p><table>
+<tr><td bgcolor=lightgrey>Abstraction</td>    
+    <td bgcolor=lightgrey>Default</td>
+
+<tr><td>APPROX</td>         <td>Real</td>
+<tr><td>ANY</td>            <td>()*</td>
+<tr><td>EQ</td>             <td>()*</td>
+<tr><td>ORDER</td>          <td>()*</td>
+<tr><td>RANKED</td>         <td>Natural*</td>
+<tr><td>ENUMERATED</td>     <td>Boolean*</td>
+<tr><td>FIELD</td>          <td>Rational</td>
+<tr><td>GROUP</td>          <td>Integer</td>
+<tr><td>REAL</td>           <td>Natural</td>
+<tr><td>RATIONAL</td>       <td>Natural</td>
+<tr><td>INTEGER</td>        <td>Natural</td>
+<tr><td>NFIELD</td>         <td>Rational</td>
+<tr><td>NRING</td>          <td>Integer</td>
+<tr><td>NUMBER</td>         <td>Natural</td>
+<tr><td>RATRING</td>        <td>Integer</td>
+<tr><td>RING</td>           <td>Integer</td>
+<tr><td>RRING</td>          <td>Integer</td>
+<tr><td>RFIELD</td>         <td>Rational</td>
+<tr><td>SEMIGROUP</td>      <td>Natural</td>
+<tr><td>SEMIRING</td>       <td>Natural</td>
+<tr><td>OPAQUE</td>         <td>Box*</td>
+<tr><td>OPAQUE_EQ</td>      <td>(none)</td>
+<tr><td>OPAQUE_ORDER</td>   <td>(none)</td>
+<tr><td>TRANSPARENT</td>    <td>List*</td>
+<tr><td>TRANSPARENT_EQ</td> <td>List*</td>
+<tr><td>TRANSPARENT_ORDER</td> <td>List*</td>
+</table>
+
+<a name=change><a>
+<hr>
+<h2><font color=mediumblue>Changing defaults</font></h2>
+
+<p>You can change the default that is chosen using a default declaration.
+For example,
+<font color=#D00090>
+<b><pre>
+    Default ANY =&gt; Natural.
+</pre></b>
+</font>
+forces a variable with domain ANY to be defaulted to Natural when
+a default is necessary. In general, the form is Default G =&gt; D %Default,
+where G is an abstraction and D is the default species or
+family.  <i>Species D must be a primary species.</i>
+
+<p> To declare a dangerous default, use mode dangerous, as in the
+following.
+<font color=#D00090>
+<b><pre>
+    Default{dangerous} ANY =&gt; Natural.
+</pre></b>
+</font>
+
+<a name=secondary></a>
+<hr>
+<h2><font color=mediumblue> Secondary defaults </font></h2>
+
+A variable such as ``a, which must be a secondary species, cannot
+be bound according to the defaults above.  Instead, a variable that
+has domain G is defaulted to secondary species G.  For example,
+variable ``a defaults to ANY.
+
+<p> Normally, a variable such as `a that can be either primary
+or secondary chooses a primary default.  You can force the default
+be be secondary, though, by choosing a name that starts with an 
+upper case letter.  For example, variable `A will be defaulted to
+ANY, when a default is needed.
+
+<p>Secondary defaults have precedence over primary defaults when variables
+are made the same.  For example, if variables `A and `b must be made
+equal to one another during type inference, the resulting variable prefers
+a secondary default.
+
+<a name=constrant></a>
+<hr>
+<h2><font color=mediumblue> Constraints and run-time defaults </font></h2>
+
+When there are no constraints, all defaults are selected at
+compile time.
+The presence of constraints such as `a &gt;= `b, forces some
+defaults to be chosen at run time.  Normally, this should be
+transparent to you.  If you request to see the results of
+type inference (via an <a href=advisedcl.html>advise declaration</a> 
+with option show),
+you will see unbound variables that will be defaulted at run time,
+when more type information is obtained.
+</font>
+
+<hr>
+<center>
+<a href="stdconstraint.html">Prev</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href="aspecies.html">Next</a>
+</center>
+</body>
+</HTML>

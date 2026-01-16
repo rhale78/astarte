@@ -1,0 +1,174 @@
+Package Testint3 
+
+%% Test miscellaneous operations on integers
+
+Import "misc/check".
+
+  %% Odd?
+
+  Execute
+    Writeln ["Odd?"].
+    Line [$odd?(0), " 0"].
+    Check["false 0"].
+    Line [$odd?(1), " 1"].
+    Check["true 1"].
+    Line [$odd?(2), " 2"].
+    Check["false 2"].
+    Line [$odd?(3), " 3"].
+    Check["true 3"].
+    Line [$odd?(4), " 4"].
+    Check["false 4"].
+    Line [$odd?(-1), " -1"].
+    Check["true -1"].
+    Line [$odd?(-2), " -2"].
+    Check["false -2"].
+    Line [$odd?(-3), " -3"].
+    Check["true -3"].
+    Line [$odd?(-4), " -4"].
+    Check["false -4"].
+    Line [$odd?(1000000000000)].
+    Check["false"].
+    Line [$odd?(1000000000001)].
+    Check["true"].
+    Line [$odd?(-100000000000)].
+    Check["false"].
+    Line [$odd?(-100000000001)].
+    Check["true"].
+  %Execute
+
+  %% Abs
+
+  Execute
+    Writeln ["Absolute value"].
+    Line [abs(3) $$ 20].
+    Check["                   3"].
+    Line [abs(-3) $$ 20].
+    Check["                   3"].
+    Line [abs(55555555555555) $$ 20].
+    Check["      55555555555555"]. 
+    Line [abs(-55555555555555) $$ 20].
+    Check["      55555555555555"]. 
+  %Execute
+
+  %% Sign
+
+  Execute
+    Writeln ["Sign"].
+    Line [sign(0) $$ 20].
+    Check["                   0"].
+    Line [sign(3) $$ 20].
+    Check["                   1"].
+    Line [sign(-3) $$ 20].
+    Check["                  -1"].
+    Line [sign(55555555555555555) $$ 20].
+    Check["                   1"].
+    Line [sign(-55555555555555555) $$ 20].
+    Check["                  -1"].
+  %Execute
+
+  %% Gcd
+
+  Execute 
+    Writeln ["GCD"].
+    Line [$gcd(1,0)].
+    Check["1"].
+    Line [$gcd(0,1)].
+    Check["1"].
+    Line [$gcd(1,1)].
+    Check["1"].
+    Line [$gcd(10,1)].
+    Check["1"].
+    Line [$gcd(1,10)].
+    Check["1"].
+    Line [$gcd(10,10)].
+    Check["10"].
+    Line [gcd(-10,10) $$ 20].
+    Check["                  10"].
+    Line [gcd(10,-10) $$ 20].
+    Check["                  10"].
+    Line [gcd(15,10) $$ 20].
+    Check["                   5"].
+    Line [gcd(10,15) $$ 20].
+    Check["                   5"].
+    Line [gcd(37,42) $$ 20].
+    Check["                   1"].
+    Line [gcd(100,10) $$ 20].
+    Check["                  10"].
+    Line [gcd(100,16) $$ 20].
+    Check["                   4"].
+    Line [gcd(100,80) $$ 20].
+    Check["                  20"].
+
+    Line [gcd(1000000000000,1000000000) $$ 20].
+    Check["          1000000000"].
+    Line [gcd(45137758519296,17832200896512) $$ 20].
+    Check["        557256278016"].
+    Line [gcd(48318382080000000,20132659200000000) $$ 20].
+    Check["    4026531840000000"].
+    Line [gcd(1073741824,4782969) $$ 20].
+    Check["                   1"].
+    Line [gcd(4782969, 4000) $$ 20].
+    Check["                   1"].
+    Line [gcd(205891132094649, 18046378835968) $$ 20].
+    Check["                   1"].
+  %Execute
+
+
+  %% Powers
+
+  Execute
+    Writeln ["Powers"].
+    Line [0 ^ 1 $$ 20].
+    Check["                   0"].
+    Line [0 ^ 2 $$ 20].
+    Check["                   0"].
+    Line [1 ^ 0 $$ 20].
+    Check["                   1"].
+    Line [1 ^ 2 $$ 20].
+    Check["                   1"].
+    Line [2 ^ 0 $$ 20].
+    Check["                   1"].
+    Line [2 ^ 1 $$ 20].
+    Check["                   2"].
+    Line [2 ^ 2 $$ 20].
+    Check["                   4"].
+    Line [2 ^ 3 $$ 20].
+    Check["                   8"].
+    Line [2 ^ 4 $$ 20].
+    Check["                  16"].
+    Line [(-2) ^ 0 $$ 20].
+    Check["                   1"].
+    Line [(-2) ^ 1 $$ 20].
+    Check["                  -2"].
+    Line [(-2) ^ 2 $$ 20].
+    Check["                   4"].
+    Line [(-2) ^ 3 $$ 20].
+    Check["                  -8"].
+    Line [(-2) ^ 4 $$ 20].
+    Check["                  16"].
+
+    Line [2^25 $$ 20].
+    Check["            33554432"].
+    Line [2^26 $$ 20].
+    Check["            67108864"].
+    Line [2^27 $$ 20].
+    Check["           134217728"].
+    Line [2^28 $$ 20].
+    Check["           268435456"].
+    Line [2^29 $$ 20].
+    Check["           536870912"].
+
+    Line [(-2)^25 $$ 20].
+    Check["           -33554432"].
+    Line [(-2)^26 $$ 20].
+    Check["            67108864"].
+    Line [(-2)^27 $$ 20].
+    Check["          -134217728"].
+    Line [(-2)^28 $$ 20].
+    Check["           268435456"].
+    Line [(-2)^29 $$ 20].
+    Check["          -536870912"].
+
+  %Execute
+
+%Package

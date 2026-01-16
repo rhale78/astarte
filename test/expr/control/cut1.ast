@@ -1,0 +1,21 @@
+Package cut1
+
+%% This package tests a basic cut.
+
+Execute
+  Writeln["Should show a success from only one thread."].
+  Try
+    CutHere
+      Mix
+        Cut.
+        Writeln["I am thread A"].
+      with
+        Cut.
+        Writeln["I am thread B"].
+      %Mix
+    %CutHere
+    {false}
+  %Try
+%Execute
+
+%Package

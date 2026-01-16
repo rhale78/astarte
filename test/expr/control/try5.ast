@@ -1,0 +1,21 @@
+Package try5
+
+%% Test basic try-each with multiple threads.
+
+Execute
+  Try
+    Try catchingEachThread
+      Mix
+        Writeln["I am thread A"].
+      with
+        Writeln["I am thread B"].
+      %Mix
+      {false}
+    else
+      Writeln["Should show this line twice"].
+    %Try
+    {false}
+  %Try
+%Execute
+
+%Package

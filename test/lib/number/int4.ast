@@ -1,0 +1,8 @@
+Package testint4
+
+  Execute
+    Write ["\nThe following should lead to failure\n\n"].
+    Write [0^0 $$ 20, "\n"].
+  %Execute
+
+%Package    

@@ -1,0 +1,14 @@
+Package unkkey
+
+%% Test $ for unknownKeys and protected unknowns.
+
+Import "misc/check".
+
+Execute
+  Match (?:(),?k1) = protectedSharedUnknown().
+  Match (?:(),?k2) = protectedSharedUnknown().
+  Line[$k1, " ", $k2].
+  Check["(unknown key 0) (unknown key 1)"].
+%Execute
+
+%Package

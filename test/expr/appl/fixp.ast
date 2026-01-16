@@ -1,0 +1,33 @@
+Package fixp
+
+%% Define the Y operator (called fix).
+
+Import "misc/check".
+
+Define fix ?f ?x = f (fix f) x.
+
+Let h ?f ?x = If x == 0 then 1 else x*f(x--1) %If.
+
+Let fact = fix h.
+
+Execute
+  Line[$fact 0].
+  Check["1"].
+  Line[$fact 4].
+  Check["24"].
+%Execute
+
+Let mh ?m ?x ?y = If x == 0 then 0 else y + m (x--1) y %If.
+
+Let mult = fix mh.
+
+Execute
+  Line[$(mult 3 2)].
+  Check["6"].
+  Line[$(mult 12 3)].
+  Check["36"].
+%Execute
+
+
+
+%Package

@@ -1,0 +1,262 @@
+Package arr
+
+%% Test arrays in var exprs and dcls.
+
+Import "collect/boxes".
+Import "misc/check".
+
+==============================================================
+Execute
+  Var{shared} asu(5) holding Natural.
+  Var{shared} asi(5) holding Natural := [1,2,3,4,5].
+  Var{shared} asia(5)  holding Natural all := 0.
+  Var{shared} asI(*) holding Natural.
+  Var{shared} as2i(2,3) holding Natural := [[1,2,3], [4,5,6]].
+  Var{shared} as2ia(2,3) holding Natural all := 0.
+  Var{shared} as2I(2,*) holding Natural.
+  Var{shared} asI2(*,2) holding Natural.
+  Var{shared} asII(*,*) holding Natural.
+
+  Writeln["Shared Boxes"].
+  For ?n from 0 _upto_ 4 do Assign asu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asu#_n))]..
+  Check["66666"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asia#_n))]..
+  Check["00000"].
+
+  For ?n from 0 _upto_ 9 do Assign asI#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 9 do Moreline[$(@(asI#_n))]..
+  Check["6666666666"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2i#_n#_m))].
+    %For
+  %For
+  Check["123456"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2ia#_n#_m))].
+    %For
+  %For
+  Check["000000"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 5 do
+      Assign as2I#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 5 do
+      Moreline[$(@(as2I#_n#_m))].
+    %For
+  %For
+  Check["333333333333"].
+
+  Line[].
+  For ?n from 0 _upto_ 5 do
+    For ?m from 0 _upto_ 1 do
+      Assign asI2#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 5 do
+    For ?m from 0 _upto_ 1 do
+      Moreline[$(@(asI2#_n#_m))].
+    %For
+  %For
+  Check["333333333333"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Assign asII#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(asII#_n#_m))].
+    %For
+  %For
+  Check["3333333333333333333333333"].
+
+%Execute
+=================================================================
+
+==============================================================
+Execute
+  Var{nonshared} asu(5) holding Natural.
+  Var{nonshared} asi(5) holding Natural := [1,2,3,4,5].
+  Var{nonshared} asia(5)  holding Natural all := 0.
+  Var{nonshared} asI(*) holding Natural.
+  Var{nonshared} as2i(2,3) holding Natural := [[1,2,3], [4,5,6]].
+  Var{nonshared} as2ia(2,3) holding Natural all := 0.
+  Var{nonshared} as2I(2,*) holding Natural.
+  Var{nonshared} asI2(*,2) holding Natural.
+  Var{nonshared} asII(*,*) holding Natural.
+
+  Writeln["Nonshared Boxes"].
+  For ?n from 0 _upto_ 4 do Assign asu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asu#_n))]..
+  Check["66666"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asia#_n))]..
+  Check["00000"].
+
+  For ?n from 0 _upto_ 9 do Assign asI#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 9 do Moreline[$(@(asI#_n))]..
+  Check["6666666666"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2i#_n#_m))].
+    %For
+  %For
+  Check["123456"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2ia#_n#_m))].
+    %For
+  %For
+  Check["000000"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 5 do
+      Assign as2I#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 5 do
+      Moreline[$(@(as2I#_n#_m))].
+    %For
+  %For
+  Check["333333333333"].
+
+  Line[].
+  For ?n from 0 _upto_ 5 do
+    For ?m from 0 _upto_ 1 do
+      Assign asI2#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 5 do
+    For ?m from 0 _upto_ 1 do
+      Moreline[$(@(asI2#_n#_m))].
+    %For
+  %For
+  Check["333333333333"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Assign asII#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(asII#_n#_m))].
+    %For
+  %For
+  Check["3333333333333333333333333"].
+
+%Execute
+=================================================================
+
+==============================================================
+Execute
+  Var{shared, unknown} asu(5) holding Natural.
+  Var{shared, unknown} asI(*) holding Natural.
+  Var{shared, unknown} as2i(2,3) holding Natural.
+  Var{shared, unknown} as2I(2,*) holding Natural.
+  Var{shared, unknown} asI2(*,2) holding Natural.
+  Var{shared, unknown} asII(*,*) holding Natural.
+
+  Writeln["SharedUnknowns"].
+  For ?n from 0 _upto_ 4 do BindUnknown asu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(asu#_n)]..
+  Check["66666"].
+
+  For ?n from 0 _upto_ 9 do BindUnknown asI#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 9 do Moreline[$(asI#_n)]..
+  Check["6666666666"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      BindUnknown as2i#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(as2i#_n#_m)].
+    %For
+  %For
+  Check["333333"].
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 5 do
+      BindUnknown as2I#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 5 do
+      Moreline[$(as2I#_n#_m)].
+    %For
+  %For
+  Check["333333333333"].
+
+  Line[].
+  For ?n from 0 _upto_ 5 do
+    For ?m from 0 _upto_ 1 do
+      BindUnknown asI2#_n#_m := 4.
+    %For
+  %For
+  For ?n from 0 _upto_ 5 do
+    For ?m from 0 _upto_ 1 do
+      Moreline[$(asI2#_n#_m)].
+    %For
+  %For
+  Check["444444444444"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      BindUnknown asII#_n#_m := 3.
+    %For
+  %For
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(asII#_n#_m)].
+    %For
+  %For
+  Check["3333333333333333333333333"].
+
+%Execute
+=================================================================
+
+  
+%Package

@@ -1,0 +1,80 @@
+Package vard1
+
+%% Test Var: simple boxes, both initialized and uninitialized.
+%% (Var declarations)
+
+Import "misc/check".
+
+==============================================
+%% 			Uninitialized boxes
+==============================================
+
+===========================
+Var v3 holding Real.
+===========================
+Var{nonshared} v1,v2 holding Natural.
+===========================
+Var{shared} p1,p2 holding Natural.
+===========================
+Execute
+  Line[If emptyBox?(v1) then "good" else "bad" %if].
+  Check["good"].
+  Line[If emptyBox?(p1) then "good" else "bad" %if].
+  Check["good"].
+  Line[If emptyBox?(p2) then "good" else "bad" %if].
+  Check["good"].
+  Assign v1 := 2.
+  Assign v2 := 9.
+  Assign v3 := +3.
+  Line[@v1 $$ 10, @v2 $$ 10, @v3 $$ (10,4)].
+  Check["         2         9    3.0000"].
+  Assign(p1, 42).
+  Line[@p1 $$ 10].
+  Check["        42"].
+  EmptyBox(p1).
+  Line[$(emptyBox? p1)].
+  Check["true"].
+  EmptyBox(v1).
+  Line[$(emptyBox? v1)].
+  Check["true"].
+%Execute
+
+==============================================
+%% 			Initialized boxes
+==============================================
+
+===========================
+Var u3 holding Real := 2.
+===========================
+Var{nonshared} u1,u2 holding Natural := 8.
+===========================
+Var{shared} q1,q2 holding Natural := @u1 + @u2.
+===========================
+Execute
+  Line[$(@u1)].
+  Check["8"].
+  Line[$(@u2)].
+  Check["8"].
+  Line[$(@u3)].
+  Check["2"].
+  Line[$(@q1)].
+  Check["16"].
+  Line[$(@q2)].
+  Check["16"].
+%Execute
+
+==============================================
+%% 			Unknowns
+==============================================
+
+Var{shared,unknown} us holding Natural.
+Var{nonshared, unknown} un holding Natural.
+
+Execute
+  BindUnknown us := 1.
+  BindUnknown un := 1.
+  Line[$us,$un].
+  Check["11"].
+%Execute
+%Package
+

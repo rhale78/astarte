@@ -1,0 +1,14 @@
+Package fail 
+
+%% Test failure inside lazy evaluation.
+
+Execute
+  Writeln["Should print \"Made it past Define\", then fail\n"].
+  Define x = fail testX: [Natural].
+  Writeln["Made it past Define"].
+  If nil? x then
+    Writeln["made it past Fail!!!"].
+  %If
+%Execute
+
+%Package

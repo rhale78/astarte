@@ -1,0 +1,43 @@
+Package trymix1
+
+%% Test a mixture of try/mix that stresses handling of the two together.
+
+%% Two tries with a mix, fail to outer try before other exits outer try.
+
+Execute
+  Writeln["Should print 100 followed by I am thread 2, successful outer try.\n"].
+  Try
+    open Try
+      Let id = 
+        Mix
+          %% Thread 1 exits the inner try then fails, before thread
+	  %% 2 has exited the inner try.
+	  1
+	  
+	with
+	  %% Thread 2 stays in here a while.
+	  Let a = 0.
+	  For ?i from 1 _upto_ 100 do Relet a = a + 1..
+	  Writeln[$a].
+	  2
+	%Mix
+      %Let
+      
+    else
+      Writeln["Inner try fail: should not happen."].
+      Let id = 3.
+    %Try
+    
+    {id =/= 1}
+    
+  then
+    Writeln["I am thread ", $id, ": successful outer try."].
+  else
+    Writeln["I am a thread that failed the outer try."].
+  %Try
+%Execute
+
+%Package
+
+	
+	

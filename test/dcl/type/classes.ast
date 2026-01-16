@@ -1,0 +1,25 @@
+Package testclasses
+
+%% Test genus hierarchy
+
+Export
+
+%% The following should lead to a complaint that the intersection
+%% of A and EQ is required.
+
+Extension
+  Species S = Integer.
+  Species T = Integer.
+  Abstraction A;B.
+  Relate S isKindOf A.
+  Relate S isKindOf B.
+  Relate A & B = A.
+%Extension
+
+%% The following should cause a complaint.  A and T already existed.
+
+Extension
+  Relate T isKindOf A.
+%Extension
+
+%Package

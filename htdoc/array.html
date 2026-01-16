@@ -1,0 +1,342 @@
+<HTML>
+<head>
+<title>Astarte: arrays</title>
+</head>
+<body>
+<center>
+<a href="tablelib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bitvec.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC10. Arrays and Structures Involving 
+Boxes</font></h1>
+</center>
+
+<menu>
+  <li><a href=#create>Creating arrays and structures</a>
+  <li><a href=#indexing>Indexing and taking the contents of an array</a>
+  <li><a href=#copy>Copying an array</a>
+  <li><a href=#putval>Putting values in an array</a>
+  <li><a href=#prefix>Getting the nonempty boxes</a>
+  <li><a href=#dollar>Showing an array</a>
+</menu>
+
+<hr>
+An array is a list of boxes, or a list of lists of boxes (for
+a two-dimensional array), etc.  A structure is a pair, triple, etc.
+of boxes.  This section describes a few
+operations for use with arrays and structures.
+
+Package <a href=ast/collect/boxes.ast>collect/boxes.ast</a>
+defines genera BOXES, NEW and ARRAY, described under the
+<a href=stdgenus.html#ARRAY>standard genera</a>.  Those are used
+in describing the polymorphic types of some of these operations.
+
+Two useful species are <a href=stdspecies.html#boxflavor>BoxFlavor</a>
+and <a href=stdspecies.html#copyflavor>CopyFlavor</a>.
+
+<a name=create></a>
+<hr>
+<h2><font color=mediumblue> Creating arrays and structures</font></h2>
+
+The most convenient way to create an array is to use a 
+<a href=boxexpr.html#arrayexpr>var expression or declaration</a>.
+If you prefer to use functions to build arrays, 
+the following are available only if package 
+<a href=ast/collect/boxes.ast>collect/boxes.ast</a>
+is imported.
+
+<dl>
+<p><dt><font color=red>array</font>
+<dd>: BoxFlavor -&gt; Natural -&gt; [&lt;:`a:&gt;]
+<p><font color=#D00090>(array flav n)</font> is an array of n new empty boxes
+The flavor is given by flav.  For example,
+<font color=#D00090>array shared 10</font> produces an array
+of 10 new empty shared boxes.  The array is packed.
+
+<p>(array flav x) is an array of the same length
+as list x, initialized to the members of x.  The first box in the array
+contains the member of list x, etc.
+
+<a name=arrayInit></a>
+<p><dt><font color=red>arrayInit</font>
+<dd>: BoxFlavor -&gt; Natural -&gt; [`a] -&gt; [&lt;:`a:&gt;] 
+<p><font color=#D00090>(arrayInit flav n x)</font> 
+is a new array of n boxes initialized
+from list x.  The first box holds the first member or x, the second
+box holds the second member of x, etc.  If x has fewer than n members,
+then only a prefix of the array is initialized.  If x has more
+than n members, then only a prefix of x is used.
+
+<a name=fullArray></a>
+<p><dt><font color=red>fullArray</font>
+<dd>: BoxFlavor -&gt; `a -&gt; Natural -&gt; [&lt;:`a:&gt;] 
+<p><font color=#D00090>(fullArray flav v n)</font> 
+is an array of n boxes of flavor flav,
+each holding initial value v.
+
+<a name=nonsharedArray></a>
+<p><dt><font color=red>nonsharedArray</font>
+<dd>: Natural -&gt; [&lt;:`a:&gt;]
+<p><font color=#D00090>nonsharedArray(n)</font> 
+is the same as (array nonshared n).
+
+<a name=sharedArray></a>
+<p><dt><font color=red>sharedArray</font>
+<dd>: Natural -&gt; [&lt;:`a:&gt;] 
+<p><font color=#D00090>sharedArray(n)</font> is the same as (array shared n).
+
+<a name=infiniteArray></a>
+<p><dt><font color=red>infiniteArray</font>
+<dd>: BoxFlavor -&gt; [&lt;:`a:&gt;] 
+<p><font color=#D00090>(infiniteArray flav)</font> 
+is an infinite array of new empty boxes
+The flavor is given by flav.
+The array is close to being packed; subscripting into it is
+fairly efficient.
+
+<a name=infiniteArrayInit></a>
+<p><dt><font color=red>infiniteArrayInit</font>
+<dd>: BoxFlavor -&gt; () -&gt; [`a] -&gt; [&lt;:`a:&gt;] 
+<p><font color=#D00090>(infiniteArrayInit flav () x)</font> is an infinite array of new
+boxes initialized from list x, in a style similar to arrayInit.
+
+<a name=fullInfiniteArray></a>
+<p><dt><font color=red>fullInfiniteArray</font>
+<dd>: BoxFlavor -&gt; () -&gt; `a -&gt; [&lt;:`a:&gt;]
+<p><font color=#D00090>(fullInfiniteArray flav v ())</font> 
+is an infinite array of boxes,
+all initialized to hold value v.
+
+<a name=infiniteNonsharedArray></a>
+<p><dt><font color=red>infiniteNonsharedArray</font>
+<dd>: () -&gt; [&lt;:`a:&gt;]  
+<p><font color=#D00090>infiniteNonsharedArray()</font> 
+is the same as (infiniteArray nonshared).
+
+<a name=infiniteSharedArray></a>
+<p><dt><font color=red>infiniteSharedArray</font>
+<dd>: () -&gt; [&lt;:`a:&gt;]  
+<p><font color=#D00090>infiniteSharedArray()</font> 
+is the same as (infiniteArray shared).
+
+<a name=new></a>
+<p><dt><font color=red>new</font>
+<dd>: BoxFlavor -> NEW`a
+<p><font color=#D00090>new flav</font> is a newly created structure
+containing empty boxes of flavor flav.
+</dl>
+
+<a name=indexing></a>
+<hr>
+<h2><font color=mediumblue> Indexing and taking the contents of an array</font></h2>
+
+<dl>
+<p><dt><font color=red>@#</font>
+<dd>: [&lt;:`a:&gt;] -&gt; `a
+<p> <font color=#D00090>x @# k</font> abbreviates @(x#k).
+
+<p><dt><font color=red>@#_</font>
+<dd>: [&lt;:`a:&gt;] -&gt; `a
+<p><font color=#D00090>x @#_ k</font> abbreviates @(x#_k).
+
+<a name=contents></a>
+<p><dt><font color=red>contents</font>
+<dd>: [&lt;:`a:&gt;] -&gt; [`a]
+<br>: [[&lt;:`a:&gt;]] -&gt; [[`a]]
+<br>: [[[&lt;:`a:&gt;]]] -&gt; [[[`a]]]
+<p>The contents of an array is obtained by replacing each box by its
+content.  Function 
+<font color=red>contents</font> takes the content of a one, two
+or three dimensional array.
+
+<p> You can use more general function <font color=red>contents!!</font>
+to take the contents of an arbitrary dimension array, but it is
+not type-safe.  If you need to use higher dimensional arrays, 
+create a version of function contents by defining it to be the
+same as contents!!, but giving it a sane type.  See 
+<a href=ast/collect/boxes.ast>collect/boxes.ast</a>.
+
+<a name=optContents></a>
+<p><dt><font color=red>optContents</font>
+<dd>: [&lt;:`a:&gt;] -&gt; [Optional(`a)]
+<br>: [[&lt;:`a:&gt;]] -&gt; [[Optional(`a)]]
+<br>: [[[&lt;:`a:&gt;]]] -&gt; [[[Optional(`a)]]]
+<p><font color=#D00090>optContents(x)</font> 
+is obtained from x by replacing
+each nonempty box b by value(@b), and replacing each 
+empty box by noValue.  It is available for one, two and
+three-dimensional arrays.
+
+<p>You can use more general function <font color=red>optContents!!</font>,
+but it is not type safe.  
+</dl>
+
+<a name=copy></a>
+<hr>
+<h2><font color=mediumblue> Copying an array </font></h2>
+
+<dl>
+<p><dt><font color=red>copy</font>
+<dd>: CopyFlavor -&gt; `a -&gt; `a
+<br>: `a -&gt; `a
+<p>Expression <font color=#D00090>(copy flav x)</font> 
+makes a copy of array x, using
+new boxes.  The flavor of the new boxes is given by flav, which 
+can be one of <i>shared</i>, <i>nonshared</i> or <i>same</i>.  
+If flav is same, each box is made the same flavor as the box that
+it is a copy of.
+
+<p><font color=#D00090>copy(x)</font> is the same as 
+<font color=#D00090>copy same x</font>.
+
+<p> You can copy any structure consisting of lists and pairs,
+nested in an arbitrary way.
+
+<a name=capcopy></a>
+<p><dt><font color=red>Copy</font>
+<dd>: (BOXES`a, BOXES`a) -&gt; ()
+<p>Statement
+<font color=#D00090>
+<b><pre>
+  Copy x := y.
+</pre></b>
+</font>
+copies array y into array x.  The copy goes out to the
+smaller of the two array sizes, so it is not necessary for
+the two arrays to be the same size.  
+For example, if
+x and y are created by
+<font color=#D00090>
+<b><pre>
+   Var x(3) := [1,2,3].
+   Var y(4).
+</pre></b>
+</font>
+then
+<font color=#D00090>
+<b><pre>
+   Copy y := x.
+</pre></b>
+</font>
+assigns y#1 := 1, y#2 := 2 and y#3 := 3.
+
+<p>Copy can copy arbitrarily nested lists and pairs.  For example,
+it will work for a list of lists, or a list of pairs, or a pair
+of lists.
+
+<a name=Move></a>
+<p><dt><font color=red>Move</font>
+<dd>: (BOXES`a, BOXES`a) -&gt; ()
+<p>Move is similar to Copy.  However, it presumes that
+the two arrays (the one being copied from and the one being copied
+into) do not share any boxes.  It is more efficient than Copy.
+(For generality, copy must get all contents from the source array
+before putting anything into the destination array.  Move does
+not need to do that.)
+</dl>
+
+<a name=putval></a>
+<hr>
+<h2><font color=mediumblue> Putting values in an array </font></h2>
+
+<dl>
+<a name=Fill></a>
+<p><dt><font color=red>Fill</font>
+<dd>: ([&lt;:`a:&gt;], `a) -&gt; ()
+<br>: ([[&lt;:`a:&gt;]], `a) -&gt; ()
+<br>: ([[[&lt;:`a:&gt;]]], `a) -&gt; ()
+<p>Statement
+<font color=#D00090>
+<b><pre>
+  Fill x := v.
+</pre></b>
+</font>
+assigns v to each box in array x.  Array x can have up to three
+dimensions.  For more dimensions, you can use the more general
+but type-unsafe Fill!!.  See <a href=ast/collect/boxes.ast>
+collect/boxes.ast</a>.
+
+<a name=Put></a>
+<p><dt><font color=red>Put</font>
+<dd>: ([&lt;:`a:&gt;], [`a]) -&gt; ()
+<br>: ([[&lt;:`a:&gt;]], [[`a]]) -&gt; ()
+<br>: ([[[&lt;:`a:&gt;]]], [[[`a]]]) -&gt; () 
+<p>Statement
+<font color=#D00090>
+<b><pre>
+  Put x := alist.
+</pre></b>
+</font>
+stores the first member of list alist into the first box in array x,
+the second member of alist into the second box in array x, etc.
+If list alist is shorter than array x, then only a prefix of x is
+modified.  If array x is shorter than list alist, then
+only a prefix of alist is used.
+
+<p>Put can handle arrays of up to three dimensions. For higher
+dimensions use type-unsafe function Put!!, described in
+<a href="ast/collect/boxes.ast">collect/boxes.ast</a>.
+
+<a name=OptPut></a>
+<p><dt><font color=red>OptPut</font>
+<dd>: ([&lt;:`a:&gt;], [Optional(`a)]) -&gt; ()
+<br>: ([[&lt;:`a:&gt;]], [[Optional(`a)]]) -&gt; ()
+<br>: ([[[&lt;:`a:&gt;]]], [[[Optional(`a)]]]) -&gt; ()
+
+<p>Statement
+<font color=#D00090>
+<b><pre>
+  OptPut x := alist.
+</pre></b>
+</font>
+is similar to Put x := alist %Put, but each member of alist is
+either value(v) (indicating that v should be put into the box)
+or is noValue (indicating that the box should be emptied).
+
+<p> Array x can have up to three dimensions.  For more dimension, use
+function OptPut!!, described in <a href="ast/collect/boxes.ast">
+collect/boxes.ast</a>.
+</dl>
+
+<a name=prefix></a>
+<hr>
+<h2><font color=mediumblue> Getting the nonempty boxes</font></h2>
+
+<dl>
+<p><dt><font color=red>nonemptyPrefix</font>
+<dd>: [&lt;:`a:&gt;] -&gt; [&lt;:`a:&gt;]
+<p><font color=#D00090>nonemptyPrefix(x)</font> 
+is the longest prefix of x that 
+consists entirely of nonempty boxes.  It only handles linear arrays.
+</dl>
+
+<a name=dollar></a>
+<hr>
+<h2><font color=mediumblue> Showing an array </font></h2>
+
+If you import collect/boxes.ast, the definition of $ will be
+changed so that arrays are shown in a more compact notation than
+if you do not import that package.  
+For example, you might find that
+$(x) is "[shareds 20..22]" rather than [(shared 20), (shared 21), (shared 22)].
+
+<hr>
+<center>
+<a href="tablelib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bitvec.html">Next</a>
+</center>
+</body>
+</HTML>

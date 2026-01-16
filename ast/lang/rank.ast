@@ -1,0 +1,94 @@
+%% File: rank.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%================================================================
+Package 	Astarte_Rank
+==================================================================
+
+==================================================================
+%% This package describes genera RANKED and ENUMERATED, and
+==================================================================
+%% related operarations.
+
+==================================================================
+			Export
+==================================================================
+
+Description
+
+ ENUMERATED	%" An enumerated species is created using a species
+		%" declaration, where each part has no argument.  For
+		%" example, declaration
+		%"
+		%"  Species E = a | b | c.
+		%"
+		%" creates enumerated species E with three members,
+		%" a, b and c.
+		%"
+		%" ENUMERATED is a genus that holds all enumerated species.
+		%" You cannot extend it -- the compiler extends it
+		%" automatically when you create an enumerated species.
+		%" Each member of an enumerated species has a *rank*.
+		%" The rank is obtained by numbering the members of
+		%" the species in the order in which they are written
+		%" in the species definition, starting at 0.  So, for
+		%" species E, a has rank 0, b has rank 1 and c has rank
+		%" 2.  Genus ENUMERATED is a subset of RANKED, so each
+		%" enumerated species has a function rank that computes
+		%" the rank of the object.  Other operations are
+		%" succ, pred, _downto_ and _upto_.
+                ;
+
+ RANKED		%" RANKED is a genus that contains Natural and
+		%" all enumerated species.  RANKED is only extensible by
+		%" the compiler.  Each species in RANKED has a function
+		%" called rank that converts to Natural.  For
+		%" enumerated species, the rank is given by the order
+		%" in which the members of the species are written in
+		%" the species declaration, starting at 0.  There is 
+		%" also a function called unrank that is the functional 
+		%" inverse of rank, and functions pred (the
+		%" predecessor function), succ (the successor function), 
+		%" _upto_ and _downto_.
+		;
+
+ _downto_	: (ENUMERATED`a, ENUMERATED`a) -> [ENUMERATED`a]
+
+		%" m _downto_ n is the list [m,pred(m),...,n].
+                ;
+
+ pred		: RANKED`a -> RANKED`a
+
+		%" pred(x) is the predecessor of x.  It fails with
+		%" exception domainX("predecessor of smallest") when
+		%" rank(x) = 0.
+		;
+
+ rank		: RANKED`a -> Natural
+
+		%" rank(x) is the natural number associated with x.
+		;
+
+ succ		: RANKED`a -> RANKED`a
+
+		%" succ(x) is the successor of x.  It fails with
+		%" exception domainX("successor of largest") if there is no
+		%" successor of x.
+		;
+
+ unrank		: Natural -> RANKED`a
+
+		%" unrank is the functional inverse of rank.  That
+		%" is, unrank(rank(x)) = x and rank(unrank(x)) = x.
+		;
+
+ _upto_		: (ENUMERATED`a, ENUMERATED`a) -> [ENUMERATED`a]
+
+		%" m _upto_ n is the list [m,succ(m),...,n].
+		;
+%Description
+
+%Package

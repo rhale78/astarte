@@ -1,0 +1,41 @@
+Package irregularFun 
+
+%% Test irregularFun, makeIrregularFun, "of" for passing irregular functions
+%% as parameters.
+
+Import "misc/check".
+
+Extension
+  Species T1 = irregular `a.
+%Extension
+
+Let{irregular} test(?f, ?x) = f of x.
+
+Let{irregular} unt1' ?x = test (irregularFun unt1, x).
+
+Let{irregular} unf ?x = test(irregularFun idf, x).
+
+Let G ?x. =
+  Choose first
+    case do Let (n:Natural) = unt1' x. =>
+      Line[$n, " is natural"].
+    case do Let (i:Integer) = unt1' x.  =>
+      Line[$i, " is integer"].
+    else =>
+      Line["Neither natural nor integer"].
+  %Choose
+%Let
+
+Execute
+  G(t1(2)).
+  Check["2 is natural"].
+  G(t1(-2)).
+  Check["-2 is integer"].
+  Let n = unf(2).
+  Line[$n].
+  Check["2"].
+%Execute
+
+
+
+%Package

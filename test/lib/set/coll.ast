@@ -1,0 +1,9 @@
+Package coll 
+
+%% Test importing both sparstbl and lintbl
+
+Directory standard.
+Import "collect/sparstbl".
+Import "collect/lintbl".
+
+%Package

@@ -1,0 +1,87 @@
+<HTML>
+<head>
+<title>Astarte: interface/implementation example</title>
+</head>
+<body>
+<center>
+<a href="exportexample.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="pausedcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue>A Package with Interface and Implementation Parts</font></h1>
+</center>
+
+The following two packages provide the same support as is 
+provided by the single <a href=exportexample.html>export</a>
+package.
+
+<p><hr>
+<b><pre>
+%% File perms.ast
+
+Package perms
+
+%% This example package can be imported.  It is 
+%% contains only the interface information.
+
+=======================================================================
+			interface
+=======================================================================
+
+Expect
+  perms		: [`a] -&gt; [[`a]]
+
+		%" perms(x) is a list of all of the permutations
+		%" of list x.  For example, perms("abc") =
+		%" ["abc", "acb", "bac", "bca", "cab", "cba"].
+%Expect
+
+%Package
+
+<hr>
+%% File perms.asi
+
+Package permsImplementation
+
+%% This package cannot be imported directly.  You import perms.ast
+%% instead.  This package just provides the implementation.
+
+=======================================================================
+			implements "perms"
+=======================================================================
+
+%% We need the listpat package.  This is imported in the
+%% implementation part because it is only needed for the
+%% implementation.
+
+Import "pattern/listpat".
+
+%% Here is the implementation of perms.
+
+Define perms by first
+  case perms []   = [[]]
+  case perms (?z) = [: a :: p | Match ?x ++ [?a] ++ ?y = z.
+                                Let p = each(perms(x++y)). :]
+%Define
+
+%Package
+ 
+</pre></b>
+<hr>
+<center>
+<a href="exportexample.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="pausedcl.html">Next</a>
+</center>
+</body>
+</HTML>
+

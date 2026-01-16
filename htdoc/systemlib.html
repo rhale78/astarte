@@ -1,0 +1,342 @@
+<HTML>
+<head>
+<title>Astarte: system access</title>
+</head>
+<body>
+<center>
+<a href="iolib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="logiclib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L11. System Functions </font></h1>
+</center>
+
+<menu>
+  <li><a href=#intro>Introduction</a>
+  <li><a href=#misc>Miscellaneous operations</a>
+  <li><a href=#filenames>File names</a>
+  <li><a href=#fileprop>File properies</a>
+  <li><a href=#create>Creating and removing files</a>
+</menu>
+
+<a name=intro></a>
+<hr>
+<h2><font color=mediumblue>Introduction</font></h2>
+
+The following are described in detail in 
+<a href="ast/system/system.ast">system/system.ast</a>.
+Import that package to use these functions, and see that package
+for details that are not discussed here.
+
+<p> Several functions require file names.  Use a / or a \
+to separate directories.  
+For example, you can write
+/home/myself or \home\myself.  But be careful if you use \ in a 
+string constant; you must write "\\home\\myself".
+
+<a name=File></a>
+<p> You can create an item of species <font color=red>File</font> 
+that holds information about a system file.  
+For example, 
+<font color=#D00090>file("mydir/myfile.txt")</font> 
+is a File item that records information about 
+system file myfile/myfile.txt (found relative to the
+current directory).
+Some operations require that a file be given as
+an item of species File.  
+Some other operations can take either a string that
+names a file or a File item.
+
+<a name=misc></a>
+<hr>
+<h2><font color=mediumblue> Miscellaneous operations </font></h2>
+
+<dl>
+
+<a name=ChangeDirectory></a>
+<p><dt><font color="red">ChangeDirectory</font> 
+<dd>: File -&gt; ()
+<br>: String -&gt; ()
+<p> <font color=#D00090>ChangeDirectory(d).</font> 
+changes the current directory to d.
+The parameter d can be a string or a File object.
+<br>Example: 
+<font color="#D00090">
+ChangeDirectory("/local/lib").
+</font>
+
+<a name=commandLine></a>
+<a name="commandLine"></a>
+<p><dt><font color="red">commandLine </font>
+<dd>: [String]
+<p> <font color=#D00090>commandLine</font> 
+is the command line that invoked this program, as
+a list of strings.  Only those parts that follow the name of the
+program being interpreted are included, plus the program name itself.
+For example, if you use command
+<pre>
+      astr -t myprog -x elephant 
+</pre>
+then commandLine will be ["myprog", "-x", "elephant"].
+
+<a name=dateTime></a>
+<p><dt><font color="red">dateTime </font>
+<dd>: () -&gt; String
+<p> <font color=#D00090>dateTime()</font> 
+is a string that describes the current
+date and time.
+
+<a name=dirList></a>
+<p><dt><font color="red">dirList </font>
+<dd>: File -&gt; [File]
+<p> <font color=#D00090>dirList(d)</font> 
+is a list of all members of directory d, including
+files and directories.  
+
+<a name=file></a>
+<p><dt><font color="red">file </font>
+<dd>: String -&gt; File
+<p> <font color=#D00090>file(name)</font> 
+is the File item corresponding to the system file
+whose name is given.  If not absolute, it is taken from the
+current directory.
+
+<a name=fileExistsq></a>
+<p><dt><font color="red">fileExists? </font>
+<dd>: String -&gt; Boolean
+<p> <font color=#D00090>fileExists?(name)</font>
+ is true if there is a file on the system called
+name, and false otherwise.  A directory is considered a kind of file for
+this test.
+
+<a name=getCwd></a>
+<p><dt><font color="red">getCwd</font> 
+<dd>: () -&gt; File
+<br>: () -&gt; String
+<p> <font color=#D00090>getCwd()</font> 
+returns the current working directory, either as a string
+or as a File item.
+
+<a name=getEnv></a>
+<p><dt><font color="red">getEnv </font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>getEnv(s)</font> 
+is the value of environment variable s.
+
+<a name=secondsSinceTimeZero></a>
+<p><dt><font color="red">secondsSinceTimeZero </font>
+<dd>: () -&gt; Natural
+<p> <font color=#D00090>secondsSinceTimeZero()</font> 
+returns the number of seconds that
+have elapsed since some reference time.
+
+<a name=sysEnviron></a>
+<p><dt><font color="red">sysEnviron </font>
+<dd>: [(String,String)]
+<p> <font color=#D00090>sysEnviron</font> 
+is a list of all of the environment
+variable bindings.  Each binding is a pair (v,b), where v is
+the name of a variable and b is the value of that variable.
+
+<a name=system></a>
+<p><dt><font color="red">system</font> 
+<dd>: String -&gt; String -&gt; String
+<br>: [String] -&gt; String -&gt; String
+<p> <font color=#D00090>(system cmd in)</font> 
+runs system command cmd.  The standard
+input of cmd is string in.  The returned value is the standard
+output produced by cmd.  
+
+<p> cmd can either be a single string or a list of strings.
+The command is not processed by a shell in either case.  If you want
+a shell to process it, use a shell directly.
+<p>Examples:
+<br><font color=#D00090>system ["ls", "-l"]&nbsp; ""</font>
+<br><font color=#D00090>system "ls -l"&nbsp; ""</font>
+
+</dl>
+
+<a name=filenames></a>
+<hr>
+<h2><font color=mediumblue> File names </font></h2>
+
+<dl>
+<a name=slash></a>
+<p><dt><font color="red">/ </font>
+<dd>: (File,String) -&gt; File
+<p> <font color=#D00090>d/s</font> 
+is a File item for file s in directory d.  Here, s must
+be a string, and d must be a File item that describes a directory.
+
+<a name=basename></a>
+<p><dt><font color="red">basename </font>
+<dd>: File -&gt; String
+<p><font color=#D00090>basename(f)</font> 
+is the name of file f, without a directory or an extension.
+For example, 
+<font color=#D00090>basename(file "a/b/fil.txt")</font> = "fil".  
+
+<a name=direct></a>
+<p><dt><font color="red">direct</font>
+<dd>: File -&gt; File
+<p><font color=#D00090>direct(f)</font> is the directory part of file f.
+For example, if f is file "a/b/c.txt", then
+<font color=#D00090>direct(file "a/b/c.txt")</font> = file "a/b".  
+
+<a name=ext></a>
+<p><dt><font color="red">ext </font>
+<dd>: File -&gt; String
+<p> <font color=#D00090>ext(f)</font> 
+is the extension of file f.  It is the part 
+of the file name of f that comes after the
+last period.  For example, 
+the extension of file "fil.txt" is "txt".
+
+<a name=filename></a>
+<p><dt><font color="red">filename </font>
+<dd>: File -&gt; String
+<p> <font color=#D00090>filename(f)</font> 
+is the name of the file described by File item f,
+without the directory. For example,
+<font color=#D00090>filename(file "a/b/c.txt")</font> = "c.txt".
+
+<a name=pathname></a>
+<p><dt><font color="red">pathname </font>
+<dd>: File -&gt; String
+<p> <font color=#D00090>pathname(f)</font> 
+is the full path name of the file described by
+File item f.
+
+</dl>
+
+<a name=fileprop></a>
+<hr>
+<h2><font color=mediumblue> File properties </font></h2>
+
+<dl>
+
+<a name=directoryq></a>
+<p><dt><font color="red">directory? </font>
+<dd>: File -&gt; Boolean
+<p> <font color=#D00090>directory?(f)</font> 
+is true just when f is a directory.  
+
+<a name=executableq></a>
+<p><dt><font color="red">executable? </font>
+<dd>: File -&gt; Boolean
+<p> <font color=#D00090>executable?(f)</font> 
+is true if file f is executable.  Parameter f must
+be of species File.
+
+<a name=group></a>
+<p><dt><font color="red">group </font>
+<dd>: File -&gt; Natural
+<p> <font color=#D00090>group(f)</font> is the group of file f.  
+
+<a name=modTime></a>
+<p><dt><font color="red">modTime </font>
+<dd>: File -&gt; Natural
+<p> <font color=#D00090>modTime(f)</font> 
+is the modification time the file described by
+File item f.
+
+<a name=owner></a>
+<p><dt><font color="red">owner </font>
+<dd>: File -&gt; Natural
+<p> <font color=#D00090>owner(f)</font> 
+is the owner of the file described by File item f.
+
+<a name=readableq></a>
+<p><dt><font color="red">readable? </font>
+<dd>: File -&gt; Boolean
+<p> <font color=#D00090>readable?(f)</font> 
+is true if the file described by file item f is
+readable.
+
+<a name=size></a>
+<p><dt><font color="red">size </font>
+<dd>: File -&gt; Natural
+<p> <font color=#D00090>size(f)</font> 
+is the size, in bytes, of the file described by file
+item f.
+
+<a name=UpdateStatus></a>
+<p><dt><font color="red">UpdateStatus </font>
+<dd>: File -&gt; ()
+<p> When information about a file, such as whether it is a directory,
+or its size, is requested, the system is asked about all status
+information, and that information is memoized.  Later questions
+are answered from the memoized information.  
+<font color=#D00090>UpdateStatus(f) %UpdateStatus </font>
+indicates that the status information of File item f should be
+reread from the system.
+
+<a name=writableq></a>
+<p><dt><font color="red">writable? </font>
+<dd>: File -&gt; Boolean
+<p> <font color=#D00090>writable?(f)</font> 
+is true if the file described by File item
+f is writable.
+
+</dl>
+
+<a name=create></a>
+<hr>
+<h2><font color=mediumblue> Creating and removing files </font></h2>
+
+<dl>
+
+<a name=MakeDirectory></a>
+<p><dt><font color="red">MakeDirectory </font>
+<dd>: String -&gt; ()
+<p> <font color=#D00090>MakeDirectory(s).</font> 
+creates a directory called s in the
+current directory.
+
+<a name=RemoveDirectory></a>
+<p><dt><font color="red">RemoveDirectory</font> 
+<dd>: File -&gt; ()
+<br>: String -&gt; ()
+<p> <font color=#D00090>RemoveDirectory(d).</font> destroys directory d.
+Directory d must be empty.  
+Parameter d either be a string
+or a File item.
+
+<a name=RemoveFile></a>
+<p><dt><font color="red">RemoveFile</font> 
+<dd>: File -&gt; ()
+<br>: String -&gt; ()
+<p> <font color=#D00090>RemoveFile(s).</font> destroys file s.
+Parameter s either be a string
+or a File item.
+
+<a name=RenameFile></a>
+<p><dt><font color="red">RenameFile</font> 
+<dd>: (File, String) -&gt; ()
+<br>: (String, String) -&gt; ()
+<p> <font color=#D00090>RenameFile(s,t).</font> 
+renames file s to have new name t.
+Parameter s can either be a string
+or a File item.
+
+</dl>
+
+<hr>
+<center>
+<a href="iolib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="logiclib.html">Next</a>
+</center>
+</body>
+</HTML>
+
+

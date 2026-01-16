@@ -1,0 +1,264 @@
+<HTML>
+<head>
+<title>Astarte: reading files</title>
+</head>
+<body>
+<center>
+<a href="objectorient.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="multithread.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> Reading Files Using Pattern Matching </font></h1>
+</center>
+
+<menu>
+  <li><a href=#file>Getting the content of a file</a>
+  <li><a href=#match>Pattern matching in strings</a>
+  <li><a href=#extract>Performing extracts in pattern matches</a>
+  <li><a href=#general>More general pattern matches</a>
+  <li><a href=#example>Example</a>
+</menu>
+
+<hr>
+This page assumes that you know the basics of Astarte.  It uses
+<a href="patternmatch.html">pattern matching</a> and 
+contains an example that uses a <a href="loop.html">loop</a>.
+You should understand <a href=listlib.html>lists</a> and
+<a href=stringlib.html>strings</a>.
+
+<a name=file></a>
+<hr>
+<h2><font color=mediumblue> Getting the content of a file </font></h2>
+
+To read a file, you get the content of the file, as a string.
+Function infile does that.  
+<font color=red>infile(<i>fname</i>)</font> is the content of the
+file whose name is <i>fname</i>.  
+<i>fname</i> is a string that gives a path to the file,
+either from the current directory or in absolute form.  You can use
+either / or \ to separate directories.
+
+<p> Function infile is lazy.  It does not read anything from the file
+until something is needed.  If you look at a few characters, a block of
+characters will be read, not necessarily the entire file.  
+
+<p> Function infile is also forgetful.  The garbage collector will
+occasionally remove anything that it has read.  If you need the same data
+again, the file will be reread.  (The garbage collector must run a few
+times without the data being used before this will happen.)  If you have
+a file that is expected to change while your program runs, this kind
+of thing will not work.  For a file that might change, you must tell
+infile that the file is volatile.  
+Use expression infile [volatileMode] fname
+to get the content of such a file.
+
+<a name=match></a>
+<hr>
+<h2><font color=mediumblue> Pattern matching in strings </font></h2>
+
+You will need to import package collect/string.ast to use the features
+described here.
+
+<p>Typically, you want to extract parts of the string that you get from a file.  One way to do that is with pattern matching.  First, put the 
+string into a box.  For example, to prepare to read from file &quot;myfile&quot;,
+write
+<font color=#D00090>
+<b><pre>
+      Var in! := infile(&quot;myfile&quot;).
+</pre></b>
+</font>
+(The exclamation point is just part of the name, in!, of this box.
+By convention, names of boxes end on an exclamation point.)  Now write
+<font color=#D00090>
+<b><pre>
+      Extract[p1,p2,...,pn] from in!.
+</pre></b>
+</font>
+to match patterns p1, p2, ..., pn successively against parts of the
+string that you have put into box in!.  The prefix of that string that
+matched those patterns is removed from the string in box in!, so that
+subsequent matches will match what is left.
+
+<p> Typically, you use $ in patterns to do the match. For example, to
+read two natural numbers from the front of the file, you might write
+<font color=#D00090>
+<b><pre>
+      Assume n,m: Natural.
+      Extract[$(?n), $(?m)] from in!.
+</pre></b>
+</font>
+If you had put string &quot; 23 456 999 222&quot; in box in!, then this would bind
+<i>n</i> to 23 and <i>m</i> to 456, and would change box in! to hold 
+&quot; 999 222&quot;.  Notice that this is similar to how you would write n and m,
+using Writeln.  The only difference is the space between the values.
+For example, you might write
+<font color=#D00090>
+<b><pre>
+      Writeln[$(n), &quot; &quot;, $(m)].
+</pre></b>
+</font>
+
+<p>If it is clear from context what kind of thing you are trying to read,
+then there is no need for the assumes.  But to be sure that you get the
+right kind of thing, you might want to state what you want.  For example,
+to read a list of integers, and call it <i>x</i>, you would write
+<font color=#D00090>
+<b><pre>
+      Assume x: [Integer].
+      Extract[$(?x)] from in!.
+</pre></b>
+</font>
+If you try to read a string using a $ pattern, 
+the pattern matcher will look for a string
+with double-quote marks around it.  
+This is consistent with the fact that, if <i>s</i> is a string, 
+$(<i>s</i>) puts quotes
+around <i>s</i>.  If you want to read a string
+delimited by white-space, use pattern theString instead of $.  For example,
+<font color=#D00090>
+<b><pre>
+      Assume s: String.
+      Extract[theString(?s)] from in!.
+</pre></b>
+</font>
+first skips any leading white space, then consumes a string up to the
+next white space character, or to the end of what is available.
+
+<p>There are many more patterns that you can use.  For example, to get a
+line, use pattern theLine(?s).  To get <i>n</i> characters, use pattern
+theN <i>n</i> ?s.  So to read 5 characters, you might write
+<font color=#D00090>
+<b><pre>
+      Assume s: String.
+      Extract[theN 5 (?s)] from in!.
+</pre></b>
+</font>
+You can use extract inside match expressions.  Writing
+<font color=#D00090>
+<b><pre>
+      Match extract[theN 5 (?s)] = in!.
+</pre></b>
+</font>
+is equivalent to writing
+<font color=#D00090>
+<b><pre>
+      Extract[theN 5 (?s)] from in!.
+</pre></b>
+</font>
+
+More patterns are described in
+<menu>
+  <li><a href="listpattern.html">Pattern matching in lists</a> 
+  (for matching on general lists),
+  <li><a href="read.html">Reading from strings</a>
+  (for matching in strings, which are lists of characters).
+</menu>
+
+<a name=extract></a>
+<hr>
+<h2><font color=mediumblue> Performing extracts in pattern matches </font></h2>
+
+Sometimes you want to do an extract in a context where you are only
+required to write a pattern.  To do that, just write extract, in lower
+case.  Pattern match
+<font color=#D00090>
+<b><pre>
+      Match extract[<i>p</i>] = t.
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+      Extract[<i>p</i>] from t.
+</pre></b>
+</font>
+
+<a name=general></a>
+<hr>
+<h2><font color=mediumblue> More general pattern matches </font></h2>
+
+You can use ++ in patterns to break apart a string (or other list).
+For example,
+<font color=#D00090>
+<b><pre>
+      Match ?a ++ [3,4] ++ ?b = [1,2,3,4,5,6,7].
+</pre></b>
+</font>
+solves equation
+<blockquote>
+   a ++ [3,4] ++ b = [1,2,3,4,5,6,7]
+</blockquote>
+binding a = [1,2] and b = [5,6,7].  In general, all possible solutions
+are returned, using a <a href=streams.html>stream</a>.
+
+<a name=example></a>
+<hr>
+<h2><font color=mediumblue> Example </font></h2>
+
+Here is function that takes a file name <i>fname</i> and a string <i>s</i>, 
+and prints each line of file <i>fname</i> that contains 
+string <i>s</i> as a substring.
+<font color=#D00090>
+<b><pre>
+      Let PrintLines ?fname, ?s. =
+        Var f! := infile fname.
+
+        Loop first matching f!
+
+          %%-------------------------------------
+          %% Try to extract a line from the file.
+          %%-------------------------------------
+
+          loopcase extract[theLine(?thisLine)] =&gt;
+
+            %%-------------------------------------------------------
+	    %% If we got a line, then check whether s is a substring.
+	    %% If it is, then print the line.
+            %%-------------------------------------------------------
+
+	    Try
+              Match ? ++ s ++ ? = thisLine.
+            then
+              Writeln[thisLine].
+            %Try
+ 
+            continue
+
+          exitcase else =&gt; ()
+        %Loop
+      %Let
+</pre></b>
+</font>
+Now you might add an execute to a package with this function, to make
+the package an application.  Suppose, for simplicity, that you add
+<font color=#D00090>
+<b><pre>
+      Execute
+        PrintLines commandLine#3, commandLine#2.
+      %Execute
+</pre></b>
+</font>
+and that you put the entire thing into a file called grep.ast.  Then
+running 
+<b><pre>
+      astr grep case grep.ast
+</pre></b>
+prints the following.
+<b><pre>
+          loopcase extract[theLine(?line_l)] =&gt;
+          exitcase else =&gt; ()
+</pre></b>
+
+<hr>
+<center>
+<a href="objectorient.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="multithread.html">Next</a>
+</center>
+</body>
+</HTML>

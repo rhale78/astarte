@@ -1,0 +1,159 @@
+<HTML>
+<head>
+<title>Astarte: sequencing</title>
+</head>
+<body>
+<center>
+<a href="constants.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="applyexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E4. Sequencing and () </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#statement>Statements</a>
+  <li> <a href=#main> Performing actions in sequence</a>
+  <li> <a href=#bar> The bar operator</a>
+  <li> <a href=#ignore> Ignoring the value of an expression</a>
+  <li> <a href=#sequenceeval> Sequencing and lazy evaluation</a>
+</menu>
+
+<a name=statement></a>
+<hr>
+<h2><font color=mediumblue>Statements</font></h2>
+
+The unit species () has only one member, also called ().
+Value () is thought of as a void value, indicating no interesting result.
+A <i><font color=blue>statement</font></i> is a special case of an expression
+whose type is ().
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Performing actions in sequence</font></h2>
+
+<p>If <i>S</i> is a statement and <i>e</i> is an expression,
+then expression <i>S e</i> indicates sequencing.  First,
+statement <i>S</i> is evaluated, and then <i>e</i> is
+evaluated.  The value of <i>S e</i> is the value of <i>e</i>.
+
+<p><font color=BLACK>For example</font>, 
+statement <font color=#D00090>Let x = 1 %Let</font>
+makes x another name for the constant 1.  Expression
+<font color=#D00090>
+<b><pre>
+      Let x = 1.
+      (x + x)
+</pre></b>
+</font>
+has value 2.
+
+<p>You can sequence together many statements.  
+<font color=BLACK>For example</font>, expression
+<font color=#D00090>
+<b><pre>
+      Let x = 2.
+      Let y = x + x.
+      (y*y)
+</pre></b>
+</font>
+has value 16.  
+<a name=Value></a>
+Typically, when sequencing is used to give an expression
+whose type is not (), you use Value to indicate the final expression.
+Expression
+<font color=#D00090>
+<b><pre>
+      Let x = 2.
+      Let y = x + x.
+      Value y*y.
+</pre></b>
+</font>
+is exactly the same as the above expression.
+
+<a name=null></a>
+<p>You can use () by itself as a null statement.  It performs no action.
+<font color=BLACK>For example</font>,
+<font color=#D00090>
+<b><pre>
+      If x == 0 then
+        Assign y := 0.
+      %If
+</pre></b>
+</font>
+is defined to be the same as
+<font color=#D00090>
+<b><pre>
+      If x == 0 then
+        Assign y := 0.
+      else 
+        ()
+      %If
+</pre></b>
+</font>
+
+<a name=bar></a>
+<hr>
+<h2><font color=mediumblue> The bar operator </font></h2>
+
+Expression a | b has the same meaning as b a.  This allows you
+to write a definition after it is used.  
+<font color=BLACK>For example</font>, you can write
+a function that doubles its parameter as follows.
+<font color=#D00090>
+<b><pre>
+     Define double(?x) = y |
+       Let y = 2*x.
+     %Define
+</pre></b>
+</font>
+This has the same meaning as
+<font color=#D00090>
+<b><pre>
+     Define double(?x) =
+       Let y = 2*x.
+       y
+     %Define
+</pre></b>
+</font>
+
+<a name=ignore></a>
+<hr>
+<h2><font color=mediumblue> Ignoring the value of an expression </font></h2>
+
+Occasionally you want to compute the value of an expression only for
+the side effects that are obtained.  Procedure Ignore can be used to
+do that.  Statement
+<font color=#D00090>
+<b><pre>
+     Ignore <font color=black><i>e</i></font>.
+</pre></b>
+</font>
+computes <i>e</i> and has value (), regardless of the value of <i>e</i>.
+
+<a name=sequenceeval></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Sequencing and lazy evaluation </font></h2>
+
+It is possible to create a value of species () that is not 
+fully evaluated.  If such a value is used in sequencing, it is not 
+evaluated at all.  See
+<a href="lazyexpr.html#sequence">sequencing and lazy evaluation</a>.
+</font>
+<hr>
+<center>
+<a href="constants.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="applyexpr.html">Next</a>
+</center>
+</body>
+</HTML>
+

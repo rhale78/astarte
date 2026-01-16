@@ -1,0 +1,254 @@
+<HTML>
+<head>
+<title>Astarte: modular numbers</title>
+</head>
+<body>
+<center>
+<a href="number.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="numconv.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LN2. Modular Numbers </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main>Modular numbers</a>
+  <li> <a href=#arithmetic>Basic arithmetic operations</a>
+  <li> <a href=#tostring>Conversion to string</a>
+  <li> <a href=#unknownModuli>Unknown moduli</a>
+  <li> <a href=#misc>Miscellaneous operations</a>
+  <li> <a href=#exception>Exceptions</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Modular numbers</font></h2>
+
+Species Modular contains pairs (n,m), where n is an
+integer and m is a modulus.  The pair (n,m) is written
+<font color=#D00090>(n _modulo_ m)</font>.  Operations between values
+with the same modulus m are allowed, and they perform their
+arithmetic modulo m.  If the moduli are different, then
+the operation fails with exception modulusX.
+
+<p>Operations on modular numbers are as follows.
+You must import <a href="ast/math/modular.ast">math/modular.ast</a>
+to use species Modular.  
+Some details that are not mentioned here
+can be found there.
+
+<a name="arithmetic"></a>
+<hr>
+<h2><font color=mediumblue> Basic arithmetic operations </font></h2>
+<dl>
+<p><dt><font color="red"> + </font>
+<dd>: (Modular, Modular) -&gt; Modular
+<p> <font color=#D00090>x + y</font> is the sum of x and y.
+<p>Example:
+ <font color="#D00090">(3 _modulo_ 5) + (4 _modulo_ 5)</font>
+= 2 _modulo_ 5
+
+<a name=minus></a>
+<p><dt><font color="red"> - (binary) </font>
+<dd>: (Modular, Modular) -&gt; Modular
+<p> <font color=#D00090>x - y</font> is the difference of x and y.
+<p>Example:
+ <font color="#D00090">(3 _modulo_ 5) - (4 _modulo_ 5)</font>
+= 4 _modulo_ 5
+
+<p><dt><font color="red"> - (unary)</font>
+<dd>: Modular -&gt; Modular
+<p> <font color=#D00090>-x</font> is the negation of x.
+<p>Example:
+ <font color="#D00090">-(3 _modulo_ 5)</font> = 2 _modulo_ 5
+
+<a name=star></a>
+<p><dt><font color="red"> * </font>
+<dd>: (Modular, Modular) -&gt; Modular
+<p> <font color=#D00090>x * y</font> is the product of x and y.
+<p>Example:
+ <font color="#D00090">(3 _modulo_ 5) * (4 _modulo_ 5)</font>
+= 2 _modulo_ 5
+
+<a name=slash></a>
+<p><dt><font color="red"> / (unary)</font>
+<dd>: Modular -&gt; Modular
+<p> <font color=#D00090>/x</font> 
+is the reciprocal of x.  If x = (a _modulo_ m), then
+the reciprocal of x is a number
+y such that x*y = 1 _modulo_ m.  The reciprocal only exists when
+gcd(a,m) = 1.  When the reciprocal does not exist, the
+reciprocal operations fails.  The exception is
+domainX("divide by zero") when taking the reciprocal of 0, and is
+domainX("no inverse") otherwise.
+<p>Example:
+ <font color="#D00090">/(2 _modulo_ 5)</font> = 3 _modulo_ 5
+
+<p><dt><font color="red"> / (binary)</font>
+<dd>: (Modular, Modular) -&gt; Modular
+<p> <font color=#D00090>x / y</font> 
+is the quotient of x and y.  That is, it is x times the
+reciprocal of y.  See the previous entry.
+
+<a name=hat></a>
+<p><dt><font color="red"> ^ </font>
+<dd>: (Modular, Natural) -&gt; Modular
+<p> <font color=#D00090>x ^ n</font> 
+is x to the power n.  Here, n must be a natural number.
+<p>Example:
+ <font color="#D00090">(3 _modulo_ 5)^2</font> = 4 _modulo_ 5
+
+<a name=hatslash></a>
+<p><dt><font color="red"> ^/ </font>
+<dd>: (Modular, Integer) -&gt; Modular
+<p> <font color=#D00090>x ^/ y</font> 
+is x to the power y.  Here, y must be an integer.
+x^/(-y) is the reciprocal of x^/y.
+<p>Example:
+ <font color="#D00090">(3 _modulo_ 5)^/(-2)</font> = 4 _modulo_ 5
+
+</dl>
+
+<a name="tostring"></a>
+<hr>
+<h2><font color=mediumblue> Conversion to string </font></h2>
+<dl>
+<p><dt><font color="red"> $ </font>
+<dd>: Modular -&gt; String
+<p> <font color=#D00090>$(x)</font> 
+is a string that is a decimal representation of x.
+<p>Example:
+ <font color="#D00090">$(4 _modulo_ 5)</font> = "(4 mod 5)"
+
+<p><dt><font color="red"> $' </font>
+<dd>: Modular -&gt; String
+<p> <font color=#D00090>$'(x)</font> 
+is the same as $(x), but the numbers have commas
+every three digits from the right.
+
+<a name=dollardollar></a>
+<p><dt><font color="red"> $$ </font>
+<dd>: (Modular, Natural) -&gt; String
+<p> <font color=#D00090>x $$ n</font> 
+is a string that is a decimal representation of x, using
+at least n total characters.
+<p>Example:
+ <font color="#D00090">(4 _modulo_ 5) $$ 11</font>
+= "&nbsp;&nbsp;(4 mod 5)"
+
+<p><dt><font color="red"> $$' </font>
+<dd>: (Modular, Natural) -&gt; String
+<p> <font color=#D00090>x $$' n</font> 
+is the same as x $$ n, but the numbers have commas
+every three digits from the right.
+
+</dl>
+
+<a name=unknownModuli></a>
+<hr>
+<h2><font color=mediumblue> Unknown moduli </font></h2>
+
+It is allowed to create a modular number with modulus 0.  This
+indicates an unknown modulus.  When you perform an operation on
+a value with an unknown modulus and a value with a known modulus,
+the known modulus is taken.  For example, 
+<font color=#D00090>(2 _modulo_ 0) + (3 _modulo_ 7)</font> = (5 _modulo_ 7)
+
+<p>You can only use an unknown modulus in situations where it is 
+either possible to perform operations without knowing the modulus or
+where it is possible for the modulus to be determined.  
+For example,
+you can add two values with unknown modulus 
+(<font color=#D00090>(2 _modulo_ 0) (3 _modulo_ 0)</font> = (5 _modulo_ 0))
+but you cannot divide them, since division requires knowing
+the modulus.  Operations that cannot be performed due to an unknown
+modulus fail with exception modulusX.
+
+<p>The remainder is stored as a natural number.  Consequently, it
+is not allowed to have a negative number with an unknown modulus.
+
+<a name="misc"></a>
+<hr>
+<h2><font color=mediumblue> Miscelleneous operations </font></h2>
+<dl>
+
+<a name=as></a>
+<p><dt><font color="red"> _as_ </font>
+<dd>: (INTEGER`a, Modular) -&gt; Modular
+<p> <font color=#D00090>(n _as_ x)</font> = (n _modulo_ (modulus x)).
+
+<a name=modulo></a>
+<p><dt><font color="red"> _modulo_ </font>
+<dd>: (INTEGER`a, Natural) -&gt; Modular
+<p> <font color=#D00090>n _modulo_ m</font> 
+is number n with modulus m.  The modulus m can be
+0, indicating an unknown modulus, provided n is not negative.
+
+<a name=modulus></a>
+<p><dt><font color="red"> modulus </font>
+<dd>: Modular -&gt; Natural
+<p> <font color=#D00090>modulus(x)</font> is the modulus of x.
+<p>Example:
+ <font color="#D00090">modulus(3 _modulo_ 5)</font> = 5
+
+<a name=remainder></a>
+<p><dt><font color="red"> remainder </font>
+<dd>: Modular -&gt; Natural
+<p> <font color=#D00090>remainder(x)</font> 
+is the numeric part of x, with the
+modulus removed.  It is always a natural number
+that is less than the modulus of x.
+<p>Example:
+ 
+<br><font color="D00090">remainder(3 _modulo_ 5)</font> = 3
+<br><font color="D00090">remainder(-1 _modulo_ 5)</font> = 4
+
+<a name=unit></a>
+<p><dt><font color=red>unit</font> 
+<dd>: Modular
+<p> <font color=#D00090>unit</font> = (1 _modulo_ 0).
+
+<a name=zero></a>
+<p><dt><font color=red>zero</font> 
+<dd>: Modular
+<p> <font color=#D00090>zero</font> = (0 _modulo_ 0).
+
+<a name=zeroq></a>
+<p><dt><font color="red"> zero? </font>
+<dd>: Modular -&gt; Boolean
+<p> <font color=#D00090>zero?(x)</font> is true if (the remainder of) x is 0.
+<p>Example:
+<font color="D00090">zero?(12 _modulo_ 4)</font> = true
+
+</dl>
+
+<a name=exception></a>
+<hr>
+<h2><font color=mediumblue>Exceptions </font></h2>
+
+<dl>
+<p><dt><font color=red>modulusX</font>
+<dd> Binary operations such as addition require values with the
+same modulus.  When the moduli differ, these operations fail with
+exception <font color=#D00090>modulusX</font>.
+</dl>
+
+<hr>
+<center>
+<a href="number.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="numconv.html">Next</a>
+</center>
+</body>
+</HTML>

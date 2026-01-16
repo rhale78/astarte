@@ -1,0 +1,16 @@
+Package teststream3 
+
+%% Test streams
+
+Execute
+  Writeln["Should print mixed 5,6,7 on separate lines.\n"].
+  Try
+    Let x = Mix 5 with 6 with 7..
+    Write[$x, "\n"].
+    {false}
+  %Try
+%Execute
+
+%Package
+
+ 

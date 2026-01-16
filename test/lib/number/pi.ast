@@ -1,0 +1,31 @@
+Package pi 
+
+%% Compute pi
+
+Import "math/math".
+Import "collect/string".
+Import "system/system".
+
+Execute
+  Let prec = 20000.
+  Assign precision! := prec.
+  Writeln[dateTime(), " Beginning pi calculation, precision ", $prec].
+  Let p = pi().
+
+  Writeln[dateTime(), " Beginning conversion to decimal and print"].
+  Writeln["pi = "].
+  Writeln[wrapLines 70 (p $$ (prec+4,prec))].
+  Writeln[].
+
+  Writeln[dateTime(), " Beginning sin calculation"].
+  Let t = sin(p/4)^2.
+
+  Writeln[dateTime(), " Printing sin result"].
+  Writeln["sin(pi/4)^2 = "].
+  Writeln[wrapLines 70 (t $$ (prec+4, prec))].
+  Writeln[dateTime(), " Done"].
+%Execute
+
+%Package
+
+  

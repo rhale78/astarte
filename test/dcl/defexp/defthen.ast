@@ -1,0 +1,19 @@
+Package defthen
+
+%% Test then phrases with definition by cases.
+
+Let f(?a,?b) by
+  case f(0,0) = 0
+  case f(0,1) = 2
+  case f(?x,?y) = x + y
+  then ?res => Writeln["f(", $a, ",", $b, ") returns ", $res].
+%Let
+
+Execute
+  Let a = f(0,0).
+  Let b = f(0,1).
+  Let c = f(2,3).
+  Writeln["Got a = ", $a, " b = ", $b, " c = ", $c].
+%Execute
+
+%Package

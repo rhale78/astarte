@@ -1,0 +1,50 @@
+Package chooseperhaps 
+
+%% Test Choose first, in open and closed forms
+
+Import "misc/check".
+
+%% Test Choose first expressions
+
+Execute
+  Choose perhaps
+    case false => Line["bad"].
+    do Let g = "good".
+    case 0 == 0 => Line[g].
+  %Choose
+  Check["good"].
+
+  Choose perhaps
+    case false => Writeln["bad"].
+  %Choose
+%Execute
+
+Execute
+  Choose perhaps
+    case 0 == 0 =>
+	Subcases
+	  case 1 == 2 => Line["bad"].
+	  case 1 == 1 => Line["good"].
+	%Subcases
+    case 0 == 0 => Line["bad"].
+  %Choose
+  Check["good"].
+%Execute
+
+%% Test open Choose perhaps expressions
+
+Execute
+  open Choose perhaps
+    case false    => Let a = 1.
+    case true => 
+      Subcases
+        case true => Let a = 2.
+	else      => Let a = 5.
+      %Subcases
+    else => Let a = 4.
+  %Choose
+  If a =/= 2 then Writeln["bad"]. %if
+%Execute
+
+%Package
+

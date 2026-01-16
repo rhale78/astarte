@@ -1,0 +1,152 @@
+%% File: denseset.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%================================================================
+Package 		Astarte_DenseSet 
+
+			Interface
+================================================================
+
+================================================================
+%% This package implements sets as bit vectors.  Such sets
+%% can only hold small natural numbers, or members of other ranked
+%% species, such as enumerated species.
+%%
+%%  DenseSet(T)  is a species of sets whose members have species T,
+%%               where T is a primary member of RANKED.
+%%
+================================================================
+
+Import "collect/set".
+
+================================================================
+%% We suppress expectations from anticipations, since dense sets
+%% are much more severely constrained than general sets.
+================================================================
+
+Extension
+  Expect{transparent} species DenseSet(RANKED`*a)
+    %" DenseSet(T) is a species of sets whose members have
+    %" species T and that is represented as a bit vector.
+    %" T must be in RANKED.
+  %Expect
+  
+  Relate{noExpect} DenseSet isKindOf SET.
+%Extension
+
+================================================================
+%% Since dense sets are restricted to ranked species, hide the
+%% default constructor.
+================================================================
+
+Missing{hide} set, fromList: [`a] -> DenseSet(`a).
+
+================================================================
+
+Abbrev 
+
+  {noExport}:
+  
+  A   = RANKED`*a;
+  B   = RANKED`*b;
+  SetA = DenseSet(A);
+  
+  {}:
+  
+  Set = DenseSet;
+%Abbrev
+
+================================================================
+
+Expect
+
+  {imported}:   %% From set.ast
+  
+  set, fromList : [A]			-> SetA;
+  
+  {imported}:	%% From collect.ast
+  
+  size          : SetA 			-> Natural;
+  sizeAtLeast	: Natural -> SetA	-> Boolean;
+  
+  {}:
+  
+  denseSet	: [A]			-> SetA;
+  emptySet	: SetA;
+  emptySet?	: SetA			-> Boolean;
+  toList,
+    eagerToList	: SetA			-> [A];
+  +/, -/      	: (SetA, A)		-> SetA;
+  extractMin,
+    extractMax	: SetA      		-> (A, SetA);
+
+  {override}:
+
+  _in_		: (A, SetA)		-> Boolean;
+  _subset?_   	: (SetA, SetA)		-> Boolean;
+  \/, /\, -    	: (SetA, SetA)          -> SetA;
+  _unionWithList_,
+    _intersectWithList_,
+    _minusList_  : (SetA, [A])	-> SetA;
+
+  {underride}:
+  
+  ^^		: DenseSet(RANKED`a) -> DenseSet(RANKED`b)
+  		   constraint (RANKED`b >= RANKED`a);
+		   
+  downcast	: DenseSet(RANKED`a) -> DenseSet(RANKED`b)
+  		   constraint (RANKED`b <= RANKED`a);
+%Expect
+
+================================================================
+%% The following missing declarations
+%% take into account the fact that dense sets are
+%% only defined over RANKED species.
+================================================================
+
+Abbrev {noExport}: 
+  A = `a;
+  E = EQ`b;
+  SetA = DenseSet(A);
+  SetE = DenseSet(E);
+%Abbrev
+============
+Missing 
+  %% Anticipations from collect.ast
+
+  {imported}:
+
+  emptyCollection   : SetA;
+  emptyCollection?  : SetA 	   	-> Boolean;
+  set,fromList 	    : [A] 	   	-> SetA;
+  toList,
+    eagerToList	    : SetA	   	-> [A];
+  size     	    : SetA	   	-> Natural;
+  sizeAtLeast	    : Natural -> SetA 	-> Boolean;
+  _in_	   	    : (E, SetE)	   	-> Boolean;
+
+  %% Anticipations from set.ast
+
+  {imported}:
+
+  emptySet	: SetE;
+  emptySet?	: SetE			-> Boolean;
+  +/, -/      	: (SetE, E)		-> SetE;
+  _subset?_	: (SetE, SetE)		-> Boolean;
+  extractMin,
+   extractMax	: SetE      		-> (E, SetE);
+  \/, /\, -    	: (SetE, SetE)          -> SetE;
+  _unionWithList_,
+    _intersectWithList_,
+    _minusList_	: (SetE, [E])		-> SetE;
+  $	        : SetE			-> String;
+  ==            : (SetE,SetE)		-> Boolean;
+
+%Missing
+
+========================================================
+
+%Package

@@ -1,0 +1,15 @@
+Package naiveReverse 
+
+%% Try naive reverse on a list
+
+Define rev by first
+  case rev[] = []
+  case rev[?h & ?t] = rev t ++ [h]
+%Define
+
+Execute
+  Let a = rev(1 _upto_ 5000).
+  Writeln[$a].
+%Execute
+
+%Package

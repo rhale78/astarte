@@ -1,0 +1,115 @@
+Package length
+
+%% Test length of various kinds of lists.
+
+Import "misc/check".
+
+%% Length: STRING_TAG, CSTR_TAG.
+
+Execute
+  Writeln["STRING_TAG, CSTR_TAG"].
+  Let a = "a test string".
+  Let b = head(a).
+  Let c = tail(a).
+  Line[a, " ", [b], " ", c].
+  Check["a test string a  test string"].
+  
+  Let la = length(a).
+  Line[$la].
+  Check["13"].
+  
+  Let lc = length(c).
+  Line[$lc].
+  Check["12"].
+%Execute
+
+%% Length: APPEND_TAG
+
+Execute
+  Writeln["APPEND_TAG"].
+  Let a = "abcde" ++ "fghij".
+  Let l = length a.
+  Line[$l].
+  Check["10"].
+%Execute
+
+%% Length: ARRAY_TAG/STRING_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/STRING_TAG"].
+  Let a = "abcdefghij".
+  Let b = tail a.
+  Let c = tail b.
+  Let l = length c.
+  Line[$l].
+  Check["8"].
+%Execute
+
+%% Length: ARRAY_TAG/PLACE_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG"].
+  Let a = array shared 10: [<:():>].
+  Let l = length a.
+  Line[$l].
+  Check["10"].
+%Execute
+
+%% Length: ARRAY_TAG/BOX_TAG
+
+Execute
+  Writeln["ARRAY_TAG/BOX_TAG"].
+  Let a = array nonshared 10:[<:():>].
+  Let l = length a.
+  Line[$l].
+  Check["10"].
+%Execute
+
+%% Length: ARRAY_TAG/INDIRECT_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG"].
+  Let a = forceAll(pack[1000,2000,3000,4000,5000,6000,7000,8000,9000]).
+  Let l = length a.
+  Line[$l].
+  Check["9"].
+%Execute
+
+%% Length: ARRAY_TAG/STRING_TAG with follower
+
+Execute
+  Writeln["ARRAY_TAG/STRING_TAG (follower)"].
+  Let a = "abcdefghi" ++ "jklmn".
+  Let b = tail a.
+  Let c = tail b.
+  Let l = length c.
+  Line[$l].
+  Check["12"].
+%Execute
+
+%% Length: ARRAY_TAG/PLACE_TAG with follower
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG (follower)"].
+  Let a = array shared 10 ++ array shared 10:[<:():>].
+  Let b = tail a.
+  Let l = length b.
+  Line[$l].
+  Check["19"].
+%Execute
+
+%% Length: ARRAY_TAG/INDIRECT_TAG with follower
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG (follower)"].
+  Let a = forceAll(pack[1000,2000,3000,4000,5000,6000,7000,8000,9000])
+  	  ++ [10000,11000]
+  %Let
+  Let b = tail a.
+  Let l = length b.
+  Line[$l].
+  Check["10"].
+%Execute
+
+
+%Package

@@ -1,0 +1,30 @@
+Package context2
+
+%% Test procedures and operators in contexts
+
+Import "misc/check".
+
+Let P ?x,?y. = 
+  Writeln[$x, " ", $y].
+%Let
+
+Let Q ?x, (). = 
+  Writeln[$x].
+%Let
+
+Let (+) ?x (?y,?z) = x + (y * z).
+
+Context C 
+  case bring P,Q,+
+%Context
+
+Execute
+  Context C 5 =>
+    Let x = 3 my+ 6.
+    My P x.
+    My Q.
+    My P x %My P
+  %Context
+%Execute
+
+%Package

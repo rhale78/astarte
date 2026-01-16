@@ -1,0 +1,988 @@
+%% File: findlist.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		findlistImp
+
+			Implements "findlist"
+=============================================================
+
+%% This file implements two closely related algorithms,
+%% the Knuth/Morris/Pratt pattern matching algorithm and
+%% the Aho/Corasick pattern matching algorithm.  Function
+%% findSublist implements the Knuth/Morris/Pratt algorithm.
+
+Import "collect/search".
+
+====================================================================
+%% 			findSublist				  %%
+====================================================================
+
+%% findSublist behaves as if implemented as follows.  The
+%% actual implementation is more efficient than this.
+%%
+%% Define findSublist by first
+%%   case findSublist ? []      = (0, [])
+%%
+%%   case findSublist ?pat ?txt = (0, txt) when pat prefix? txt
+%%
+%%   case findSublist ?pat ?txt = (n+1, mat) |
+%%       Match (n, ?mat) = findSublist pat (tail txt).
+%% %Define
+
+Let findSublist ?pat_p ?txt_p =
+
+  %%------------------------------------------------------------
+  %% The algorithm is the Knuth-Morris-Pratt algorithm.  It
+  %% was originally described as a string matching algorithm,
+  %% and we will describe it that way here, but it is not
+  %% really specific to strings, and can be used for a variety
+  %% of kinds of lists.
+  %%------------------------------------------------------------
+
+  %%------------------------------------------------------------
+  %% We will do subscripting into pat_p, so pack it.
+  %%------------------------------------------------------------
+
+  Relet pat_p = pack pat_p.
+
+  %%------------------------------------------------------------
+  %% Compute the failure function f.  Suppose that we have
+  %% matched the first i characters of pat at a given position in
+  %% txt, and the next character of txt does not match the (i+1)st
+  %% pattern character.  Then we need to slide the pattern ahead
+  %% to a position where a prefix of the pattern matches a suffix
+  %% of pat##(0,i). f(i) is the length of that prefix of the
+  %% pattern.  For example, suppose pat is "abcabd" and txt is
+  %% "abcabcabcabd".  We are trying the pattern as follows.
+  %%
+  %%     abcabc|abcabd
+  %%     abcabd
+  %%
+  %% (The | indicates how much of the text has been examined so far.)
+  %% The first 5 characters match, but then there is a mismatch.
+  %% So we must push the pattern ahead.  The next possible match,
+  %% based on the characters of txt that have been examined so
+  %% far, is at the following position.
+  %%
+  %%     abcabc|abcabd
+  %%        abc abd
+  %%
+  %% So f(5) = 3, and we continue matching at the fourth pattern
+  %% character.
+  %%
+  %% Here is the computation of the failure function.
+  %% It relies on the observation that, in order for the first k
+  %% characters to match, the first k-1 must also match.  For
+  %% example, suppose that the pattern begins "abcabc...", and
+  %% we are computing f(6).  That is, we are finding a prefix of
+  %% "abcabc" that matches a suffix of the same string.  Then we
+  %% must first have a prefix of "abcab" that matches a suffix of
+  %% "abcab", and see if we can extend it by one more character.
+  %% So to compute f(6), we compute f(5) = 2, since the first match
+  %% of "abcab" against "abcab" is as follows.
+  %%
+  %%    abcab
+  %%       abcab
+  %%
+  %% where two characters have matched.  Now we ask whether this match
+  %% can be extended by one, to
+  %%
+  %%    abcabc
+  %%       abcabc
+  %%
+  %% In this case, it can, so we set f(6) = f(5) + 1.  If the pattern
+  %% were instead "abcabd...", then this match could not be extended,
+  %% so we would continue, now asking for the first place where
+  %% "ab" matches a suffix of itself.  (We look at the part that
+  %% matched before.  In this case, only two characters of "abcab"
+  %% matched a suffix of "abcab".)  We continue until either we can
+  %% extend a smaller match or until no characters are matched.
+  %%------------------------------------------------------------
+
+  Let n = length(pat_p).
+  Var fv(n).			%% The failure array.
+  Assign fv#_0 := 0.
+  Assign fv#_1 := 0.
+  For ?i from 2 _upto_ n--1 do
+    Let thischar_l = pat_p#_(i--1).
+    Assign fv#_i :=
+      Loop ?z = @(fv#_(i--1)) first
+	exitcase pat_p#_z == thischar_l => z+1
+	exitcase zero? z               => 0
+	loopcase else                  => continue (@(fv#_z))
+      %Loop
+    %Assign
+  %For
+
+  %%------------------------------------------------------------
+  %% Now begin searching txt.  At a given iteration, we have
+  %% some suffix t of txt that is the possible answer.  (So
+  %% we are considering the possibility that pat is a prefix of t.)
+  %% We have skipped 'skip' characters of text to reach t.
+  %% We have already checked s characters of t, and found them
+  %% to match the first s characters of pat.  r is the suffix
+  %% of t after the first s characters.  So the next character
+  %% to check is the head of r.
+  %%------------------------------------------------------------
+
+  Loop (?s,?t,?r,?skip_l) = (0, txt_p, txt_p, 0) first
+
+    %%------------------------------------------------------------
+    %% When s == n, we have matched the entire pattern.
+    %% Return t.
+    %%------------------------------------------------------------
+
+    exitcase s == n => (skip_l, t)
+
+    %%------------------------------------------------------------
+    %% When r is nil, there is no match.
+    %%------------------------------------------------------------
+
+    exitcase nil? r => (skip_l + length t, nil)
+
+    %%------------------------------------------------------------
+    %% When head(r) matches pat#_s, we have matched one more
+    %% member.  Move r and s ahead, but leave t the same.
+    %%------------------------------------------------------------
+
+    loopcase head(r) == pat_p#_s =>
+      continue (s+1, t, tail r, skip_l)
+
+    %%------------------------------------------------------------
+    %% When s is 0, we are looking for a position to start
+    %% the search.  It is efficient here to call a function
+    %% that scans ahead to the first position where a match
+    %% might conceivable begin.
+    %%------------------------------------------------------------
+
+    loopcase zero? s =>
+      Match (?skiplen_l, ?z) = maybeFindMember ([head pat_p], true) (tail t).
+      continue (0, z, z, skip_l + 1 + skiplen_l)
+
+    %%------------------------------------------------------------
+    %% When s is not 0 and there is a mismatch, use the failure
+    %% function to push the pattern ahead.  This involves moving
+    %% t ahead.  Note that r does not change, since we are
+    %% looking again at the same character in txt.
+    %%------------------------------------------------------------
+
+    loopcase else =>
+      Let s' = @(fv#_s).
+      Let t' = t##(s -- s', largenum).
+      continue (s', t', r, skip_l + s -- s')
+
+  %Loop
+%Let
+
+====================================================================
+%% 			_sublist?_				  %%
+====================================================================
+
+Let ?pat_p _sublist?_ ?txt_p =
+  not nil?(right(findSublist pat_p txt_p))
+%Let
+
+====================================================================
+%% 			findSublistBeforeAfter			  %%
+====================================================================
+
+Let findSublistBeforeAfter ?p ?t =
+  Match (?n, ?r) = findSublist p t.
+  {not nil? r}
+  Value (t##(0,n), r##(length p, largenum)).
+%Let
+
+===================================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+The Aho/Corasick algorithm is described in "Efficient string
+matching: an aid to bibliographic search" by Alfred V. Aho and
+Margaret J. Corasick, in Communication of ACM, June 1975.
+Its main ideas are based in the Knuth/Morris/Pratt pattern
+matching algorithm.
+
+Aho and Corasick describe the algorithm for string searching,
+but it generalizes readily to searching other kinds of lists.
+We describe it for strings, but implement it for more general
+lists.
+
+Suppose we are searching for one of a list of patterns, such
+as ["mark", "remark", "mammal"].  We build a pattern matching
+tree.  The tree has a skeleton of downward-pointing edges, each
+labeled by a character.  Added to the skeleton are
+failure arcs, at each node except the root, indicating where
+to go when there is a failure.  The skeleton tree for list
+["mark", "remark", "mammal"] looks like this.  Each node is
+given a number.
+
+	       0
+	      / \
+	    m/   \r
+	    /     \
+	   1       2
+	   |        \
+	  a|         \e
+	   |          \
+	   3           4
+	  / \          |
+	m/   \r        |m
+	/     \        |
+	5      6       7
+	|      |       |
+       m|      |k      |a
+	|      |       |
+	8      9       10
+	|              |
+       a|              |r
+	|              |
+	11             12
+	|              |
+       l|              |k
+	13             14
+
+At some nodes, we remember that a pattern (or patterns) have been
+matched.  Here is the match information.
+
+	node	matched
+	  9       "mark"
+	  13      "mammal"
+	  14      "mark", "remark"
+
+The failure arcs are as follows.  The idea is that, if we are at
+node v, and the next character is not one of the characters that
+labels an edge pointing down from v, then we go to fail(v) and try
+again.  The root of the tree has no failure arc; any failure at
+the root must be handled by trying the next match position.
+
+	v       fail(v)
+      -----     -------
+	1         0
+	2         0
+	3         0
+	4         0
+	5         1
+	6         2
+	7         1
+	8         1
+	9         0
+       10         3
+       11         3
+       12         6
+       13         0
+       14         9
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Import "collect/listfun".
+Import "collect/search".
+Import "collect/sort".
+
+Extension
+  =========================================================
+  Species{noEqual,noDollar} ACNode(ORDER`a) =
+    makeACNode
+
+    (s_children ~> [(ORDER`a, ACNode(ORDER`a))],
+					     %% Children, keyed by link
+					     %% labels
+					     
+     s_matchedBx ~> <:[Natural]:>,           %% matches found here
+     
+     s_failureBx ~> <:ACNode(ORDER`a):>,     %% where to fail to
+     
+     s_depth    ~> Natural,                  %% distance from root
+     
+     s_index    ~> Natural)                  %% index (in original list of
+					     %% patterns) of a list whose
+					     %% prefix of length s_depth
+					     %% is the sequence of link
+					     %% labels leading from the
+					     %% root to this node.
+  %Species
+  =========================================================
+  Species{noEqual,noDollar} ACPatternMatcher(ORDER`a) =
+    makeACPatternMatcher
+
+    (s_node       ~> ACNode(ORDER`a),	     %% root node
+    
+     s_root_links ~> [ORDER`a],	     	     %% labels to other nodes
+     
+     s_before     ~> Optional(ORDER`a),      %% What comes before this
+                                             %% in the target.  (Imagine
+					     %% that this matcher is
+					     %% started partway into a
+					     %% target list.  What was
+					     %% immediately before the
+					     %% start position?
+					     
+     acPatterns   ~> [[ORDER`a]],            %% The patterns that this
+     					     %% matcher was built from.
+					     
+     s_offset     ~> Natural)                %% amount to be added to the
+       					     %% match position when
+					     %% reporting a match.
+
+  %Species
+  =========================================================
+  Species{noEqual,noDollar} ACMatchInfo(ORDER`a) =
+    makeACMatchInfo
+
+    (acMatchedIndices ~> [Natural],	     %% pattern indices that matched
+    
+     acMatchPosition  ~> Natural,	     %% position of match (offset
+     					     %% from start of target list)
+     
+     acRest           ~> [ORDER`a],	     %% suffix of target that
+     					     %% follows the match
+					     
+     acPatterns       ~> [[ORDER`a]],	     %% patterns that were used
+     					     %% to build the matcher that
+					     %% found this match.  (The
+					     %% indices in acMatchedIndices
+					     %% are indices in this list.)
+					     
+     s_before	      ~> Optional(ORDER`a),  %% what came before the
+     					     %% longest of the matched
+					     %% patterns in the target
+
+     s_longpat	      ~> [ORDER`a])	     %% The longest pattern
+     					     %% that matched
+
+  %Species
+  =========================================================
+%Extension
+
+====================================================================
+%%			 $
+====================================================================
+
+Expect $: ACNode(ORDER`x) -> String.
+
+Let $(?: ACNode(ORDER`x)) = "(an ACNode)".
+
+Let $(?v: ACPatternMatcher(ORDER`x)) = 
+  "(an ACPattern matcher for patterns " ++ $acPatterns(v) ++ ")"
+%Let
+
+Let $(?v: ACMatchInfo(ORDER`a)) = 
+  "(an ACMatchInfo matching " ++ 
+  $(acMatchedIndices(v)) ++ ")"
+%Let
+
+====================================================================
+%%			 acSplitN
+====================================================================
+%% acSplitN(n,l) = (take n l, drop n l), but it is designed for
+%% a linked list.  It is required that l has at least n members.
+===================================================================
+
+Let acSplitN (?n,?l) =
+  Loop (?a,?r,?k) = (nil,l,n)
+    exitcase zero? k => (reverse a, r)
+    loopcase else    => continue (head r :: a, tail r, k -- 1)
+  %Loop
+%Let
+
+======================================================================
+%%			splitIntoNullsAndNonnulls
+======================================================================
+%% splitIntoNullsAndNonnulls [(0,"abc"), (1, ""), (2, "def"), (3, "")] 
+%% is pair ([1,3], [('a',(0,"bc")), ('d',(2,"ef"))]) where the first
+%% list is the list of all indices where a pair occurs that has
+%% a null right-hand part, and the second is a list of all pairs 
+%% that have a nonnull second part, were the nonnull list has been 
+%% split into its head and its tail, and the tuple has been 
+%% rearranged as shown.
+=====================================================================
+
+Assume splitIntoNullsAndNonnulls: 
+  [(Natural, [ORDER`a])] 
+    -> ([Natural], [(ORDER`a, Natural, [ORDER`a])])
+%Assume
+
+Define splitIntoNullsAndNonnulls by
+
+  case splitIntoNullsAndNonnulls [] = ([], [])
+  
+  case splitIntoNullsAndNonnulls [?h & ?t] =
+    Match (?a, ?b) = splitIntoNullsAndNonnulls(t).
+    Choose first matching h
+      case (?i, [])        => (i :: a, b)
+      case (?i, [?x & ?y]) => (a, [(x,i,y) & b])
+    %Choose
+%Define
+
+=================================================================
+%%			mapRight
+=================================================================
+%% mapRight f [(a1,b1), (a2,b2), (a3,b3)] = 
+%% [(a1,f(b1)), (a2,f(b2)), (a3,f(b3))].
+=================================================================
+
+Define mapRight by
+  case mapRight ? [] = []
+  case mapRight ?f [(?a,?b) & ?r] = [(a,f(b)) & mapRight f r]
+%Define
+
+=================================================================
+%%			collapseChildren
+=================================================================
+%% collapseChildren[('a',u),('b',v),('a',w),('b',x),('c',y)] =
+%% [('a',[u,w]), ('b',[v,x]), ('c', [y])], or is some permutation
+%% of that list.
+=================================================================
+
+Let compareLefts(?a,?b) = left(a) <= left(b).
+
+Define collapseHelp by
+  case collapseHelp ((?a,?b), []) = [(a,[b])]
+  
+  case collapseHelp ((?a,?b), ?h :: ?t) =
+    Let rest_l = collapseHelp (h,t).
+    Match (?a',?b') :: ?r = rest_l.
+    If a' == a
+      then (a, b :: b') :: r
+      else (a,[b]) :: rest_l
+    %If
+%Define
+
+Let collapseChildren(?l) =
+  If nil? l 
+    then []
+    else 
+      Match ?h :: ?t = sort compareLefts l.
+      Value collapseHelp(h,t).
+  %If
+%Let
+
+=================================================================
+%%			buildSkeletonTree
+=================================================================
+%% buildSkeletonTree [(0, "abc"), (1, "def")] builds a tree
+%% for the given list of patterns, tagged by their indices,
+%% but with the failure boxes empty.  The matched boxes are
+%% singleton lists or [].
+%%
+%% REQUIRE: tagged_patterns_p is not nil.
+=================================================================
+
+Define buildSkeletonTree ?dpth_p ?tagged_patterns_p =
+
+  Match (?matched_l, ?children_l) = 
+    splitIntoNullsAndNonnulls(tagged_patterns_p)
+  %Match
+  
+  %%--------------------------------------
+  %% childTbl_l is the table of children.
+  %%--------------------------------------
+  
+  Let collapsed_children_l = collapseChildren children_l.
+  Let childTbl_l = 
+    mapRight (buildSkeletonTree (dpth_p + 1)) collapsed_children_l
+  %Let
+  
+  Value makeACNode
+  	  (s_children  ~> childTbl_l,
+	   s_matchedBx ~> <:matched_l:>,
+	   s_failureBx ~> <::>,
+	   s_depth     ~> dpth_p,
+	   s_index     ~> If not nil? matched_l
+	   		     then head(matched_l)
+			     else left(head(tagged_patterns_p))
+			  %If
+	  )
+  %Value
+%Define
+
+=================================================================
+%%			computeFailure
+=================================================================
+%% computeFailure(parent_p,link_p) tells where the failure arc
+%% of a node should point, where parent is its parent (or
+%% is a stand-in for its parent) and link is the label of the
+%% link down from the parent.
+%%
+=================================================================
+
+Let computeFailure(?parent_p, ?link_p) =
+  Try
+      Match <:?first_fail_l:> = s_failureBx(parent_p).
+    then
+      Loop ?p = first_fail_l 
+      
+        %%-----------------------------------------------------------
+	%% If we can move down from p by a transition labeled link_p,
+	%% then we have found the place to fail to.
+	%%-----------------------------------------------------------
+	
+        exitcase do Let down_l = assoc link_p (s_children(p)). => down_l
+	
+	%%-----------------------------------------------------------
+	%% If we are not at the root, fail from here and try again.
+	%%-----------------------------------------------------------
+	
+	loopcase do Match <:?up_l:> = s_failureBx(p). =>
+	   continue up_l
+	   
+	%%-----------------------------------------------------------
+	%% If we are at the root, then fail to the root.
+	%%-----------------------------------------------------------
+	
+	exitcase else => p
+      %Loop
+      
+    else
+      parent_p
+  %Try
+%Let      
+   
+=================================================================
+%%			completeMatchedList
+=================================================================
+%% Return the set that should be the content of s_matchedBx(v).
+%% This set must include all patterns that are in node v's
+%% s_matchedBx box, or that are in such a box of a node that
+%% can be reached from v by a chain of failure arcs.
+%%
+%% REQUIREMENT: Node @s_failureBx(v) has already had its
+%% matched list completed.
+=================================================================
+
+Let completeMatchedList(?v) =
+  Let fail_to_l          = @s_failureBx(v).
+  Let match_after_fail_l = @s_matchedBx(fail_to_l).
+  
+  Value match_after_fail_l ++ @s_matchedBx(v).
+%Let
+
+=================================================================
+%%			InstallFailureArcsDownstream
+=================================================================
+%% The failure arcs are installed in a breadth first order.
+%% frontier_p is a list of pairs, where each pair has the
+%% form (parent, [(l1,c1), (l2,c2), ...]), where
+%% li is a transition label and ci is the child that is
+%% pointed to by the transition.  For example, we are working
+%% on a node p shown as
+%%
+%%                              p
+%%                             / \
+%%                           a/   \b
+%%                           /     \
+%%                          u       v
+%%
+%% then (p, [(a,u), (b,v)]) would be among the members of
+%% frontier_p.  All children (such as u and v) have their
+%% failure arcs filled in, and then their children are all
+%% done, in breadth first order.
+%%
+%% In addition to installing failure arcs, we complete the
+%% matched lists to account for the case where on pattern is
+%% a suffix of another.
+=================================================================
+
+Let InstallFailureArcsDownstream ?frontier_l. =
+
+  Loop ?this_frontier_l = frontier_l
+  
+    do Let new_frontier_l = [].
+  
+       For (?parent_l, ?child_list_l) from this_frontier_l do
+         For (?link_l, ?child_l) from child_list_l do
+           Assign s_failureBx(child_l) := computeFailure(parent_l, link_l).
+	   Assign s_matchedBx(child_l) := completeMatchedList(child_l).
+           Relet new_frontier_l = 
+             (child_l, s_children(child_l)) :: new_frontier_l
+           %Relet
+         %For
+       %For
+  
+    exitcase nil? new_frontier_l => ()
+    
+    loopcase else => continue (new_frontier_l)
+  %Loop
+%Let
+    
+
+=================================================================
+%%			InstallFailureArcs
+=================================================================
+%% InstallFailureAcs(t) installs failure arc information into
+%% tree t.  It also completes matched lists; if a node v has a
+%% failure arc to a node that matches X, then v also matches
+%% x.  This continues through chains of failure arcs.
+=================================================================
+
+Let InstallFailureArcs ?t. =
+
+  %%--------------------------------------------------
+  %% At the root, the failure box remains empty. 
+  %% At other nodes, the failure arcs get filled in.
+  %%--------------------------------------------------
+  
+  InstallFailureArcsDownstream[(t, s_children(t))].
+%Let
+
+=================================================================
+%%			acPatternMatcher
+=================================================================
+%% acPatternMatcher(patterns_p) returns the pattern matching
+%% tree for list of patterns patterns_p.
+%%
+%% REQUIRE: patterns_p is not nil, and none of the members
+%% of list patterns_p is nil.
+=================================================================
+
+Let acPatternMatcher(?patterns_p) = 
+   Assume t: ACNode(ORDER`a).
+   makeACPatternMatcher
+     (s_node       ~> t, 
+      s_root_links ~> eagerMap(left) (s_children(t)), 
+      s_before     ~> noValue, 
+      acPatterns   ~> patterns_p,
+      s_offset     ~> 0)
+   |
+
+    {not nil? patterns_p else domainX "No patterns for acPatternMatcher"}
+  
+    %%----------------------------------------------------------
+    %% Replace each pattern p in list patterns_p by pair (i,p),
+    %% where i is the index in patterns_p of pattern p.
+    %% That way we can keep track of indices of patterns
+    %% in the original list.
+    %%----------------------------------------------------------
+  
+    Let tagged_patterns_l = 
+      Let pattern_len_l = length(patterns_p).
+      Value _quickZip_(0 _upto_ pattern_len_l -- 1, patterns_p).
+    %Let
+  
+    %%----------------------------------------------------------
+    %% Build the skeleton tree, then fill in the failure arcs.
+    %%----------------------------------------------------------
+  
+    Let t = buildSkeletonTree 0 tagged_patterns_l.
+    InstallFailureArcs(t).
+  
+    %%-----------------------------------------------------------
+    %% It is not allowed to have a null pattern.  A null pattern
+    %% is present if the root has a nonnull s_matched list.
+    %%-----------------------------------------------------------
+
+    {nil? @s_matchedBx(t) 
+       else domainX "Null pattern to acPatternMatcher"}
+%Let
+
+=================================================================
+%%			acFindSublist
+=================================================================
+
+Define acFindSublist
+      (makeACPatternMatcher(?tree_p,
+			    ?root_links_p,
+			    ?before_p,
+			    ?patterns_p,
+			    ?offset_p))
+      ?text_p =
+
+  %%--------------------------------------------------------
+  %% If tree_p is a subtree, then
+  %% we must suppress reporting of matches until a character
+  %% has been read successfully.  report_match_l will be set
+  %% true now if we are at the root, and will be set true
+  %% later if we read a character.
+  %%--------------------------------------------------------
+  
+  Let report_match_l = emptyBox?(s_failureBx(tree_p)).
+    
+  %%----------------------------------------------------
+  %% Now start looking for a match.  The control variables
+  %% are as follows.
+  %%
+  %%   n_skipped_l:    The number of characters skipped in the
+  %%                   original text before the beginning of rest_l.
+  %%                   (This is offset_p + the number of characters
+  %%                   skipped in text_p before the beginning of
+  %%                   rest_l.)
+  %%   
+  %%   rest_l:         The text immediately after what has
+  %%                   been read.  The character being looked
+  %%                   at is the head of rest_l.
+  %%
+  %%   current_tree_l: The current node in the pattern matching
+  %%                   tree.
+  %%
+  %%   seen_l:         The labels on the path from the root of 
+  %%                   the pattern matching tree to current_tree_l,
+  %%                   in reverse order.
+  %%
+  %% before_p is also updated, and kept to be the item just
+  %% before the current position, or noValue if still at the
+  %% beginning.
+  %%----------------------------------------------------
+  
+  Let initial_seen_l = 
+    reverse(patterns_p#_(s_index(tree_p)) ## (0,s_depth(tree_p)))
+  %Let
+  
+  Loop (?n_skipped_l, ?rest_l, ?current_tree_l,        ?seen_l) = 
+       (    offset_p,  text_p,          tree_p, initial_seen_l)
+  
+    %%--------------------------------------------------
+    %% If this tree indicates a match right here, and
+    %% we are reporting matches, then return this match.
+    %%--------------------------------------------------
+    
+    do Let matched_l = @s_matchedBx(current_tree_l).
+    exitcase report_match_l _and_ not nil? matched_l =>
+      Let restMatcher =
+	     makeACPatternMatcher(s_node       ~> current_tree_l,
+				  s_root_links ~> root_links_p,
+				  s_before     ~> before_p,
+				  acPatterns   ~> patterns_p,
+				  s_offset     ~> n_skipped_l)
+      %Let
+      Value [makeACMatchInfo
+	      (acMatchedIndices ~> matched_l,
+	       acMatchPosition  ~> n_skipped_l,
+	       acRest           ~> rest_l,
+	       acPatterns       ~> patterns_p,
+	       s_before		~> before_p,
+	       s_longpat	~> patterns_p#_(s_index(current_tree_l)))
+	     & (:acFindSublist restMatcher rest_l:)]
+      %Value
+
+    %%-------------------------------------------------------
+    %% If there is nothing left in the text, then return [].
+    %%-------------------------------------------------------
+    
+    exitcase nil? rest_l => []
+
+    %%---------------------------------------------------------
+    %% If we are at the root, then skip ahead in the text to a
+    %% place where there is a something that can match the
+    %% first thing in one of the patterns. If this exhausts
+    %% the text, then return [].
+    %%---------------------------------------------------------
+
+    do If emptyBox?(s_failureBx(current_tree_l)) then
+	 Relet report_match_l = true.
+
+	 Match (?bf,?n,?r) =
+	   maybeFindMemberAfter (root_links_p, true) (head rest_l) rest_l
+	 %Match
+
+	 If n =/= 0 then
+	   Relet before_p    = value(bf).
+  	   Relet n_skipped_l = n_skipped_l + n.
+  	   Relet rest_l      = r.
+	 %If
+       %If
+
+    exitcase nil? rest_l => []
+
+    %%-------------------------------------------------------
+    %% If the next item in the text matches one of the links
+    %% in the tree, then follow that link.
+    %%-------------------------------------------------------
+    
+    loopcase do
+      Let next_item_l   = head rest_l.
+      Let where_to_go_l = 
+      
+	%%------------------------------------------------------
+	%% Assoc call is inlined for first member of child list,
+	%% for a little added speed.
+	%%------------------------------------------------------
+
+	Let children_l = s_children current_tree_l.
+        Choose first
+	  case nil? children_l => fail testX
+	  do Match [(?tag_l,?where_l) & ?rest_children_l] = children_l.
+	  case tag_l == next_item_l => where_l
+	  else => assoc next_item_l rest_children_l
+	%Choose
+      %Let
+	
+      =>  Relet report_match_l = true.
+          continue (n_skipped_l + 1, 
+	            tail rest_l, 
+		    where_to_go_l, 
+		    next_item_l :: seen_l)
+	
+    %%------------------------------------------------------
+    %% If we get here, then there is a mismatch, so we must
+    %% follow a failure arc.  Note that we cannot be at the
+    %% root of the pattern matching tree here, since we
+    %% would either have quit earlier or we would have found
+    %% a match.
+    %%------------------------------------------------------
+    
+    loopcase else =>
+      Let fail_to_l = @s_failureBx(current_tree_l).
+      Match (?new_seen_l, ?new_before_l :: ?) = 
+        acSplitN (s_depth(fail_to_l), seen_l)
+      %Match
+      Relet before_p = value(new_before_l).
+      continue (n_skipped_l, rest_l, fail_to_l, new_seen_l)
+
+  %Loop
+%Define
+
+
+=================================================================
+%%			pruneMatched
+=================================================================
+%% Return the list of indices matched by info_p that match
+%% with word boundaries surrounding them.
+=================================================================
+
+Let pruneMatched(?info_p, ?wordChars_p) =
+  Match makeACMatchInfo
+     (acMatchedIndices ~> ?matched_l,
+      acMatchPosition  ~> ?,
+      acRest           ~> ?rest_l, ?)
+
+    = info_p
+  %Match
+
+  %%----------------------------------------------
+  %% after_is_not_word is true if there is not a word
+  %% character just after the match.
+  %%----------------------------------------------
+  
+  Let after_is_not_word = 
+    If nil? rest_l 
+      then true
+      else not(head(rest_l) _in_ wordChars_p) 
+    %If
+  %Let
+  
+  %%----------------------------------------------
+  %% ok will accumulate the list ok of indices that 
+  %% match with word boundary restrictions.
+  %%----------------------------------------------
+    
+  Let ok = [].
+  
+  For ?k from toList(matched_l) do
+    Let pattern_l = acMatched info_p k.
+    Let after_ok = after_is_not_word _or_ 
+    		   not(last(pattern_l) _in_ wordChars_p)
+    %Let
+    If after_ok then
+      Let before_ok =
+        Choose first matching acBeforeMember info_p k
+          case noValue    => true
+	  case value(?ch) => not(ch _in_ wordChars_p) _or_ 
+	  		     not(head(pattern_l) _in_ wordChars_p)
+	%Choose
+      %Let
+      
+      If before_ok then
+        Relet ok = k :: ok.
+      %If
+    %If
+  %For
+
+  Value ok.
+%Let
+
+=================================================================
+%%			pruneAll
+=================================================================
+%% List rawMatches_p is a list of acMatchInfo values.  Select
+%% only those matches that are surrounded by word boundaries,
+%% as defined by set of word characters wordChars_p.
+=================================================================
+
+Define pruneAll ?wordChars_p ?rawMatches_p =
+  Choose first
+    case nil? rawMatches_p => []
+
+    %%---------------------------------------------
+    %% Get the indices in the first match whose
+    %% matches are surrounded by word boundaries.
+    %% Only keep this match if at least one of
+    %% the matches that it describes is ok.
+    %%---------------------------------------------
+
+    do Let ok = pruneMatched(head rawMatches_p, wordChars_p).
+
+    case nil? ok => pruneAll wordChars_p (tail rawMatches_p)
+
+    else =>
+      Match makeACMatchInfo(acMatchedIndices ~> ?, ?rest_info_l)
+	= head rawMatches_p
+      %Match
+      Value
+	[makeACMatchInfo(acMatchedIndices ~> ok, rest_info_l)
+	 & (: pruneAll wordChars_p (tail rawMatches_p) :)]
+      %Value
+  %Choose
+%Define
+
+=================================================================
+%%			acFindSubword
+=================================================================
+
+Let acFindSubword (?matcher_p, ?wordChars_p) ?text_p =
+  pruneAll wordChars_p (acFindSublist matcher_p text_p)
+%Let
+
+=================================================================
+%%			acLongestMatchInfo
+=================================================================
+
+Let acLongestMatchInfo ?info_l ?t = (p,i,r) |
+  Match makeACMatchInfo(?a,?,?r,?) = info_l.
+  Let i = last(a).
+  Let p = acBeforeList info_l t i.
+%Let
+
+=================================================================
+%%			acInfo
+=================================================================
+
+Let acInfo (makeACMatchInfo(?a, ?b, ?c, ?)) = (a, b, c).
+
+=================================================================
+%%			acBeforeList
+=================================================================
+
+Let acBeforeList ?info_p ?t ?k =
+  Match makeACMatchInfo(?, ?index_l, ?, ?patterns_l, ?) = info_p.
+  Let len_l = length(patterns_l#_k).
+  Value t##(0, index_l -- len_l).
+%Let
+
+=================================================================
+%%			acBeforeMember
+=================================================================
+
+Let acBeforeMember ?info_p ?k =
+  Match makeACMatchInfo(?,?,?, ?patterns_l, ?b, ?lng) = info_p.
+  Let
+    pattern_l     = patterns_l#_k;
+    pattern_len_l = length(pattern_l);
+    d             = length(lng);
+  %Let
+
+  If d == pattern_len_l 
+    then b
+    else 
+      Value value(lng#_(d -- pattern_len_l -- 1)).
+  %If
+%Let
+    
+=================================================================
+%%			acMatched
+=================================================================
+
+Let acMatched ?info_p ?k = (acPatterns info_p)#_k.
+
+================================================================
+%Package

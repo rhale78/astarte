@@ -1,0 +1,47 @@
+Package compl1
+
+%% Test completeness checking for expectations.
+
+Export
+
+==================================
+%% Simple case.
+
+Expect v1: Natural.
+
+==================================
+%% Partially satisfied.
+
+Expect v2: INTEGER`a.
+
+==================================
+%% Pair, partially satisfied by
+%% more than one definiton.
+
+Expect v3: (INTEGER`a, INTEGER`b).
+
+==================================
+%% Polymorphic function, partially
+%% satisfied.
+
+Expect v4: (`a,`b) -> (`a,`b).
+
+
+==================================
+%% Polymorphic function, partially
+%% satisfied.
+
+Expect v5: (`a, `b) -> (`a, `b).
+==================================
+Implementation
+
+Let v2: Natural = 2.
+
+Let v3: (Natural, Natural) = (2,2).
+Let v3: (Integer, Integer) = (2,2).
+
+Let v4(?x,?x) = (x,x).
+
+Let v5(?x,?y) = If x == x then (x,y) else (x,y) %If.
+
+%Package

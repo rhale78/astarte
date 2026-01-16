@@ -1,0 +1,36 @@
+Package assumptions 
+
+%% Test assumptions involving pattern functions.
+
+Import "misc/check".
+
+Define f(?x) = x*x.
+
+Pattern f(?x) => Match ?x = target..
+
+Assume f: pattern.
+
+Define g(?x) =
+  Match f(2) = x.
+  x
+%Define
+
+Execute
+  Line[$(g(2))].
+  Check["2"].
+%Execute
+
+Assume f: Rational -> Rational.
+
+Define h(?x) =
+  Match f(2) = x.
+  x
+%Define
+
+Execute
+  Line[$(h(2))].
+  Check["2"].
+%Execute
+
+
+%Package

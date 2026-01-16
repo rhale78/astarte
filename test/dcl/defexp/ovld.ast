@@ -1,0 +1,46 @@
+Package ovld 
+
+%% Test overloading
+
+%% Check whether a Define expr can contribute to an expectation on
+%% one branch and create its own expectation on another branch.
+
+Directory standard.  Import "misc/check".
+
+Let two:Natural = 2.
+Let two:Integer = 2.
+
+Expect duo:Natural.
+Let duo = two.      %% Should only Define duo:Natural.
+
+Execute
+  Line[(duo: Natural) $$ 5].
+  Check["    2"].
+%Execute
+
+%% Check consolidation of expectations
+
+Expect trip: INTEGER`a.
+Expect trip: Rational.
+Define trip: Natural = 3.
+Define trip: Integer = 3.
+Define trip: Rational = 3.
+Expect trip: REAL`a.
+Define trip: Real = 3.
+
+Execute
+  Writeln["\nShould print 3 as natural, integer, rational, real\n"].
+  Writeln[$(trip:Natural)].
+  Writeln[$(trip:Integer)].
+  Writeln[$(trip:Rational)].
+  Writeln[$(trip:Real)].
+%Execute
+
+%% Overload non-overloaded id
+
+Define four:Natural = 4.
+Define four:Integer = 4.
+
+%Package
+
+

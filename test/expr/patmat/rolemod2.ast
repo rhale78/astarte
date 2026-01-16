@@ -1,0 +1,64 @@
+Package rolemod2 
+
+%% Test modifiers x/{: ... :}
+
+Import "misc/check".
+
+Extension
+  Species TestFam1(`a) = (r1~> (Natural,`a), r2~> Integer, r3~> Natural).
+%Extension
+
+Execute
+  Let a = testFam1((1,'a'),2,3).
+  Let b = a /{:r1~> (5,'b') :}.
+  Line[$b].
+  Check["testFam1((5,'b'),2,3)"].
+%Execute
+
+Execute
+  Let a = testFam1((1,'a'),2,3).
+  Let b = a /{: r1~> (5,'c'), r3~> 7:}.
+  Line[$b].
+  Check["testFam1((5,'c'),2,7)"].
+%Execute
+
+Extension 
+  Species TestFam2(`a) = tt2a | tt2b(r1~> Natural, r2~> Natural, r3~> (`a,Natural)).
+%Extension
+
+Execute
+  Let a = tt2b(1,2,(3,6)).
+  Let b = a /{: r2~> 9 :}.
+  Line[$b].
+  Check["tt2b(1,9,3,6)"].
+%Execute
+
+Extension
+  Species{noEqual} TestFam3(`a,`b) = (r31~> (`a,ANY), r32~> (ANY,`b)).
+%Extension
+
+Execute
+  Let a = testFam3((1,<<2>>),(<<3>>,4)).
+  Let b = a/{:r32~> (<< 'c' >>,5):}.
+  Line[$b].
+  Check["testFam3((1,2),'c',5)"].
+  Let c = a/{:r31~>(8,<<3/4>>), r32~>(<<3>>,9):}.
+  Line[$c].
+  Check["testFam3((8,3/4),3,9)"].
+%Execute
+
+Extension
+  Species{noEqual} TestFam4(`a) = tt4a (r41~> `a, r42~> ANY) | tt4b.
+%Extension
+
+Execute
+  Let a = tt4a(1,<<2>>).
+  Let b = a/{:r42~> <<5>>:}.
+  Line[$b].
+  Check["tt4a(1,5)"].
+  Let c = a/{:r41~>8, r42~> <<9>>:}.
+  Line[$c].
+  Check["tt4a(8,9)"].
+%Execute
+
+%Package

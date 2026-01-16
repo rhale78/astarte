@@ -1,0 +1,226 @@
+%% File: srchtree.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================================
+Package 		Astarte_SearchTree
+
+			Interface
+====================================================================
+
+====================================================================
+%% This package implements generic binary search trees.
+%%
+%% The members of a tree are presumed to have a key and
+%% a value. Operations are given a function for performing
+%% comparisons between keys and values.
+====================================================================
+
+Extension
+  Expect{transparent} species BinarySearchTree(`a)
+  
+    %" BinarySearchTree(T) is a species of binary
+    %" search trees whose members have species T.
+    %"
+    %" Each member of a search tree is presumed to
+    %" have a key and a value.  A tree can only contain
+    %" one member with a given key.  Operations on the tree
+    %" must be given a comparison function that compares
+    %" a key to a member or that compares two members.
+    %"
+    %" In the special case where each member consists
+    %" only of a key, the comparison functions are both just
+    %" function compare.
+    %"
+    %" In general, there are two different comparison functions.
+    %" Function keyCompare should be designed so that
+    %" keyCompare(k,m) is
+    %"   less    if k is less than the key of m,
+    %"   equal   if k is equal to the key of m,
+    %"   greater if k is greater than the key of m.
+    %"
+    %" Function compareKeys should be designed so that
+    %" compareKeys(m1,m2) is
+    %"   less    if the key of m1 is less than the key of m2
+    %"   equal   if the key of m1 is equal to the key of m2
+    %"   greater if the key of m1 is greater than the key of m2
+    %"
+    %" It is important that functions receive comparison functions
+    %" that are consistent with one another and that are the
+    %" same for all operations on a given tree.
+    %"
+    %" Two search trees are equal if they contain exactly the
+    %" same members, regardless of their structure.
+  %Expect
+%Extension
+
+====================================================================
+Exception binarySearchTreeX
+  "A binary tree lookup has failed"
+%Exception
+====================================================================
+
+Abbrev
+  KEY   = `k;
+  MEM   = `m;
+  KEYCOMPARE  = (KEY,MEM) -> Comparison;
+  COMPAREKEYS = (MEM,MEM) -> Comparison;
+  TREE = BinarySearchTree(MEM)
+%Abbrev
+
+Expect
+  emptyTree	: TREE
+  
+  		%" emptyTree is an empty binary search tree.
+		;
+		
+  emptyTree?	: TREE -> Boolean
+  
+  		%" emptyTree?(t) is true just when t is an empty tree.
+		;
+		
+  size		: TREE -> Natural
+
+		%" size(t) is the number of members of tree t.
+		;
+
+  member	: KEYCOMPARE -> TREE -> KEY -> MEM
+
+		%" (member keyCompare t k) returns the member of tree
+		%" t that has key k, if there is one.  If there
+		%" is no such member, then it fails with exception
+		%" binarySearchTreeX.
+		%"
+		%" Function keyCompare is as described under
+		%" BinarySearchTree.
+		;
+
+  insertIfNotPresent: COMPAREKEYS -> TREE -> MEM -> TREE
+
+		%" (insertIfNotPresent compareKeys t m) returns the
+		%" tree that results from inserting m into tree t.
+		%" If t already has a member with the same key as
+		%" m, then t itself is returned.
+		%" (So m is not inserted.)
+		%"
+		%" Function compareKeys is as described under
+		%" BinarySearchTree.
+		;
+
+  insertReplacing: COMPAREKEYS -> TREE -> MEM -> TREE
+
+		%" (insertReplacing compareKeys t m) returns the
+		%" tree that results from inserting m into tree t.
+		%" If t already has a member with the same key as
+		%" m, then that member is replaced by m.
+		%"
+		%" Function compareKeys is as described under
+		%" BinarySearchTree.
+		;
+
+  insertUpdating: COMPAREKEYS -> TREE -> MEM -> (MEM -> MEM) -> TREE
+
+		%" (insertUpdating compareKeys t m update) returns the
+		%" tree that results from inserting m into tree t.
+		%" If t already has a member x with the same key as
+		%" m, then that member is replaced by update(x).
+		%"
+		%" Function compareKeys is as described under
+		%" BinarySearchTree.
+		;
+
+  delete	: KEYCOMPARE -> TREE -> KEY -> TREE
+
+		%" (delete keyCompare t k) returns the tree that
+		%" results from deleting the member with key k
+		%" from tree t.  If t has no such member, then t
+		%" is returned unchanged.
+		%"
+		%" Function keyCompare is as described under
+		%" BinarySearchTree.
+		;
+
+  toList	: TREE -> [MEM]
+
+		%" toList(t) is a list of the members of tree t.
+		%" The list is in ascending order by key, according
+		%" to the comparison function used to create the tree.
+		%" toList is lazy.
+		;
+
+  eagerToList	: TREE -> [MEM]
+
+		%" eagerToList(t) is a list of the members of tree t.
+		%" The list is in ascending order by key, according
+		%" to the comparison function used to create the tree.
+		%" eagerToList is eager.
+		;
+
+  min		: TREE -> MEM
+
+		%" min(t) is the member of tree t with the
+		%" smallest key, according to the comparison
+		%" function that was used to create the tree.
+		%"
+		%" min(t) fails with exception binarySearchTreeX
+		%" when tree t is empty.
+		;
+
+  max		: TREE -> MEM
+
+		%" max(t) is the member of tree t with the
+		%" largest key, according to the comparison
+		%" function that was used to create the tree.
+		%"
+		%" max(t) fails with exception binarySearchTreeX
+		%" when tree t is empty.
+		;
+
+  extractMin	: TREE -> (MEM,TREE)
+
+		%" extractMin(t) returns a pair (m,t') where
+		%" m is the member of tree t with the smallest
+		%" key (according to the comparison function
+		%" used to create t) and t' is the result of
+		%" deleting m from t.
+		%"
+		%" extractMin(t) fails with exception
+		%" binarySearchTreeX when tree t is empty.
+		;
+
+  extractMax	: TREE -> (MEM,TREE)
+
+		%" extractMax(t) returns a pair (m,t') where
+		%" m is the member of tree t with the largest
+		%" key (according to the comparison function
+		%" used to create t) and t' is the result of
+		%" deleting m from t.
+		%"
+		%" extractMax(t) fails with exception
+		%" binarySearchTreeX when tree t is empty.
+		;
+		
+  each		: TREE -> MEM
+  
+  		%" each(t) produces each member of tree t in a stream.
+		;
+		
+  eachMixed	: TREE -> MEM
+   
+   		%" eachMixed(t) produces each member of tree t
+		%" in a mixed stream.
+		;
+
+  {underride}:
+  
+  ^^		: BinarySearchTree(`a) -> BinarySearchTree(`b)
+  		   constraint (`a <= `b);
+		   
+  downcast	: BinarySearchTree(`a) -> BinarySearchTree(`b)
+  		   constraint (`a >= `b)
+%Expect
+
+====================================================================
+%Package

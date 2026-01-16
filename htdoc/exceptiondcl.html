@@ -1,0 +1,113 @@
+<HTML>
+<head>
+<title>Astarte: exception declarations</title>
+</head>
+<body>
+<center>
+<a href="teamdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bringdcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D9. Exception Declarations </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Creating new exceptions</a>
+  <li><a href=#exceptionDescription>Getting an exception description</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Creating new exceptions</font></h2>
+
+You can create new exceptions.  Each is a new member of
+species ExceptionSpecies.  The forms are as follows.
+<dl>
+<p><dt><font color="red">
+Exception <i>id</i> <i>descr</i> %Exception</font>
+<dd> Create a new exception called <i>id</i>.  It is not trapped, by default.
+String constant <i>descr</i> is a description of the exception.  When
+this exception is trapped, string <i>descr</i> is printed to explain
+what happened.  The description can be omitted, and defaults to
+an empty string.
+<p>Example:
+<font color="#D00090">
+<b><pre>
+      Exception myX.
+</pre></b>
+</font>
+creates a new exception called myX.  It also creates a 
+predicate myX? that tests for myX.  That is, myX?(e) is true
+exactly when e is myX.
+<p>Example:
+<font color=#D00090>
+<b><pre>
+      Exception gremlinX 
+        %" A gremlin has sabotaged the computation.
+      %Exception
+</pre></b>
+</font>
+
+<p><dt><font color="red">
+Exception trap <i>id</i> <i>descr</i> %Exception</font>
+<dd> This is similar to the preceding case, but the new exception 
+is trapped, by default.
+<p>Example:
+<font color="#D00090">
+<b><pre>
+      Exception trap bananaX
+        %" I have slipped on a banana peel,
+        %" and can't get up.
+      %Exception
+</pre></b>
+</font>
+
+<p><dt><font color="red">
+Exception <i>id</i>(<i>T</i>) <i>descr</i> %Exception</font>
+<dd> Create a new family of exceptions.  They not trapped, by default.
+The members of the family have an associated item of species <i>T</i>.
+You can create them using <i>id</i>(x), and destroy them using un<i>id</i>(x).
+There is also a predicate <i>id</i>? and a pattern function <i>id</i>.
+<p>Example:
+<font color="#D00090">
+<b><pre>
+      Exception myX(Natural).
+</pre></b>
+</font>
+Use myX(3) to create an exception with associated value 3.  
+You can get the associated value using unmyX(myX(3)) = 3, or
+by using pattern myX(?n). 
+Predicate myX?(x) yields true if x is myX(k) for some k.
+
+<p><dt><font color="red">
+Exception trap <i>id</i>(T) %Exception</font>
+<dd> Similar to the preceding case, but the exceptions in the
+family are trapped by default.
+
+</dl>
+
+<a name=exceptionDescription></a>
+<hr>
+<h2><font color=mediumblue>Getting an exception description</font></h2>
+
+You can get the description of an exception while a program runs
+using function exceptionDescription.  
+For example, 
+<font color=#D00090>exceptionDescription(testX)</font> = 
+&quot;A test failed&quot;.
+
+<hr>
+<center>
+<a href="teamdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bringdcl.html">Next</a>
+</center>
+</body>
+</HTML>

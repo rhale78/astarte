@@ -1,0 +1,20 @@
+Package uniq
+
+%% Test Unique feature.
+
+Execute
+  Try
+    Open Unique
+      Let x = 
+        Mix
+          1 with 2 with 3
+        %Mix
+      %Let
+    %Unique
+  
+    Writeln[$x].
+    {false}
+  %Try
+%Execute
+
+%Package

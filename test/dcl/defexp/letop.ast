@@ -1,0 +1,16 @@
+Package letop
+
+%% Test defining a binary operator without using operator
+%% syntax when in the presence of a species clause.
+
+Operator op(+); op2(+).
+
+Let species (Natural, Natural) -> Natural
+  op(?x,?y) = x + y
+%Let
+
+Let species (Natural, Natural) -> Natural
+  ?x op2 ?y = x + y
+%Let
+
+%Package

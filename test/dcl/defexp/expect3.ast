@@ -1,0 +1,65 @@
+Package expect3 
+
+%% test handling of overloads and local expectations
+
+Expect 
+  z: SNUMBER`a;
+  z: [RANKED`a];
+  z: [[Natural]];
+%Expect
+
+Let z = 3.
+
+Let t1 = head(z).
+
+Let t2 = z + z.
+
+Let t3 = head(head(z)).
+
+Let t4 = rank(head(z)).
+
+Let t5 = 2*head(z).
+
+Let z = [unrank 5].
+
+Let z = [[9]].
+
+Expect s1: [[Natural]].
+
+Let s1 = z.
+
+Expect s2: [Natural].
+
+Let s2 = z.
+
+Expect s3: [`a].
+
+Let s3 = z.
+
+Expect s4: SRING`a.
+
+Let s4 = z.
+
+Expect s5: [`a].
+Expect s6: [[SNUMBER`a]].
+
+Team
+  Define s5 = z:`a.
+  Define s6 = z:`a.
+%Team
+
+Expect s7: [`a].
+
+Team
+  Define s7 = z:`a.
+  Define s8 = z:`a.
+%Team
+
+%% The following should yeild a bad overlap.
+
+Team
+  Define b1 = z.
+  Define b2 = z.
+%Team
+
+%Package

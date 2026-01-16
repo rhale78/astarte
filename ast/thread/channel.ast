@@ -1,0 +1,169 @@
+%% File: channel.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package 		Astarte_Channel 
+
+			Interface
+=================================================================
+
+=================================================================
+%% This Package provides communication channels, for
+%% sending messages between threads.  These channels
+%% are unidirectional, but support both messages without
+%% replies and messages with replies.  Messages are queued
+%% until they are dealt with at the receiving end of
+%% the channel.
+%%
+%% A channel is not required to have a single sending
+%% thread or a single receiving thread, although that
+%% is typically the way in which one is used.
+%%
+%% To create a new channel, use expression channel().  To
+%% send a message m on channel c without expecting a reply
+%% use
+%%
+%%    Inform(c,m).
+%%
+%% To send a message m on channel c and wait for a reply,
+%% use expression
+%%
+%%    request(c,m)
+%%
+%% which returns the replied value.
+%%
+%% To receive a message from a channel c, use one of the following
+%% functions.
+%%
+%% receive	This is the simplest form.  receive(c) removes
+%%		the next pending message in channel c, and
+%%		replies to it with () (so that, in effect, it
+%%		does not reply).  If channel c is empty, receive(c)
+%%		waits until a message appears in c.  receive returns
+%%		the message that was removed.
+%%
+%% serviceWait	This function allows more flexibility than receive.
+%%		serviceWait(c,selector,handler) removes the first
+%%		message m in channel c that satisfies
+%%		selector(m) = true.  It replies to that message
+%%		with value handler(m), and then returns m.
+%%		If no message that satisfies the selector is in
+%%		channel c, then serviceWait waits until such a
+%%		message arrives.
+%%
+%% serviceNowait This function is similar to serviceWait, but If
+%%		 no message is that satisfies the selector is
+%%		 available, then it fails with exception testX
+%%		 rather than waiting.
+%%
+%% ServiceWait, ServiceNowait
+%%		These functions are similar to serviceWait and
+%%		serviceNowait, but return ().  Use them when the
+%%		handler does all of the message processing, and
+%%		you do not otherwise need to know what the message
+%%		is.
+%%
+%% You may use function anyMessage as the selector for the
+%% service functions to select any message at all.  You may
+%% use function noReply as the handler to reply with ().
+=================================================================
+
+===========================================================
+Extension
+  Expect{noEqual} species Channel(`msg,`rtn)
+  	%" Channel(`msg,`rtn) is the species of a
+	%" communication queue whose messages have species
+	%" `msg, and whose handlers return an object of
+	%" species `rtn.
+  %Expect
+%Extension
+==========================================================
+Expect
+  channel		: () -> Channel(`msg,`rtn)
+
+			%" channel() is a new communication
+			%" channel.
+			;
+
+  request		: (Channel(`msg,`rtn),`msg) -> `rtn
+
+			%" request(c,m) sends message m on
+			%" channel c, waits for a reply, and
+			%" returns the reply.
+			;
+
+
+  Inform		: (Channel(`msg,`rtn),`msg) -> ()
+
+			%" Inform(c,m). sends message m on
+			%" channel c, but does not wait for a reply.
+			;
+
+  serviceNowait		: (Channel(`msg,`rtn),
+			   `msg->Boolean,
+			   `msg->`rtn)
+			   -> `msg
+
+			%" serviceNowait(c,selector,handler)
+			%" selects and deletes the first message
+			%" m from channel c such that selector(m)
+			%" is true.
+			%"
+			%" If there is no such message,
+			%" then serviceNowait fails with exception
+			%" testX.
+			%"
+			%" If there is one, then handler(m) is
+			%" called to service the message.
+			%" The result of handler(m) is sent back to
+			%" the sender as the reply to the message.
+			%" serviceNowait returns the message m.
+			;
+
+  serviceWait		: (Channel(`msg,`rtn),
+			   `msg->Boolean,
+			   `msg->`rtn)
+			   -> `msg
+
+			%" serviceWait is similar to serviceNowait,
+			%" but waits until a message that can be
+			%" serviced is available rather than
+			%" failing when no message is available.
+			;
+
+  ServiceNowait		:  (Channel(`msg,`rtn),
+			   `msg->Boolean,
+			   `msg->`rtn)
+			   -> ()
+
+			%" ServiceNowait is similar to
+			%" serviceNowait, but returns ().
+			;
+
+  ServiceWait		: (Channel(`msg,`rtn),
+			   `msg->Boolean,
+			   `msg->`rtn)
+			   -> ()
+
+			%" ServiceWait is similar to serviceWait,
+			%" but returns ().
+			;
+
+  receive		: Channel(`msg,()) -> `msg
+
+			%" receive(c) removes the next message from
+			%" channel c, replies with (), and returns
+			%" the message that was removed.  If there
+			%" is no message, receive waits For a
+			%" message to appear.
+			;
+
+  anyMessage		: `a -> Boolean;
+
+  noReply		: `a -> ();
+%Expect
+
+%Package

@@ -1,0 +1,11 @@
+Package testabbrev3 
+
+%% Test global abbrevs and assumes.
+
+Import "abbrev3a".
+
+Let x:A = 1.
+
+Let f = idf.
+
+%Package

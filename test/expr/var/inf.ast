@@ -1,0 +1,116 @@
+Package inf 
+
+%% Test infinite arrays and higher-dimensional arrays
+
+Import 
+  "misc/check";
+  "collect/boxes"
+%Import
+
+%% Var x(*)
+
+Execute
+  Writeln["Var x(*)"].
+  Var{shared} a(*).
+  Var{nonshared} p(*).
+  For ?i from 0 _upto_ 100 do
+    Assign a#_i := i.
+    Assign p#_i := i.
+  %For
+  For ?i from 0 _upto_ 100 do
+    Line[$ @(a#_i)].
+    Check[$i].
+    Line[$ @(p#_i)].
+    Check[$i].
+  %For
+%Execute
+
+%% Var x(*,*)
+
+Execute
+  Writeln["Var x(*,*)"].
+  Var{shared} a(*,*).
+  Var{nonshared} p(*,*).
+  For ?i from 0 _upto_ 15 do
+    For ?j from 0 _upto_ 15 do
+      Assign a#_i#_j := (i,j).
+      Assign p#_i#_j := (i,j).
+    %For
+  %For
+  For ?i from 0 _upto_ 15 do
+    For ?j from 0 _upto_ 15 do
+      Line[$ @(a#_i#_j)].
+      Check[$(i,j)].
+      Line[$ @(p#_i#_j)].
+      Check[$(i,j)].
+    %For
+  %For
+%Execute
+
+%% Var x(*,8)
+
+Execute
+  Writeln["Var x(*,8)"].
+  Var{shared} a(*,8).
+  Var{nonshared} p(*,8).
+  For ?i from 0 _upto_ 15 do
+    For ?j from 0 _upto_ 7 do
+      Assign a#_i#_j := (i,j).
+      Assign p#_i#_j := (i,j).
+    %For
+  %For
+  For ?i from 0 _upto_ 15 do
+    For ?j from 0 _upto_ 7 do
+      Line[$ @(a#_i#_j), "shared"].
+      Check[$(i,j), "shared"].
+      Line[$ @(p#_i#_j), "nonshared"].
+      Check[$(i,j), "nonshared"].
+    %For
+  %For
+%Execute
+
+%% Var x(8,*)
+
+Execute
+  Writeln["Var x(8,*)"].
+  Var{shared} a(8,*).
+  Var{nonshared} p(8,*).
+  For ?i from 0 _upto_ 7 do
+    For ?j from 0 _upto_ 15 do
+      Assign a#_i#_j := (i,j).
+      Assign p#_i#_j := (i,j).
+    %For
+  %For
+  For ?i from 0 _upto_ 7 do
+    For ?j from 0 _upto_ 15 do
+      Line[$ @(a#_i#_j)].
+      Check[$(i,j)].
+      Line[$ @(p#_i#_j)].
+      Check[$(i,j)].
+    %For
+  %For
+%Execute
+
+%% Var x(8,8)
+
+Execute
+  Writeln["Var x(8,8)"].
+  Var{shared} a(8,8).
+  Var{nonshared} p(8,8).
+  For ?i from 0 _upto_ 7 do
+    For ?j from 0 _upto_ 7 do
+      Assign a#_i#_j := (i,j).
+      Assign p#_i#_j := (i,j).
+    %For
+  %For
+  For ?i from 0 _upto_ 7 do
+    For ?j from 0 _upto_ 7 do
+      Line[$ @(a#_i#_j)].
+      Check[$(i,j)].
+      Line[$ @(p#_i#_j)].
+      Check[$(i,j)].
+    %For
+  %For
+%Execute
+
+%Package

@@ -1,0 +1,57 @@
+Package testif 
+
+%% Test If expressions, in open and closed forms.
+
+Import "misc/check".
+
+%% Test If-then-else expressions
+
+Execute
+  If 1 < 2 
+    then Line ["good"].
+    else Line ["bad"].
+  %If
+  Check["good"].
+  If 2 < 1 
+    then Line ["bad"].
+    else Line ["good"].
+  %If
+  Check["good"].
+  Line[If 0 == 0 then "good" else "bad".].
+  Check["good"].
+
+  If 1 == 1 then Line["good1"]. else ().
+  Check["good1"].
+  If 1 == 2 then Writeln["bad"]. else ().
+  If 1 == 1 then () else Writeln["bad"]..
+  If 1 == 2 then () else Line["good2"]..
+  Check["good2"].
+%Execute
+
+%% Test If-then and if-else expressions
+
+Execute
+  If 1 == 1 then Line["good3"]. %if
+  Check["good3"].
+  If 1 == 1 else Writeln["bad"]. %if
+  If true then Line["good4"]. %if
+  Check["good4"].
+  If 1 == 1 %if
+%Execute
+
+%% Test open If expressions
+
+Execute
+  open If
+    Let a = true.
+    Let x = 4.
+    a
+  then
+    Let b = 1.
+  else
+    Let b = 2.
+  %If
+  If x =/= 4 _or_ b =/= 1 then Writeln["bad"]. %if
+%Execute
+
+%Package

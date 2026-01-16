@@ -1,0 +1,12 @@
+Package impD1
+
+Export
+
+Expect v: Natural.
+Let u: Natural = 4.
+
+Implementation
+
+Let v = 3.
+
+%Package

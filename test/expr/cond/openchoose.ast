@@ -1,0 +1,62 @@
+Package openchoose
+
+%% Test open chooses.
+
+Import "misc/check".
+
+%% Case where there is nothing unusual.
+
+Execute
+  Let x = 4.
+  Open Choose
+    case x == 2 => Let y = 2.
+    
+    case x == 4 => Let y = 3.
+    
+    else => Let y = 4.
+  %Choose
+  Line[$y].
+  Check["3"].
+%Execute
+
+%% Open choose with a do case.
+
+Execute
+  Let x = 4.
+  Open Choose
+  
+    do Let w = 30.
+    
+    case x == 2 => Let y = 2.
+    
+    case x == 4 => Let y = 3.
+    
+    else => Let y = 4.
+  %Choose
+  Line[$y, " ", $w].
+  Check["3 30"].
+%Execute
+
+%% Open choose with subcases
+
+Execute
+  Let x = 4.
+  Open Choose
+  
+    do Let w = 30.
+    
+    case x == 2 => Let y = 2.
+    
+    case x == 4 =>
+      Subcases
+        case x > 2 => Let y = 3.
+	else       => Let y = 8.
+      %Subcases
+    
+    else => Let y = 4.
+  %Choose
+  Line[$y, " ", $w].
+  Check["3 30"].
+%Execute
+
+%Package

@@ -1,0 +1,19 @@
+Package team2 
+
+Let even ?n =
+  Team
+    Define leven ?k = If zero? k then true else lodd(k--1)..
+    Define lodd ?k  = If zero? k then false else leven(k--1)..
+  %Team
+  leven(n)
+%Let
+
+Execute
+  For ?i from 0 _upto_ 10 do
+    If even(i) == odd?(i) then
+      Writeln["Bad: ", $i].
+    %If
+  %For
+%Execute
+
+%Package

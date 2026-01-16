@@ -1,0 +1,11 @@
+Package prot6
+
+export
+
+Expect{protected{prot7,prot8}} prot : Natural.
+
+implementation
+
+Let prot = 5.
+
+%Package

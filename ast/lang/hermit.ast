@@ -1,0 +1,58 @@
+%% File: hermit.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package 	Astarte_hermit 
+=================================================================
+
+=================================================================
+%% This pacakge describes the hermit ().
+=================================================================
+
+=================================================================
+			Export
+=================================================================
+
+Description
+
+  "()"	%" () is the sole member of species ().  It is typically
+	%" used in situations where you are required to have a
+	%" value, but you don't really want one.  For example,
+	%" if a function is executed solely for its side effects,
+	%" it typically produces () as its value.  If a function
+	%" has no (interesting) inputs, then its input is generally ().
+	%"
+	%" () has one very useful property.  It can behave somewhat
+	%" like a function.  When treated like a function ()(x) = x.
+	%" So () does nothing.  If you want to say "do nothing", use
+	%" ().  For example,
+	%"
+	%"   If a then b %If
+	%"
+	%" abbreviates
+	%"
+	%"   If a then b else () %If
+	%"
+	%" Primitive expressions that are executed only for side
+	%" effects produce ().  For example,
+	%"
+	%"   Let x = 2.
+	%"
+	%" binds x to 2, and produces, as its value, ().
+	%"
+	%" Be careful using lazy expressions that evaluate to ().
+	%" When () is used as a function, it is never evaluated
+	%" implicitly.  So
+	%"
+        %"    (:Writeln["First string"].:)
+        %"    Writeln["Second string"].
+	%"
+	%" only prints "Second string".
+	;
+
+%Description
+
+%Package

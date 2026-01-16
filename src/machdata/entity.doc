@@ -1,0 +1,306 @@
+/**********************************************************************
+ * File:    machData/entity.doc
+ * Purpose: Describe entities
+ * Author:  Karl Abrahamson
+ **********************************************************************/
+
+#ifdef COPYRIGHT
+/************************************************************************
+ * Copyright (c) 1997 Karl Abrahamson					*
+ * All rights reserved.							*
+ *									*
+ * Redistribution and use in source and binary forms, with or without	*
+ * modification, are permitted provided that the following conditions	*
+ * are met:								*
+ *									*
+ * 1. Redistributions of source code must retain the above copyright	*
+ *    notice, this list of conditions and the following disclaimer.	*
+ *									*
+ * 2. Redistributions in binary form must reproduce the above copyright	*
+ *    notice in the documentation and/or other materials provided with 	*
+ *    the distribution.							*
+ *									*
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY		*
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE	*
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 	*
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE	*
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 	*
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 	*
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 	*
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,*
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE *
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,    * 
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.			*
+ *									*
+ ************************************************************************/
+#endif
+
+Entities have two possible representations, and you must choose the one
+that you want.  The small representation (sment.h) uses only one word to
+store entities.  The disadvantage is that pointers are stored in 26 bits,
+and so have a limited range.  The large representation (lgent.h) uses
+a structure to represent an entity.  It uses full 32 bit pointers, but 
+entities are five bytes long.
+
+In the small representation, pointers in entities are stored as offsets 
+from heap_base.  Word pointers are stored without their rightmost 2 bits, 
+which are presumed to be 0.
+
+In both representations, each entity has a tag and a value, except for
+strings, which have more fields (see below). Suppose e is an entity.
+To obtain the tag of e, use TAG(e). To obtain the value, use one of
+the VAL macros in sment.h or lgent.h.  For example, to obtain the
+integer value, use IVAL(e).  To construct an entity, use one of the
+ENT macros in sment.h or lgent.h.
+
+The following kinds of entities are available.  Note that these 
+values are the underlying representations of the entities; 
+entities that can cast back and forth have the same representation.
+
+
+Tag		Discussion
+---		----------
+NOREF_TAG	Used to store integers and quantities represented by
+		integers, such as booleans.  INT_TAG is the same, only
+		used in the code for types Integer and Natural.
+		Booleans are stored with 0 = false, 1 = true.  Hermit
+		has value 0.  The list nil has the same representation
+		as the hermit.
+
+		NOREF_TAG is also used for wrapped hermits.  See WRAP_TAG.
+
+
+GLOBAL_TAG	The value field holds an index k in ent_names of the record
+		for an identifier x.  This kind of entity is found only in
+		a pair, where the second entity in the pair is the type of
+		this global id.  (That is, if entity p[0] has
+		tag GLOBAL_TAG, the then entity p[1] has tag TYPE_TAG.)
+
+
+GLOBAL_INDIRECT_TAG	The value is a pointer to a pair (val,type)
+			of entities, where val is the value of this
+			entity, and type is its type.  GLOBAL_TAG 
+			entities are always accessed though GLOBAL_INDIRECT_TAG
+			entities, so that lazy evaluation can replace
+			the value.  Note that val might have tag GLOBAL_TAG,
+			and might have another tag.
+
+
+INDIRECT_TAG	The value is a pointer to the entity. Used for indirection
+		to a lazy value, so that memoizations are visible to all
+		copies.
+
+
+LAZY_LIST_TAG   The value is a pointer to an up-control node that represents
+		the expression that computes the stream of this list.
+		Failing with this control causes the generator to start, and
+		to get the next value in the list.
+
+
+LAZY_TAG	The value is a pointer to a down-control node that represents
+		the expression that computes this value. To evaluate, start
+		with this control.
+
+
+LAZY_PRIM_TAG	This entity is the value of a computation that has timed-out,
+		or is a lazy primitive.  The value is a pointer to a triple
+		of entities (kind,val1,val2), where kind is the kind of
+		lazy primitive, and (val1,val2) are its parameters.
+
+
+FAIL_TAG	This is the result of a failed lazy computation.
+		The value is the exception number.
+
+
+BIGNEGINT_TAG,BIGPOSINT_TAG
+		The value is a pointer to a binary chunk of memory giving the
+		absolute value of an integer.  BIGNEGINT_TAG is used 
+		for a negative integer, and BIGPOSINT_TAG is used for
+		a positive integer.  These tags are only used for 
+		truly large integers -- integers with small absolute
+		value are always represented using NOREF_TAG.
+
+		A binary chunk is stored as follows.  The first two bytes
+		of the chunk are the header, and hold two mark 
+		bits and 14 bits that tell the length of the chunk, in 
+		bytes.  The length stored is the number of data bytes, 
+		and does not count the header itself.
+		The remaining bytes consist of the data, and are thought 
+		of as an array of intcells.  (The intcells are
+		two bytes each.)
+
+		There is a special case where the size stored in the
+		header is 0x3fff.  In that case, the chunk is a very 
+		large one.  The next four bytes after the two-byte
+		header hold the size of the chunk, in bytes.  As before
+		the size does not count the two byte header or the 
+		four bytes after that.  The data comes after that.
+
+STRING_TAG	The value is a pointer to a binary chunk, as described
+		under BIGPOSINT_TAG, above.  In this case, the content
+		is thought of as an array of bytes.
+			   
+CSTR_TAG	The value is a pointer to a null-terminated string.
+		The string is in the string hash table, so two CSTR_TAG
+		values are the same string just when their pointers
+		are the same.
+
+SMALL_REAL_TAG	The value is a pointer to a double precision floating
+		point value.
+
+
+LARGE_REAL_TAG	The value is a pointer to a pair (man,ex) consisting of
+		the mantissa and exponent to base INT_BASE =
+	        2^{BITS_IN_INTCELL}.
+
+
+RATIONAL_TAG	The value is a pair (a,b), representing the rational value
+		a/b.
+
+
+WRAP_TAG	This is an entity wrapped with a tag that is either a 
+		type or an integer. The value is a pointer to a pair 
+		of entities (tag,val), where val is the value and
+		tag is the tag.  
+
+		In the case where val is the hermit and tag is an integer,
+		a NOREF_TAG is used instead of a WRAP_TAG, and the 
+		value is the tag.
+
+
+QWRAP0_TAG, QWRAP1_TAG, QWRAP2_TAG, QWRAP3_TAG
+		These are shorthands for wraps.  QWRAPx_TAG with value
+		e is the same as WRAP_TAG with value (x,e).  
+
+
+FILE_TAG	The value is a pointer to a file entity, describing an
+		input or output file or a font.
+
+
+FUNCTION_TAG	The value is a pointer to a continuation for the function.
+
+
+PAIR_TAG, TRIPLE_TAG, QUAD_TAG
+	  	These are used for lists and products.  The value is a 
+		pointer to a block of n entities, consisting of the first 
+		n-1 entities in the list or product followed by a single
+		entity that is the remainder of the list or product.  The
+		tag indicates the value of n.  PAIR_TAG indicates
+		that n = 2, TRIPLE_TAG that n = 3 and QUAD_TAG that
+		n = 4.  A PAIR_TAG entity is thus a cons pair, holding
+		a pointer to a pair (h,t) of the head and tail of the list.
+
+
+ARRAY_TAG	An ARRAY_TAG entity points to a header that describes
+		a random-access list or an integer.  The header holds
+		two or more values, the first being the length of the
+		list (or of the front part of the list),
+		the second being the body of the list.  The length
+		field must always have tag INT_TAG.  The tag of the
+		body value tells what kind of list is being stored.
+
+		Tag BOX_TAG:
+
+		  There are only two header entries, (l,b).  (b has
+		  tag BOX_TAG.)  This list is a list of nonshared
+		  boxes b, b+1, ..., b+l-1.
+
+		Tag PLACE_TAG:
+
+		  There are four entries in the header, (l,p,r,a).
+		  (p has tag PLACE_TAG.) This list is a list of
+		  shared boxes p, p+1, ..., p+l-1 followed by list r.
+
+		  Field a is used for garbage collection.  It is an array
+		  of which p, p+1, ..., p+l-1 is a subarray.
+		  That array is marked rather than this one.  If a is nil,
+		  then this is not a subarray of any other array.
+
+		Tag INDIRECT_TAG:
+
+		  There are four entries in the header, (l,s,r,k).  This
+		  list is a list of entities stored at consecutive
+		  addresses s, s+1, ..., s+l-1, followed by list r.
+		  Field k is used for garbage collection.  It is the
+		  number of entries beyond the end of this array that
+		  need to be marked when this array is marked.
+
+		Tag STRING_TAG
+
+		  The value is a quadruple of entities (l,s,r,k).  This
+		  list consists of the sublist of string s of length l
+		  beginning k bytes beyond the beginning of s, followed
+		  by list r.
+
+		Tag ENTITY_TOP_TAG:
+
+		  There are three entries in the header, (l,s,r).  This array
+		  is the concatenation of the arrays stored at s, s+1, ...,
+		  s+l-1, followed by list r.  Each the arrays stored at
+		  s, s+1, ... must have tag ARRAY_TAG,
+		  and each of those arrays must have kind INDIRECT_TAG
+		  or PLACE_TAG.
+
+                  Each of those arrays must have a follower field of nil.
+		  All but the last of s, s+1, ..., s+l-1 must have
+                  size exactly ENT_BLOCK_GRAB_SIZE.
+
+APPEND_TAG	This is the concatenation of two lists.  The value is a
+		pointer to a pair of entities (l,r), where this list is
+		l ++ r.
+
+		APPEND_TAGs are only used in special circumstances, to
+		create a lazy append.  The left-subtree of an
+		APPEND_TAG has a list structure that is not lazy, although
+		the members of the list can be lazy.
+
+TREE_TAG	Operator ++ uses a list data structure due to Okasaki.  A
+		list is represented as a multi-way branching tree, where
+		the list consists of a preorder traversal of the tree.
+		Each node of the tree contains a value, except nodes that
+		are *vacant*.  Vacant nodes are skipped in the preorder
+		traversal.
+
+		The children of a tree node are stored, left-to-right,
+		as a queue.  The queue, in turn, is stored by four
+		quantities: (f,m,r,n) where f and r are lists, m is
+		the length of f and n is the length of r.  The queue
+		contains f followed by the reversal of r.
+
+		A tree node therefore has five values associated with it:
+		(key,f,m,r,n).  If key is NOTHING, then the node is
+		vacant.  The implementation of Okasaki's algorithm is
+		in file append.c.
+
+
+BOX_TAG		The value is a box number.
+
+
+PLACE_TAG	The value is the address of the place.
+
+
+DEMON_TAG	This kind of entity only occurs as the content of a box
+		or place.  The value is the address of a pair (v,l) 
+		where v is the content of the box or place (or NOTHING
+		for an empty box or place) and l is a list of pairs
+		of the form (bx,f) where bx is a box or place that
+		contains a boolean value and f is a function.  
+
+		Suppose that b is a box that has value DEMON_TAG(old,l),
+		and that l contains pair (x,f).  If assign! b := new.
+		is executed, the following happens.
+		   Box x is checked. If x contains true, then no event
+		   is done.  If x contains false or is empty, then 
+		      1. x is assigned true.
+		      2. f(b,old,new) is computed.  It must return ().
+		      3. x is assigned false.
+		This processing is done for each pair (x,f) in l.
+
+
+TYPE_TAG	A type.  The value is a pointer to the type.
+
+
+RELOCATE_TAG	Used for relocating entities during garbage collection.
+		The value is a pointer to the cell where this entity
+		has moved to.
+=============================================================================

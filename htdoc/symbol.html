@@ -1,0 +1,120 @@
+<HTML>
+<head>
+<title>Astarte: symbols</title>
+</head>
+<body>
+<center>
+<a href="rlist.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="optional.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L7. Symbols </font></h1>
+</center>
+
+A symbol is a value that is completely characterized by its name.
+Symbols are common in languages that are designed for symbolic computing, 
+such as Lisp and Prolog.
+
+<p>A symbol is represented by its name, but the name is <i>interned</i>.
+That is, the name is put into a hash table, so that every occurrence
+of the symbol refers to the same occurrence of the string in
+memory.  You get two benefits from this.  First, you don't store multiple
+copies of the symbol's name.  Second, equality comparisons of symbols is
+done by comparing pointers, which is faster than comparing names character
+by character.
+
+<p>A symbol has species Symbol in Astarte.  You need to import
+package <a href="ast/logic/symbol.ast">logic/symbol.ast</a> to use symbols.
+Operations are as follows.
+
+<dl>
+<a name=sharp></a>
+<p><dt><font color=red>#</font>
+<dd>: String -> Symbol
+<p> If s is a string, then 
+<font color=#D00090>#s</font> is the symbol whose name is s.
+You can also apply # to a list of strings, with 
+<font color=#D00090>#[a,b,c]</font> = [#a, #b, #c].
+<p>Examples<font color="#D00090">
+<br>#&quot;wheat&quot;
+<br>#[&quot;the&quot;, &quot;moon&quot;, &quot;is&quot;, &quot;yellow&quot;]
+</font>
+
+<p><dt><font color=red># (pattern)</font>
+<dd>: String -> Symbol
+<p> You can use # in a pattern, either applied to a string or to a list
+of strings.
+<p>Example: 
+<font color="#D00090">
+<b><pre>
+  Match #(?str) = sym.
+</pre></b>
+</font>
+binds str to the name of symbol sym.
+
+<a name=symbolName></a>
+<p><dt><font color=red>symbolName</font>
+<dd>: Symbol -> String
+<p> <font color=#D00090>symbolName(x)</font> 
+is the name of symbol x (a string).
+<p>Example: 
+<font color="#D00090">symbolName(#&quot;toast&quot;)</font> 
+= &quot;toast&quot;.
+
+<a name=dollar></a>
+<p><dt><font color=red>$</font>
+<dd>: Symbol -> String
+<p> If x is a symbol, then <font color=#D00090>$(x)</font> 
+is a string that consists of the name
+of x, in quotes, preceded by a #.
+<p>Example: 
+<font color="#D00090">$(#&quot;toast&quot;)</font> = 
+&quot;#\&quot;toast\&quot;&quot;.
+
+<a name=pull></a>
+<p><dt><font color=red>pull</font>
+<dd>: String -> (Symbol, String)
+<p> When pull has species String -&gt; (Symbol,String), it extracts
+the description of a symbol from the front of a string.  The description
+should be in the form produced by $. 
+For example,
+pull(&quot;#\&quot;toast\&quot; 334&quot;) = 
+(#&quot;toast&quot;, &quot; 334&quot;).
+
+<a name=compare></a>
+<p><dt><font color=red>compare</font>
+<dd>: (Symbol, Symbol) -> Comparison
+<p> Comparison of symbols compares their names.  
+You can use <tt>==</tt>, =/=,
+&gt;, &lt;, &gt;= and &lt;= to compare symbols. 
+
+<a name=symlist></a>
+<p><dt><font color=red>symlist</font>
+<dd>: String -> [Symbol] 
+<p><font color=#D00090>symlist &quot;abc def ghi&quot;</font> = 
+[#&quot;abc&quot;, #&quot;def&quot;, #&quot;ghi&quot;].  In general,
+symlist breaks a string at white space, and then converts each piece
+to a symbol.  Parts of the string that are surrounded by quotes are
+kept together.  For example,
+<font color=#D00090>symlist &quot;\&quot;abc def\&quot; ghi&quot;</font> = 
+[#&quot;abc def&quot;, #&quot;ghi&quot;].
+</dl>
+
+<hr>
+<center>
+<a href="rlist.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="optional.html">Next</a>
+</center>
+</body>
+</HTML>
+

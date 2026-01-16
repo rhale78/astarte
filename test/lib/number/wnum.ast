@@ -1,0 +1,32 @@
+Package wnum
+
+%% Test wrapped numbers
+
+Import "misc/check".
+
+Execute
+  Let a = <<2>>.
+  Let b = <<3.0>>.
+  Let c = a + b.
+  Line[$c].
+  Check["5"].
+%Execute
+
+Execute
+  Let a = <<2>>.
+  Let b = << ~3.4>>.
+  Let c = a + b.
+  Line[$c].
+  Check["5.4"].
+%Execute
+
+Execute
+  Let a = <<2>>.
+  Let b = << ~3.4>>.
+  Let c = a * b.
+  Line[$c].
+  Check["6.8"].
+%Execute
+  
+
+%Package

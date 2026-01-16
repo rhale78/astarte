@@ -1,0 +1,291 @@
+Package vard5
+
+%% Test Var: multidimensional infinite arrays, both uninitialized and 
+%% initialized.
+%% (Var declarations)
+
+Import "misc/check".
+Import "collect/boxes.ast".
+
+======================================================================
+%%				SHARED BOXES
+======================================================================
+
+Var{shared} as2u1(*,10), as2u2(10,*), as2u3(*,*) holding Natural.
+Var{shared} as2ia1(*,10),as2ia2(10,*), as2ia3(*,*) holding Natural all := 0.
+
+Var{shared} as2i1(*,3) holding Natural := [[1,2,3], [4,5,6]].
+Var{shared} as2i2(*,3) holding Natural := infiniteDup [1,2,3].
+
+Var{shared} as2i3(2,*) holding Natural := [[1,2,3,4,5], [6,7,8,9,10]].
+Var{shared} as2i4(2,*) holding Natural := [0 _upto_ infinity, 0 _upto_ infinity].
+
+Var{shared} as2i5(*,*) holding Natural := [[1,2,3,4,5], [6,7,8,9,10]].
+Var{shared} as2i6(*,*) holding Natural := [0 _upto_ infinity, 0 _upto_ infinity].
+Var{shared} as2i7(*,*) holding Natural := infiniteDup(0 _upto_ infinity).
+Var{shared} as2i8(*,*) holding Natural := infiniteDup([1,2,3,4,5]).
+
+Execute
+  Write["Shared: u"].
+  For ?n from 0 _upto_ 9 do
+    For ?m from 0 _upto_ 9 do
+      Assign as2u1#_n#_m := 0.
+      Assign as2u2#_n#_m := 0.
+      Assign as2u3#_n#_m := 0.
+    %For
+  %For
+  Line[].
+  For ?n from 0 _upto_ 9 do
+    For ?m from 0 _upto_ 9 do
+      Moreline[$(@(as2u1#_n#_m))].
+      Moreline[$(@(as2u2#_n#_m))].
+      Moreline[$(@(as2u3#_n#_m))].
+    %For
+  %For
+  Check[dup 300 '0'].
+
+  Write[" ia"].
+  Line[].
+  For ?n from 0 _upto_ 9 do
+    For ?m from 0 _upto_ 9 do
+      Moreline[$(@(as2ia1#_n#_m))].
+      Moreline[$(@(as2ia2#_n#_m))].
+      Moreline[$(@(as2ia3#_n#_m))].
+    %For
+  %For
+  Check[dup 300 '0'].
+
+  Write[" i1"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2i1#_n#_m))].
+    %For
+  %For
+  Check["123456"].
+
+  Write[" i2"].
+  Line[].
+  For ?n from 0 _upto_ 10 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2i2#_n#_m))].
+    %For
+  %For
+  Check["123123123123123123123123123123123"].
+
+  Write[" i3"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(as2i3#_n#_m))].
+    %For
+  %For
+  Check["12345678910"].
+
+  Write[" i4"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(as2i4#_n#_m))].
+    %For
+  %For
+  Check["0123401234"].
+
+  Write[" i5"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(as2i5#_n#_m))].
+    %For
+  %For
+  Check["12345678910"].
+
+  Write[" i6"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(as2i6#_n#_m))].
+    %For
+  %For
+  Check["0123401234"].
+
+  Write[" i7"].
+  Line[].
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(as2i7#_n#_m))].
+    %For
+  %For
+  Check["0123401234012340123401234"].
+
+  Write[" i8"].
+  Line[].
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(as2i8#_n#_m))].
+    %For
+  %For
+  Check["1234512345123451234512345"].
+
+  Writeln[].
+%Execute
+
+======================================================================
+%%				NONSHARED BOXES
+======================================================================
+
+Var{nonshared} an2u1(*,10), an2u2(10,*), an2u3(*,*) holding Natural.
+Var{nonshared} an2ia1(*,10),an2ia2(10,*), an2ia3(*,*) holding Natural all := 0.
+
+Var{nonshared} an2i1(*,3) holding Natural := [[1,2,3], [4,5,6]].
+Var{nonshared} an2i2(*,3) holding Natural := infiniteDup [1,2,3].
+
+Var{nonshared} an2i3(2,*) holding Natural := [[1,2,3,4,5], [6,7,8,9,10]].
+Var{nonshared} an2i4(2,*) holding Natural := [0 _upto_ infinity, 0 _upto_ infinity].
+
+Var{nonshared} an2i5(*,*) holding Natural := [[1,2,3,4,5], [6,7,8,9,10]].
+Var{nonshared} an2i6(*,*) holding Natural := [0 _upto_ infinity, 0 _upto_ infinity].
+Var{nonshared} an2i7(*,*) holding Natural := infiniteDup(0 _upto_ infinity).
+Var{nonshared} an2i8(*,*) holding Natural := infiniteDup([1,2,3,4,5]).
+
+Execute
+  Write["Nonshared: u"].
+  For ?n from 0 _upto_ 9 do
+    For ?m from 0 _upto_ 9 do
+      Assign an2u1#_n#_m := 0.
+      Assign an2u2#_n#_m := 0.
+      Assign an2u3#_n#_m := 0.
+    %For
+  %For
+  Line[].
+  For ?n from 0 _upto_ 9 do
+    For ?m from 0 _upto_ 9 do
+      Moreline[$(@(an2u1#_n#_m))].
+      Moreline[$(@(an2u2#_n#_m))].
+      Moreline[$(@(an2u3#_n#_m))].
+    %For
+  %For
+  Check[dup 300 '0'].
+
+  Write[" ia"].
+  Line[].
+  For ?n from 0 _upto_ 9 do
+    For ?m from 0 _upto_ 9 do
+      Moreline[$(@(an2ia1#_n#_m))].
+      Moreline[$(@(an2ia2#_n#_m))].
+      Moreline[$(@(an2ia3#_n#_m))].
+    %For
+  %For
+  Check[dup 300 '0'].
+
+  Write[" i1"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(an2i1#_n#_m))].
+    %For
+  %For
+  Check["123456"].
+
+  Write[" i2"].
+  Line[].
+  For ?n from 0 _upto_ 10 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(an2i2#_n#_m))].
+    %For
+  %For
+  Check["123123123123123123123123123123123"].
+
+  Write[" i3"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(an2i3#_n#_m))].
+    %For
+  %For
+  Check["12345678910"].
+
+  Write[" i4"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(an2i4#_n#_m))].
+    %For
+  %For
+  Check["0123401234"].
+
+  Write[" i5"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(an2i5#_n#_m))].
+    %For
+  %For
+  Check["12345678910"].
+
+  Write[" i6"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(an2i6#_n#_m))].
+    %For
+  %For
+  Check["0123401234"].
+
+  Write[" i7"].
+  Line[].
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(an2i7#_n#_m))].
+    %For
+  %For
+  Check["0123401234012340123401234"].
+
+  Write[" i8"].
+  Line[].
+  For ?n from 0 _upto_ 4 do
+    For ?m from 0 _upto_ 4 do
+      Moreline[$(@(an2i8#_n#_m))].
+    %For
+  %For
+  Check["1234512345123451234512345"].
+
+  Writeln[].
+%Execute
+
+======================================================================
+%%				UNKNOWNS
+======================================================================
+
+Var{shared, unknown} asuu1(2,*),asuu2(*,3),asuu3(*,*) holding Natural.
+Var{nonshared, unknown} anuu1(2,*),anuu2(*,3),anuu3(*,*) holding Natural.
+
+Execute
+  Writeln["Unknowns"].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      BindUnknown asuu1#_n#_m := 1.
+      BindUnknown asuu2#_n#_m := 2.
+      BindUnknown asuu3#_n#_m := 3.
+      BindUnknown anuu1#_n#_m := 1.
+      BindUnknown anuu2#_n#_m := 2.
+      BindUnknown anuu3#_n#_m := 3.
+    %For
+  %For
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(asuu1#_n#_m)].
+      Moreline[$(asuu2#_n#_m)].
+      Moreline[$(asuu3#_n#_m)].
+      Moreline[$(anuu1#_n#_m)].
+      Moreline[$(anuu2#_n#_m)].
+      Moreline[$(anuu3#_n#_m)].
+    %For
+  %For
+  Check["123123123123123123123123123123123123"].
+%Execute
+
+%Package
+

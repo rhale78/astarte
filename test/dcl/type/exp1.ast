@@ -1,0 +1,19 @@
+Package exp1 export
+
+Extension
+  Expect species MyType.
+%Extension
+
+Expect
+  myType: Natural -> MyType;
+  unmyType: MyType -> Natural
+%Expect
+
+
+
+
+Extension
+  Species MyType = Natural.
+%Extension
+
+%Package

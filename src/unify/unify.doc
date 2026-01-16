@@ -1,0 +1,50 @@
+/**************************************************************
+ * File:    unify/unify.doc
+ * Purpose: description of unify.c
+ * Author:  Karl Abrahamson
+ **************************************************************/
+
+
+ ****************************************************************
+ *			FUNCTIONS				*
+ ****************************************************************
+
+find_u(t)		returns t, after scanning over chains of bound
+			variables.
+
+clear_bindings_u()	Clear out the binding list.  This should be used
+			before unifications, if the binding list might not
+			be clear.
+
+undo_bindings_u(m)	Undo all bindings in the binding list from m to the
+			top.
+
+basic_unify_u(a,b,r)	unifies types *a and *b, treating null values as
+			unbound variables.  No occur check is done.
+			If r is true, all bindings are placed in the 
+			binding list for possible undoing later.
+			If in_overlap is true, variables 
+			left_nontriv_bound and right_nontriv_bound 
+			are set if there is a restrictive 
+			binding on the left and/or right, respectively.
+
+unify_u(a,b,r)		unifies *a with *b.  Null values of a and b are
+			treated like unbound type variables.
+			Sets variables left_bound and right_bound as 
+			basic_unify.  If in_overlap is true, also undoes
+			the bindings that were done.
+			If r = TRUE, then bindings are recorded for possible
+			undoing later.
+
+overlap_u(a,b)		Returns an indication of how varieties a and b
+			overlap.  
+			  DISJOINT_OV	  - a and b are disjoint
+			  EQUAL_OV	  - a = b
+			  CONTAINS_OV	  - b is a proper subset of a
+			  CONTAINED_IN_OV - a is a proper subset of b
+			  BAD_OV	  - none of the above.
+
+Remark: See the remark in infer.c concerning special behavior of 
+basic_unify_u.
+
+

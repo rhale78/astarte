@@ -1,0 +1,13 @@
+Package letpat
+
+%% Test let with a pattern variable.
+
+Import "misc/check".
+
+Execute
+  Let ?x = 1.
+  Line[$x].
+  Check["1"].
+%Execute
+
+%Package

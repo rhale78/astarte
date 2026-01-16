@@ -1,0 +1,12 @@
+Package assume3 interface
+
+%% Test that assumptions and abbreviations made in interface are available
+%% in this package.
+
+Abbrev{noExport} AA = Integer.
+
+Assume{noExport} nn: Integer.
+
+Expect ff: Integer -> Integer.
+
+%Package

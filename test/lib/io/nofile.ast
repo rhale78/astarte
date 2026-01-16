@@ -1,0 +1,27 @@
+Package nofile 
+
+%% Test attempt to access nonexistent files, and files without permission.
+
+Import "misc/check".
+
+Execute
+  Writeln["Should show exception noFileX twice."].
+  Try
+    Let f1 = Untrap all => infile("nonsense1")..
+  then 
+    Writeln["Bad"].
+    Writeln[f1].
+  else
+    Writeln[$exception].
+  %Try
+  Try
+    Let f = Untrap noFileX("") => infile("nonsense")..
+  then 
+    Writeln["Bad"].
+    Writeln[f].
+  else
+    Writeln[$exception].
+  %Try
+%Execute
+
+%Package

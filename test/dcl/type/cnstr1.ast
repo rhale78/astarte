@@ -1,0 +1,35 @@
+Package cnstr1 
+
+%% Test constructors, etc. for defined types
+
+Extension
+  Species T1 = t1.
+  Species T2 = t2(Real).
+  Species T3 = t3a | t3b Natural | t3c Real | t3d | t3e.
+%Extension
+
+Extension
+  Species F1(`a) = f1.
+  Species F2(`a) = f2(`a).
+  Species F3(`a) = f3a | f3b(`a) | f3c(Real) | f3d | f3e.
+%Extension
+
+Extension
+  Species{noEqual} TT1 = tt1.
+  Species{noEqual} TT2 = tt2(Real).
+  Species{noEqual} TT3 = tt3a | tt3b Natural | tt3c Real | tt3d | tt3e.
+%Extension
+
+Extension
+  Species{noEqual} FF1(`a) = ff1.
+  Species{noEqual} FF2(`a) = ff2(`a).
+  Species{noEqual} FF3(`a) = ff3a | ff3b(`a) | ff3c(Real) | ff3d | ff3e.
+%Extension
+
+
+Execute
+  Let a = t1.
+  Match t1 = a.
+%Execute
+
+%Package

@@ -1,0 +1,32 @@
+Package stream1
+
+%% Test basic mix (parallel thread) handling
+
+%% Simple stream
+
+Execute
+  Writeln["Should print 1, 2 on separate lines, in either order."].
+  Try
+    Let x = Mix 1 with 2 %Mix.
+    Writeln[$x].
+    Fail testX.
+  %Try
+%Execute
+
+%% Let two threads go in parallel for a while.
+
+Execute
+  Writeln["Should print mixed 1..100 and 1000..1100."].
+  Mix
+    For ?i from 1 _upto_ 100 do
+      Writeln[$i].
+    %For
+  with
+    For ?i from 1000 _upto_ 1100 do
+      Writeln[$i].
+    %For
+  %Mix
+%Execute
+
+%Package
+

@@ -1,0 +1,66 @@
+Package testsystem 
+
+%% Test system functions
+
+Directory standard.
+Import "system/system".
+
+=========================================================
+%% Test doCmd
+
+Advise nowarn indent one.
+
+Execute
+  Let lsresult = doCmd(["ls"], nil).
+  Writeln[lsresult, "\n"].
+  Writeln[doCmd(["/bin/echo", "This", "is", "an", "echo"], nil)].
+  If fileExists?("usr/ucb/fold") then
+    Let foldresult = doCmd(["/usr/ucb/fold", "-30"], 
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    %Let
+    Writeln[foldresult, "\n"].
+  %If
+%Execute
+
+=========================================================
+%% Test system
+
+Execute
+  Let lsresult = system "/bin/ls"  nil.
+  Writeln[lsresult, "\n"].
+  Writeln[system "/bin/echo This is an echo"  nil].
+  Let foldresult = system "/usr/ucb/fold -30" 
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  %Let
+  Writeln[foldresult, "\n"].
+%Execute
+
+=========================================================
+%% Test dirList
+
+Execute
+  Let cwd = dirList (file ".").
+  Writeln[$cwd].
+%Execute
+
+%% Test getEnv
+
+Execute
+  Writeln["PWD = ", getEnv "PWD"].
+  Writeln["HOME = ", getEnv "HOME"].
+%Execute
+
+%% Test ChangeDirectory, getCwd.
+
+Execute
+  ChangeDirectory "/usr/local".
+  Writeln[getCwd()].
+%Execute
+
+
+%Package
+
+
+
+
+

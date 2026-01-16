@@ -1,0 +1,470 @@
+%% File search.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%====================================================================
+Package 		Astarte_SearchImp 
+
+			Implements "search"
+====================================================================
+
+====================================================================
+%% Some of the functions in this file show two implementations,   %%
+%% one commented out.  The commented one is simpler and easier    %%
+%% to read, and the active one is more efficient.		  %%
+====================================================================
+
+
+Import "pattern/listpat".
+
+====================================================================
+%% 			_in_					  %%
+====================================================================
+
+%% Define _in_ by first
+%%   case ?  _in_ []        = false
+%%   case ?x _in_ (?x :: ?) = true
+%%   case ?x _in_ (? :: ?t) = x _in_ t
+%% %Define
+
+
+Let ?x _in_ ?l =
+  Loop ?l_l = l first matching l_l
+    exitcase []       => false
+    exitcase [x & ?]  => true
+    loopcase else     => continue tail(l_l)
+  %Loop
+%Let
+
+====================================================================
+%% 			suffixAt				  %%
+====================================================================
+
+%% Define suffixAt by first
+%%   case suffixAt ? [] = []
+%%   case suffixAt ?x [?x & ?r] = [x & r]
+%%   case suffixAt ?x [?  & ?r] = suffixAt x r
+%% %Define
+
+Let suffixAt ?x ?l =
+  Loop ?l_l = l first matching l_l
+    exitcase []       => nil
+    exitcase [x & ?]  => l_l
+    loopcase else     => continue tail(l_l)
+  %Loop
+%Let
+
+====================================================================
+%% 			-/					  %%
+====================================================================
+
+Define ?x -/ ?v =
+  Await x then
+    Choose first matching x 
+      case []         => []
+      case (v :: ?t)  => t
+      case (?h :: ?t) => h :: (t -/ v)
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			-//					  %%
+====================================================================
+
+Define ?x -// ?v =
+  Await x then
+    Choose first matching x
+      case []         => []
+      case (v :: ?t)  => t -// v
+      case (?h :: ?t) => h :: (t -// v)
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			assoc					  %%
+====================================================================
+
+%% Define assoc by first
+%%   case  assoc ?  []              = fail testX
+%%   case  assoc ?x ((?x,?y) :: ?)  = y
+%%   case  assoc ?x (? :: ?t)       = assoc x t
+%% %Define
+
+Let assoc ?x ?l =
+  Loop ?l_l = l first matching l_l
+    exitcase []             => fail testX
+    exitcase [(x,?y) & ?]   => y
+    loopcase else           => continue tail l_l
+  %Loop
+%Let
+
+====================================================================
+%% 			assocSuffix				  %%
+====================================================================
+
+%% Define assocSuffix by first
+%%   case  assocSuffix ?  []              = []
+%%   case  assocSuffix ?x ((?x,?y) :: ?t) = (x,y) :: t
+%%   case  assocSuffix ?x (? :: ?t)       = assocSuffix x t
+%% %Define
+
+Let assocSuffix ?x ?l =
+  Loop ?l_l = l first matching l_l
+    exitcase []                      => []
+    exitcase [(x,?) & ?] _also_ ?r   => r
+    loopcase else                    => continue tail l_l
+  %Loop
+%Let
+
+====================================================================
+%% 			select					  %%
+====================================================================
+
+%% Define select by first
+%%   case  select ?  []         = fail testX
+%%   case  select ?f (?h :: ?)  = h                when f(h)
+%%   case  select ?f (?  :: ?t) = select f t
+%% %Define
+
+Let select ?f ?l  =
+  Loop ?p = l first
+    exitcase nil? p     => fail testX
+    exitcase f(head p)  => head p
+    loopcase else       => continue tail p
+  %Loop
+%Let
+
+====================================================================
+%% 			findMember				  %%
+%% 			maybeFindMember				  %%
+%%			findMemberAfter				  %%
+%%			maybeFindMemberAfter			  %%
+====================================================================
+
+==================================================
+%% General implementation of maybeFindMemberAfter.  
+%% This will work for all species over which 
+%% maybeFindMemberAfter is defined.
+==================================================
+
+Let{default} maybeFindMemberAfter (?s,?sense_p) ?c ?l =
+  Loop (?n, ?rest_l, ?cc) = (0, l, c) 
+    first matching rest_l
+      exitcase []   => (cc, n, [])
+      case ?h :: ?t =>
+        Subcases
+	  exitcase (h _in_ s) == sense_p => (cc, n, rest_l)
+	  loopcase else                  => continue (n+1, t, h)
+	%Subcases
+  %Loop
+%Let
+
+==============================================================
+%% Implementation for scanning strings, with an arbitrary 
+%% kind of collection indicating what is being searched for.
+%% This implementation just converts the collection to a 
+%% dense set, and uses the next implementation.
+==============================================================
+  
+Let{default,override} maybeFindMemberAfter (?s,?sense_p) = 
+  maybeFindMemberAfter(denseSet(toList(s)),sense_p)
+%Let
+
+==============================================================
+%% Implementation for scanning strings, with a dense set
+%% indicating what is being searched for.  This implementation
+%% uses the primitive function scanForChar.
+==============================================================
+
+Let{override} maybeFindMemberAfter ?info_p ?c ?l = (cc,n,r) |
+  Match (?n,?r,?cc) = scanForChar(l, c, info_p).
+%Let
+
+====================================================================
+%% The remaining functions are defined in terms of
+%% maybeFindMemberAfter.
+====================================================================
+
+Let findMemberAfter ?info_p ?leadin_p ?l = z |
+  Match ?z _also_ (?,?,?r) = maybeFindMemberAfter info_p leadin_p l.
+  {not nil? r}
+%Let
+
+========
+
+Let findMember ?info_p ?l =
+  If nil? l
+    then fail testX
+    else right(findMemberAfter info_p (head l) l)
+  %If
+%Let
+
+=========
+
+Let maybeFindMember ?info_p ?l =
+  If nil? l
+    then (0, [])
+    else right(maybeFindMemberAfter info_p (head l) l)
+  %If
+%Let
+
+====================================================================
+%%			findLastMember				  %%
+%%			maybeFindLastMember			  %%
+====================================================================
+
+Let maybeFindLastMember(?p_coll,?p_sense) ?p_lst =
+
+  %%--------------------------------------------------------
+  %% We will do subscripting, so work with a packed list.
+  %%--------------------------------------------------------
+  
+  Relet p_lst = pack p_lst.
+  
+  %%--------------------------------------------------------
+  %% Scan back from the end.
+  %%--------------------------------------------------------
+  
+  Let l_lst_len = length p_lst.
+  Loop ?n = l_lst_len
+    exitcase n == 0 => (l_lst_len, [])
+    
+    do Let m = n -- 1.
+       Let c = p_lst #_ m.
+    
+    exitcase (c _in_ p_coll) == p_sense => (m, p_lst##(m, infinity))
+      
+    loopcase else                       => continue m
+  %Loop
+%Let
+
+=========
+
+Let findLastMember ?p_info ?p_lst = z |
+  Let z = maybeFindLastMember p_info p_lst.
+  {not nil?(right z)}
+%Let
+
+====================================================================
+%%			pullSpan				  %%
+%%			pullSpanEnd				  %%
+%%			pullSpanOthers				  %%
+%%			pullSpanOthersEnd			  %%
+====================================================================
+
+Let pullSpan ?c ?l =
+  Match (?n, ?r) = maybeFindMember(c, false) l.
+  If nil? r
+    then (l, [])
+    else (l##(0,n), r)
+  %If
+%Let
+
+==========
+
+Let pullSpanOthers ?c ?l =
+  Match (?n, ?r) = maybeFindMember(c, true) l.
+  If nil? r
+    then (l, [])
+    else (l##(0,n), r)
+  %If
+%Let
+
+==========
+
+Let pullSpanEnd ?c ?l =
+  Match (?n, ?r) = maybeFindLastMember(c, false) l.
+  If nil? r
+    then ([], l)
+    else (l##(0,n+1), tail r)
+  %If
+%Let
+
+==========
+
+Let pullSpanOthersEnd ?c ?l =
+  Match (?n, ?r) = maybeFindLastMember(c, true) l.
+  If nil? r
+    then ([], l)
+    else (l##(0,n+1), tail r)
+  %If
+%Let
+
+====================================================================
+%% 			someSatisfy				  %%
+====================================================================
+
+Let someSatisfy ?f ?l =
+  Try Ignore select f l.
+    then true
+    else false
+  %Try
+%Let
+
+====================================================================
+%%	 		allSatisfy			 	  %%
+====================================================================
+
+Let allSatisfy ?f ?l =
+  Try Ignore select (?x => not f(x)) l.
+    then false
+    else true
+  %Try
+%Let
+
+====================================================================
+%% 			filter					  %%
+====================================================================
+
+Let filter ?f ?l = left(bpartition f l).
+
+====================================================================
+%% 			_cutBy_					  %%
+====================================================================
+
+%% Define _cutBy_ by await then first
+%%   case []         _cutBy_ ?  = ([], [])
+%%   case (?h :: ?t) _cutBy_ ?f = ([], h :: t)  when f(h)
+%%   case (?h :: ?t) _cutBy_ ?f = (h :: recLeft, h :: recRight) |
+%%           Match (:?recLeft, ?recRight:) = t _cutBy_ f.
+%% %Define
+
+Define ?l _cutBy_ ?f =
+  Await l then
+    Choose first matching l
+      case []        => ([],[])
+
+      case [?h & ?t] =>
+	Subcases
+	  case f(h)  => ([],l)
+	  else       => ([h & lazyLeft rec_l], lazyRight rec_l) |
+			  Let rec_l = t _cutBy_ f.
+	%Subcases
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			_cutAtAll_				  %%
+====================================================================
+
+%% Define _cutAtAll_ by first
+%%   case []         _cutAtAll_ ?  = [[]]
+%%   case (?h :: ?t) _cutAtAll_ ?s = [] :: t _cutAtAll_ s  when h _in_ s
+%%   case (?h :: ?t) _cutAtAll_ ?s = (h::a) :: b |
+%%     			        Match ?a :: ?b = t _cutAtAll_ s.
+%% %Define
+
+Define ?l _cutAtAll_ ?s =
+  Await l then
+    Match spanOthers s ?pref_l ++ ?rest_l = l.
+    If nil? rest_l
+      then [l]
+      else pref_l :: ((tail rest_l) _cutAtAll_ s)
+    %If
+  %Await
+%Define
+
+====================================================================
+%% 			takeWhile				  %%
+====================================================================
+
+Let takeWhile ?f ?l = left(l _cutBy_ (f||not)).
+
+====================================================================
+%% 			eagerTakeWhile				  %%
+====================================================================
+
+%% Define eagerTakeWhile by first
+%%   case eagerTakeWhile ?  []         = []
+%%   case eagerTakeWhile ?f (?h :: ?)  = []   when not f(h)
+%%   case eagerTakeWhile ?f (?h :: ?t) = h :: eagerTakeWhile f t
+%% %Define
+
+Let eagerTakeWhile ?f ?l = l ## (0,k) |
+  open Loop (?p,?k) = (l,0) first
+    exitcase nil? p _or_ not f(head p) => ()
+    loopcase else	  	       => continue (tail p, k+1)
+  %Loop
+%Let
+
+====================================================================
+%% 			bpartition				  %%
+====================================================================
+
+%% Define bpartition by await then first
+%%   case bpartition ? [] = ([],[])
+%%
+%%   do   bpartition ?tst (? :: ?tl) => 
+%%           Match (: ?yeses, ?nos :) = bpartition tst tl.
+%%
+%%   case bpartition ?test (?h :: ?) = (h :: yeses, nos) when test(h)
+%%
+%%   case bpartition ?     (?h :: ?) = (yeses, h :: nos)
+%% %Define
+
+Define bpartition ?test ?l =
+  Await l then
+    Choose first matching l
+      case []        => ([], [])
+      case [?h & ?t] =>
+	Subcases
+	  do Let
+	       p  = bpartition test t;
+	       ph = lazyLeft p;
+	       pt = lazyRight p
+	     %Let
+
+	  case test h => ([h & ph], pt)
+	  else        => (ph, [h & pt])
+	%Subcases
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			partition				  %%
+====================================================================
+
+%% Define partition by first
+%%   case partition [] ?l = [l]
+%%   case partition (?f :: ?fs) ?l = (yeses :: partition fs nos) |
+%%           Match (?yeses, ?nos) = bpartition f l.
+%% %Define
+
+Define partition ?testList_p ?l =
+  If nil? testList_p then [l] else
+    Let bp = bpartition (head testList_p) l.
+    [lazyLeft bp & partition (tail testList_p) (lazyRight bp)]
+  %If
+%Define
+
+====================================================================
+%% 			locate					  %%
+====================================================================
+
+Define locate ?cmp_f ?f ?x ?lst_p =
+  Loop (?l,?offset_l) = (pack lst_p, 0) first
+
+    exitcase nil? l => offset_l
+
+    do Let
+	 n        = length l;
+	 mid_l    = n _div_ 2;
+	 midval_l = f(l#_mid_l)
+       %Let
+
+    loopcase cmp_f(x, midval_l) => continue (l##(0, mid_l), offset_l)
+
+    loopcase else => Let mid1_l = mid_l + 1.
+		     continue (l##(mid1_l, n--mid1_l), offset_l + mid1_l)
+  %Loop
+%Define
+
+====================================================================
+
+%Package

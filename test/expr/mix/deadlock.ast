@@ -1,0 +1,22 @@
+Package deadlock
+
+%% Test handling of deadlocks.
+
+<<<<<<<<<
+Execute
+  Var{logic} x.
+  Writeln[$x].
+%Execute
+>>>>>>>>>
+
+Execute
+  Writeln["Should deadlock\n"].
+  Var{logic} x:Natural.
+  Mix
+    Writeln[$x].
+  with
+    Writeln[$x].
+  %Mix
+%Execute
+
+%Package

@@ -1,0 +1,17 @@
+Package shadglob
+
+%% Test warnings about shadowing a global.
+
+Import "misc/check".
+
+Let zz = 2.
+
+Advise "Should say that head and zz shadow a global".
+Execute
+  Let head = 1.
+  Let zz = 4.
+  Line[$head, " ", $zz].
+  Check["1 4"].
+%Execute
+
+%Package

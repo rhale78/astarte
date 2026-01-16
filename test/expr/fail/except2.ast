@@ -1,0 +1,9 @@
+Package except2
+
+%% This is a helper for except.ast
+
+export
+
+Exception myX(String) "my test exception".
+
+%Package

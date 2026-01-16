@@ -1,0 +1,215 @@
+<HTML>
+<head>
+<title>Astarte: conversion to and from string</title>
+</head>
+<body>
+<center>
+<a href="stringlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="read.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC5. Conversion to and from Strings</font></h1>
+</center>
+
+<menu>
+  <li><a href=#conv>Conversions to strings</a>
+  <li><a href=#from>Conversions from strings</a>
+  <li><a href=#dollardef>Defining $</a>
+</menu>
+
+<a name="conv"></a>
+<hr>
+<h2><font color=mediumblue> Conversion to strings </font></h2>
+
+The following operations are all available without any 
+imports.
+<dl>
+<a name=dollar></a>
+<p><dt><font color="red"> $ </font>
+<dd>:`a -&gt; String
+<p> Most species have an operation $ that converts an item
+to a string.  When $ is applied to a string, it adds quotes.  So
+<font color=#D00090>$(&quot;abc&quot;)</font> = &quot;\&quot;abc\&quot;&quot;.
+See the <a href=#dollardef>notes on defining $</a> below.
+<p>Example: 
+<font color="#D00090">$(35)</font> = &quot;35&quot;
+and <font color=#D00090>$([1,2,3])</font> = &quot;[1,2,3]&quot;.
+
+<a name=dollarprime></a>
+<p><dt><font color="red">$'</font>
+<dd>: `a -&gt; String
+<p> <font color=#D00090>$'(x)</font> 
+is the same as $(x), but it puts commas in numbers
+every three digits.
+
+<a name=dollardollar></a>
+<p><dt><font color="red"> $$ </font>
+<dd> There is a formatted conversion available for some
+species.  It is called $$.  
+You generally write <font color=#D00090>x $$ k</font>, where
+k tells formatting information.  
+For example, 
+<font color=#D00090>&quot;abc&quot; $$ 5</font> is
+string abc padded on the left with blanks to reach 5 characters.
+If the string already has k or more characters, then no padding is
+done; it is not shortened.
+<p>Example: 
+<font color="#D00090">3 $$ 5</font> = &quot;&nbsp;&nbsp;&nbsp;&nbsp; 3&quot;.
+
+<a name=dollardollarprime></a>
+<p><dt><font color="red">$$'</font>
+<dd> <font color=#D00090>x $$' n</font> 
+is the same as x $$ n, but it puts commas in numbers
+every three digits.
+
+<a name=leftin></a>
+<p><dt><font color="red">_leftin_</font>
+<dd>: (String,Natural) -&gt; String
+<p><font color=#D00090>s _leftin_ n</font> 
+is the result of padding string s on the right so
+that its length is n. If n already has n or more characters, then
+no padding is done.
+<p>Example: 
+<font color="#D00090">&quot;abc&quot; _leftin_ 5</font> 
+= &quot;&nbsp;&nbsp; abc&quot;.
+
+<a name=showTagged></a>
+<p><dt><font color="red">showTagged</font>
+<dd>:`a -&gt; String
+<p> <font color=#D00090>showTagged(x)</font> 
+is $x followed by typeof(x).
+<p>Example: 
+<font color="#D00090">showTagged(&quot;abc&quot;) </font>= &quot;\&quot;abc\&quot;:[Char]&quot;.
+
+<a name=view></a>
+<p><dt><font color="red"> view </font>
+<dd>:`a -&gt; String
+<p> <font color=#D00090>view(x)</font> 
+is similar to $(x), but it does not evaluate
+any unevaluated parts of x.  Unevaluated parts are shown as
+&quot;(lazy ...)&quot; where ... tells what function is responsible for the
+evaluation.  Use it to see what is happening in your
+program.
+
+</dl>
+
+<a name="from"></a>
+<hr>
+<h2><font color=mediumblue> Conversion from strings </font></h2>
+
+The following convert from a string to another type.  You can also
+use the read and pull functions described in 
+<a href="read.html">reading from strings</a>.
+See <a href="ast/collect/string.ast">collect/string.ast</a> for
+details of the following.
+<dl>
+<p><dt><font color="red"> stringToNatural</font>
+<dd>: String -&gt; Natural
+<p>Function stringToNatural converts a decimal numeral into
+a natural number.  
+<p>Example: 
+<font color="#D00090">stringToNatural(&quot;124&quot;) </font>= 124
+
+<p><dt><font color="red"> hexToNatural</font>
+<dd>: String -&gt; Natural
+<p> <font color=#D00090>hexToNatural(s)</font> 
+is the number that hexadecimal numeral x represents.
+<p>Example: 
+<font color="#D00090">hexToNatural(&quot;1A&quot;) </font>= 26
+
+<p><dt><font color="red"> stringToInteger </font>
+<dd>: String -&gt; Integer
+<p> Function stringToInteger converts a decimal numeral
+into an integer.  
+<p>Example: 
+<font color="#D00090">stringToInteger(&quot;-124&quot;) </font>= -124
+
+<p><dt><font color="red"> stringToRational</font>
+<dd>: String -&gt; Rational
+<p> Function stringToRational converts an Astarte-style constant
+to a rational number.  
+<p>Example: 
+<font color="#D00090">stringToRational(&quot;12.4&quot;) </font>= 12.4
+
+<p><dt><font color="red"> stringToReal</font>
+<dd>: String -&gt; Real
+<p> Function stringToReal converts an Astarte-style constant to
+a real number.  
+<p>Example: 
+<font color="#D00090">stringToReal(&quot;12.4&quot;) </font>= 12.4
+</dl>
+
+<a name="dollardef"></a>
+<hr>
+<h2><font color=mediumblue> Defining $ </font></h2>
+
+<P> When you define a new species, a definition of $ is provided for
+you automatically.  The standard definition is fairly crude.  If you
+declare
+<font color=#D00090>
+<b><pre>
+    Species NewSpecies = something(Natural) | nothing.
+</pre></b>
+</font>
+then $(something(2)) = &quot;something(2)&quot;.  You often want to 
+use your own definition of $.  To create your own, use option
+noDollar with the species declaration, as in
+<font color=#D00090>
+<b><pre>
+    Species{noDollar} NewSpecies = something(Natural) | nothing.
+</pre></b>
+</font>
+and then define $ in your own way.
+
+<P> When you define $, you must be aware of function <i>view</i>.  When
+view is called, it sets up context to call for lazy parts of 
+items not to be evaluated, and then applies $.  The definition
+of $ must be designed to check the context, and to suppress evaluation
+of lazy parts when appropriate.  You can use the following tool
+when defining $.
+<dl>
+<a name=lazyDollar></a>
+<p><dt><font color="red"> lazyDollar </font>
+<dd>: `a -&gt; String
+<p> <font color=#D00090>lazyDollar(x)</font> 
+is a string such as &quot;(lazy)&quot; if
+x is lazy AND the current thread is currently doing a view.  Otherwise,
+lazyDollar(x) fails with exception testX.
+</dl>
+<p>For example, 
+to define $ for NewSpecies in such a way that
+$(something(3)) = &quot;3&quot; and $(nothing) = &quot;none&quot;, you can write
+<font color=#D00090>
+<b><pre>
+     Let $(?x) = 
+         lazyDollar(x) 
+       _butIfFail_
+         Choose first matching x
+           case something(?n) =&gt; $ n
+           case nothing       =&gt; &quot;none&quot;
+         %Choose
+     %Let
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="stringlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="read.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,34 @@
+Package chsmat 
+
+%% Test Choose ... matching constructs
+
+Import "misc/check".
+
+Advise "Should say patterns are not exhaustive".
+Execute
+  Let x = (1,2).
+  Choose first matching x
+    case (?y,3) => Line["Bad", $y].
+    case (?y,2) => Line[$y].
+  %Choose
+  Check["1"].
+%Execute
+
+Execute
+  Let x = (1,2).
+  Choose first matching x
+    case (?y,?) =>
+      Subcases one matching y
+        case 2 => Line["2"].
+        case 1 => Line["1"].
+      %Subcases
+    case (?,?v) =>
+      Subcases matching v
+        case 4 => Line["4"].
+        else  => Line["5"].
+      %Subcases
+  %Choose
+  Check["1"].
+%Execute
+
+%Package

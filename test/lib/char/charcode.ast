@@ -1,0 +1,12 @@
+Package charcode
+
+%% Test rank, characters.
+
+Import "misc/check".
+
+Execute
+  Line[$(eagerMap rank "abc")].
+  Check["[97,98,99]"].
+%Execute
+
+%Package

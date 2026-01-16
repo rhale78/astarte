@@ -1,0 +1,105 @@
+%% File: thread.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%================================================================
+Package 		Astarte_Thread 
+
+			Interface
+==================================================================
+
+==================================================================
+%% This package provides functions for managing multiple
+%% treads.  See packages <semaphor>, <sync> and <channel>
+%% for more support.
+
+%% A thread can be created by creating a lazy value (see <lazy>)
+%% or by creating a stream (see <stream>).  Those threads are
+%% disabled, and can only be enabled by certain events that occur
+%% during computation.  Here, we concentrate on threads that are
+%% enabled when they are created.
+
+%% The following are primitive, and are available to all packages.
+==================================================================
+
+Description
+ "Mix"		%" Expression
+		%"
+		%"   Mix a with b %Mix
+		%"
+		%" forks the current thread into two.  One of the
+		%" threads continues by evaluating a, and the other
+		%" continues by evaluating b.  The value of the mix
+		%" expression will be the value of a in the former 
+		%" thread, and the value of b in the latter thread.
+		%"
+		%" Both of the threads are enabled.  They run asynchronously,
+		%" at arbitrarily different speeds.
+		%"
+		%" You may write 
+		%"
+		%"   Mix a with b with c %Mix
+		%" 
+		%" for
+		%"
+		%"   Mix a with Mix b with c %Mix %Mix
+		%"
+		%" In general, any number of parts can be used, separated
+		%" by 'with'.
+		%"
+		%" A mix expression behaves, in many ways, like a stream
+		%" expression.  For example, you can cut off multiple
+		%" solutions using a cut expression.  If you write
+		%"
+		%"   Cut
+		%"     Mix 1 with 2 with 3 %Mix
+		%"   Cut
+		%" 
+		%" you will get either 1 or 2 or 3 as the value, but you
+		%" will only get one of them.
+		;
+
+ "Atomic"	%" Atomic e %Atomic causes e to be evaluated by the current
+		%" thread in such a way that no other thread that is
+		%" also in an atomic-construct can run concurrently.
+		%" When one thread enters an atomic-construct, all other
+		%" threads that try to enter such a construct must wait
+		%" until the first one is finished.  
+		;
+		
+ Pause		: () -> ()
+
+		%" Pause() %Pause pauses the current thread, permitting
+		%" other threads to run.  It is not necessary to pause
+		%" to allow other threads to run, but Pause can be used
+		%" to force an early pause.  See Repause.
+		;
+
+ Repause	: () -> ()
+
+		%" Repause() %Repause pauses the current thread, permitting
+		%" other threads to run.  It indicates that no progress
+		%" has been made by this thread since its last Pause
+		%" or Repause.  See Pause.
+		;
+%Description
+
+===============================================================
+Expect
+      Fork		: (`a -> (), `a) -> ()
+
+			%" Fork(p,x) %Fork runs p(x) as a separate
+			%" thread.
+			;
+
+      EndThread		: () -> ()
+
+			%" EndThread() %EndThread fails with exception
+			%" endThreadX, ending the current thread.
+		 	;
+%Expect
+
+==================================================================
+%Package

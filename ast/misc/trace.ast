@@ -1,0 +1,64 @@
+%% File: trace.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==========================================================
+Package 	Astarte_Trace
+============================================================
+
+============================================================
+%% This package provides a few functions that are useful
+%% for tracing computations.
+============================================================
+
+===============================================================
+			Export
+===============================================================
+Var    
+  tracing holding Boolean;
+  traceFile holding Outfile(Char) := @stdout!
+%Var
+===========================================================
+Expect 
+  Trace,TraceNoNewline 		   : [String] -> ();
+  traceAndProduce, traceAndProduceNoNewline: `a -> `a
+%Expect
+===========================================================
+Advise notro Trace, TraceNoNewline.
+Advise notro traceAndProduce, traceAndProduceNoNewline.
+===========================================================
+
+===============================================================
+			Implementation
+===============================================================
+
+===============================================================
+Advise nowarn print all.
+===============================================================
+Let Gentrace (?nl,?name,?l). =
+  Try
+    {testAt tracing}
+  then
+    Let f = If emptyBox? traceFile then @stdout! else @traceFile %If.
+    FWrite f, [name, ": " & l].
+    If nl then Writeln[]..
+  %Try
+%Let
+=================================================
+Let Trace ?l. = Gentrace(true,callerName(), l)..
+=================================================
+Let TraceNoNewline ?l. = Gentrace(false,callerName(), l)..
+=================================================
+Let traceAndProduce ?x =
+  x | Gentrace(true,callerName(), [$x]).
+%Let
+=================================================
+Let traceAndProduceNoNewline ?x =
+  x | Gentrace(false,callerName(),[$x]).
+%Let
+=================================================
+
+%Package
+

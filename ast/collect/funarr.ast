@@ -1,0 +1,134 @@
+%% File fun.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_Funarr
+
+			Interface
+==============================================================
+
+%% This package provides functional arrays.  Such arrays behave
+%% in a manner similar to arrays, but they are persistent, like
+%% lists.  They support more efficient update than using lists
+%% directly.
+
+================================================================
+
+Import "collect".
+
+Extension
+  Expect{transparent} species FunArr(`a)
+    %" Funarr(T) is a species of functional arrays whose members
+    %" have species T.  It has many of the characteristics of
+    %" species [T].
+    %"
+    %" Two functional arrays are equal if they contain the
+    %" same members.
+  %Expect
+  
+  Relate FunArr isKindOf COLLECTION.
+%Extension
+
+================================================================
+
+Operator #=(#); #_=(#).
+
+================================================================
+
+Expect
+  emptyFunArr		: FunArr(`a)
+  
+  			%" emptyFunArr is an empty array.
+			;
+			
+  nil?			: FunArr(`a) -> Boolean
+  
+  			%" nil?(a) is true if a is an empty
+			%" functional array.
+			;
+			
+  +/			: (FunArr(`a), `a) -> FunArr(`a)
+  
+  			%" a +/ x returns the result of
+			%" adding x to the end of array a.
+			;
+			
+  allButLast		: FunArr(`a) -> FunArr(`a)
+  
+  			%" allButLast(a) is the result of
+			%" deleting the last member of array a.
+			%" If a is empty, then allButLast fails
+			%" with exception emptyListX.
+			;
+			
+  #_=			: (FunArr(`a), (Natural,`a)) -> FunArr(`a)
+  
+  			%" a #_= (n,x) sets the item at index n
+			%" in functional array a to x.  Indexing is
+			%" from 0.  If a has fewer than n members,
+			%" then a #_= (n,x) fails with exception subscriptX.
+			%" If array a has exactly n members, then
+			%" a #_= (n,x) is the same as a +/ x.
+			;
+			
+  #=			: (FunArr(`a), (Natural, `a)) -> FunArr(`a)
+			
+  			%" a #= (n,x) sets the item at index n
+			%" in functional array a to x.  Indexing is
+			%" from 1.  If n = 0 or a has fewer than n-1
+			%" members, then a #= (n,x) fails with 
+			%" exception subscriptX.
+			%" If array a has exactly n-1 members, then
+			%" a #= (n,x) is the same as a +/ x.
+			;
+
+  #_			: (FunArr(`a), Natural) -> `a
+  
+  			%" a#_n is the item at index n in functional
+			%" array a.  Indexing if from 0.  This fails
+			%" with exception subscriptX if array a has
+			%" n or fewer members.
+			;
+			
+  #			: (FunArr(`a), Natural) -> `a
+  
+  			%" a # n is the item at index n if functional
+			%" array a, where indexing is from 1.
+			;
+			
+  toFunArr		: [`a] -> FunArr(`a)
+  
+  			%" toFunArr(a) is a functional array holding
+			%" the same members as list a, in the same order.
+			;
+			
+  {underride}:
+  
+  ^^			: FunArr(`a) -> FunArr(`b)
+  		 	    constraint (`b >= `a);
+
+  downcast		: FunArr(`a) -> FunArr(`b)
+  		 	    constraint (`b <= `a);
+			    
+  {override}:
+  
+  map			: (`a -> `b) -> FunArr(`a) -> FunArr(`b);
+			    
+  emptyCollection?	: FunArr(`a) -> Boolean;
+  
+  size,length		: FunArr(`a) -> Natural;
+  
+  toList		: FunArr(`a) -> [`a];
+			
+  eagerToList		: FunArr(`a) -> [`a];
+  
+  fromList		: [`a] -> FunArr(`a);
+			
+%Expect
+
+================================================================
+
+%Package

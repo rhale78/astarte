@@ -1,0 +1,45 @@
+Package selector 
+
+%% Test generation of selectors.  Should look at dissass output.
+
+Directory standard.  Import "misc/check".
+
+Extension
+  Species Rec = (a~> Natural,
+  		 b~> Natural,
+		 c~> Natural,
+		 d~> Natural,
+		 e~> Natural,
+		 f ~> Natural)
+  %Species
+%Extension
+
+Execute
+  Let r = rec(1,2,3,4,5,6).
+
+  Let aa = a(r).
+  Line[$aa].
+  Check["1"].
+
+  Let bb = b(r).
+  Line[$bb].
+  Check["2"].
+
+  Let cc = c(r).
+  Line[$cc].
+  Check["3"].
+
+  Let dd = d(r).
+  Line[$dd].
+  Check["4"].
+
+  Let ee = e(r).
+  Line[$ee].
+  Check["5"].
+
+  Let ff = f(r).
+  Line[$ff].
+  Check["6"].
+%Execute
+
+%Package

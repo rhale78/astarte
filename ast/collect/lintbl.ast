@@ -1,0 +1,66 @@
+%% File: lintbl.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%====================================================================
+Package 		Astarte_LinTable
+
+			Interface
+======================================================================
+
+======================================================================
+%% This package provided tables, implementated as lists.  See package
+%% table.ast for a description of tables.
+%%
+%% LinTable(T,V)   is a species for tables that associate values of 
+%%		   species V with keys of species T.  T must be a member
+%%		   of genus EQ.
+======================================================================
+
+======================================================================
+
+Import "collect/table".
+
+=======================================================================
+
+Extension
+  Expect{transparent,noEqual} species LinTable(EQ`a,`b)
+    %" Species LinTable(K,V) is a species of tables with
+    %" keys of species K and associated values of species V.
+    %" These tables are represented as lists of pairs.
+  %Expect
+
+  Relate LinTable isKindOf TABLE.
+%Extension
+
+=======================================================================
+
+Expect
+  linTable	: [(EQ`k,`v)] -> LinTable(EQ`k,`v)
+  
+  		%" linTable the same as table, but always builds
+		%" a linear table.
+		;
+		
+  linMemoize	: (EQ`k -> `v) -> EQ`k -> `v
+  
+  		%" linMemoize = memoize(emptyTable), where the
+		%" empty table is a linear table.
+		;
+
+  {underride}:
+  
+  ^^		: LinTable(EQ`ka,`va) -> LinTable(EQ`kb,`vb)
+  		   constraint ((EQ`kb,`vb) >= (EQ`ka,`va));
+		   
+  downcast	: LinTable(EQ`ka,`va) -> LinTable(EQ`kb,`vb)
+  		   constraint ((EQ`kb,`vb) <= (EQ`ka,`va));
+%Expect
+
+========================================================================
+
+%Package
+
+

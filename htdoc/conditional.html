@@ -1,0 +1,319 @@
+<HTML>
+<head>
+<title>Astarte: conditionals</title>
+</head>
+<body>
+<center>
+<a href="funcexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="pauseexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E12. Conditionals </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#simple> Simple conditionals</a>
+  <li> <a href=#choose> Choose expressions</a>
+  <li> <a href=#examples> Examples</a>
+</menu>
+
+<hr>
+Conditionals allow you to perform tests, and to make decisions
+based on the outcomes of those tests.  You can use simple conditionals
+or the choose construct, which combines many kinds of tests in a
+single framework.  
+<font color=brown>Details on conditionals not covered here can be found in
+<a href="ast/lang/choose.ast">lang/choose.ast</a></font>.
+
+<a name="simple"></a>
+<hr>
+<h2><font color=mediumblue> Simple conditionals </font></h2>
+
+<dl>
+<p><dt><font color="red"> If <i>a</i> then <i>b</i> else <i>c</i> %If </font>
+<dd> This expression has the same value as <i>b</i> if <i>a</i> 
+evaluates to true,
+and the same value as <i>c</i> if <i>a</i> evaluates to false.  
+Expression <i>b</i> will only be evaluated if <i>a</i> is true, and
+expression <i>c</i> will only be evaluated if <i>a</i> is false.
+
+<p>You can omit either
+the "then <i>b</i>" part or the "else <i>c</i>" part.
+Each of b and c defaults to () if it is omitted.
+() means "do nothing".
+
+<p><font color=BLACK>Examples:</font><font color="#D00090"><tt><b>
+<br> If z == 0 then 0 else 1/z %If
+<br> If x &gt; y then Relet x = y. %If
+<br> If x &lt; y else Relet x = y. %If
+</b></tt></font>
+
+<a name=try></a>
+<p><dt><font color="red"> Try <em>a</em> then <em>b</em> else <em>c</em> %Try </font>
+<dd> Understanding this requires knowledge of 
+<a href="failure.html">failure</a>.  Other options for it are
+discussed with <a href=failure.html#try>failure</a>.
+
+<p>This expression has the same value as <i>b</i> if 
+evaluation of <i>a</i> succeeds,
+and the same value as <i>c</i> if evaluation of <i>a</i> fails.  
+Expression <i>a</i> must have species ().  When <i>a</i> succeeds, <i>c</i>
+is not evaluated.  When <i>a</i> fails, <i>b</i> is not evaluated.
+
+<P>Within <i>b</i>, you can use identifier bindings done in
+<i>a</i>, but such bindings cannot be used in <i>c</i>.
+
+<font color=brown>
+<P>Within <i>c</i>, you can use expression <tt>exception</tt> 
+as the exception that
+occurred when evaluation of <i>a</i> failed.
+</font>
+
+<P> You can omit either the "then <i>b</i>" part or 
+the "else <i>c</i>" part or both.  Each of <i>b</i> and <i>c</i> defaults
+to () if it is omitted.  () means "do nothing".
+
+<P> <strong>Warning.</strong> If the failure of <i>a</i> is trapped, then
+evaluation will cease, and <i>c</i> will not be evaluated.  See
+<a href="failure.html">failure</a>.
+<p><font color=BLACK>Examples:</font><font color="#D00090">
+<b><pre>
+     Try f(z) 
+       then Writeln["All went well"].
+       else Writeln["Exception ", $exception, " occurred"]. 
+     %Try
+
+     Try 
+       f(z) 
+     %Try
+</pre></b>
+</font>
+
+</dl>
+
+<a name="choose">
+<hr>
+<h2><font color=mediumblue> Choose expressions </font></h2>
+
+Choose expressions offer a way to write very general multi-way
+choices.  A choose expression has the form
+<font color=#D00090>
+<b><pre>
+      Choose <font color=black><em>choice-mode</em>
+        <em>cases</em></font>
+      %Choose
+</pre></b>
+</font>
+where <em>cases</em> is a sequence of cases and <em>choice-mode</em>
+tells how the cases are tried.  
+<a href=#examples>Examples of choose expressions</a>
+are given below.  The possibilities for choice-mode
+are as follows.
+<a name="choicemode"></a>
+<dl>
+<a name=firstmode></a>
+<p><dt><font color="red"> first </font>
+<dd> Try the cases in the order written, choosing the first
+that is applicable.  If you omit the choice-mode, the default is <em>first</em>.
+
+<a name=perhapsmode></a>
+<p><dt><font color="red"> perhaps </font>
+<dd> Same as first, but causes a default else case
+to be added that does nothing, if there is no else case.
+That is, <tt>else ()</tt> is added.
+
+<a name=onemode></a>
+<p><dt><font color="red"> one </font>
+<dd> Try the cases in an <em>arbitrary</em> order, choosing the first
+one that is encountered that is applicable.
+
+<a name=onemixedmode></a>
+<p><dt><font color="red"> one mixed</font>
+<dd> Try the cases in parallel, choosing the first
+one that is found to be applicable.
+
+<a name=allmode></a>
+<p><dt><font color="red"> all </font>
+<dd> Try all cases using separate threads, using a stream
+that produces the result of the first case first, etc.
+
+<a name=allmixedmode></a>
+<p><dt><font color="red"> all mixed</font>
+<dd> Try all cases using separate threads, using
+a mixed stream, and producing the results in an arbitrary order.
+
+<a name=matching></a>
+<p><dt><font color="red"> first matching <i>e</i> 
+<br> perhaps matching <i>e</i>
+<br> ...</font>
+<dd> Each case gives a pattern that is matched against the value 
+of expression <i>e</i>.  The case succeeds if the pattern match succeeds.
+</dl>
+
+<a name="cases"></a>
+The cases can have the following forms.
+<dl>
+<p><dt><font color="red"> case <i>a</i> => <i>v</i> </font>
+<dd> If <i>a</i> is true, and this case is tried, then the
+value of the choose expression is <i>v</i>.
+(This kind of case is used without a matching phrase in the mode.)  
+
+<p><dt><font color="red"> case <i>p</i> => <i>v</i> when <i>c</i> </font>
+<dd> This case is used when a matching phrase
+is part of the choice mode.  Here, <i>p</i> is a pattern 
+and <i>c</i> is a condition.
+This case succeeds if pattern <i>p</i> matches the target given after the 
+word <em>matching</em>, and condition <i>c</i> is true.  
+Phrase <em>when c</em> can be
+omitted.
+
+<p><dt><font color="red"> case do <i>a</i> => <i>v</i></font>
+<dd> Here, <i>a</i> must have species ().  
+If evaluation of <i>a</i> is successful, 
+the case succeeds, and the value of
+the choose-expression is <i>v</i>.
+
+<p><dt><font color="red"> case <i>a</i>
+<br> case <i>b</i> => <i>v</i></font>
+<dd> You can attach any number of cases to a value.  This is the same
+as
+
+<p>&nbsp;&nbsp; case <i>a</i> => <i>v</i>
+<br>&nbsp;&nbsp; case <i>b</i> => <i>v</i>
+
+<p><dt><font color="red"> else => <i>v</i> </font>
+<dd> This can only be the last case.  If none of the other cases is
+successful, then the value of the choose expression is <i>v</i>. 
+
+<font color=brown>
+<P> If there is no else phrase, and there are no successful
+cases, then the choose expression fails.  For choice modes
+<em>first</em>, <em>one</em> and <em>one mixed</em>, 
+the exception is noCaseX.
+For choice modes <em>all</em> and <em>all</em> mixed, the exception is testX.
+Choice mode <em>perhaps</em> is different.  When the choice mode is perhaps,
+there is no else case, and none of the cases is successful,
+the value is ().
+
+<P> Exception noCaseX is normally trapped.  So your program will abort
+if it does not provide an applicable case when using modes 
+<em>first</em>, <em>one</em> or <em>one mixed</em>.
+</font>
+
+<p><dt><font color="red"> do <i>s</i></font>
+<dd> When this case is encountered, statement <i>s</i> is evaluated.
+Any bindings done by s are available in all subsequent cases.
+When the choice mode is all or all mixed, the same thread does
+<i>s</i> for each of the remaining cases, forking after <i>s</i>.
+
+<P> If the choice mode is <i>one</i>, <i>one mixed</i> or <i>all mixed</i> 
+then <tt>do <i>s</i></tt> can only be the first case.
+
+<p><dt><font color="red"> do <i>p</i> => <i>s</i></font>
+<dd> This can only be used with a matching phrase.  When this
+case is encountered, pattern <i>p</i> is matched against the target of
+the matches, and then statement <i>s</i> is evaluated.  Bindings
+done are available in subsequent cases.
+
+<a name=subcases></a>
+<p><dt><font color="red"> case <i>a</i> => 
+<br> &nbsp;&nbsp; Subcases <em>choice-mode</em>
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>cases</em>
+<br> &nbsp;&nbsp; %Subcases</font>
+<dd> If <i>a</i> is true (when there is no matching phrase in the mode)
+or if <i>a</i> is a pattern that matches the target (when there is a matching
+phrase in the mode) 
+then the cases in the list of subcases are tried.  
+
+<font color=brown>
+<p>You can omit the choice mode
+after subcases.  It defaults to the same mode as the choose expression
+or subcases part that contains it, except that any matching phrase is
+omitted.
+</font>
+
+<p> You can insert a <i>do</i> phrase before Subcases. It is done before
+the subcases are tried.  <font color=BLACK>For example</font>, you can write
+<font color=#D00090>
+<b><pre>
+    case <font color=black><i>a</i></font> =>
+      do <font color=black><i>s</i></font>
+      Subcases
+        <font color=black>...</font>
+      %Subcases
+</pre></b>
+</font>
+
+<p><dt><font color="red"> case do <i>s</i> => 
+<br> &nbsp;&nbsp; Subcases <em>choice-mode</em>
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>cases</em>
+<br> &nbsp;&nbsp; %Subcases</font>
+<dd> This is similar to the preceding form but the cases in the list
+of subcases are tried if evaluation of <i>s</i> succeeds.  Expression <i>s</i>
+must be a statement.  That is, it must have type ().
+</dl>
+
+<a name=examples></a>
+<hr>
+<h2><font color=mediumblue> Examples </font></h2>
+
+Here are two examples of choose expressions.
+Expression member(v,x) is true if v occurs in list x.
+Notice that the member function can also be defined using a <i>by</i>
+phrase and definition by cases.  We use a choose expression here 
+for illustration of choose expressions.
+<font color="#D00090">
+<b><pre>
+    Define member(?v,?x) =
+      Choose first matching x
+        case []       => false
+        case [v &amp; ?]  => true
+        case [? &amp; ?t] => member(v,t)
+      %Choose
+    %Define
+
+    Define member(?v,?x) =
+      Choose first
+        case nil? x       => false
+        case head(x) == v => true
+        else              => member(v, tail x)
+      %Choose
+    %Define
+</pre></b>
+</font>
+Here is an implementation of function mapSuccesses using
+a choose expression.  MapSuccesses is defined so that
+mapSuccesses f [a,b,c,d] = [f(a), f(b), f(c), f(d)], but
+any cases where f fails are left out.
+<font color="#D00090">
+<b><pre>
+      Define mapSuccesses ?f ?x =
+        Choose 
+          case nil? x => []
+
+          do Match [?h &amp; ?t] = x.
+
+          case do Let v = f(h). => [v &amp; mapSuccesses f t]
+
+          else => mapSuccesses f t
+        %Choose
+      %Define
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="funcexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="pauseexpr.html">Next</a>
+</center>
+</body>
+</HTML>
+

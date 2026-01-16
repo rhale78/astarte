@@ -1,0 +1,723 @@
+<HTML>
+<head>
+<title>Astarte: classes</title>
+</head>
+<body>
+<center>
+<a href="contextdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="patternmatch2.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue>D14. Classes and Object-Oriented Programming</font></h1>
+</center>
+
+<menu>
+  <li><a href=#concepts>The concept of a class</a>
+  <li><a href=#classdcl>Declaring classes</a>
+  <li><a href=#classexample>An example class</a>
+  <li><a href=#context>The context of a class</a>
+  <li><a href=#defining>Defining functions for a class</a>
+  <li><a href=#constructor>Defining constructors</a>
+  <li><a href=#subclass>Subclasses</a>
+  <li><a href=#ObjectClass>Class Object</a>
+  <li><a href=#param>Parameterized classes</a>
+  <li><a href=#inheritance>Multiple inheritance</a>
+  <li><a href=#module>Classes and modules</a>
+  <li><a href=#description>Descriptions of classes</a>
+  <li><a href=#whatis>What is a constant?</a>
+  <li><a href=#override>Overriding functions</a>
+</menu>
+
+<a name=concepts></a>
+<hr>
+<h2><font color=mediumblue>The concept of a class</font></h2>
+
+The class is a fundamental concept of object-oriented programming.
+A class has several important aspects.
+<ol>
+  <p><li> A class is a <font color=blue><i>type</i></font>.
+  This makes it possible to create <font color=blue><i>objects</i></font>,
+  which are members, or <font color=blue><i>instances</i></font>, of 
+  that type.
+
+  <p><li> A class is an <font color=blue><i>abstraction</i></font>.
+  This makes it possible to use a class for controlling polymorphism
+  and leads to the concept of inheritance.
+
+  <p><li> A class is a <font color=blue><i>module</i></font>.  So a class
+  can be used to control visibility of definitions.
+</ol>
+
+<p>Astarte separates these aspects of a class into different concepts:
+abstractions, species and packages.
+But a mechanism that combines the first two of them, the type and the
+abstraction, is available, and that mechanism is discussed here.
+Modules, and aspects of modules that are related to object-oriented
+programming, are discussed with <a href=packagehier.html>the
+package hierarchy</a>.
+
+<a name=classdcl></a>
+<hr>
+<h2><font color=mediumblue>Declaring classes</font></h2>
+
+In order to use the class feature described here, you must import
+library package <a href=ast/object.ast>object.ast</a>.
+
+<p>An object can be thought of as a collection of constants, variables
+and functions.  A class declaration describes those components of
+an object. A basic class declaration has the form
+<font color=#D00090>
+<b><pre>
+  Class <font color=black><i>name</i>
+    <i>component</i>
+    ...
+    <i>component</i></font>
+  %Class
+</pre></b>
+</font>
+where <i>name</i> is the name of the class.
+This creates a genus called <i>name</i> (the name of the class)
+and a species called <i>name!</i> (the name of the class followed
+by an exclamation point).
+Each component has one of the following forms.
+<ol>
+  <a name=const></a>
+  <p><li><font color=red>Const 
+  <font color=black><i>const-name</i></font>: 
+  <font color=black><i>species</i></font> %Const</font>
+  <br>This indicates that each object of this class contains a constant
+  with the given name and the given species.  You can declare several
+  constants of the same type as 
+  <font color=#D00090>Const 
+  <font color=black><i>a,b,c</i></font>: 
+  <font color=black><i>species</i></font> %Const</font>
+
+  <a name=vardcl></a>
+  <p><li><font color=red>Var ... %Var</font>  
+  <br>This defines 
+  variables and arrays that belong to an object of this class.
+  All forms of var-declaration can be used.
+
+  <p>You can use the constants that belong to this class as
+  array sizes or as the initial values of variables.  Avoid using the
+  value of one variable to initialize another one, since the order
+  in which the variables are created is not defined.
+
+  <a name=expectdcl></a>
+  <p><li><font color=red>Expect ... %Expect</font> 
+  <br>This describes
+  expectations that are associated with an instance of this class.  
+  These are the methods that an object can perform.
+
+  <p>In object-oriented programming, each operation is thought of
+  as being carried out by some object acting as the agent of that
+  operation.  The agent is an implicit parameter of the operation.
+  To take that into account,
+  the expectations that occur inside a class are modified
+  as follows.  
+
+  <p>Suppose that the class is called <i>C</i>.  Then
+  declaration
+  <font color=#D00090>
+  <b><pre>
+   Expect <i>f</i>: <i>T</i>.
+</pre></b>
+  </font>
+  within this class is interpreted to mean
+  <font color=#D00090>
+  <b><pre>
+   Expect <i>f</i>: C`a -&gt; <i>T</i>.
+</pre></b>
+  </font>
+  This introduces an implicit first parameter that is the agent
+  of the operation.
+
+  <a name=anticipatedcl></a>
+  <p><li><font color=red>Anticipate ... %Anticipate</font>
+  <br>This describes
+  anticipations that are associated with an instance of this class.  
+  These are the <font color=blue><i>virtual functions</i></font> of the class.
+  These are modified similarly to expectations, except that the added
+  variable is enclosed in braces.  
+  For example, if you write
+  <font color=#D00090>
+  <b><pre>
+    Anticipate fun: Natural -&gt; ().
+</pre></b>
+  </font>
+  inside a class called Ghost, the anticipation that is created is
+  <font color=#D00090>
+  <b><pre>
+    Anticipate fun: {Ghost`a} -&gt; Natural -&gt; ().
+</pre></b>
+  </font>
+
+</ol>
+
+<p>Since a class declaration creates a genus and a species, it must
+occur within an <a href=extensiondcl.html>extension declaration</a>.
+
+<a name=classexample></a>
+<hr>
+<h2><font color=mediumblue>An example class</font></h2>
+
+A class whose instances are stacks of strings can be 
+declared as follows.
+<font color=#D00090>
+<b><pre>
+  Extension
+    Class StringStack
+      Const size : Natural.            %% The physical size of an array that
+                                       %% holds the stack contents.
+
+      Var 
+        depth! holding Natural := 0;    %% The current number of members
+        content(my size) holding String %% The stack contents
+      %Var
+
+      Expect
+        Push  : String -&gt; ();
+        pop   : () -&gt; String;
+        Empty : () -&gt; ();
+        empty?: () -&gt; Boolean
+      %Expect
+    %Class
+  %Extension
+</pre></b>
+</font>
+
+This creates a genus StringStack (the abstraction of this class) and
+a species StringStack!.  An object of species StringStack! has the attributes
+described in class StringStack, <i>and no more</i>.  The expectations
+that are created are
+<p><center>
+<table>
+<tr>
+  <td>Push:
+  <td><font color=blue>StringStack`a -&gt; String -&gt; ()</font>
+<tr>
+  <td>pop: 
+  <td><font color=blue>StringStack`a -&gt; () -&gt; String</font>
+<tr>
+  <td>Empty: 
+  <td><font color=blue>StringStack`a -&gt; () -&gt; ()</font>
+<tr>
+  <td>empty?: 
+  <td><font color=blue>StringStack`a -&gt; () -&gt; Boolean</font>
+</table>
+</center>
+
+<a name=context></a>
+<hr>
+<h2><font color=mediumblue>The context of a class</font></h2>
+
+When a class is defined, a 
+<a href=contextdcl.html>context</a> is created for it, having
+the same name as the class.  The constants, variables and expectations
+are all put into the context using bring forms.  
+For example, the
+StringStack class gets an automatic context defined as follows.
+<font color=#D00090>
+<b><pre>
+   Context StringStack
+     case bring size, depth!, content, Push, pop, Empty, empty?
+   %Context
+</pre></b>
+</font>
+When inside the context of a StringStack object, you can refer to the
+parts of that object by putting <i>my</i> in front of the name of the
+part.  For example, 
+<font color=#D00090>my size</font> is the size of
+the object (a natural number) and <font color=#D00090>my empty?</font>
+is the empty? function of the object (a function of species
+() -&gt; Boolean).
+
+<a name=defining></a>
+<hr>
+<h2><font color=mediumblue>Defining functions for a class</font></h2>
+
+Functions are defined for a class exactly as if they were not 
+being defined for a class. 
+You must keep the implicit parameter in mind, however.  One way to do
+that is to perform a definition using the context of the class.  Here
+is an implementation of StringStack.  Note that these are written
+<i>outside</i> the class.  These definitions use the context StringStack,
+and assume that you are familiar with <a href=contextdcl.html>contexts</a>.
+<font color=#D00090>
+<b><pre>
+   Exception 
+     trap stackUnderflowX; 
+     trap stackOverflowX
+   %Exception
+
+   Define Ask StringStack ?s =&gt; empty?() %Ask =
+     @(my depth!) == 0
+   %Define
+
+   Define Ask StringStack ? =&gt; 
+            Empty. 
+          %Ask =
+     Assign my depth! := 0.
+   %Define
+
+   Define Ask StringStack ? =&gt; pop() %Ask =
+     If my empty?() then 
+       fail stackUnderflowX
+     else
+       Let currentIndex = @(my depth!).
+       Decrement my depth!.
+       Value @( my content # currentIndex ).
+     %If
+   %Define
+
+   Define Ask StringStack ? =&gt; 
+            Push(?s). 
+          %Ask =
+     If @(my depth!) &gt;= my size then
+       fail stackOverflowX
+     else
+       Increment my depth!.
+       Assign (my content) # (@my depth!) := s.
+     %If
+   %Define
+</pre></b>
+</font>
+You are not required to use Ask in the definitions, but if you don't,
+then you must either invoke the context explicitly or forego using
+the context.  For example, definitions
+<font color=#D00090>
+<b><pre>
+   Define Empty ?s. = 
+     Context StringStack s =&gt;
+       Assign my depth! := 0.
+     %Context
+   %Define
+</pre></b>
+</font>
+and
+<font color=#D00090>
+<b><pre>
+   Define Empty ?s. = 
+     Assign depth!(s) := 0.
+   %Define
+</pre></b>
+</font>
+are both equivalent to the definition of Empty given above.
+Choose the form that you prefer.
+
+<a name=constructor></a>
+<hr>
+<h2><font color=mediumblue>Defining constructors</font></h2>
+
+Although species StringStack! is created as part of the StringStack
+class, no direct method for creating an object of species StringStack!
+is provided.  Instead, it is up to you to define constructors.
+
+<p>A constructor definition for class StringStack (really for 
+species StringStack!) has the form
+<font color=#D00090>
+<b><pre>
+   Define StringStack constructor
+     <font color=black><i>name params</i></font> =
+        <font color=black><i>preamble</i></font>
+     then
+        <font color=black><i>postamble</i></font>
+   %Define
+</pre></b>
+</font>
+where
+<ol>
+  <p><li> The constructor name is <i>name</i>.  It is a function that
+  takes some parameters and produces a result of species StringStack!.
+
+  <p><li>Taken together, the function heading (<i>name params</i>)
+  and the preamble must
+  define, for each class constant <i>cname</i>, an identifier
+  <i>my cname</i> (or <i>my-cname</i>.  
+  For example, 
+  the StringStack class has a constant
+  called size, so an identifier named <i>my size</i> must be defined.  This is
+  the value of that constant in the constructed object.
+
+  <p>The preamble is not inside the context of the object being
+  constructed, since it is run before the object is built.
+
+  <p><li>The postamble performs additional initialization of the object,
+  typically storing values into the object's variables.  It is implicitly
+  put into the context of the object that is being built, so it can refer
+  to the parts of the object using <i>my</i> ...
+</ol>
+The word then and the postamble can be omitted.  
+
+<p>Here is a constructor for the class StringStack.  It has type
+Natural -&gt; StringStack!.  It takes a stack size and produces an
+object that is a StringStack! with the given size.  
+In this example,
+both the preamble and the postamble are present.  For demonstration
+only, the postamble puts 0 into the depth! variable.
+<font color=#D00090>
+<b><pre>
+  Define StringStack constructor
+    stringStack(?my size) =
+      ()
+    then
+      Assign my depth! := 0.
+  %Define
+</pre></b>
+</font>
+Since the depth! variable is initialized in the class definition, it is
+not really necessary to assign it a value.  Here is an alternative
+definition of this constructor, omitting the postamble.
+<font color=#D00090>
+<b><pre>
+  Define StringStack constructor
+    stringStack(?my-size) = ()
+  %Define
+</pre></b>
+</font>
+
+To create a new object of class StringStack (really of species
+StringStack!), you can write
+<font color=#D00090>
+<b><pre>
+  Let aStack = stringStack(50).
+  Ask aStack =&gt; Push("horse"). %Ask
+  ...
+</pre></b>
+</font>
+Notice that there is nothing that says you <i>must</i> use Ask with
+objects.  You could just as well write
+<font color=#D00090>
+<b><pre>
+  Push aStack, "horse".
+</pre></b>
+</font>
+
+<font color=brown>
+<p>The constructors for a class make use of a hidden basic constructor
+that is declared to be private to the package where the class is defined.
+Consequently, you can only declare constructors for a class in the same
+package as the class.
+</font>
+
+<a name=subclass></a>
+<hr>
+<h2><font color=mediumblue>Subclasses</font></h2>
+
+Since a class is (partly) an abstraction, it is possible to define new
+species that belong to that abstraction.  Normally, that is done by creating
+a subclass.  You create a subclass by adding
+<font color=#D00090>isKindOf</font> <i>Superclass</i> after the name
+of the class, where <i>Superclass</i> is the name of the superclass.
+For example, 
+you can create a kind of StringClass that has an additional
+operation, taking the top of the stack without poppping.
+<font color=#D00090>
+<b><pre>
+  Class TopStringStack isKindOf StringStack
+    Expect top: () -&gt; String.
+  %Class
+</pre></b>
+</font>
+Declaring a superclass has the following effects.
+<ol>
+  <p><li>The context of the class contains not only those things defined
+  in the class, but everything that is in the context of the superclass.
+  The context for class TopStringStack is defined by
+  <font color=#D00090>
+  <b><pre>
+  Context TopStringStack isKindOf StringStack
+    case bring top
+  %Context
+  </pre></b>
+  </font>
+
+  <p><li> Part of an object of species TopStringStack! is an
+  object of species StringStack!.  In order to construct a
+  TopStringStack! object, you must say what this embedded object is.
+  You do this by defining identifier <i>super</i> in the heading or
+  preamble of the constructor.
+</ol>
+The implementation of class TopStringStack might be written as follows.
+<font color=#D00090>
+<b><pre>
+  Define TopStringStack constructor
+    topStringStack(?my size) =
+      Let super = stringStack(my size).
+  %Define
+
+  Define Ask TopStringStack ? =&gt; top() %Ask =
+    If my empty?() then
+      fail stackUnderflowX
+    else
+      @( (my content)  #  @(my depth!) )
+    %If
+  %Define
+</pre></b>
+</font>
+
+<a name=ObjectClass></a>
+<hr>
+<h2><font color=mediumblue>Class Object</font></h2>
+
+If you do not define a superclass for your class, the superclass
+is implicitly Object.  Class Object is defined in package object.ast.
+
+<p>When the superclass is Object, you do not need to define <i>super</i>
+in the constructor.  An embedded Object! is automatically created for you.
+
+<p>Class object provides some fundamental operations on objects, including
+the following.
+<dl>
+<a name=eq></a>
+<p><dt><font color=red><tt>==</tt></font>
+<dd> Two objects are equal just when they are the same object.
+The equality test does not look, 
+for example, at the values of
+the constants or the contents of the boxes in an object.
+
+<a name=dollar></a>
+<p><dt><font color=red>$</font>
+<dd> The default definition of $ for objects produces 
+&quot;(object <i>n</i>)&quot;, where <i>n</i> is the object's 
+identity number.
+</dl>
+
+<a name=param></a>
+<hr>
+<h2><font color=mediumblue>Parameterized classes</font></h2>
+
+You can declare a parameterized class.  What you get is a community and
+a family rather than a genus and a species.  
+For example, you can define
+a general kind of stack as follows.
+<font color=#D00090>
+<b><pre>
+  Extension
+    Class Stack(`a)
+      Const size : Natural.          %% The physical size of an array that
+                                     %% holds the stack contents.
+
+      Var 
+        depth! holding Natural := 0;  %% The current number of members
+        content(my size) holding `a   %% The stack contents
+      %Var
+
+      Expect
+        Push  : `a -&gt; ();
+        pop   : () -&gt; `a;
+        Empty : () -&gt; ();
+        empty?: () -&gt; Boolean
+      %Expect
+    %Class
+  %Extension
+</pre></b>
+</font>
+There is no need to change the implementation except to change the
+context StringStack to Stack.  Type inference will
+take care of the differences in types.
+
+<p>This definition of Stack creates an opaque family Stack! and an
+opaque community Stack.  It is usually a good idea to use opaque
+parameterized classes.  If you create a transparent Stack class,
+for example, 
+then you find that, due to the rules of transparency in
+the hierarchy, an &quot;object&quot; 
+of species Stack!(Natural) is not really an
+object at all, since Stack!(Natural) is not beneath genus Object in the
+hierarchy.  Because of this, you lose the basic services provided by
+class Object.
+
+<font color=brown>
+<a name=inheritance></a>
+<hr>
+<h2><font color=mediumblue>Multiple Inheritance</font></h2>
+
+Sometimes,
+you want to inherit from more than one superclass.  That can be done,
+but not by using multiple isKindOf phrases.  Each class can only
+have one superclass defined in that way.
+
+<p>If you want to inherit from more than one superclass, you must
+do yourself what the class feature does for you.  Here are the things
+to do to make class Sub a subclass of class Sup.
+<ol>
+  <p><li>An object of species Sub! needs to be convertible to an
+  object of species Sup!.  The operation that does this is called
+  <font color=blue><i>retract</i></font>, and its species is Sub! -&gt; Sup!.
+  It is the retract function that allows
+  Sub to inherit the variables and constants of Sup!.
+  You must define this function.
+
+  <p>If defining retract is problematic or inefficient, you can alternatively
+  override the selectors for constants and variables that
+  would normally be inherited through the retract function.
+
+  <p><li>Declare genus Sub to be beneath genus Sup, but saying
+  <font color=#D00090>
+  <b><pre>
+    Relate Sub isKindOf Sup.
+</pre></b>
+  </font>
+
+  <p><li> You probably want to augment the context Sub with things
+  that are inherited from Sup.  If you want to inherit everything, write
+  <font color=#D00090>
+  <b><pre>
+    Context Sub isKindOf Sup =>.
+</pre></b>
+  </font>
+  If you want to select what to put in the context, just add what you want.
+  For example, write
+  <font color=#D00090>
+  <b><pre>
+    Context Sub =&gt;
+      case bring x,y,z
+    %Context
+</pre></b>
+  </font>
+</ol>
+</font>
+
+<a name=module></a>
+<hr>
+<h2><font color=mediumblue>Classes and modules</font></h2>
+
+Normally, a class is placed in a module by itself, or along with
+other things that need to share operations with it.  The visibility
+relations of the package reflect the superclasses of the class.
+For example, you create a package
+<font color=#D00090>
+<b><pre>
+  Package Fox isKindOf Mammal
+
+  export
+    Class Fox isKindOf Mammal
+      <font color=black>...</a></font>
+    %Class
+
+  implementation
+    <font color=black>...</font>
+  %Package
+</pre></b>
+</font>
+Inside the class, anything that is marked private is visible only
+in this package (and so only to this class, if that is all that is
+in this package).  Anything that is marked protected is visible only
+to this class and its subclasses (since they, presumably, are in packages
+that are subpackages of this package).
+
+<a name=description></a>
+<hr>
+<h2><font color=mediumblue>Descriptions of classes</font></h2>
+
+After the heading of a class, and just before listing the components,
+you can optionally write a string that describes the class.
+For example,
+<font color=#D00090>
+<b><pre>
+  Class Fox isKindOf Mammal
+    %" A fox has a bushy tail.
+    <font color=black>...</a></font>
+  %Class
+ </pre></b>
+</font>
+describes class Fox. 
+
+<font color=brown>
+<a name=whatis></a>
+<hr>
+<h2><font color=mediumblue>What is a constant?</font></h2>
+
+A &quot;constant&quot; in a class can be anything at all.  It can
+be a function, or even a variable.  
+For example, you can define a class
+Foo by
+<font color=#D00090>
+<b><pre>
+   Class Foo
+     Const fun: Natural -&gt; Natural.
+     <font color=black>...</font>
+   %Class
+</pre></b>
+</font>
+
+Functions that are described by <i>expectations</i> in a class are
+<i>thought of</i> as belonging to an object, although they are not
+really stored with the object at all.  But a function that is a 
+<i>constant</i>
+in a class is genuinely stored with the object.
+That gives you a great deal of flexibility as to
+what that function does, since you can put any desired function into
+the object when the object is constructed.
+
+<p>However, unless you are careful, constant functions will not have
+access to the other parts of the object to which they belong.  
+You must give them explicit access.
+To do that, add an extra parameter, as is implicitly done for expectations,
+and pass the object being constructed to the function when you construct
+the object.
+For example, suppose that function funsrc has type 
+Foo`a -&gt; Natural -&gt; Natural.  Suppose that you write a
+constructor for class Foo where my-fun is the first parameter.  Then write
+<font color=#D00090>
+<b><pre>
+   Define myfoo = foo(funsrc myfoo, ...)
+</pre></b>
+</font>
+This recursive definition allows the object to refer to itself.
+</font>
+
+<a name=override></a>
+<hr>
+<h2><font color=mediumblue>Overriding functions</font></h2>
+
+Normally, definitions made in superclasses are inherited in subclasses.
+You can override those definitions if you have made them defaults, and
+you include option <i>override</i> in the overriding declarations
+in the subclass.  
+For example, if class Mammal is defined by
+<font color=#D00090>
+<b><pre>
+  Class Mammal
+    <font color=black>...</font>
+    Expect{default} Jump: () -&gt; ().
+    <font color=black>...</font>
+  %Class
+</pre></b>
+</font>
+then class Fox can override the jump method as follows.
+<font color=#D00090>
+<b><pre>
+  Class Fox isKindOf Mammal
+    <font color=black>...</font>
+    Expect{override} Jump: () -&gt; ().
+    <font color=black>...</font>
+  %Class
+</pre></b>
+</font>
+You will need to include an overriding definition of jump in the
+Fox package.  It will begin
+<font color=#D00090>
+<b><pre>
+   Define{override} Jump. = 
+     <font color=black>...</font>
+   %Define
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="contextdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="patternmatch2.html">Next</a>
+</center>
+</body>
+</HTML>

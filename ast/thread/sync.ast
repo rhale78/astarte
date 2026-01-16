@@ -1,0 +1,100 @@
+%% File: sync.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==============================================================
+Package 		Astarte_Sync 
+
+			Interface
+================================================================
+
+================================================================
+%% This package provides synchronizers, which are tools for
+%% synchronizing several threads.  You need to give an identity
+%% to each thread, and have a collection of synchronization
+%% events that can occur.  
+%%
+%% Use synchronizer(ids,events) to produce a synchronizer for
+%% the threads whose identities are given in list ids, 
+%% with possible events given by list events.
+%%
+%% Use (sync s id events) to request a synchronization.  s
+%% is the synchronizer and id is the identity of the thread
+%% that is requesting the synchronization.  events is a list
+%% of events on which this thread is currently willing to
+%% synchronize.  The result of this expression will be one
+%% of the members of list events, namely the event that
+%% was chosen for synchronization.
+%%
+%% (sync s id events) will only return when synchronizer
+%% s has received a request for each identity in its identity
+%% list.  It will select an event that is in the intersection
+%% of the lists in the sync requests.  If there is no such
+%% event, then sync will fail with exception deadlockX.
+%%
+%% During one round of synchronization, there should be only
+%% one synchronization request with each id.
+================================================================
+
+===================================================
+Extension
+  Expect{noEqual} species Synchronizer(ORDER`id, ORDER`event)
+    %" Synchronizer is a species of objects that are used
+    %" for synchronizing threads.  See synchronizer.
+  %Expect
+%Extension
+
+===================================================
+Expect
+  sync		: Synchronizer(ORDER`id,ORDER`event)
+		    -> ORDER`id
+		    -> [ORDER`event] 
+		    -> ORDER`event
+
+		%" sync is used in conjunction with synchronizer.
+		%" synchronizer(ids,events) returns a synchronizer
+		%" that is to be used to synchronize the threads
+		%" whose ids are the members of list ids, and 
+		%" that has events given by the members of list
+		%" events.  If either ids or events is nil, 
+		%" synchronizer(ids,events) fails with exception
+		%" syncX.
+		%"
+		%" (sync s id events) should be sent by a thread 
+		%" with identifier id to synchronize on 
+		%" synchronizer s with acceptable events being
+		%" the members of list events.  Sync will wait
+		%" until a sync call has been made by each
+		%" member of its id list, and then will return
+		%" to each an event that is a member of each of
+		%" the event lists in each of the calls.  
+		%" If there is no such member, then sync will
+		%" fail with exception deadlockX.  
+		%"
+		%" If an attempt is made to synchronize with an
+		%" identity that is not part of the channels id list, 
+		%" sync will fail with exception syncX.  
+		%" If the event list in sync has an event that is 
+		%" not supported by the synchronizer, that event 
+		%" will be ignored.
+		;
+
+ synchronizer	: ([ORDER`id], [ORDER`event]) 
+		  -> Synchronizer(ORDER`id, ORDER`event)
+
+		%" See sync.
+%Expect
+
+=================================================================
+Exception 
+  trap deadlockX
+    "Computation has deadlocked at a synchronizer";
+    
+  trap syncX
+    "An invalid synchronizer has been used"
+%Exception
+
+%Package
+

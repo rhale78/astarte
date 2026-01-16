@@ -1,0 +1,19 @@
+Package strtonum
+
+%% Test stringToInteger with blanks.
+
+Import "misc/check".
+
+Execute
+  Let a = stringToInteger(" 23").
+  Line[$a].
+  Check["23"].
+  Let b = stringToInteger(" 24 ").
+  Line[$b].
+  Check["24"].
+  Writeln["Now should fail with exception conversionX."].
+  Let c = stringToInteger(" 25 26").
+  Writeln[$c].
+%Execute
+
+%Package

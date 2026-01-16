@@ -1,0 +1,202 @@
+%% File: lazy.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=============================================================
+Package 	Astarte_Lazy 
+===============================================================
+
+===============================================================
+%% This package describes lazy evaluation.  The things described
+%% here are available to all packages.
+===============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+===============================================================
+		BASIC LAZY EVALUATION
+===============================================================
+
+You can create an expression whose evaluation is deferred until
+the value of the expression is needed.  The basic way to do
+so is via expression (:e:).  This expression has a value that is
+a *promise*, holding expression e.  If computation requires the
+value of this promise, then expression e will be evaluated when
+its value is needed.  Only a primitive function an cause evaluation
+of a promise.  For example, if you write
+
+   Let a = (:1 + 2:).
+   Let b = a.
+   Let c = a + 1.
+
+expression a is not evaluated when b is bound to it, but is
+evaluated (by primitive +) when the addition is done.
+
+===============================================================
+		LAZY EVALUATION AND THREADS
+===============================================================
+
+When a promise is created, a new thread is created to compute
+it.  However, that thread is disabled, and can only run when
+the value of the expression is needed.
+
+There are some important consequences of this.  If you are using 
+nonshared boxes, then the lazy expression sees those boxes as
+they were when its thread was created.  So, for example, if you
+write
+
+	Var{nonshared} b := 2.
+	Let x = (:@b:).
+	Assign b := 3.
+	Let y = x + 1.
+
+then y becomes bound to 3, not to 4.  If you are using shared
+boxes, then the value seen inside a box is the value as it is
+when evaluation takes place.
+
+===============================================================
+		LAZY EVALUATION AND BACKTRACKING
+===============================================================
+
+A lazy expression can only produce one value.  It cannot produce
+a stream of values.  So (:e:) is equivalent to (:Cut e %Cut:).
+See stream.ast.
+
+===============================================================
+		QUASI LAZY EVALUATION
+===============================================================
+
+Sometimes you would like for a function to behave in a lazy 
+manner when it is run on lazy inputs, and in an eager (not lazy)
+manner when run on inputs that have already been computed.  You
+may do that using an await expression.  Expression
+
+	Await a then b %Await
+
+is the same as b, but might be lazy, and might be eager.  Generally,
+if the value of a has already been computed at its top level, then
+this expression will be eager.  If a is lazy at its top level, then
+this expression will be lazy.  An expression that is explicitly an
+ordered pair, but whose components are lazy, is considered known
+at its top level.
+
+The system is free to make an await-expression lazy, even when the
+value being tested is explicitly known, at its discretion.  It will
+do that occasionally.  As a result, you can use quasi-lazy evaluation
+to produce an infinite list.  The computation will be cut off eventually.
+
+You may write
+
+	Await a,b,c then d %Await
+
+to abbreviate
+
+	Await a then
+	  Await b then
+	    Await c then d %Await
+	  %Await
+	%Await
+
+You may also omit 'a then' entirely.  Expression Await b %Await
+abbreviates (:b:).
+
+ 
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+===============================================================
+			Export
+===============================================================
+
+Description
+
+ "(:"		%" (:e:) is a lazy expression that will evaluate e when
+		%" the value is needed.
+		;
+
+ force		: `a -> `a
+ 
+ 		%" force(x) = x, but it evaluates x up to its top
+		%" level.  If x is a list, for example, it will be
+		%" evaluated until it is known whether x is an empty
+		%" list or a nonempty list.
+		;
+ 
+ forceAll	: `a -> `a
+
+		%" forceAll(x) = x, but it evaluates x fully.  forceAll
+		%" goes into the structure of pairs and lists, evaluating
+		%" everything that it finds.  It does not attempt to
+		%" evaluate the content of a box.
+		;
+
+ forceList	: [`a] -> [`a]
+ 
+ 		%" forceList(x) = x, but the entire list x is evaluated.
+		%" The members of list x are not evaluated, only the list
+		%" structure is evaluated.
+		;
+
+ lazyDollar	: `a -> String
+
+		%" lazyDollar(x) is a string such as "(lazy)"
+		%" if x is lazy, and the current thread is doing
+		%" a call to function view.  Otherwise, lazyDollar(x) fails
+		%" with exception testX.  See $, view.
+		;
+
+ lazyLeft	: (`a,`b) -> `a
+
+		%" lazyLeft(x,y) = x.  But lazyLeft does not evaluate
+		%" its argument until the value of lazyLeft(x,y) is
+		%" needed.
+		;
+
+ lazyRight	: (`a,`b) -> `b
+
+		%" lazyRight(x,y) = y.  But lazyRight does not evaluate
+		%" its argument until its result is needed.
+		;
+
+ notLazy?	: `a -> Boolean
+ 
+ 		%" notLazy?(x) is true if x is known at its top level.
+		%" For example, if x is a list that is known to be
+		%" nonempty, then it is known to its top level, even
+		%" if its head and tail have not been evaluated.
+		%" If x is lazy, then notLazy(x) is false.
+		%"
+		%" This function should be used with caution, since
+		%" a program that uses it can become sensitive to the
+		%" order in which lazy evaluation is performed.
+		;
+ 
+ shortApply	: (`a -> `b, `a) -> `b
+
+		%" shortApply(f,a) computes f(a), but does so with
+		%" a relatively short time limit, so that if the
+		%" computation takes long, it will become lazy.
+		;
+
+ view		: `a -> String 
+
+		%" view(x) is similar to $(x), but it attempts not to
+		%" evaluate lazy parts of x, instead showing them as 
+		%""(lazy)", or another descriptive form.  View uses $ to
+		%" do its work.  See $.
+		;
+
+ {imported}
+ infiniteLoopX	: ExceptionSpecies
+
+		%" Exception infiniteLoopX occurs when an operation
+		%" discovers that it has been asked to do an infinite
+		%" computation.  Attempting to use a lazy object
+		%" while evaluating that same object will lead to
+		%" this exception.
+                ;
+
+%Description
+
+%Package

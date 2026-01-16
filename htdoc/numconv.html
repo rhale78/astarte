@@ -1,0 +1,133 @@
+<HTML>
+<head>
+<title>Astarte: numeric conversions</title>
+</head>
+<body>
+<center>
+<a href="modular.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="wrapnum.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LN3. Conversions Between Numeric Species </font></h1>
+</center>
+
+The following conversions are available.  Some are shown with
+two different polymorphic types, the first for the case where
+you do not import math/math.ast, the second for the case where
+you do import that package.
+<dl>
+
+<a name=plus></a>
+<p><dt><font color="red"> +</font> 
+<dd>: REAL`a -&gt; REAL`b
+<br>: NUMBER`a -&gt; NUMBER`b
+<p> <font color=#D00090>+(x)</font> is the same number as x, 
+but cast to another numeric species.  
+<p>Unary operator + can only be used to cast to a more
+general species, in the direction 
+Natural -&gt; Integer -&gt; Rational -&gt; Real -&gt; Complex.
+It can perform such a cast underneath the wrapping
+of a secondary item.
+
+<a name=tilde></a>
+<p><dt><font color="red"> ~ </font>
+<dd>: REAL`a -&gt; Real
+<p> <font color=#D00090>~(x)</font> 
+is the result of converting x to species Real.
+Here, x can be of any standard numeric species (Natural, Integer,
+Rational or Real).
+<p>Example:
+<font color="D00090">~15</font> = 15.0
+
+<a name=as></a>
+<p><dt><font color="red"> _as_</font> 
+<dd>: (REAL`a, REAL`b) -&gt; REAL`b
+<br>: (SEMIGROUP`a, SEMIGROUP`b) -&gt; SEMIGROUP`b
+<p> <font color=#D00090>x _as_ y</font> 
+is the same number as x, but cast to the species of y.
+Only conversions that preserve values are allowed, except that 
+conversions to Real might round numbers.  x _as_ y fails with
+exception conversionX if the conversion is impossible.
+
+<a name=compatify></a>
+<p><dt><font color=red>compatify</font>
+<dd>: (REAL`a, REAL`b) -&gt; (REAL`c, REAL`c)
+<br>: (NUMBER`a, NUMBER`b) -&gt; (NUMBER`c, NUMBER`c)
+<p> <font color=#D00090>compatify(x,y)</font> 
+takes two numbers and forces their values to 
+the most general of the two species.  For example, 
+<font color=#D00090>compatify(2:Natural, 3:Rational)</font> 
+= (2:Rational, 3:Rational).
+Compatify is an 
+<a href=irregular.html>irregular function</a>, 
+so the result species is checked
+at run time.
+
+<a name=integer></a>
+<p><dt><font color="red"> integer </font>
+<dd>: INTEGER`a -&gt; Integer
+<p> <font color=#D00090>integer(x)</font> 
+is the result of converting x to species Integer.
+x can be a natural number or an integer.
+
+<a name=nabs></a>
+<p><dt><font color="red"> nabs </font>
+<dd>: INTEGER`a -&gt; Natural
+<p> <font color=#D00090>nabs(x)</font> 
+is the absolute value of x, of species Natural.
+x can be a natural number or an integer.
+
+<a name=natconst></a>
+<p><dt><font color="red"> natconst</font> 
+<dd>: Natural -&gt; REAL`a
+<br>: Natural -&gt; NUMBER`a
+<p> <font color=#D00090>natconst(n)</font> 
+is the result of converting natural number n
+to an arbitrary numeric species.  When you write natural
+number constant 2, you implicitly mean natconst(2).
+
+<a name=natural></a>
+<p><dt><font color="red"> natural </font>
+<dd>: INTEGER`a -&gt; Natural
+<p> <font color=#D00090>natural(x)</font> 
+is the result of converting x to species Natural.
+x can be a natural number or an integer.  If x is negative,
+the conversion fails with exception conversionX.
+
+<a name=ratconst></a>
+<p><dt><font color="red"> ratconst</font> 
+<dd>: Rational -&gt; RFIELD`a
+<br>: Rational -&gt; NFIELD`a
+<p> <font color=#D00090>ratconst(x)</font> 
+is the result of converting rational number x
+to some numeric species.  When you write constant
+2.4, you implicitly mean ratconst(2.4).
+
+<a name=rational></a>
+<p><dt><font color="red"> rational </font>
+<dd>: REAL`a -&gt; Rational
+<p> <font color=#D00090>rational(x)</font> 
+is the result of converting x to species Rational.
+x can be any of the standard numeric species.
+
+</dl>
+
+<hr>
+<center>
+<a href="modular.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="wrapnum.html">Next</a>
+</center>
+</body>
+</HTML>

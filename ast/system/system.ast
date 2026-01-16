@@ -1,0 +1,402 @@
+%% File: system.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_System 
+
+			Interface
+=============================================================
+
+=============================================================
+%% This file provides system access and operations on files.
+%%
+%% NOTE: The 'doCmd' and 'system' functions currently work only
+%% under Unix.
+=============================================================
+
+%%---------------------------------------------------------------
+%% Some of the functions are provided as primitives.  Get them now.
+%% The descriptions here describe what "-system" provides.
+%%---------------------------------------------------------------
+
+Import "-system".
+
+Description
+
+ ChangeDirectory: String -> ()
+
+		%" ChangeDirectory s %ChangeDirectory changes the current
+		%" directory to s.  It fails with exception
+		%" noFileX(s) if the change is not possible.
+                ;
+
+ commandLine	: [String]
+
+		%" commandLine is the command line of the program, beginning
+		%" with the name of the program.  The words of the command
+		%" line are separate strings in this list.  For example, 
+		%" if you invoke the interpreter with command 
+		%"
+		%"    astr -t myprog -r turtle
+		%"
+		%" then commandLine is ["myprog", "-r", "turtle"].
+                ;
+
+ dateTime	: () -> String
+
+		%" dateTime() is a string describing the current time
+		%" and date.
+                ;
+
+ doCmd		: ([String], String) -> String
+
+		%" Let cmd be a system command, given as a list of
+		%" words.  doCmd(cmd,inp) runs command cmd, with
+		%" its standard input holding string inp.  The result
+		%" of doCmd(cmd,inp) is the combined standard output
+		%" and standard error of cmd.  You might find the
+		%" 'system' more pleasant.
+                ;
+		
+ getCwd		: () -> String
+
+		%" getCwd() returns the current working directory.
+		;
+
+ getEnv		: String -> String
+
+		%" getEnv(s) is the value of system environment variable
+		%" s.  It fails with exception
+		%" domainX("no such environment variable") if s is
+		%" not bound in the environment.
+                ;
+
+ sysEnvironF	: () -> [(String, String)]
+ 
+ 		%" sysEnvironF() is the operating system environment, in the
+		%" form [(name1,value1), (name2,value2), ...].
+		;
+		
+ basicDirList	: String -> [String]
+		
+		%" basicDirList(d) is an unsorted list of the
+		%" files in directory d.  Use dirList to get a sorted list.
+		;
+
+ MakeDirectory  : String -> ()
+
+		%" MakeDirectory(s) %MakeDirectory creates a new
+		%" directory called s in the file system.
+		%" It fails with exception
+		%" noFileX(s) if the change is not possible.		
+		;
+
+ RemoveDirectory : String -> ()
+
+		%" RemoveDirectory(s) %RemoveDirectory removes
+		%" directory s from the file system.  Directory s
+		%" must be empty, or nothing is done.
+		%" It fails with exception
+		%" noFileX(s) if the change is not possible.		
+		;
+
+ RemoveFile	: String -> ()
+
+		%" RemoveFile(s) %RemoveFile deletes file s from
+		%" the file system. It fails with exception
+		%" noFileX(s) if the change is not possible.		
+		;
+
+ RenameFile	: (String, String) -> ()
+
+		%" RenameFile(a,b) %RenameFile renames file a,
+		%" letting its new name be b.
+		%" It fails with exception
+		%" noFileX(s) if the change is not possible.
+		;
+
+ secondsSinceTimeZero : () -> Natural
+
+		%" secondsSinceTimeZero() is the number of seconds
+		%" since some reference time, according to the
+		%" current clock.
+		;
+
+ {imported}
+ systemX	: ExceptionSpecies
+
+		%" Exception systemX occurs when function 'system'
+		%" fails.  This exception is normally trapped.
+		;
+
+%Description
+
+================================================================
+%% The following are implemented in this package.
+================================================================
+
+Extension
+  Expect species File
+    %" Species File contains objects that hold information
+    %" about system files.
+  %Expect
+%Extension
+
+===============================================
+Expect
+
+  AppendToFile	: File -> String -> ()
+  
+  		%" AppendToFile f,s %AppendToFile adds string s
+		%" to the end of file f.
+		;
+	    
+  basename	: File -> String
+  
+  		%" The basename of a file is the name of the file,
+		%" without directory, with the extension removed.
+		%" For example, the basename of "a/b/fil.txt" is "fil".
+		;
+  
+  ChangeDirectory: File -> ()
+
+		%" ChangeDirectory s %ChangeDirectory changes the current
+		%" directory to s.  It fails with exception
+		%" noFileX(pathname s) if the change is not possible.
+        	;
+	    
+  direct    	: File -> File
+  
+  		%" direct(f) is the directory in which file f
+		%" is found.  For example, if f is "a/b/c.txt", then
+		%" direct(f) is directory "a/b".
+		;
+	       
+  directory?	: File -> Boolean
+  
+  		%" directory?(f) is true if f is a directory.
+		%"
+		%" See UpdateStatus.
+		;
+	    
+  dirList	: File -> [File]
+
+	   	%" dirList(dir) is a listing of the files in
+		%" directory dir.  It fails with exception 
+		%" noFileX(pathname dir) if unable to read directory dir.
+		;
+		
+  executable?	: File -> Boolean
+  
+  		%" executable?(f) is true if f is a writable file.
+		%"
+		%" See UpdateStatus.
+		;
+	       
+  ext		: File -> String
+  
+  		%" ext(f) is the part of the name of file f
+		%" that comes after the last period.  For example,
+		%" the extension of "fil.txt" is "txt".  If there is
+		%" no dot, the extension is the empty string.
+		;
+  
+  file		: String -> File
+  
+  		%" file(s) is the file whose name is s.  If s is a
+		%" relative file name, then the file is in the
+		%" current directory.
+		;
+		
+  fileExists?	: String -> Boolean
+  
+  		%" fileExists(name) is true if there is a system file
+		%" called name.  The file can be any kind of file,
+		%" including a directory.
+		;
+  
+  filename  	: File -> String
+  
+  		%" filename(f) is the name of file f, excluding
+		%" directory.  For example, if the file is "a/b/c.txt,"
+		%" then the filename is "c.txt."
+		;
+	 
+  getCwd	: () -> File
+
+	    	%" getCwd() returns the current working directory.
+	    	;
+
+  group 	: File -> Natural
+  
+  		%" group(f) is the id of the group of file f.
+		%"
+		%" See UpdateStatus.
+		;
+	       
+  infile	: [FileMode] -> File -> String
+  
+		%" See infile: [FileMode] -> String -> String.
+		%" The string is the name of the file.
+		;
+	    
+  infile	: File -> String
+  
+  		%" See infile: String -> String.  The string is
+		%" the name of the file.
+		;
+	    
+  modTime	: File -> Natural
+  
+  		%" modTime(f) is the modification time of file f.
+		%"
+		%" See UpdateStatus.
+		;
+	       
+  outfile	: [FileMode] -> File -> Outfile(Char)
+  
+  		%" See outfile: [FileMode] -> String -> Outfile(Char).
+		%" The string is the name of the file.
+		;
+	    
+  outfile	: File -> Outfile(Char)
+  
+  		%" See outfile: String  -> Outfile(Char).
+		%" The string is the name of the file.
+		;
+	    
+  owner		: File -> Natural
+  
+  		%" owner(f) is the id of the owner of file f.
+		%"
+		%" See UpdateStatus.
+		;
+	       
+  pathname  	: File -> String
+  
+  		%" pathname(f) is the full name of file f, including
+		%" directory.
+	    	;
+		
+  readable?	: File -> Boolean
+  
+  		%" readable?(f) is true if f is a readable file.
+		%"
+		%" See UpdateStatus.
+		;
+	       
+  RemoveDirectory : File -> ()
+
+		%" RemoveDirectory(s) %RemoveDirectory removes
+		%" directory s from the file system.  Directory s
+		%" must be empty, or nothing is done.
+		%" It fails with exception
+		%" noFileX(pathname s) if the change is not possible.
+		;
+
+  RemoveFile 	: File -> ()
+
+		%" RemoveFile(s) %RemoveFile deletes file s from
+		%" the file system. It fails with exception
+		%" noFileX(pathname s) if the change is not possible.
+		;
+
+  RenameFile 	: (File, String) -> ()
+
+		%" RenameFile(a,b) %RenameFile renames file a,
+		%" letting its new name be b.
+		%" It fails with exception
+		%" noFileX(pathname s) if the change is not possible.
+		%"
+		%" The file name of this File item is changed
+		%" as well as the name in the system.
+		;
+	 
+  size  	: File -> Natural
+  
+  		%" size(f) is the number of bytes in file f
+		%"
+		%" See UpdateStatus.
+		;
+	       
+  system    	: String -> String -> String;
+  
+  system    	: [String] -> String -> String;
+  
+  sysEnviron	: [(String, String)]
+ 
+ 		%" sysEnviron is the operating system environment, in the
+		%" form [(name1,value1), (name2,value2), ...].  It is
+		%" the same as sysEnvironF().
+	 	;
+	    
+  UpdateStatus	: File -> ()
+  
+  		%" Status information (directory?, size, etc.) of a file
+		%" is obtained when it is needed, and is remembered.
+		%" Getting information does not reread the status info
+		%" from the operating system each time.  To get current
+		%" information about a file f, use UpdateStatus(f). 
+		%"
+		%" UpdateStatus(f) fails with exception 
+		%" noFileX(pathname f) if status information cannot
+		%" be obtained for file f.
+		;
+  
+  writable?	: File -> Boolean
+  
+  		%" writable?(f) is true if f is a writable file.
+		%"
+		%" See UpdateStatus.
+		;
+	       
+  WriteFile 	: [FileMode] -> File ->  String -> ()
+ 
+ 	    	%" WriteFile mode, f, fileContent %WriteFile 
+	    	%" writes string  fileContent into file f.  
+	    	%" It opens the file with the given mode.
+		%"
+		%" If unable to open the file for writing, WriteFile
+		%" fails with exception noFileX(pathname f).
+		;
+		
+  WriteFile  	: File -> String -> ()
+ 
+ 	    	%" WriteFile f, fileContent %WriteFile 
+	    	%" writes string fileContent into file f.  
+	    	%" It opens the file with the default mode, [].
+		%"
+		%" If unable to open the file for writing, WriteFile
+		%" fails with exception noFileX(pathname f).
+	    	;
+
+  /		: (File, String) -> File
+  
+  		%" d/f is file f in directory d.  f can be a path.
+		%" If f is absolute, then directory d is ignored.
+  		;
+		
+  $	    	: File -> String;
+%Expect
+
+===============================================
+Description
+  system   %" (system cmd s) runs command cmd, with string s in its
+	   %" standard input, and returns the standard output of that
+	   %" command.  cmd can be a single string, representing an
+	   %" entire command (with arguments separated by spaces), 
+	   %" or a list of strings, representing a command and its 
+	   %" arguments. System does not call a shell to parse the
+	   %" command, so the command should not use any special shell
+	   %" syntax.
+	   %"
+	   %" If there is trouble creating the process to run the
+	   %" system command, system fails with exception systemX.
+%Description
+
+
+%Package
+	

@@ -1,0 +1,117 @@
+Package vard3
+
+%% Test Var: infinite linear arrays, both uninitialized and initialized
+%% (Var declarations)
+
+Import "collect/boxes".
+Import "misc/check".
+
+==============================================================
+Var{shared} asu(*)  holding Natural.
+Var{shared} asia1(*), asia2(*) holding Natural all := 0.
+Var{shared} asi1(*) holding Natural := 1 _upto_ 20.
+Var{shared} asi2(*) holding Natural := 0 _upto_ infinity.
+Var{shared} asi3(*), asi4(*) := [1,2,3,4,5]:[Natural].
+
+Execute
+  Writeln["Shared Boxes"].
+  For ?n from 0 _upto_ 10 do Assign asu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(@(asu#_n))]..
+  Check["66666666666"].
+
+  Line[].
+  For ?n from 0 _upto_ 19 do Moreline[$(@(asi1#_n))]..
+  Check["1234567891011121314151617181920"].
+  Line[$emptyBox?(asi1#_21)].
+  Check["true"].
+
+  Line[].
+  For ?n from 0 _upto_ 40 do Moreline[$(@(asi2#_n))]..
+  Check[flatten(eagerMap($)(0 _upto_ 40))].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi3#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi4#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(@(asia1#_n))]..
+  Check["00000000000"].
+  
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(@(asia2#_n))]..
+  Check["00000000000"].
+%Execute
+=================================================================
+
+==============================================================
+Var{nonshared} anu(*)  holding Natural.
+Var{nonshared} ania1(*), ania2(*) holding Natural all := 0.
+Var{nonshared} ani1(*) holding Natural := 1 _upto_ 20.
+Var{nonshared} ani2(*) holding Natural := 0 _upto_ infinity.
+Var{nonshared} ani3(*), ani4(*) := [1,2,3,4,5]:[Natural].
+
+Execute
+  Writeln["Nonshared Boxes"].
+  For ?n from 0 _upto_ 10 do Assign anu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(@(anu#_n))]..
+  Check["66666666666"].
+
+  Line[].
+  For ?n from 0 _upto_ 19 do Moreline[$(@(ani1#_n))]..
+  Check["1234567891011121314151617181920"].
+  Line[$emptyBox?(ani1#_21)].
+  Check["true"].
+
+  Line[].
+  For ?n from 0 _upto_ 40 do Moreline[$(@(ani2#_n))]..
+  Check[flatten(eagerMap($)(0 _upto_ 40))].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(ani3#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(ani4#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(@(ania1#_n))]..
+  Check["00000000000"].
+  
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(@(ania2#_n))]..
+  Check["00000000000"].
+%Execute
+==============================================================
+
+=================================================================
+Var{shared, unknown} asuu(*) holding Natural.
+
+Execute
+  Writeln["Shared Unknowns"].
+  For ?n from 0 _upto_ 10 do BindUnknown asuu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(asuu#_n)]..
+  Check["66666666666"].
+%Execute
+==============================================================
+
+=================================================================
+Var{nonshared, unknown} anuu(*) holding Natural.
+
+Execute
+  Writeln["Nonshared Unknowns"].
+  For ?n from 0 _upto_ 10 do BindUnknown anuu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 10 do Moreline[$(anuu#_n)]..
+  Check["66666666666"].
+%Execute
+=================================================================
+
+%Package

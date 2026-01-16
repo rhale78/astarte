@@ -1,0 +1,143 @@
+Package vard2
+
+%% Test Var: finite linear arrays, both uninitialized and initialized
+%% (Var declarations)
+
+Import "collect/boxes".
+Import "misc/check".
+
+==============================================================
+Var{shared} asu(5)  holding Natural.
+Var{shared} asia1(5),asia2(5) holding Natural all := 0.
+Var{shared} asi1(5) holding Natural := [1,2,3,4,5].
+Var{shared} asi2(5) holding Natural := [1,2,3].
+Var{shared} asi3(5) holding Natural := [1,2,3,4,5,6,7,8].
+
+Var{shared} asi4(5) := [1,2,3,4,5]:[Natural].
+
+Var{shared} asi5(5), asi6(5) := [1,2,3,4,5]:[Natural].
+
+Execute
+  Writeln["Shared Boxes"].
+  For ?n from 0 _upto_ 4 do Assign asu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asu#_n))]..
+  Check["66666"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi1#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 2 do Moreline[$(@(asi2#_n))]..
+  Check["123"].
+  Line[$emptyBox?(asi2#_3)].
+  Check["true"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi3#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi4#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi5#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asi6#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asia2#_n))]..
+  Check["00000"].
+  
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(asia2#_n))]..
+  Check["00000"].
+  
+  Line[$length(asu), $length(asi1), $length(asi2), 
+      $length(asi3), $length(asia1)]
+  %Line
+  Check["55555"].
+
+%Execute
+=================================================================
+
+==============================================================
+Var{nonshared} anu(5)  holding Natural.
+Var{nonshared} ania1(5),ania2(5) holding Natural all := 0.
+Var{nonshared} ani1(5) holding Natural := [1,2,3,4,5].
+Var{nonshared} ani2(5) holding Natural := [1,2,3].
+Var{nonshared} ani3(5) holding Natural := [1,2,3,4,5,6,7,8].
+
+Var{shared} ani4(5) := [1,2,3,4,5]:[Natural].
+
+Execute
+  Writeln["Nonshared Boxes"].
+  For ?n from 0 _upto_ 4 do Assign anu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(anu#_n))]..
+  Check["66666"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(ani1#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 2 do Moreline[$(@(ani2#_n))]..
+  Check["123"].
+  Line[$emptyBox?(ani2#_3)].
+  Check["true"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(ani3#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(ani4#_n))]..
+  Check["12345"].
+
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(ania1#_n))]..
+  Check["00000"].
+  
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(@(ania2#_n))]..
+  Check["00000"].
+  
+  Line[$length(anu), $length(ani1), $length(ani2), 
+      $length(ani3), $length(ania1)]
+  %Line
+  Check["55555"].
+
+%Execute
+==============================================================
+
+=================================================================
+Var{shared, unknown} asuu(5) holding Natural.
+
+Execute
+  Writeln["Shared Unknowns"].
+  For ?n from 0 _upto_ 4 do BindUnknown asuu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(asuu#_n)]..
+  Check["66666"].
+%Execute
+==============================================================
+
+=================================================================
+Var{nonshared, unknown} anuu(5) holding Natural.
+
+Execute
+  Writeln["Nonshared Unknowns"].
+  For ?n from 0 _upto_ 4 do BindUnknown anuu#_n := 6..
+  Line[].
+  For ?n from 0 _upto_ 4 do Moreline[$(anuu#_n)]..
+  Check["66666"].
+%Execute
+=================================================================
+
+%Package

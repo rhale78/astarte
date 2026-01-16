@@ -1,0 +1,208 @@
+%% File: channel.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==========================================================
+Package 		Astarte_ChannelImp 
+
+			implements "channel"
+============================================================
+
+============================================================
+%% A communication queue contains a box where a list of
+%% (msg,result-box) pairs is stored, and a semaphore for
+%% synchronizing access to the queue.  When a message is
+%% put into the queue, it is added to the end with a
+%% new box to hold its result.  If the sender waits for
+%% a reply, it waits until the result box is not empty,
+%% and replies with the content of that box.
+============================================================
+
+Import "thread/semaphor".
+
+===================================================================
+%% 			Channel
+===================================================================
+
+Extension
+  Species{noEqual} Channel(`msg,`rtn) =
+    makeChannel(<:[(`msg, <:`rtn:>)]:>, Semaphore)
+  %Species
+%Extension
+
+===================================================================
+%% 			channel
+===================================================================
+
+Let channel() = makeChannel(sharedBox[], unblockedSemaphore()).
+
+==================================================================
+%% 			request
+===================================================================
+
+Let notEmptyF ?b () = not emptyBox? b.
+
+Let request(makeChannel(?qB,?sem), ?msg) =
+
+  %%---------------------------------------------------------------
+  %% resultBox is the sharedBox that will be sent with the
+  %% message to hold the result sent back from the receiver.
+  %%---------------------------------------------------------------
+
+  Var{shared} resultBox.
+
+  %%---------------------------------------------------------------
+  %% addmsg is a list containing the (message,result-box) pair to be
+  %% added to the receiver's communication queue.
+  %%---------------------------------------------------------------
+
+  Let addmsg = [(msg, resultBox)].
+
+  %%---------------------------------------------------------------
+  %% Put the message in the queue.
+  %%---------------------------------------------------------------
+
+  SemProtect sem over
+    Assign qB := @qB ++ addmsg.
+  %SemProtect
+
+  %%---------------------------------------------------------------
+  %% Wait For a reply.
+  %%---------------------------------------------------------------
+
+  Wait (notEmptyF resultBox).
+
+  %%---------------------------------------------------------------
+  %% Return the reply.
+  %%---------------------------------------------------------------
+
+  (@resultBox)
+%Let
+
+===================================================================
+%% 			Inform
+===================================================================
+
+Let Inform(makeChannel(?qB,?sem), ?msg). =
+
+  %% Similar to request, but no wait.
+
+  Let addmsg = [(msg, emptySharedBox())].
+  SemProtect sem over
+    Assign qB := @qB ++ addmsg.
+  %SemProtect
+%Let
+
+===================================================================
+%% 			serviceNowait
+===================================================================
+
+Let serviceNowait(makeChannel(?qB,?sem), ?selector, ?handler) =
+
+  %%---------------------------------------------------------------
+  %% Must make updates atomicly.  Use the semaphore for this queue.
+  %%---------------------------------------------------------------
+
+  open SemProtect sem over
+
+    %%---------------------------------------------------------------
+    %% Find the message to service.  It will be the first message
+    %% in list rear.
+    %%---------------------------------------------------------------
+
+    Match (?front,?rear) = @qB _eagerCutBy_ (left || selector).
+
+    %%---------------------------------------------------------------
+    %% If rear is nil, then there is no message to service.
+    %%---------------------------------------------------------------
+
+    open If nil? rear then (fail testX)
+
+    %%---------------------------------------------------------------
+    %% Service the message.
+    %%---------------------------------------------------------------
+
+    else
+
+      %%---------------------------------------------------------------
+      %% Get the message, the result box, and the remainder of the
+      %% queue.
+      %%---------------------------------------------------------------
+
+      Match [(?msg,?resultBox) & ?rest] = rear.
+
+      %%---------------------------------------------------------------
+      %% Delete this message from the communication queue.
+      %%---------------------------------------------------------------
+
+      Assign qB := front ++ rest.
+
+      %%---------------------------------------------------------------
+      %% Free the queue for modification.
+      %%---------------------------------------------------------------
+
+    %If
+  %SemProtect
+
+  %%---------------------------------------------------------------
+  %% Handle the message and put its result in the result box.
+  %%---------------------------------------------------------------
+
+  Assign resultBox := handler(msg).
+
+  %%---------------------------------------------------------------
+  %% Return the message.
+  %%---------------------------------------------------------------
+
+  Value msg.
+%Let
+
+====================================================================
+%% 			ServiceNowait
+===================================================================
+
+Let (ServiceNowait) = serviceNowait || (Ignore).
+
+====================================================================
+%% 			serviceWait
+===================================================================
+
+Let serviceWait(?c, ?selector, ?handler) =
+  Try
+    Let result = serviceNowait(c,selector,handler).
+  then
+    result
+  else
+    Pause().
+    Loop first
+      exitcase do Let result = serviceNowait(c,selector,handler).
+	=> result
+      loopcase else
+	=> Repause(). continue
+    %Loop
+  %Try
+%Let
+
+====================================================================
+%%			ServiceWait
+===================================================================
+
+Let (ServiceWait) = serviceWait || (Ignore).
+
+====================================================================
+%% 			anyMessage 
+%%			noReply
+===================================================================
+
+Let anyMessage = constf true.
+Let noReply = (Ignore).
+
+====================================================================
+%% 			receive
+===================================================================
+
+Let receive(?c) = serviceWait(c, anyMessage, noReply).
+
+%Package

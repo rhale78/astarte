@@ -1,0 +1,75 @@
+Package findlst
+
+%% Test findlist.ast functions.
+
+Import "collect/findlist".
+Import "misc/check".
+Import "collect/denseset".
+
+Let exposeInfo(?info_p) =
+  (acMatchedIndices(info_p),
+   acMatchPosition(info_p),
+   acRest(info_p))
+%Let
+
+Execute
+
+  Let matcher_l = acPatternMatcher ["mark", "remark", "mammal", "k"].
+  
+  Let infos0 = acFindSublist matcher_l "market".
+  Let info0 = infos0#_0.
+  Line[$exposeInfo(info0)].
+  Check["([3,0],(4,\"et\"))"].
+  Line[$(acBeforeMember info0 0, acMatched info0 0)].
+  Check["(noValue,\"mark\")"].
+  
+  Let infos1 = acFindSublist matcher_l "xrmararemarkammammalrza".
+  Let info1 = infos1#_0.
+  Line[$exposeInfo(info1)].
+  Check["([3,0,1],(12,\"ammammalrza\"))"].
+  Line[$(acBeforeMember info1 0, acMatched info1 0)].
+  Check["(value(e),\"mark\")"].
+  Line[$(acBeforeMember info1 1, acMatched info1 1)].
+  Check["(value(a),\"remark\")"].
+  Line[$(acBeforeMember info1 3, acMatched info1 3)].
+  Check["(value(r),\"k\")"].
+
+  Let info2 = infos1#_1.
+  Line[$exposeInfo(info2)].
+  Check["([2],(8,\"rza\"))"].
+  Line[$(acBeforeMember info2 2, acMatched info2 2)].
+  Check["(value(m),\"mammal\")"].
+
+  Let matcher2_l = acPatternMatcher ["mark", "market", "remark"].
+  
+  Let infos3 = acFindSublist matcher2_l "zremarketxs".
+  Let info3 = infos3#_0.
+  Line[$exposeInfo(info3)].
+  Check["([0,2],(7,\"etxs\"))"].
+  Line[$(acBeforeMember info3 0, acMatched info3 0)].
+  Check["(value(e),\"mark\")"].
+  Line[$(acBeforeMember info3 2, acMatched info3 2)].
+  Check["(value(z),\"remark\")"].
+
+  Let info4 = infos3#_1.
+  Line[$exposeInfo(info4)].
+  Check["([1],(2,\"xs\"))"].
+  Line[$(acBeforeMember info4 1, acMatched info4 1)].
+  Check["(value(e),\"market\")"].
+%Execute
+
+Execute
+  Let wordChars = 
+    denseSet "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  %Let
+  Let goatMatcher = (acPatternMatcher ["goat"], wordChars).
+  Let infos1 = acFindSubword goatMatcher "a goatie is not a goat or a dog".
+  Let info1 = infos1#_0.
+  Line[$exposeInfo(info1)].
+  Check["([0],(22,\" or a dog\"))"].
+  Line[$(acBeforeMember info1 0, acMatched info1 0)].
+  Check["(value( ),\"goat\")"].
+%Execute
+
+
+%Package

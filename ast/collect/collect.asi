@@ -1,0 +1,109 @@
+%% File collect.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_CollectionImp
+
+			Implements "collect"
+==============================================================
+
+Directory standard. 
+Import 
+  "collect/search"; 
+  "collect/listfun"; 
+  "collect/pair";
+  "collect/sort"
+%Import
+
+Advise nowarn missingDefinition.
+
+=============================================
+%% Operations for secondary species
+=============================================
+
+Let
+  emptyCollection	   = <<[]>>;
+  size             <<?c>>  = size c;
+  emptyCollection? <<?c>>  = emptyCollection?(c);
+  toList 	   <<?c>>  = toList(c);
+  fromList	   ?l      = <<l>>;
+  eagerToList 	   <<?c>>  = eagerToList(c);
+  each 		   <<?c>>  = each c;
+  eachMixed 	   <<?c>>  = eachMixed c;
+  min 		   <<?c>>  = min c;
+  max 		   <<?c>>  = max c;
+  ?x _in_ 	   <<?c>>  = x _in_ c;
+  sizeAtLeast   ?n <<?c>>  = sizeAtLeast n c;
+  map 		?f <<?c>>  = <<map f c>>;
+  MapProc    (?P), <<?c>>. = MapProc (P), c.;
+  mapSuccesses	?f <<?c>>  = <<mapSuccesses f c>>;
+  filter 	?f <<?c>>  = <<filter f c>>;
+  someSatisfy 	?f <<?c>>  = someSatisfy f c;    
+  allSatisfy 	?f <<?c>>  = allSatisfy f c;    
+  select 	?f <<?c>>  = select f c;
+  fold 		?p <<?c>>  = fold p c;
+  partition 	?f <<?c>>  = map wrap (partition f c);
+  bpartition 	?f <<?c>>  = (<<a>>,<<b>>) |
+                               Match (?a,?b) = bpartition f c.;
+%Let
+
+=============================================
+%% Definitions of most of the functions that
+%% we need to provide have already been given
+%% for lists, either above or in the imported
+%% packages. We must provide sizeAtLeast for lists, 
+%% since lengthAtLeast is imported from
+%% listfun.
+%%
+%% Here, we underride the list definitions
+%% to handle arbitrary collections by
+%% converting the collection to a list.
+=============================================
+
+Let sizeAtLeast	= lengthAtLeast.
+
+Let{underride}:
+  size 	    = length _o_ toList;
+  each      = each _o_ toList;
+  eachMixed = eachMixed _o_ toList;
+  min       = min _o_ toList;
+  max       = max _o_ toList;
+  
+  ?x _in_ ?c            = x _in_ toList c;
+  sizeAtLeast ?n ?c     = sizeAtLeast n (toList c);
+  map ?f ?c 		= fromList(map f (toList c));
+  MapProc (?P), ?c. 	= MapProc (P), (toList c).;
+  mapSuccesses ?f ?c 	= fromList(mapSuccesses f (toList c));
+  filter ?f ?c 		= fromList(filter f (toList c));
+  someSatisfy ?f ?c 	= someSatisfy f (toList c);
+  allSatisfy ?f ?c 	= allSatisfy f (toList c);
+  select ?f ?c 		= select f (toList c);
+  fold ?p ?c 		= fold p (toList c);
+  bpartition ?f ?c 	= (_pmap_ (fromList,fromList))
+  			    (bpartition f (toList c));
+  partition ?tl ?c      = map (fromList) (partition tl (toList c));
+%Let
+
+=============================================
+%% 		$
+=============================================
+
+%%--------------------------------------------
+%% If $ is computed using toList, which might
+%% be lazy, we get into trouble using view.
+%% The problem is that, if toList(s) returns a
+%% lazy value, and we are doing a view, then
+%% $ will produce "(lazy toList)", which is
+%% not very nice.  So we use eagerToList.
+%%---------------------------------------------
+
+Let{underride} $ ?s = 
+  lazyDollar(s) _butIfFail_ $(eagerToList s)
+%Let
+
+=============================================
+
+%Package

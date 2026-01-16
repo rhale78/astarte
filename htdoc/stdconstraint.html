@@ -1,0 +1,140 @@
+<HTML>
+<head>
+<title>Astarte: standard operations with constrained types</title>
+</head>
+<body>
+<center>
+<a href="constraint.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="defaultdcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T23. Standard Operations With Constrained Types </font></h1>
+</center>
+
+Here are some operations that are used with secondary species.
+<dl>
+<a name=dblhat></a>
+<dt><font color=red> ^^ </font>
+<dd>: `a -&gt; `b constraint (`b &gt;= `a)
+<p> ^^ is a general "upcast" function.  It is used to change the
+extrinsic species of an item without changing its intrinsic species.
+This function needs to be used when you want to forget information
+about the species of an item.  
+For example, suppose that you want to
+build a list of species [ANY], but the things that you want in the
+list do not already have extrinsic species ANY.  Then you can upcast
+them all.  You might write [^^(2), ^^("abc"), ^^(true)] : [ANY].
+
+<p>You can apply operator ^^ to a function to allow the function
+to apply to a more specific kind of thing than its extrinsic species
+suggests.  For example, suppose that you have 
+a function f:ANY-&gt;Natural.  You would like to compute f(x), where
+x has species Real.  If you simply write f(x), you get a species
+mismatch at compile time, since species Real is not the same as species
+ANY.  But if you write (^^f)(x), then all is fine.  ^^f generalizes
+f so that it can take any species as a parameter.
+
+<a name=wrap></a>
+<p><dt><font color=red> wrap </font>
+<dd>: `a -&gt; ``b constraint (``b &gt;= `a)
+<p> Function wrap converts an item to a secondary species, preserving its
+intrinsic species.  This is a special case of ^^ where the codomain
+is a secondary species.
+
+<a name=rewrap></a>
+<p><dt><font color=red>rewrap</font>
+<dd>: ``a -&gt;``b
+<p> rewrap(x) changes the extrinsic species of x from one
+secondary species to another, without changing the intrinsic
+species of x.  Unlike function wrap, it is not restricted
+to convert the extrinsic species upwards.  If conversion is
+impossible, rewrap fails with exception speciesX.  
+For example,
+rewrap(&lt;&lt;2:Real&gt;&gt;):INTEGER fails, since it not possible to have
+an item whose intrinsic species if Real but whose extrinsic
+species is INTEGER.
+
+<a name=safeUnwrap></a>
+<p><dt><font color=red> safeUnwrap</font>
+<dd>: ``a -&gt; `*b constraint (``a &gt;= `*b, `*b &gt;&gt;= ``a)
+<p> safeUnwrap(x) has the same extrinsic species as the intrinsic species
+of x. It removes the gift wrapping from x, looking at the intrinsic tag
+of what it finds inside.
+
+<p>The presence of the light constraint ensures that the unwrap
+cannot fail due to a species mismatch.
+
+<a name=unsafeUnwrap></a>
+<p><dt><font color=red> unsafeUnwrap</font>
+<dd>: ``a -&gt; `*b constraint (``a &gt;= `*b)
+<p>This function is identical to safeUnwrap, but it does not have the
+light constraint, and so the unwrap can fail (with exception
+speciesX) due to a species mismatch.  Use it when you want to
+test for a given species, or when you think you know more
+than the compiler about the intrinsic species of a value.
+For example, 
+if you know that x is a number of some species in
+genus REAL, you can write
+<font color=#D00090>
+<b><pre>
+      Let xval:REAL`a = unsafeUnwrap(x).
+</pre></b>
+</font>
+This will be allowed by type inference.  
+It will fail with exception speciesX if you 
+are wrong about x.
+
+<a name=ltlt></a>
+<p><dt><font color=red> &lt;&lt;x&gt;&gt;</font>
+<dd> &lt;&lt;x&gt;&gt; abbreviates wrap(x).  When used in a pattern, it uses
+safeUnwrap to get x.  So
+<font color=#D00090>
+<b><pre>
+      Match &lt;&lt; ?x &gt;&gt; = y.
+</pre></b>
+</font>
+has the same meaning as
+<font color=#D00090>
+<b><pre>
+      Let x = safeUnwrap(y).
+</pre></b>
+</font>
+Be careful to put a space after &lt;&lt; if what follows is a
+pattern variable.  Otherwise, the lexical analyzer will think
+that &lt;&lt;? is a symbolic identifier.
+
+<a name=qltlt></a>
+<p><dt><font color=red> ?&lt;&lt;x&gt;&gt;?</font>
+<dd> ?&lt;&lt;x&gt;&gt;? abbreviates unsafeWrap(x).  
+Function unsafeWrap is the same
+as wrap when used to compute a value.  When used in patterns, it
+uses unsafeUnwrap to do the unwrapping.  So
+<font color=#D00090>
+<b><pre>
+      Match ?&lt;&lt; ?x &gt;&gt;? = y.
+</pre></b>
+</font>
+has the same meaning as
+<font color=#D00090>
+<b><pre>
+      Let x = unsafeUnwrap(y).
+</pre></b>
+</font>
+
+</dl>
+
+<hr>
+<center>
+<a href="constraint.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="defaultdcl.html">Next</a>
+</center>
+</body>
+</HTML>

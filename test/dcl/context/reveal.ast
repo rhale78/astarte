@@ -1,0 +1,24 @@
+Package revealers
+
+%% Test context exprs and declarations
+
+Context rev
+  case hd => head(target)
+  case bring tail, length
+%Context
+
+Execute
+  Let x = [1,2,3].
+  Let y = [4].
+  Context rev x =>
+    Writeln["The head of x is ", $my hd].
+    Writeln["The tail of x is ", $my tail].
+    Writeln["The length of x is ", $my length].
+    Context rev y =>
+      Writeln["The head of y is ", $my hd].
+    %Context
+  %Context
+%Execute
+
+%Package
+

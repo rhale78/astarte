@@ -1,0 +1,26 @@
+Package cnstr2
+
+Import "misc/check".
+
+Extension
+  Species T1 = t1.
+  Species T2 = t2(Natural).
+  Species T3 = t3a | t3b Natural | t3c Real | t3d | t3e.
+%Extension
+
+Execute
+  Let a = t1.
+  Line[$a].
+  Check["t1"].
+  
+  Let b = t2(4).
+  Line[$b].
+  Check["t2(4)"].
+  
+  Let c = t3b(4).
+  Line[$c].
+  Check["t3b(4)"].
+  
+%Execute
+  
+%Package

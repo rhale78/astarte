@@ -1,0 +1,21 @@
+Package longcom3
+
+<<<<<<<<<<<<<<<<
+Here is some code embedded in a long comment.
+Check that the indentation check is working.
+
+  %>  Execute
+  %> Writeln["I am doing the print"].
+  %>  %Execute
+
+Now here is a definition in a long comment
+
+  %>
+  %> Let num = 2.
+
+Now we end the package.
+Here it is.
+
+>>>>>>>
+
+%Package

@@ -1,0 +1,278 @@
+<HTML>
+<head>
+<title>Astarte: pattern matching</title>
+</head>
+<body>
+<center>
+<a href="naming.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="funcexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E10. Pattern Matching </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#match>Match expressions</a>
+  <li> <a href=#standardforms> Standard pattern forms</a>
+  <li> <a href=#orthogonality> Orthogonality</a>
+  <li> <a href=#addtopics> Additional topics on pattern matching</a> 
+</menu>
+
+<a name=match></a>
+<hr>
+<h2><font color=mediumblue> Match expressions</font></h2>
+
+You can use pattern matching to test whether a given value <i>v</i> has
+a particular form, and to bind identifiers to parts of <i>v</i>
+if <i>v</i> does have the desired form.  
+For example,
+<font color=#D00090>
+<b><pre>
+       Match ?h :: ?t = x.
+</pre></b>
+</font>
+will only succeed if x is a nonempty list (so it has the form
+h::t for some h and t).  It binds name h to the head of x and
+t to the tail of x.  The right hand side of the match expression is
+called the target of the match.  Statement
+<font color=#D00090>
+<b><pre>
+       Match ?h :: ?t = [2,3,4]
+</pre></b>
+</font>
+has target [2,3,4] and binds h = 2 and t = [3,4], but
+<font color=#D00090>
+<b><pre>
+       Match ?h :: ?t = [].
+</pre></b>
+</font>
+fails <font color=brown>(with exception testX)</font>.
+
+<a name=standardforms></a>
+<hr>
+<h2><font color=mediumblue> Standard pattern forms</font></h2>
+
+<P>Some standard pattern forms are as follows.  Others can be created
+using <a href="patternmatch2.html#patterndcl">pattern declarations</a>.
+
+<dl>
+
+<a name=patvar></a>
+<dt><font color="red"> ?x </font>
+<dd> This is called a pattern identifier.  There must be no
+space between the question mark and the name (x in this case).
+When it is matched
+against a target, there are two possibilities.<p>
+<ol> 
+<li> If x is currently unbound, then identifier x is bound to the target.
+Notice that the question mark is removed.  So
+<font color=#D00090>
+<b><pre>
+      Match ?x = t.
+</pre></b>
+</font>
+has exactly the same meaning as
+<font color=#D00090>
+<b><pre>
+      Let x = t.
+</pre></b>
+</font>
+
+<P><li> If x is already bound, then a test is done to see whether the 
+current value of x is equal to the target.  If so, then the match
+succeeds.  If not, then the match fails <font color=brown>with exception testX</font>.
+For example,
+<font color=#D00090>
+<b><pre>
+      Match (?x,?x) = (a,b).
+</pre></b>
+</font>
+has the same effect as
+<font color=#D00090>
+<b><pre>
+      Let x = a.
+      {x == b}
+</pre></b>
+</font>
+
+<P> (See <a href="failure.html#cause">causing failure</a> for a discussion
+of the meaning of {x <tt>==</tt> b}.)
+You can only do this if x was bound during this same pattern match.
+If you want to do an equality test with an identifier that was bound
+earlier, do not include a question mark.
+For example,
+<font color=#D00090>
+<b><pre>
+      Match (x,?y) = (a,b).
+</pre></b>
+</font>
+has the same effect as
+<font color=#D00090>
+<b><pre>
+      {x == a}
+      Let y = b.
+</pre></b>
+</font>
+</ol>
+
+<a name=anon></a>
+<p><dt> <font color="red">?</font>
+<dd> ? is an anonymous pattern identifier.  Use it where you need
+to put something, but you don't need to do a binding.
+Example:
+<font color="#D00090">Match (?a, ?) = p.</font>
+
+<p><dt><font color="red"> x </font>
+<dd> Any expression that does not contain any pattern identifiers
+is just evaluated. Its value is tested for equality with the target
+of the match.  If the two are equal, then the match succeeds.  If they
+are unequal, then the match fails 
+<font color=brown>with exception testX</font>.
+
+<p>Example:
+<font color="#D00090">Match (?a, 4) = p.</font>
+
+<a name=pair></a>
+<p><dt><font color="red"> (?x,?y) </font>
+<dd> This matches an ordered pair.  It matches ?x against
+the left-hand component of the pair, and ?y against the right-hand
+component.  You can use notation (x,y,z), etc., discussed
+in <a href="tupleexpr.html">pairs</a>.
+<p>Example: <font color="#D00090">Match (?a,?b,?c) = aTriple.</font>
+
+<a name=cons></a>
+<p><dt><font color="red"> ?x :: ?y </font>
+<dd> This matches a nonempty list.  It matches ?x against
+the head of the list, and ?y against the tail of the list.  This
+pattern can also be written [?x &amp; ?y].  The usual list abbreviations,
+such as [a,b,c], can be used in patterns.
+<p>Example:
+<table>
+<tr><td><font color=#D00090>Match ?h::?t = [1,2,3,4].</font>
+    <td>(sets h = 1, t = [2,3,4])
+<tr><td><font color=#D00090>Match [?a,?b &amp; ?c] = [1,2,3,4].</font>
+    <td>(sets a = 1, b = 2, c = [3,4])
+</table>
+
+<a name=nil></a>
+<p><dt><font color="red"> [ ] </font>
+<dd> This pattern only matches an empty list.  It uses function nil?
+to perform the test, so it can be used for any species of list, even
+those that do not support equality tests.
+
+<a name=plusslash></a>
+<p><dt><font color="red"> ?x +/ ?y </font>
+<dd> This pattern matches a nonempty list.  It matches ?x against
+the sublist obtained by deleting the last member of the target
+list, and matches ?y against the last member of the target list.
+<p>Example: <font color="#D00090">
+Match ?a +/ ?b = [1,2,3,4].  
+<font color="black">(binds a = [1,2,3], b = 4)</font>
+</font>
+
+<a name=plus></a>
+<p><dt><font color="red"> ?x + c </font>
+<dd> Pattern ?x + c matches a natural number that is
+greater than or equal to c.  If the target is t, then it binds x so
+as to make equation x + c = t true.
+<p>Example: <font color="#D00090">Match ?n+1 = 4.</font> 
+(binds n = 3)
+
+<p><dt><font color="red"> c + ?x </font>
+<dd> Same as ?x + c.
+
+<a name=star></a>
+<p><dt><font color="red"> ?x * c </font>
+<dd> Pattern ?x * c matches a natural number that is 
+divisible by c.  If the target is t, then it binds x so as to
+make equation x*c = t true.
+<p>Example: <font color="#D00090">Match ?n*2 = 20.
+<font color="black">(binds n = 10)</font>
+</font>
+
+<p><dt><font color="red"> c * ?x </font>
+<dd> Same as ?x * c.
+
+<a name=where></a>
+<p><dt><font color="red"> ?x _where_ <i>c</i></font>
+<dd> This matches ?x, but only when condition <i>c</i> is true.
+<p>Example: <font color="#D00090">
+Match ((?a,?b) _where_ a &gt; b) = p.
+</font>
+<br>(succeeds when p is a pair of the form (x,y), with x &gt; y)
+
+<a name=also></a>
+<p><dt><font color="red"> ?x _also_ ?y </font>
+<dd> This matches both ?x and ?y against the
+same target.
+<p>Example: <font color="#D00090">
+Match (?a,?b) _also_ ?p = f(x).</font>
+
+<a name=orelse></a>
+<p><dt><font color="red"> ?x _orelse_ ?y </font>
+<dd> This matches ?x against the target.  It
+that match fails, then it matches ?y against the target instead.
+
+<a name=escape></a>
+<p><dt><font color=red> escape(?x,t)</font>
+<dd> This pattern ignores the actual target, and instead matches
+?x against target t.  This can be used, in combination with _orelse_,
+for defaults in pattern matching.  For example,
+<font color="#D00090">
+<b><pre>
+   Match ?h::?t _orelse_ escape((?h,?t), (0,[])) = x.
+</pre></b>
+</font>
+tries to bind h to the head of x and t to the tail of list x.  But if
+x is an empty list, it instead binds h = 0 and t = [].
+
+</dl>
+
+<a name=orthogonality></a>
+<hr>
+<h2><font color=mediumblue> Orthogonality </font></h2>
+
+You can put any pattern in any place where you can put a 
+pattern identifier.  For example, any place where you might
+see ?x in a pattern, you can also put (?u,?v).  So you can
+build complicated patterns.  For example,
+<font color="#D00090">
+<b><pre>
+      Match [?,(?x,?n+1) &amp; ?] = [("four",4), ("five", 5), ("six", 6), ("seven", 7)].
+</pre></b>
+</font>
+binds x to "five" and binds n to 4.
+
+<a name=addtopics></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Additional topics on pattern matching </font></h2>
+
+Additional topics on pattern matching are as follows.
+<menu>
+<li><a href=listpattern.html>Pattern matching in lists</a>
+<li><a href=fcpattern.html>First class patterns</a>
+<li><a href=streams.html#patmat>Creating threads in patterns</a>.
+<li><a href=boxexpr.html#pattern>Pattern matching with boxes</a>.
+<li><a href=patternmatch2.html>Creating new forms of patterns</a>.
+<li><a href=patternmatch2.html#force>Forcing pattern matching</a>.
+</menu>
+You can create your own pattern forms.  See 
+<a href=patternmatch2.html>advanced pattern matching</a>.
+</font>
+
+<hr>
+<center>
+<a href="naming.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="funcexpr.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,62 @@
+Package defcases 
+
+Import "misc/check".
+
+Execute
+  Let x = 1.
+  Let a by first
+    case a = 0 when x > 0
+    case a = 2 when x < 0
+    case a = 4
+  %Let
+  
+  Line[$a].
+  Check["0"].
+%Execute
+
+Execute
+  Let x = -1.
+  Let a by one
+    case a = 0 when x > 0
+    case a = 2 when x < 0
+    case a = 4
+  %Let
+  Line[$a].
+  Check["2"].
+%Execute
+
+Execute
+  Let x = 0.
+  Let a by all
+    case a = 0 when x > 0
+    case a = 2 when x < 0
+    case a = 4
+  %Let
+  Line[$a].
+  Check["4"].
+%Execute
+
+Execute
+  Writeln["Must write 2 and 4."].
+  Let x = 0.
+  Let a by all mixed
+    case a = 0 when x > 0
+    case a = 2
+    case a = 4
+  %Let
+  Writeln[$a].
+%Execute
+
+Execute
+  Let x = 0.
+  Define a by first
+    case a = 0 when x > 0
+    case a = 2 when x < 0
+    case a = 4
+  %Define
+  Line[$a].
+  Check["4"].
+%Execute
+
+
+%Package

@@ -1,0 +1,11 @@
+Package private1 isKindOf private2
+
+Import "private2".
+
+%% The following should lead to an error: priv is unknown.
+
+Execute
+  Writeln[$priv].
+%Execute
+
+%Package

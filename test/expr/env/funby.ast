@@ -1,0 +1,46 @@
+Package funby 
+
+%% Test definition by cases using extra formals.
+
+Import "misc/check".
+
+Let f ?x by
+  case f(0) = x
+  case f(?n+1) = n + 1
+%Let
+
+Let g ?x ?y by
+  case g 0 ?       = y
+  case g (? + 1) ?a = x + a
+%Let 
+
+Let h ?x by 
+  Await x then
+    case h(0) = x
+    case h(?n+1) = n+1
+  %Await
+%Let
+
+Advise "Should say the following patterns are not exhaustive".
+Let i by
+  case i nil nil = nil
+  case i nil [?a & ?] = [a]
+%Let
+
+Advise "Should say the following patterns are not exhaustive".
+Let j ?x ?y by
+  case j nil nil = x
+  case j nil ?   = [y]
+%Let
+
+
+Execute
+  Line[$(f(0))].
+  Check["0"].
+  Line[$(g 0 5)].
+  Check["5"].
+  Line[$(h 0)].
+  Check["0"].
+%Execute
+
+%Package

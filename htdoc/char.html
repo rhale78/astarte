@@ -1,0 +1,197 @@
+<HTML>
+<head>
+<title>Astarte: characters</title>
+</head>
+<body>
+<center>
+<a href="boollib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="numericlib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L3. Characters </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#characters> Characters</a>
+  <li> <a href=#charconst> Character constants</a>
+  <li> <a href=#classify> Classifying characters</a>
+  <li> <a href=#conv> Case conversions</a>
+  <li> <a href=#nat> Conversion to and from natural numbers</a>
+  <li> <a href=#dollar> Conversion to string</a>
+  <li> <a href=#pull> Getting a character from a string</a>
+</menu>
+
+<a name=characters></a>
+<hr>
+<h2><font color=mediumblue>Characters</font></h2>
+
+Astarte currently uses ascii characters.  Characters have
+species Char.  The following are abbreviated descriptions.
+See <a href="ast/lang/char.ast"> lang/char.ast</a>
+for details.
+
+<p> Most of what is described here is standard. 
+For some of these operations, however, you must import lang/char.ast.  They
+are marked as coming from lang/char.ast below.
+
+<a name=charconst></a>
+<hr>
+<h2><font color=mediumblue> Character constants </font></h2>
+<dl>
+<p><dt><font color="red"> 'a' </font>
+<dd> The character a.
+
+<p><dt><font color="red"> '\n' </font>
+<dd> The newline character.
+
+<a name=eol></a>
+<p><dt><font color="red"> eol </font>
+<dd> The newline character.  This can only be used if you
+import <a href="ast/lang/char.ast">lang/char.ast</a>.
+
+<p><dt><font color="red"> '\t' </font>
+<dd> The tab character.
+
+<p><dt><font color="red"> '\\' </font>
+<dd> The backslash character.
+
+<p><dt><font color="red"> '\{23}' </font>
+<dd> The character whose code is 23 (decimal).
+</dl>
+
+<a name="classify"></a>
+<hr>
+<h2><font color=mediumblue> Classifying characters </font></h2>
+
+<dl>
+<a name=digitq></a>
+<p><dt><font color="red"> digit? </font>
+<dd> digit?(c) is true if c is a decimal digit.
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+<a name=letterq></a>
+<p><dt><font color="red"> letter? </font>
+<dd> letter?(c) is true if c is a letter.
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+<a name=lowerq></a>
+<p><dt><font color="red"> lower? </font>
+<dd> lower?(c) is true if c is a lower case letter.
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+<a name=printableq></a>
+<p><dt><font color="red"> printable? </font>
+<dd> printable?(c) is true if c is a printable character.
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+<a name=upperq></a>
+<p><dt><font color="red"> upper? </font>
+<dd> upper?(c) is true if c is an upper case letter.
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+<a name=whiteq></a>
+<p><dt><font color="red"> white? </font>
+<dd> white?(c) is true if c is a blank, tab or newline.
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+</dl>
+
+<a name="conv"></a>
+<hr>
+<h2><font color=mediumblue> Case conversions </font></h2>
+
+<dl>
+<p><dt><font color="red"> toLower </font>
+<dd> toLower(c) is the lower case equivalent of c (or is just
+c if c is not an upper case letter).
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+<p><dt><font color="red"> toUpper </font>
+<dd> toUpper(c) is the upper case equivalent of c (or is just
+c if c is not a lower case letter).
+<a href="ast/lang/char.ast"> lang/char.ast</a>
+
+</dl>
+
+<a name="nat"></a>
+<hr>
+<h2><font color=mediumblue> Conversion to and from natural numbers </font></h2>
+
+<dl>
+<p><dt><font color="red"> char </font>
+<dd> char(n) is the character with ascii code n.
+
+<p><dt><font color="red"> rank </font>
+<dd> rank(c) is the ascii code of character c.
+</dl>
+
+<a name="dollar"></a>
+<hr>
+<h2><font color=mediumblue> Conversion to string </font></h2>
+
+If c is a character then $(c) is a string that shows c as
+a character constant.  
+For example, $('a') = <tt>"'a'"</tt> and
+$('\n') = <tt>"'\\n'"</tt>.
+
+<p>If you want to convert a character c to a string that is one
+character long, build a list.  
+For example, ['a'] is the string
+"a", and [c] is the string that only contains character c.
+
+<a name="pull"></a>
+<hr>
+<h2><font color=mediumblue> Getting a character from a string </font></h2>
+
+Function pull: String -&gt; (Char,String) removes a quoted character
+constant from the start of a string.  For example,
+<font color=#D00090>pull(" 'a' and more")</font> returns the 
+ordered pair ('a', " and more").  
+
+<a name=extract></a>
+<p> You can get a character constant from a string using
+<a href="read.html#dollar">Extract and $</a> to extract a
+character from the front of a string in a box.  
+For example, if
+box b holds string "'z' nnn", then performing
+<font color="#D00090">
+<b><pre>
+   Extract [$(?c)] from b.
+</pre></b>
+</font>
+binds c to character 'z' and leaves box b holding " nnn".
+
+<p> If you want to read the first character from a string, without
+quotes, use 
+<font color="#D00090">
+<b><pre>
+   Extract [[?c]] from b.
+</pre></b>
+</font>
+
+This will get the first character of the contents of box b,
+regardless of what it is.  To get the first nonblank character,
+use
+<font color="#D00090">
+<b><pre>
+   Extract [white ++ [?c]] from b.
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="boollib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="numericlib.html">Next</a>
+</center>
+</body>
+</HTML>

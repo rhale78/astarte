@@ -1,0 +1,17 @@
+Package test 
+
+	Define bpartition by first 
+	  Await then 
+	    case bpartition ? [] = ([],[])
+
+	    do bpartition ?tst ([? & ?tt]) =>
+	        Match (: ?yeses, ?nos :) = bpartition tst tt.
+
+	    case bpartition ?test ([?h & ?]) = ([h & yeses], nos) 
+	    				        when test(h)
+
+	    case bpartition ? ([?h & ?]) = (yeses, [h & nos])
+	  %Await
+	%Define
+
+%Package

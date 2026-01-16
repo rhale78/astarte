@@ -1,0 +1,70 @@
+Package forktest 
+
+%% Test fork, from thread.ast, and channels, from channel.ast.
+
+Directory standard.  Import "thread/thread"; "thread/channel".
+
+%% We will add up the numbers from 1 to n in a very awkward way.
+%% The main thread forks two children, a producer and a consumer.
+%% The producer sends numbers to the consumer.
+%% The consumer receives the numbers and sums them.  
+%% When the producer is done, it sends a "done" message to the consumer,
+%% which then sends the sum to the main thread.
+
+Extension
+
+  %% The producer sends the following kinds of messages to the consumer.
+
+  Species ProducerMessage =
+    | doneMessage
+    | nextValue Natural
+  %Species
+
+%Extension
+
+Let sum(?n) = result |
+
+  %% The producer
+
+  Let producer_l(?toConsumer_p) =
+    For ?i from 1 _upto_ n do
+      Inform(toConsumer_p, nextValue(i)).
+    %For
+    Inform(toConsumer_p, doneMessage).
+  %Let
+
+  %% The consumer
+
+  Let consumer_l(?fromProducer_p, ?toMain_p) =
+    open Loop ?result = 0 first
+      do Let msg = receive(fromProducer_p).
+
+      case true =>
+        Subcases matching msg
+          until doneMessage => ()
+	  while nextValue(?k) => continue result + k
+        %Subcases
+    %Loop
+
+    Inform(toMain_p, result).
+  %Let
+
+  %% The main thread begins here.  Start by creating the channels and
+  %% the producer and consumer.
+
+  Let producerToConsumer_l = channel().
+  Let consumerToMain_l     = channel().
+  Fork(producer_l, producerToConsumer_l).
+  Fork(consumer_l, producerToConsumer_l, consumerToMain_l).
+
+  %% Wait For a reply from the consumer.
+
+  Let result = receive(consumerToMain_l).
+%Let
+
+
+Execute
+  Writeln[$sum(5)].
+%Execute
+
+%Package

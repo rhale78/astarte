@@ -1,0 +1,8 @@
+Package testdefault 
+
+Advise show.
+Execute
+  Writeln[$([])].
+%Execute
+
+%Package

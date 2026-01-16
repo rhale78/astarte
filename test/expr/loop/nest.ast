@@ -1,0 +1,33 @@
+Package nest 
+
+%% Test nested loops
+
+Import "misc/check".
+
+Execute
+  Line[].
+  Loop ?n = 0 first
+    exitcase n == 4 => ()
+    loopcase else => 
+      Loop ?m = n first
+        exitcase m == 4 => ()
+	loopcase else =>
+	  Moreline[$(n,m)].
+	  continue m+1
+      %Loop
+      continue n+1
+  %Loop
+  Check["(0,0)(0,1)(0,2)(0,3)(1,1)(1,2)(1,3)(2,2)(2,3)(3,3)"].
+
+  Line[].
+  For ?n from 0 _upto_ 3 do
+    For ?m from n _upto_ 3 do
+      Moreline[$(n,m)].
+    %For
+  %For
+  Check["(0,0)(0,1)(0,2)(0,3)(1,1)(1,2)(1,3)(2,2)(2,3)(3,3)"].
+%Execute
+
+%Package
+
+    

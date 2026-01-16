@@ -1,0 +1,346 @@
+<HTML>
+<head>
+<title>Astarte: input and output</title>
+</head>
+<body>
+<center>
+<a href="optional.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="systemlib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L9. Input and Output</font> </h1>
+</center>
+
+<menu>
+  <li><a href=#input>Input</a>
+  <li><a href=#output>Output</a>
+  <li><a href=#modes>File modes</a>
+  <li><a href=#pipe>Internal files</a>
+</menu>
+
+<a name="input"></a>
+<hr>
+<h2> <font color=mediumblue>Input</font> </h2>
+
+Input is done by getting the contents of a file as a string.  The
+operation that does this is lazy, so the file is not actually read
+until it is needed.  You can use the usual list and string operations
+to get things from this string.  You can, for example, put the
+string into a box, and use the string-box read operations
+(<a href="read.html">reading</a>) to read prefixes.
+
+<dl>
+<a name=infile></a>
+<p><dt><font color="red"> infile </font>
+<dd>: [FileMode] -&gt; String -&gt; String
+<br>: [FileMode] -&gt; File -&gt; String
+<br>: String -&gt; String
+<br>: File -&gt; String
+<p> <font color=#D00090>infile mode name</font> 
+returns the contents of file name.
+Parameter mode tells how the file is opened, and must be a list of FileMode
+values.  See <a href=#modes>file modes</a>, below. 
+
+<p> Expression infile(name) is equivalent to infile [] name.  
+
+<p> An alternative form is (infile mode f) or (infile f), where f is
+an object of species File rather than a string.
+See <a href="systemlib.html#File"> File</a>.
+
+<p>Examples:
+<font color="#D00090">
+<br>Let s = infile [volatileMode] "data.txt".
+<br>Let r = infile "data.txt".
+</font>
+
+<a name=stdin></a>
+<p><dt><font color="red"> stdin! </font>
+<dd>: &lt;:String:&gt;
+<p> stdin! is the standard input.  It is a box whose
+contents is a string, which is the remaining (unconsumed) input.  
+To redirect standard input, put another string in this box.
+
+<a name=trueStdin></a>
+<p><dt><font color="red"> trueStdin! </font>
+<dd>: &lt;:String:&gt;
+<p> It is possible to redirect standard input on the command
+line.  If the standard input is redirected, then 
+box trueStdin! is created, 
+and is set to hold the unredirected standard input.  
+If input is not redirected, then stdin! and trueStdin! are the
+same box.
+
+</dl>
+
+<a name="output"></a>
+<hr>
+<h2> <font color=mediumblue>Output</font> </h2>
+
+To do output, either write to one of the standard outfiles, or 
+tie an outfile to a system file and write to that.  Each time you
+write, what you write is appended to what was written by the
+previous write to the same outfile.
+
+<dl>
+<p><dt><font color="red"> Outfile(`a) </font>
+<dd> An object of species Outfile(`a) is a file that
+has been opened for output, and whose members have species `a.  Typically,
+you use Outfile(Char).
+
+<a name=AppendToFile></a>
+<p><dt><font color="red"> AppendToFile</font>
+<dd>: String -&gt; String -&gt; ()
+<br>: File -&gt; String -&gt; ()
+<p><font color=#D00090>AppendToFile f, s %AppendToFile</font> is the same as
+WriteFile [appendMode], f, s %WriteFile.  It appends string s
+to the end of file f.  Here, f can be either the name of the file
+or an object of type File.
+
+<p>Do not overuse this.  If you have a lot of data to write to
+a file, open it using outfile, write to it using FWrite and FWriteln,
+and then close the file.
+
+<p>Example:
+ <font color="#D00090">
+AppendToFile "out.txt", "Add this to the end of the file".</font>
+
+<a name=CloseFile></a>
+<p><dt><font color="red"> CloseFile </font>
+<dd>: Outfile(`a) -&gt; ()
+<p> <font color=#D00090>CloseFile f %CloseFile</font> closes an Outfile f.  
+After closing, the outfile
+cannot be written to any more.  Any attempt to write to it
+will cause a failure with exception closedFileX (for a
+system file) or exception closedPipeX (for a file created by
+function pipe).
+<p>Example:
+ <font color="#D00090">CloseFile f.</font>
+
+<a name=FlushFile></a>
+<p><dt><font color="red"> FlushFile </font>
+<dd>: Outfile(`a) -&gt; ()
+<p> Output to files is accumulated in buffers until
+enough is available to send to the file at once.  
+<font color=#D00090>FlushFile f %FlushFile</font>
+forces the buffer for outfile f to be sent to the file, without
+waiting for more data.
+<p>Example:
+ <font color="#D00090">FlushFile @stdout!.</font>
+
+<a name=FPut></a>
+<p><dt><font color="red"> FPut </font>
+<dd>: Outfile(`a) -&gt; `a -&gt; ()
+<p> <font color=#D00090>FPut f, c %FPut</font> 
+writes character c to outfile f.
+It is possible for f to be of species Outfile(T), where T is
+not Char.  Then FPut f, c %FPut writes value c (of species T)
+to file f.
+<p>Example:
+<font color="#D00090">Fput f, 'a'.</font>
+
+<a name=FWrite></a>
+<p><dt><font color="red"> FWrite </font>
+<dd>: Outfile(`a) -&gt; [[`a]] -&gt; ()
+<br>: [Outfile(`a)] -&gt; [[`a]] -&gt; ()
+<p> <font color=#D00090>FWrite f, x %FWrite</font> 
+writes each string in list x to
+outfile f.  FWrite [f,g,h], x %FWrite writes each string in list x
+to each of the outfiles f, g and h.
+In the case where f has species Outfile(T), x must be a list of
+lists of T's.  Each member of each list is written to file f.
+<p>Example:
+ <font color="#D00090">FWrite f, ["I have ", $n, " cats"].
+</font>
+
+<a name=FWriteln></a>
+<p><dt><font color="red"> FWriteln </font>
+<dd>: Outfile(Char) -&gt; [String] -&gt; ()
+<br>: [Outfile(Char)] -&gt; [String] -&gt; ()
+<p> <font color=#D00090>FWriteln f, x %FWriteln</font> 
+writes each string in list x
+to outfile f, and then writes a newline character to file f.
+FWriteln [f,g,h], x %FWriteln writes each string in list x
+to each of the outfiles f, g and h, followed by a newline.
+<p>Example:
+ <font color="#D00090">FWriteln f, ["I have ", $n, " cats"].
+</font>
+
+<a name=outfile></a>
+<p><dt><font color="red"> outfile </font>
+<dd>: [FileMode] -&gt; String -&gt; Outfile(Char)
+<br>: [FileMode] -&gt; File -&gt; Outfile(Char)
+<br>: String -&gt; Outfile(Char)
+<br>: File -&gt; Outfile(Char)
+<p> <font color=#D00090>outfile mode name</font> 
+returns an outfile (of species
+Outfile(Char)) that writes to file name.  Parameter mode is a list of modes.
+See <a href=#modes>file modes</a>, below, for the modes.
+
+<p> outfile(name) is equivalent to (outfile [] name).  Parameter
+name can be a string or a File item.
+
+<p> An alternative form is (outfile mode f) or (outfile f), where f has
+species File.  See <a href="systemlib.html#File"> File</a>.
+
+<p>Example:
+<font color="#D00090"> Let f = outfile [appendMode] "out.txt".</font>
+
+<a name=Show></a>
+<p><dt><font color="red"> Show </font>
+<dd>: Outfile(Char) -&gt; `a -&gt; ()
+<p> <font color=#D00090>Show f, x %Show</font> 
+prints view(x) on file f.  view(x) is
+a string that describes x, but that replaces lazy parts by
+string such as "(lazy)".  See the description of 
+<a href="tostring.html#view">view</a>.
+
+<a name=stderr></a>
+<p><dt><font color="red"> stderr! </font>
+<dd>: &lt;:Outfile(Char):&gt;
+<p> Box stderr! holds the standard error output file.  You can
+put another outfile in this box to redirect standard error.
+Note that stderr! is not an outfile -- 
+it is a box whose <em>contents</em> is an outfile.
+
+<a name=stdout></a>
+<p><dt><font color="red"> stdout! </font>
+<dd>: &lt;:Outfile(Char):&gt;
+<p> Box stdout! holds the standard output file.  You can
+put another outfile in this box to redirect standard output.  Note that
+stdout! is not an outfile -- 
+it is a box whose <em>contents</em> is an outfile.
+
+<a name=Write></a>
+<p><dt><font color="red"> Write </font>
+<dd>: [String] -&gt; ()
+<p> <font color=#D00090>Write x %Write</font> 
+writes each string in list x to the
+standard output.
+<p>Example:
+ <font color="#D00090">Write["I have ", $n, " cats"].</font>
+
+<a name=WriteFile></a>
+<p><dt><font color="red"> WriteFile </font>
+<dd>: [FileMode] -&gt; String -&gt; String -&gt; ()
+<br>: [FileMode] -&gt; File -&gt; String -&gt; ()
+<br>: String -&gt; String -&gt; ()
+<br>: File -&gt; String -&gt; ()
+<p> <font color=#D00090>WriteFile mode, filename, s %WriteFile</font> 
+opens file filename with
+the given mode, writes string s into that file, and then closes the file.
+Parameter filename can be a string, but it can also be an item
+of species <a href="systemlib.html#File"> File</a>.
+
+<p> WriteFile f, s %WriteFile is the same as
+WriteFile [], f, s %WriteFile.  That is, it uses the default mode,
+which is to empty the file before writing.
+<p>Example:
+ <font color="#D00090">
+WriteFile "out.txt", "This is my output".
+</font>
+causes file out.txt to hold exactly <i>This is my output</i>.
+
+<a name=Writeln></a>
+<p><dt><font color="red"> Writeln </font>
+<dd>: [String] -&gt; ()
+<p> <font color=#D00090>Writeln x %Writeln</font> 
+writes each string in list x to the
+standard output, and then writes a newline character to the standard output.
+<br>Example:
+ <font color="#D00090">Writeln["I have ", $n, " cats"].</font>
+
+<a name=WriteTo></a>
+<p><dt><font color="red"> WriteTo </font>
+<dd>: Outfile(Char) -&gt; ()
+<p> <font color=#D00090>WriteTo(f).</font> 
+redirects the standard output to file f.  Here,
+f must have species Outfile(Char).
+
+</dl>
+
+<a name="modes"></a>
+<hr>
+<h2> <font color=mediumblue>File modes</font> </h2>
+
+<dl>
+<p><dt><font color="red"> FileMode </font>
+<dd> FileMode is a species that contains appendMode, 
+binaryMode and volatileMode.  A file mode is used to control how a
+file is opened.
+
+<p><dt><font color="red"> appendMode </font>
+<dd>: FileMode
+<p> Mode appendMode is used only for outfiles.  When
+a file is opened with this mode, new characters are added to the end
+of the file.  Without this mode, the file is emptied when it is
+opened for output.
+
+<p><dt><font color="red"> binaryMode </font>
+<dd>: FileMode
+<p> Mode binaryMode indicates that the file is binary.
+When this mode is absent, the file contains text.
+
+<p><dt><font color="red"> volatileMode </font>
+<dd>: FileMode
+<p> Mode volatileMode is used only for infiles.
+It indicates that the file's contents might change during the course
+of the program's execution.  When this mode is not used, infiles are
+presumed to remain constant. This allows the run-time system to
+reuse memory that is occupied by the file's contents, and to reread
+the file if necessary to get that information back.
+</dl>
+
+<a name="pipe"></a>
+<hr>
+<h2><font color=mediumblue> Internal files</font> </h2>
+
+An internal file allows one thread to communicate with another
+(or with itself if you are careful) by writing into one end of
+a pipe, and reading from the other.  A pipe can have species
+Outfile(T) for any species T.  Use FWrite and FPut to write into it,
+and use CloseFile to close it.  Be sure to close it, since 
+otherwise the receiving end will never see an end-of-list marker.
+
+<dl>
+<p><dt><font color="red"> pipe </font>
+<dd>: () -&gt; ([`a],Outfile(`a)) 
+<p><font color=#D00090>pipe()</font> 
+= (x,f) where f is an outfile and x is a list.  
+Anything that is written to f shows up in list x.  Any thread that
+tries to look at more of x than has been written waits until
+something is written (by another thread).
+
+<p>Example:
+ 
+<font color=#D00090>
+<b><pre>
+  Match (?pipeout, ?pipein) = pipe().
+  FWrite pipein, ["test"].
+  CloseFile pipein.
+</pre></b>
+</font>
+causes list pipeout to hold "test".
+</dl>
+
+<hr>
+<center>
+<a href="optional.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="systemlib.html">Next</a>
+</center>
+</body>
+</HTML>
+

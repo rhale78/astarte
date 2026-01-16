@@ -1,0 +1,30 @@
+Package testRelet 
+
+%% Test relets
+
+Define factorial(?n) = r |
+  Let i = 2.
+  Let r = 1.
+  Loop first 
+    loopcase i <= n =>
+      Relet r = i*r.
+      Relet i = i+1.
+      continue
+    exitcase else => ()
+  %Loop
+%Define
+
+Define fact by one
+  case fact 0 = 1
+  case fact (?n + 1) = (n+1) * fact(n)
+%Define
+
+Execute
+  For ?i from 0 _upto_ 10 do
+    If factorial i =/= fact i then
+      Writeln["Bad factorial: ", $i, "! = ", $factorial(i)].
+    %If
+  %For
+%Execute
+
+%Package

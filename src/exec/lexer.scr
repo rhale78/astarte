@@ -1,0 +1,12 @@
+s#stderr#ERR_FILE#g
+s#stdout#NULL#g
+s#stdin#NULL#g
+s#static const short#static const FARR short#
+s#static yyconst short int#static yyconst short int FARR#
+s#static yyconst int#static yyconst int FARR#
+s#malloc(#BAREMALLOC(#g
+s#realloc #BAREREALLOC #g
+s#realloc(#BAREREALLOC(#g
+s#free#FREE#g
+s#exit#clean_up_and_exit#
+s#char yytext#char FARR yytext#

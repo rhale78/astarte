@@ -1,0 +1,29 @@
+Package uw
+
+%% Test the exception at an uwrap failure.
+
+Import "misc/check".
+
+Extension
+  Species MyNewSpecies = con1(Real) | con2(Natural, Natural).
+%Extension
+
+Execute
+  Try
+    Match con2(?) = con1(0.0).
+  else
+    Line[$exception].
+    Check["testX"].
+  %Try
+  
+  Try
+    Ignore  uncon2(con1(0.0)).
+  else
+    Line[$exception].
+    Check["testX"].
+  %Try
+  
+%Execute
+
+%Package
+

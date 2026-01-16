@@ -1,0 +1,11 @@
+Package closedpipe
+
+%% Check writing to a closed pipe.
+
+Execute
+  Match (?rd:[Char],?wr) = pipe().
+  CloseFile(wr).
+  FWriteln wr, ["Must fail"].
+%Execute
+
+%Package

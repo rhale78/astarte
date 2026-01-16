@@ -1,0 +1,7 @@
+Package prot4 isKindOf prot1
+
+interface
+
+Expect zz: Integer.
+
+%Package

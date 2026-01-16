@@ -1,0 +1,230 @@
+%% File: unify.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%========================================================
+Package 		Astarte_UnifyImp
+
+			Implements "unify"
+==========================================================
+
+Import "collect/search".
+
+==============================================================
+%% 			==!, ==!?
+==============================================================
+
+Let (==!)  = succeedsf(Unify).
+Let (==!?) = succeedsf(Unify?).
+
+==============================================================
+%% 			Unify, Unify? (default)
+==============================================================
+
+Let{default} Unify(?x,?y). =
+  Choose first
+    case unprotectedUnknown?(x) => BindUnknown x := y.
+    case unprotectedUnknown?(y) => BindUnknown y := x.
+    else => {x == y}
+  %Choose
+%Let
+
+%%-----------------------------------------------------------
+
+Let{default} Unify?(?x,?y). =
+  Choose first
+    case unprotectedUnknown?(x) => BindUnknown x := y.
+    case unprotectedUnknown?(y) => BindUnknown y := x.
+    else => {x == y}
+  %Choose
+%Let
+
+===============================================================
+%% 		Unify, Unify?  (for lists)
+===============================================================
+
+Let{override} Unify(?x, ?y). =
+  Choose first
+    case unprotectedUnknown?(x) => BindUnknown x := y.
+    case unprotectedUnknown?(y) => BindUnknown y := x.
+    case nil? x => {nil? y else bindUnknownX}
+    case nil? y => fail bindUnknownX
+    else =>
+      Unify(head x, head y).
+      Unify(tail x, tail y).
+  %Choose
+%Let
+
+%%-----------------------------------------------------------
+
+Let{override} Unify?(?x, ?y). =
+  Choose first
+    case unprotectedUnknown?(x) => 
+      Subcases
+        case sameUnknown?(x,y)   => ()
+	case not occurCheck x y  => BindUnknown x := y.
+	else                     => fail bindUnknownX
+      %Subcases
+      
+    case unprotectedUnknown?(y) => 
+      Subcases
+	case not occurCheck y x  => BindUnknown y := x.
+	else                     => fail bindUnknownX
+      %Subcases
+      
+    case nil? x => {nil? y else bindUnknownX}
+    
+    case nil? y => fail bindUnknownX
+    
+    else =>
+      Unify?(head x, head y).
+      Unify?(tail x, tail y).
+  %Choose
+%Let
+
+
+================================================================
+%% 		Unify, Unify?  (for pairs)
+================================================================
+
+Let{override} Unify(?x,?y). =
+  Choose first
+    case unprotectedUnknown?(x) => BindUnknown x := y.
+    case unprotectedUnknown?(y) => BindUnknown y := x.
+    else =>
+      Unify(left x, left y).
+      Unify(right x, right y).
+  %Choose
+%Let
+
+%%-----------------------------------------------------------
+
+Let{override} Unify?(?x,?y). =
+  Choose first
+    case unprotectedUnknown?(x) =>
+      Subcases
+        case sameUnknown?(x,y)   => ()
+	case not occurCheck x y  => BindUnknown x := y.
+	else                     => fail bindUnknownX
+      %Subcases
+
+    case unprotectedUnknown?(y)  =>
+      Subcases
+	case not occurCheck y x  => BindUnknown y := x.
+	else                     => fail bindUnknownX
+      %Subcases
+
+    else =>
+      Unify?(left x, left y).
+      Unify?(right x, right y).
+  %Choose
+%Let
+
+==============================================================
+%% 		_in!_, _inMixed!_
+==============================================================
+
+Let mem (?selector_f) (?x,?s) =
+  If not hasUnknowns?(x)
+    then x _in_ s
+    else
+      Unify(x, selector_f s).
+      true
+  %If
+%Let
+
+%%-----------------------------------------------------------
+
+Let _in!_      = mem(each).
+Let _inMixed!_ = mem(eachMixed).
+
+=============================================================
+%% 		hasUnknowns?  (default)
+==============================================================
+
+Let{default} hasUnknowns? = unprotectedUnknown?.
+
+=============================================================
+%% 		hasUnknowns?  (for lists)
+==============================================================
+
+Let{override} hasUnknowns? ?l =
+  unprotectedUnknown?(l) _or_ 
+  hasUnknowns?(head l) _or_
+  hasUnknowns?(tail l)
+%Let
+
+==============================================================
+%% 		hasUnknowns?  (for pairs)
+==============================================================
+
+Let{override} hasUnknowns? ?p =
+  unprotectedUnknown?(p) _or_
+  hasUnknowns?(left p) _or_
+  hasUnknowns?(right p)
+%Let
+
+==============================================================
+%%		 freeze  (default)
+==============================================================
+
+Let{default} freeze ?x =
+  Choose first
+    case unknown?(x) => x
+    else             => force x
+  %Choose
+%Let
+
+==============================================================
+%% 		freeze  (for lists)
+==============================================================
+
+Let{override} freeze ?x =
+  Choose first
+    case unknown?(x) => x
+    case nil? x      => []
+    else             => [freeze(head x) & freeze(tail x)]
+  %Choose
+%Let
+
+==============================================================
+%% 		freeze  (for pairs)
+==============================================================
+
+Let{override} freeze ?x =
+  Choose first
+    case unknown?(x) => x
+    else             => (freeze(left x), freeze(right x))
+  %Choose
+%Let
+
+==============================================================
+%%		 occurCheck  (default)
+==============================================================
+
+Let{underride} occurCheck ?u ?x = sameUnknown??(u,x).
+
+==============================================================
+%%		 occurCheck  (for lists)
+==============================================================
+
+Let{override} occurCheck ?u ?x =
+  sameUnknown?(u,x) _or_ someSatisfy (occurCheck u) x
+%Let
+
+==============================================================
+%%		 occurCheck  (for pairs)
+==============================================================
+
+Let{override} occurCheck ?u ?p =
+  sameUnknown?(u,p) _or_
+  occurCheck u (left p) _or_ 
+  occurCheck u (right p)
+%Let
+
+==============================================================
+
+%Package
+

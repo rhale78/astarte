@@ -1,0 +1,249 @@
+<HTML>
+<head>
+<title>Astarte: pattern matching</title>
+</head>
+<body>
+<center>
+<a href="classes.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="expanddcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D15. More on Pattern Matching </font></h1>
+</center>
+
+<menu>
+  <li><a href=#patterndcl>Pattern declarations</a>
+  <li><a href=#time>Expansion Time</a>
+  <li><a href=#force>Forcing pattern translations</a>
+</menu>
+
+<a name="patterndcl"></a>
+<hr>
+<h2><font color=mediumblue> Pattern declarations </font></h2>
+
+You can define your own kinds of patterns using a pattern
+declaration.  The form is
+<font color=#D00090>
+<b><pre>
+      Pattern <font color=black><i>p</i></font> =&gt; <font color=black><i>t</i></font>.
+</pre></b>
+</font>
+where <i>p</i> is a pattern form and <i>t</i> is the translation of
+Match <i>p</i> = target.  For example,
+<font color="#D00090">
+<b><pre>
+      Pattern test(?n) =&gt; 
+        Match ?n = untest(target).
+      %Pattern
+</pre></b>
+</font>
+indicates that
+<font color=#D00090>
+<b><pre>
+      Match test(?q+1) = r.
+</pre></b>
+</font>
+should be translated by the compiler to
+<font color=#D00090>
+<b><pre>
+      Match ?q+1 = untest(r).
+</pre></b>
+</font>
+Here are a rules for pattern declarations.
+<ol>
+<p><li> The pattern being defined must be an application of a function.
+The pattern is associated with that function.  For example, the
+pattern declaration above is associated with function test.  You may use
+binary operator syntax and other syntactic abbreviations.
+For example, ?a + ?b abbreviates (+)(?a,?b), so is an application of
+function +.
+
+<p><li> The pattern declaration applies to any match where the
+actual pattern has a form that looks like the form given in the
+pattern declaration.  For example,
+<font color="#D00090">
+<b><pre>
+      Pattern test(?a,f(?b)) =&gt;
+        Match ?a = left(target).
+        Match ?b = unf(right(target)).
+      %Pattern
+</pre></b>
+</font>
+will only be used to translate a match of the form
+<b><pre>
+      Match test(A,f(B)) = C.
+</pre></b>
+for some expressions A, B and C.
+
+<p><li> In the pattern of the pattern declaration, 
+you can use pattern identifiers (such as ?x),
+anonymous pattern identifiers (?), 
+identifiers (such as x), constants (such as 2),
+functions (such as f(...)) and tuples (such as (a,b)).
+<table>
+  <tr> <td> ?x </td> <td> Stands for any pattern. </td>
+  <tr> <td> ?  </td> <td> Stands for ? (and only ?) </td>
+  <tr> <td> x  </td> <td> Stands for any pattern-identifier-free expression</td>
+  <tr> <td> 2 </td> <td> Stands for 2 (or 2.0). </td>
+  <tr> <td> f(E) </td> <td> Stands for f(A) where E can stand for A.
+</table>
+
+<p>For example, 
+<font color=#D00090>
+<b><pre>
+    Pattern bird(5, n, ?x, "yes") =&gt; 
+      Match ?x = feather(n).
+    %Pattern
+</pre></b>
+</font>
+will be only used for matches of the form
+<font color=#D00090>
+<b><pre>
+    Match bird(5, A, B, "yes") = C.
+</pre></b>
+</font>
+where A is an expression with no pattern variables in it, 
+and B can be any pattern at all.
+
+<p>Each pattern identifier or identifier must occur no more than once.
+So
+<font color=darkorange>
+<b><pre>
+     Pattern test(?x,?x) =&gt;
+       Match ?x = untest(target)
+     %Pattern
+</pre></b>
+</font>
+is not allowed.
+
+<p><li> If your pattern contains ?x, then your translation must
+define ?x using a pattern match.
+
+<p><li> If you define any identifiers in the translation 
+(for example,
+using let) then new names are chosen for those identifiers when the
+translation is done.  For example, if you declare
+<font color="#D00090">
+<b><pre>
+      Pattern f(?x,k) =&gt;
+        Let y = 2*k.
+        Match ?x = y*y.
+      %Pattern
+</pre></b>
+</font>
+then statement
+<font color=#D00090>
+<b><pre>
+      Match f(?z,10) = 50.
+</pre></b>
+</font>
+is translated by the compiler to
+<font color=#D00090>
+<b><pre>
+      Let <font color=black><em>newid</em></font> = 2*10.
+      Match ?z = <font color=black><em>newid</em></font>*<font color=black><em>newid</em></font>.
+</pre></b>
+</font>
+where <em>newid</em> is some new identifier.
+
+<p><li> Performing a translation at a pattern match requires doing
+substitutions.  If a given expression will be put into the
+translation in only one place, then it is substituted directly.  If
+the expression must be put in more than one place, then a name is
+given to its value, and that name is substituted instead.  
+For example,
+declaration
+<font color="#D00090">
+<b><pre>
+      Pattern g(?x,k) =&gt;
+        Match ?x = k + k + target + target.
+      %Pattern
+</pre></b>
+</font>
+causes pattern match
+<font color=#D00090>
+<b><pre>
+      Match g(?y,h(n)) = sqrt(z).
+</pre></b>
+</font>
+to be translated to
+<font color=#D00090>
+<b><pre>
+      Let <font color=black><em>newid1</em></font> = sqrt(z).
+      Let <font color=black><em>newid2</em></font> = h(n).
+      Match ?y = <font color=black><em>newid2</em></font> + <font color=black><em>newid2</em></font> + <font color=black><em>newid1</em></font> + <font color=black><em>newid1</em></font>.
+</pre></b>
+</font>
+If an expression ?x occurs twice, then the expression that matches
+it is copied to two places.
+
+</ol>
+
+<a name="time"></a>
+<hr>
+<h2><font color=mediumblue> Expansion time</font></h2>
+
+The body of a pattern declaration typically contains other
+match expressions.  Those match expressions are not expanded
+until the rule is used.  As a consequence, any rules that are
+defined between the point where a given rule is defined and that
+rule is used will have an effect on that rule.
+
+<a name="force"></a>
+<hr>
+<h2><font color=mediumblue> Forcing pattern translations </font></h2>
+
+Statement
+<font color=#D00090>
+<b><pre>
+      Match f(x) = y.
+</pre></b>
+</font>
+stands for
+<font color=#D00090>
+<b><pre>
+      {f(x) == y}
+</pre></b>
+</font>
+since expression f(x) has no pattern identifiers.  Suppose that you
+want to force a pattern declaration for function f to be used instead
+of computing f(x) and testing to see if it is the same as y.  You can
+do that in two ways.  One is to tag f as a pattern function in the
+match, as follows.
+<font color=#D00090>
+<b><pre>
+      Match (pattern f)(x) = y.
+</pre></b>
+</font>
+The other is to use a pattern assumption.  Declaration
+<font color=#D00090>
+<b><pre>
+      Assume f: pattern.
+</pre></b>
+</font>
+indicates that certain occurrences of f 
+should implicitly be
+marked for pattern match translation.  Specifically, the occurrences of f
+that are marked are those that occur in patterns, but do not occur within
+some other expression that calls for direct computation.  So, 
+For example,
+f will be marked for pattern matching in f(x,g(y)), but not in
+g(f(x)), if function g is not marked for pattern matching.
+
+<hr>
+<center>
+<a href="classes.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="expanddcl.html">Next</a>
+</center>
+</body>
+</HTML>

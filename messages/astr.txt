@@ -1,0 +1,23 @@
+Synopsis: astr options file file-options
+
+Most used options  (<n> is a number, without <> around it.  <file> is a file)
+-d        Start the debugger at a trap.
+-e<file>  Redirect stderr to <file>.
+-f        Don't query about out-of-date files when loading.
+-h<n>     Set soft heap limit to <n> bytes. (Default 1MB)
+-i<file>  Redirect stdin to <file>.
+-o<file>  Redirect stdout to <file>.
+-s<n>     Set soft stack limit to <n> frames. (Default 400.)
+-t        Suppress tail recursion improvement and environment pruning.
+
+Less used options
+-h+       Set soft heap limit to infinity.
+-n        Do not run, just load.
+-p<n>     Set default precision for reals to <n> decimal digits.
+-prof     Turn on profiling.
+-q        Quick load - suppress checks.
+-rt<n>    Set size limit for ast.rts to <n> kilobytes. (Default 1000.)
+-ri<n>    Set size limit of an individual value in ast.rts to <n> bytes.
+          (Default 500.)
+-s+       Set soft stack limit to infinity.
+-v        Start the debugger right away.

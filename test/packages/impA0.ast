@@ -1,0 +1,13 @@
+Package impA0
+
+%% Test case where an expectation in the export part of a
+%% package is met by an import that is made in the export
+%% part.  See impA1, impA2.
+
+Import "impA1".
+
+Execute
+  Writeln[$v, " ", $u].
+%Execute
+
+%Package

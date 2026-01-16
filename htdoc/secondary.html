@@ -1,0 +1,199 @@
+<HTML>
+<head>
+<title>Astarte: secondary species</title>
+</head>
+<body>
+<center>
+<a href="abbrev.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="irregular.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T20. Secondary Species </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#datatag> Data tags</a>
+  <li> <a href=#primsec> Primary and secondary species</a>
+  <li> <a href=#exsecspec> Examples of uses for secondary species</a>
+  <li> <a href=#create> Creating items that belong to secondary species</a>
+  <li> <a href=#print> Removing the wrapping</a>
+  <li> <a href=#variable> Primary and secondary variables</a>
+</menu>
+
+<a name=datatag></a>
+<hr>
+<h2><font color=mediumblue> Data tags </font></h2>
+
+In a typed language, data items can be thought of as carrying
+tags with them.  An integer has a tag saying that it is an integer,
+a string says that it is a string, and so on.
+
+<p>Astarte uses a somewhat unusual way of attaching species to
+data items.  Each data item has two tags attached to it: the
+<font color=blue><i>intrinsic</i></font> tag 
+and the <font color=blue><i>extrinsic</i></font> tag.  Having two
+tags provides an extra level of flexibility.
+
+<p> The <font color=blue><i>intrinsic tag</i></font> 
+tells the species that an item thinks that
+it belongs to.  An integer, for example, has intrinsic species Integer.
+
+<p> The <font color=blue><i>extrinsic tag</i></font> 
+tells the species that the compiler or interpreter 
+assigns to a data item.  This is typically the same as the intrinsic tag, but
+it can differ.
+A data item whose extrinsic and intrinsic tags differ can be 
+thought of as gift wrapped.  The label on the outside of the gift is
+the extrinsic tag, telling the item's externally visible species.
+Inside the gift package is the item itself, holding its intrinsic tag.
+
+<p>Every data item has exactly one species.  The species that it belongs
+to is its extrinsic species.
+
+<a name=primsec></a>
+<hr>
+<h2><font color=mediumblue> Primary and secondary species </font></h2>
+
+<p> There are two kinds of species, 
+<font color=blue><i>primary</i></font> and 
+<font color=blue><i>secondary</i></font>.
+The species that have been described so far are all primary.  A
+data item of a primary species always has an intrinsic tag that is
+identical to its extrinsic tag; the system and the item agree on
+the species of the item.  
+
+<p> There is a <font color=blue><i>secondary species</i></font> 
+for each data abstraction.  
+For example, 
+ORDER is a genus, and is also a secondary species.  A data
+item can have an intrinsic tag of Integer, but an extrinsic tag
+of ORDER.  This means that the system has forgotten that the item
+is an integer, and is only remembering that it is of a species
+that belongs to ORDER.  Think of such an item as an integer wrapped
+in a package covered with wrapping paper that has ORDER written all over
+it.  Until the package is opened, all you see is that the gift is
+something of the general kind ORDER.  It is only after removing the
+wrapping that you see an integer.
+
+<p>The intrinsic tag of an item is always
+a primary species.  The extrinsic tag is either primary or secondary.
+
+<a name=exsecspec></a>
+<hr>
+<h2><font color=mediumblue> Examples of uses for secondary species</font></h2>
+
+Astarte has a monomorphism restriction: polymorphism does not
+extend into data items.  Each function that your program creates,
+for example, has a single species for its domain and a single species
+for its codomain.
+
+<p>Secondary species provide a way around the monomorphism restriction.
+For example, 
+suppose that you want to create a box that can hold
+any item at all.  You cannot quite do that, but what you can do is
+create a box of species <:ANY:>, using the secondary species ANY.
+To put an item into the box, you must gift wrap it, giving it an
+extrinsic tag of ANY.  When you get the content of the box, you can
+leave it gift wrapped, or you can unwrap it, to see what item was inside
+the gift wrapping.
+
+<p>Secondary species also allow for lists of mixed species.
+Suppose, For example, 
+that you create a list of species [EQ].
+The items in this list are gift wrapped, with extrinsic tag EQ.
+Inside the gift wrapping is an item of a species that belongs to 
+genus EQ.
+
+<p>Suppose that you want to create a single function that
+will print any data item at all.  Using name polymorphism, you can write
+<font color=#D00090>
+<b><pre>
+    Let Print ?x. = 
+      Writeln[$x].
+    %Let
+</pre></b>
+</font>
+yielding function Print: `a -&gt; ().
+But this does not really create just one item, it creates infinitely
+many different items with the same name.  
+Truly polymorphic functions can be created using secondary species.  
+To create a single print function, you define
+a function of type ANY -&gt; ().  The definition of this function
+is give <a href=#print>below</a>.
+
+<a name=create></a>
+<hr>
+<h2><font color=mediumblue> Creating items that belong to secondary species </font></h2>
+
+Notation &lt&lt;x&gt&gt creates an item whose intrinsic species is the
+same as the intrinsic species of x, and whose extrinsic species
+is some secondary species, with the species determined by type
+inference.  For example,
+<font color=#D00090>
+<b><pre>
+      Let w2 = &lt&lt;2:Natural&gt&gt;:REAL.
+</pre></b>
+</font>
+defines identifier w2 to name an item whose value is the number 2,
+whose extrinsic species is REAL
+and whose intrinsic species is Natural.  If you now define
+<font color=#D00090>
+<b><pre>
+      Let ww = &lt&lt;w2&gt&gt;:ANY.
+</pre></b>
+</font>
+then ww is also the number 2, with intrinsic species Natural, but
+with extrinsic species ANY.  What you have done is rewrapped the gift
+using new wrapping paper.
+
+Operator &lt&lt;...&gt&gt; is called the wrap operator,
+and is implemented by a primitive function called <em>wrap</em>.
+
+<a name=print></a>
+<hr>
+<h2><font color=mediumblue> Removing the wrapping </font></h2>
+
+You can remove the wrapping by using &lt;&lt;...&gt;&gt; in a pattern.
+For example, 
+here is a function of species ANY -&gt; () that prints
+an arbitrary item by removing the wrapping.
+<font color=#D00090>
+<b><pre>
+    Let Print &lt;&lt; ?x &gt;&gt;. =
+      Writeln[$x].
+    %Let
+</pre></b>
+</font>
+Now Print can be passed to another function and generally 
+manipulated without losing its polymorphism.
+
+<a name=variable></a>
+<hr>
+<h2><font color=mediumblue> Primary and secondary variables </font></h2>
+
+Normally, a type variable can stand for either a primary or secondary
+species.  The following special forms allow you to select primary or
+secondary.
+<dl>
+<p><dt> <font color=red>G``a</font>
+<dd> Variable G``a can only be a secondary species.
+
+<p><dt> <font color=red>G`*a</font>
+<dd> Variable G`*a can only be a primary species.
+</dl>
+
+<hr>
+<center>
+<a href="abbrev.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="irregular.html">Next</a>
+</center>
+</body>
+</HTML>

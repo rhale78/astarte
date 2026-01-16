@@ -1,0 +1,46 @@
+Package stream1
+
+%% Test basic stream (backtrack) handling
+
+%% Simple stream
+
+Execute
+  Writeln["Should print 1, 2 on separate lines."].
+  Try
+    Let x = Stream 1 then 2 %Stream.
+    Writeln[$x].
+    Fail testX.
+  %Try
+%Execute
+
+%% Handling exception
+
+Execute
+  Writeln["Should print 1, 2 on separate lines, then say exception = subscriptX."].
+  Untrap all =>
+    Try
+      Let x = Stream 1 then 2 %Stream.
+      Writeln[$x].
+      Fail subscriptX.
+    else
+      Writeln["exception = ", $exception].
+    %Try
+  %Untrap
+%Execute
+
+%% Resetting exception, multiple parts
+
+Execute
+  Writeln["Should print 1, 2, 3 on separate lines, then say exception = subscriptX."].
+  Untrap all =>
+    Try
+      Let x = Stream 1 then 2 then 3 %Stream.
+      Writeln[$x].
+      Fail subscriptX.
+    else
+      Writeln["exception = ", $exception].
+    %Try
+  %Untrap
+%Execute
+
+%Package

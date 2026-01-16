@@ -1,0 +1,44 @@
+Package currycon
+
+%% Test curried constructors.
+
+Pattern test(?x,?y) => 
+  Match (?x,?y) = target.
+%Pattern
+
+Pattern tstpat ?x ?y =>
+  Match test(?x,?y) = target.
+%Pattern
+
+Extension
+  Species Test =
+      con1 Natural Natural
+    | con2 Integer Integer Natural
+  %Species
+%Extension
+
+Execute
+  Let a = con1 3 5.
+  Writeln[$a].
+  
+  Let b = uncon1(a).
+  Writeln[$b].
+  
+  Match con1 ?x ?y = a.
+  Writeln[$x, " ", $y].
+  
+  Writeln[$ con1?(a)].
+  Writeln[$ con2?(a)].
+%Execute
+
+%% Test exhaustiveness test
+
+Let f by
+  case f(con1 ?x ?y) = x+y
+%Let
+
+Let g by
+  case g (con1 ?x ?y) ?z = x + y + z
+%Let
+
+%Package

@@ -1,0 +1,12 @@
+Package empty
+
+%% Test empty declarations
+
+Execute.
+
+Let %Let
+
+Expect.
+
+%Package
+

@@ -1,0 +1,25 @@
+Package testassoc1
+
+Export
+
+Extension
+  Abstraction C.
+  Relate REAL isKindOf C.
+  Relate
+    C & ORDER = REAL;
+    C & RANKED = Natural;
+    C & EQ = REAL;
+  %Relate
+%Extension
+
+%% The following should complain that the hierarchy is not associative
+
+%%Advise debug CLT3.
+
+Extension
+  Species Myint = Natural.
+  Relate Myint isKindOf C.
+%Extension
+
+%%Advise nodebug.
+%Package

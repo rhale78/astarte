@@ -1,0 +1,16 @@
+Package hermit 
+
+%% Test application of hermit in a recursive procedure.
+
+Define PrintReverse(?l). =
+  If not nil? l then
+    PrintReverse(tail l).
+    Writeln[$head l].
+  %If
+%Define
+
+Execute
+  PrintReverse[1,2,3].
+%Execute
+
+%Package

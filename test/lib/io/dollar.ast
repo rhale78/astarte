@@ -1,0 +1,41 @@
+Package testdollar 
+
+%% Test $ on strings, lists.
+
+Import "misc/check".
+
+Define lazy1 = "lazy1-val".
+Define lazy2 = "lazy2-val".
+
+Execute
+  Line[$("abc")].
+  Check["\"abc\""].
+
+  Line[$(["abc", "def", ""])].
+  Check["[\"abc\",\"def\",\"\"]"].
+  
+  Line[$([]:[Natural])].
+  Check["[]"].
+
+  Line[lazy1].
+  Check["lazy1-val"].
+
+  Show @stdout!, lazy2.
+  Writeln[].
+  Writeln["(global testdollar:lazy2)"].
+
+  Line[lazy2].
+  Check["lazy2-val"].
+
+  Show @stdout!, lazy2.
+  Writeln[].
+  Writeln["\"lazy2-val\""].
+
+  Line[$("abc" ++ "def" ++ "ghi")].
+  Check["\"abcdefghi\""].
+
+  Line[$(['a','b','c','d','e','f'])].
+  Check["\"abcdef\""].
+%Execute
+
+%Package

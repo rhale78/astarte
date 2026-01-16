@@ -1,0 +1,11 @@
+Package testabbrev2 
+
+%% Test that abbreviations in imports are removed at end of Import.
+%% Should complain that A is undefined
+
+Import "collect/listfun".
+
+Let x:A = 1.
+
+%Package
+

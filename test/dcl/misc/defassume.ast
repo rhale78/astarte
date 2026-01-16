@@ -1,0 +1,12 @@
+Package defassume
+
+%% Test assumes in definition by cases.
+
+Let f by
+  do Assume x: Natural.
+  case f(?x) = x
+%Let
+
+%% Above should show f: Natural -> Natural.
+
+%Package

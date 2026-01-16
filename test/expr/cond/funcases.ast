@@ -1,0 +1,26 @@
+Package funcases
+
+%% Check when do is allowed.
+
+Let f1 by first
+  do f1(?y) => Writeln["Ok", $y].
+  case f1(?x) = x when x > 0
+  else f1(?x) = x
+%Let
+
+Let f2 by one
+  do f2(?y) => Writeln["Ok", $y].
+  case f2(?x) = x
+%Let
+
+Let f3 by all
+  do f3(?y) => Writeln["Ok", $y].
+  case f3(?x) = x
+%Let
+
+Let f4 by all mixed
+  do f4(?y) => Writeln["Ok", $y].
+  case f4(?x) = x
+%Let
+
+%Package

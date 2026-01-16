@@ -1,0 +1,23 @@
+Package testexpect 
+
+%% Test that defn of non-hidden function with hidden type is not
+%% subject to warning, but that a defn of a non-hidden id with
+%% a non-hidden type does give a warning.
+
+export
+
+implementation
+
+Extension
+  Species T = Natural.
+%Extension
+
+%% Should not give warning.
+
+Let @(t(?x)) = x.
+
+%% Should give warning
+
+Let @(?x,?) = x.
+
+%Package

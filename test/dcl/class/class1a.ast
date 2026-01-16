@@ -1,0 +1,25 @@
+Package class1a
+
+%% Test importing classes.
+
+Import "class1".
+Import "misc/check".
+
+Execute
+  Let a = test(42,19,25).
+  Context Test a =>
+    Line[$(my yy), " ", $(my zz), " ", $ @(my x), " ", $ @(my y)].
+    Check["42 19 25 -1"].
+  %Context
+%Execute
+
+
+Execute
+  Let t2 = test2(10,20).
+  Context Test2 t2 =>
+     Line[$(my zz), " ", $(my arr @# 1), " ", $ @(my m)].
+     Check["10 1 54"].
+  %Context
+%Execute
+
+%Package

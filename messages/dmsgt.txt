@@ -1,0 +1,594 @@
+# debug/debug.h/NUM_DEBUG_MSG_T holds number of lines
+  0 free_expr: freeing expr %p: \
+  1 Meld: r1 = 
+  2 role_check: e = %p, kind %s\
+  3 transferring role 
+  4  to identifier %s\
+  5 role_check on %p returns 
+  6 match_transfer_role: role = 
+  7 binding role for pattern variable %s\
+  8 member_of_class(
+  9 Input list to containing_class:\
+ 10 Containing species is 
+ 11  for species list\
+ 12 \Generating meet declaration: %s & %s = %s\
+ 13 Looking for domain-restrictive binding.\
+ 14 gen_unwrap_test: nothing to do.\
+ 15 \Issuing declaration, kind = 
+ 16 Doing identifiers\
+ 17 Here is the expression after handling identifiers\\
+ 18 Starting type inference\
+ 19 Expression did not pass main type inference.\
+ 20 Here is the expr before handling overloads\
+ 21 Finishing type inference\
+ 22 After first pass, have %d successes, viable_expr = %p\
+ 23 Using viable_expr:\
+ 24 There were %d successes\
+ 25 (prim = %d, arg = %d, irreg = %d, sel = 
+ 26 exiting with error\
+ 27 Performing first pass after successful type inference.\
+ 28 Handle expects:  
+ 29 Unify_type: returning %d\
+ 30 Final_issue_dcl: issuing a declaration, kind = %d\
+ 31 Final_issue_dcl: done with this dcl/type\
+ 32 Declaring species or family %s, list =\
+ 33   tok=%d, name = %s, spec=%d, line = %d\
+ 34 Found domain restrictive:\
+ 35 Auto_pat_const: name = %s, species = 
+ 36 Auto_pat_fun: name = %s, species = 
+ 37 Declaring constructor %s (prim = %d, arg = %d)\Domain, codomain = \
+ 38 Finished declaring constructor %s\
+ 39 \Declare_fields\  main_type     = 
+ 40 discr = %d, irregular = %d\
+ 41 Placing a deferred expectation %s:
+ 42 Doing Deferred Declarations from extension\
+ 43 \Issuing define declaration, mode\
+ 44 About to check role namelist:
+ 45 About to complete list
+ 46 \Issuing execute declaration, expression is:\\
+ 47 \Issuing pattern declaration, expr =\
+ 48 \Issuing expand declaration, expr =\
+ 49 \Issuing expect declaration, main_context = %d, id: "%s".\
+ 50 Expression (address: %p)\
+ 51 %s (%d)[rc=%ld prim=%d sc = %d pat=%d d=%d ex=%d mk=%d] line %d\
+ 52 SCOPE = %d, OFFSET = %d\
+ 53 val = %s, scope = %d, offset = %d\
+ 54 kind = %d, SCOPE = %d, extra = %d, name = %s\
+ 55 name = %s(%p), scope = %d, offset = %d, prim = %d, irr = %d\
+ 56 name = %s(%p), scope = %d, offset = %d\
+ 57 name = %s(%p), primitive = %d, scope = %d\
+ 58 name = %s(%p) , scope = %d, offset = %d, bound = %d, mark = %d, temp = %d\
+ 59 name = %s(%p), gic = %p, prim = %d\
+ 60 translation(E3) =\
+ 61 others(E1) = \
+ 62 name = %s, GIC = %p\
+ 63 scanner: %s\
+ 64 key = %s (%p), gic = \
+ 65 \Ent_id_table:\
+ 66 ENTPART: prim = %d, arg = %d, mode = %d, from_expect = %d,\      in_body = %d, trapped = %d, irreg = %d) sel_list =
+ 67 
+ 68 Package %s, role 
+ 69 EXPAND_PART: mode = %d, qwrap_info = %d, sel_list = 
+ 70 Package: %s(%p)\
+ 71 descr = %s\
+ 72 \Here is the expression after handling scopes\
+ 73 The following variables are globally bound:\
+ 74 Transfer_potentials: uproles =
+ 75 Transfer potentials: after sorting, have
+ 76 Rolelist_mem: search for %s (killed = %d) in following yields %d\
+ 77 \About to check role for %s:
+ 78 \Declared role:
+ 79 \After role check, have expr\ 
+ 80 \This role: 
+ 81 (arg node %p) result = %d, restrictive = %d\
+ 82 starting (split-depth = %d).\ target = 
+ 83 trying source, target:\
+ 84  --disjoint\
+ 85 finished: null\
+ 86 adding 
+ 87  to newsource\
+ 88 newsource =\
+ 89 ****MISSING_TYPE: No var to bind!\
+ 90 splitting 
+ 91 Variable is null!!!\
+ 92 V is not a variable.
+ 93 (i = %d) binding to simple 
+ 94 binding to special %d\
+ 95 Trying wrapped family member bindings\
+ 96 Trying pair binding (code %d)\
+ 97 Binding %p to 
+ 98 finished: null\
+ 99 syntax error, panic_mode = %d\
+100 pattern_to_types1: tag is %d for\
+101 result of pattern_to_types1 is\
+102 for pattern\
+103 type_to_tag_type:\in  = 
+104 Checking completeness of pattern matching\
+105 target =\
+106 patterns become\
+107 target genus =\
+108 Import missing list:
+109 check_pm_completeness: copy_choose_matching_lists =\
+110 -------------------\
+111 \Checking expectations of %s (antic = %d)\
+112 Using source list (with imported missing included):\
+113 Initial expectation list:\
+114 Role: (line %d) 
+115 \check_expect_cell: id %s has no table entry!\
+116 Main missing list:\
+117 Getting parts for %s (main package %s(%p))\
+118 Initial basic source list:\
+119 Reduced basic source list:\
+120 \Checking expectation (package %s) %s: 
+121 pat_fun_tag: in expr =\
+122 Gen_exec: starting %p, name %s\
+123 Generating executable code for expression, scope = %d\
+124 After simplification, the expr to generate is\
+125 Gen_exec: starting %p(kind %s) tro = %d, line = %d, scope = %d\
+126   glob_bound_vars =  
+127 ************************Gen: line number is 0\
+128 Lazy list: pushing scope %d\
+129 Lazy list: popping to scope %d\
+130 Await: pushing scope %d\
+131 Await: popping to scope %d\
+132 Define: pushing scope %d\
+133 Define: popping to scope %d\
+134 Generating open expr, id list: 
+135 Function: pushing scope %d\
+136 Generating special function\
+137 Function: popping to scope %d\
+138 Issue_dcl: 
+139 Gen_exec: finished %p\
+140 Doing restriction unification
+141  for function %s, line %d
+142 \Current species: 
+143 Restricted species: 
+144 Generating local id %s, scope = %d, offset = %d, final = %d (current scope = %d)\
+145 Generating apply, prim = %d, inst = %d, herm = %d, irr = %d, tro = %d\ t =
+146 Generating global id %s: 
+147 Bind_team_ids: binding %p to location %d\
+148 Binding to single lower bound.\ 
+149 Cannot default: variable has upper bounds.\
+150 Primary with single bound lower bound.\
+151 Primary with single bound upper bound.\
+152 Primary default from class table.\
+153 Wrapped default.\
+154 Null: no default cases apply.\
+155 Generating primitive %d, arg %d\
+156 Generating unwrap test\  stack species = 
+157 Mark_finals: id %p has number %d\
+158 Mark_finals: id %p has number %d\Mark_finals: id %p has number %d\
+159 Mark_final_ids1: beginning %p, sig = %d, nofinal = %d, in 
+160 Mark_final_ids1: same node, nofinal = %d, e1kind = %d\
+161 Mark_final_ids1: marking %p final\
+162 Mark_final_ids1: finished with %p, out_sig = %d, result = 
+163 \Here is the expr after marking final ids\
+164 Generate_str_dcl: kind = %d, h->key.str = %s\
+165 Generate_str_dcl: `%s' (slen = %d)\
+166 \Generating define declaration for %s, mode %lx, types:\\
+167 \Generating the species of this identifier\
+168 \Generating code to take apart the input species\
+169 \Generating executable code\
+170 \Generating global id code\
+171 \Writing the declaration\
+172 Writing the global id code\
+173 Writing the number of locals\
+174 Writing the executable code\
+175 Writing the end of declaration\
+176 Finished generating define dcl for %s\\
+177 \Generating execute dcl\
+178 \Generating executable code at %p\
+179 \Generating global id code\
+180 Writing the declaration\
+181 Writing the global id code\
+182 Doing defaults for species 
+183 Selecting default for variable 
+184 Trying to default species 
+185 Binding %p to default: new species is 
+186 Offending expr:\
+187 \Here is the expression before doing defaults\
+188 Doing default types, kind = %d\
+189 End doing default types\
+190 \Here is the expression after doing defaults\
+191 Do_the_defaults: starting %p, kind %s, bound =
+192 Considering expectation from anticipation %s: 
+193 \Extensible var: 
+194 Trying wrapped bindings\
+195 \Generating relate declaration: %s > %s\
+196 gen_g: %4d    (loc %p)\
+197 write_g: %d\
+198 gen_str_g: generating %s\
+199 label_g: last_label_loc = %p, genloc = %p\
+200 glabel_g: generating label %d\
+201 Generated let for id %s, offset %d\
+202 id stack is now: 
+203 (%s,%d|%p)
+204 Get_prim: returning %d for %s\
+205 Primitive info for %s: 
+206 not primitive\
+207 Local scopes on exit from parser\\    n      predecessor of scope n   nonempty?\
+208 %5d, %26d %10d\
+209 \Local scopes on entry to code generator\\    n      predecessor of scope n   offset from global scope\
+210 %5d, %26d %25d\
+211 adding new offset %d to env\
+212 popping scope to %d\
+213 exit-scope from %ld to %d\
+214 pop_bindings: id stack is now: 
+215 Generating header: ACODE %s(%s)\
+216 Init_generate, file name = %s\
+217 Requesting global id  %s (kind %s), species 
+218 Taking apart the following species\
+219 Take_apart: binding %p, location %d\
+220 The species of the bad global is:\
+221 Generating the following globals\
+222 \Generating standard function %s, species\ 
+223 asked to generate a null species!\
+224 generating\
+225 fetching species 
+226  (%p) from storage at location %ld\
+227 I don't find 
+228  in the storage\
+229 putting species 
+230  (%p) at location %ld\
+231 Already there, offset %d\
+232 \Begin generating in global code array.\
+233 \Begin generating in exec code array.\
+234 Generating default declaration for %s.\
+235 Updating upper bound table for type 
+236 direct, indirect upper bound lists are as follows.\
+237 binding %p, location %ld\
+238 fetching %p, location %ld\
+239 Updating upper bound list of variable %p to\
+240 Finished update_upper_bounds on 
+241 Trying primary family member bindings\
+242 Get_prim: Finding prim for %s: 
+243 Improve_code_out_g: starting at %p\Here is the raw input\
+244 Begin skip-to-endlet\
+245 Skip_to_endlet: %d\
+246 End skip-to-endlet\
+247 Checking for quick try condition\
+248 Check_quick_try: null due to instruction %d\
+249 Check_for_quick_try: returning %p\
+250 Process_ids: begin expr %p, context %d, kind %s
+251  name = %s(%p)
+252 Process_ids: team expr, ids = 
+253 Process_ids: ending expr %p\
+254 Processing ids of choose_matching_list component\
+255 Process_scopes: begin expr %p, current_scope = %d, kind %s
+256 Process_scopes: ending expr %p\
+257 Get_open_lists: here are the open lists before sorting\
+258 Get_open_lists: here are the open lists after sorting\
+259 Set_open_lists: have the following open lists\
+260 (An IRREGULAR function)\
+261 Setting done = 1 on %p: new runtimes = 
+262 Do_the_defaults: skipping %s, done = 1\
+263 Do_the_defaults: ending %p, kind %s, (about to do defaults)\  result = 
+264   boundvars = 
+265 Get_runtimes: t = 
+266 Trying fictitious wrapped bindings\
+267 Report for variable %p\
+268 Get_runtimes: ********run-time bound variable 
+269 Gen_free_vars: at offset %d put 
+270 Get_runtimes: returning bound vars 
+271 get_gb_vars: this species = 
+272 tail types:\
+273 expectation list for %s is\
+274 trying species 
+275  for %s\
+276 species worked for %s\
+277 failing, direction lists\
+278 returning with %d successes\
+279 prior succ = %d, doing expression, species\
+280 trying species for %s, succ = %d\
+281 species worked out\
+282 after try, nsucc = %d, npsucc = %d, DL = 
+283 exit %s\
+284 skipping an entry\
+285 exit skipped expr, DL = 
+286 success, kind = %d\\
+287 Here is the expression after handling overloads\
+288 Redo_deferrals: starting end_initial_stage, kind = %d\
+289 \About to role check the following\
+290 \Here is the expression before copying\
+291 \Here is the expression after copying, before pattern translation\
+292 \Here is the expression after pattern translation\
+293 No matches succeeded\
+294 One part:\
+295 Package %s, visibility: 
+296  for: 
+297 Type: 
+298 Redo_deferrals: id %s, species \
+299 no types: redoing deferrals with direction lists:\
+300 Redo_deferrals: direction = %d for %s\
+301 Redo_deferrals: expr, species =\
+302 Infer_type_tc: null expression, returning false\
+303 Infer_type: starting %p (kind %s)\
+304 Infer_type: returning %d for %p\
+305 Unify_type: e = %p\
+306 Here is the bad expression\
+307 Here is the gic\
+308 Fragmenting expr\
+309 Deferring unification - expr and species:\
+310 Pushing %d onto shadow stack\
+311 new shadow nums: 
+312 new shadow stack is 
+313 Pushing %s onto shadow stack\
+314 Popping %d from shadow stack\
+315 Popping %s from shadow stack\
+316 Scanner: see %s (kind = %d), want 
+317 Shadow stack mismatch in end_word_l\
+318 See token %d, but have %d on shadow stack\
+319 Scanner: (%s) for semicolon\
+320 Have encountered bad semicolon, shadow tok = %d\
+321 Scanner: (%s)\
+322 Starting import, import_level = %d\
+323 Ending import, level = %d\
+324 String-const: import_start = %d\
+325 Failed to push input file\
+326 Normal_id_l: name = %s, force_no_op = %d, opContext = %d\
+327 Import path: 
+328 Cannot find file %s in directory %s\
+329 Opening file %s, infile = %p\
+330  file_name_st:
+331 Pushing back token %d (kind %d, name = %s)\
+332 \Scanner: (from push_back) token %d (line %d)\
+333 \Scanner: %s (token %d) (line %d)\
+334 shadow st = 
+335 shadow nums = 
+336 Starting new output line %d (imp_lev = %d, seen_end = %d)\
+337 echo_token: 
+338 Scanner: end of line\
+339 input: EOF\
+340 Get_visible_in: %s is visible in packages 
+341 Get_visible_in: source list of packages is 
+342 old_id_tm: looking for id %s(%p), local env = \
+343 old_id: returning unknown expression for %s\
+344 Local id %s\
+345  unknown id %s\
+346 Global id %s (kind %d)
+347 Container: 
+348 Noting expectation(kind %d) %s: 
+349 Non-hidden name is %s, is_hidden_id(name) = %d\
+350 Attaching properties: name = %s, irr = %d\  packages:
+351 to cell\
+352 Result from attaching properties to gic is\
+353 \Expect_global: %s: 
+354 \ force = %d, add_to_local = %d, cpy = %d, mode = %lx\ who_sees = 
+355  current package = %s\
+356  private_packages = 
+357 Scanning existing entries:\
+358 Partially_install_new_expectation: considering old expectation\ %s: 
+359 --invisible\
+360 Updating visibility of expectation for same type.\
+361 Updated new_exp:\
+362 Contained in: transferring visibility from new_exp to old expectation.\
+363 Expect_global: no expectation left to install.\
+364 Expect_global: installing the new expectation.\
+365 \Created expectation for %s(%p), mode %lx, species\
+366 \ table entry =\
+367 Result of expect_global_id is [
+368 Checking missing species %s: 
+369 Missing species: 
+370 Issue_missing: missing list for %s is now\
+371 First pass: trying species 
+372  against gic\
+373 Definition contributes to an expectation\
+374 \Defining global id, expr =\
+375 \Asked to define global id %s(%p), context = %d, mode = %lx\ species = 
+376 \ kind = %d from_expect = %d irreg = %d prim = %d\
+377  who_sees = 
+378 Trying to place %s under table entry:\
+379 Define_global: trying species 
+380 Placing definition of %s under expectation, species = 
+381 Installing a new expectation for this definition of %s\
+382 Defining global id %s, mode %lx, prim = %d, arg = %d\   from_expect = %d, species = 
+383 Have installed definition for %s: 
+384 \Beginning second import of package %s\
+385 \Ending second import of package %s\
+386 searching for rule for %s: 
+387 \(lazy = %d, unif = %d)\
+388 \Trying formal mode 
+389 (lazy = %d, unif = %d, mode_ok = %d)\
+390 Putting aside pattern function species 
+391 accepting mode\
+392 rejecting mode\
+393 Get_expand_type_and_rule: 
+394 Type after reduce_constraints: 
+395 Have declared id %s, env = 
+396 Popped scope, env = 
+397 Getting pattern variable %s\
+398 %s is an old pattern variable:\
+399 %s is a new pattern variable:\
+400 Declaring ids associated with pattern vars\
+401 Checking if pattern vars are declared\ Pat var list is: 
+402  Local env is:    
+403 Operator code for %s is %ld\
+404 \Attaching property %s to id %s: 
+405 No roles added\
+406 Result of completing role list:
+407 Get_uproles: latent = %d, l =
+408 Get_uproles returns
+409   target = 
+410 \  result = 
+411 mode_match: check = %d, arg node %p\ rule_mode(kind %d) = 
+412  arg_mode(kind %d)  = 
+413 Doing initial bindings for pattern/expand substitution\
+414 Substitution parameters:\Formals:\
+415 Actual:\
+416 Bindings\
+417 Target:\
+418 Translation:\
+419 Result of substitution\
+420 expand = %d\ Here are the two expressions (formal, actual)\
+421 using parameter unchanged\
+422 Match_bind_pm: 
+423 putting parameter in environment\
+424 Do_match_bindings_pm: splitting parameter\
+425 Fresh_id_tm: binding %s(%p)\
+426 Subst_pm: id %s(%p) (kind %s) 
+427 is old\
+428 is new\
+429 To %p bind\
+430 No pattern variables, doing equality check\
+431 No pattern variables, doing unification, image_type = 
+432 Searching for pattern rule for %s, unif = %d, actual mode =\
+433 Pattern of kind %d encountered\
+434 \Performing pattern match substitution\
+435 \Performing expansion substitution\
+436 Doing inference on result of substitution\
+437 Searching for expand rule for %s\
+438  actual mode =\
+439 \Expansion result:\
+440 Mark_pat_funs: starting %p, all = %d, context = %d, kind = %s\
+441 Marking pattern function %s (line %d)\
+442 Mark_pat_funs: ending %p, result = %d\
+443  species 
+444  overloaded\
+445  role: 
+446 Missing_type: 
+447 Missing_type_with_split: 
+448 Pattern match completeness: 
+449 Generate_type (mode %d): 
+450 Handle_deferrals:
+451 Panic from 
+452 dcl productions\
+453 Ending panic
+454 teamPart productions\
+455 extension productions\
+456 \Starting new declaration\\
+457 Checking end %s against beginner %s\
+458 Beginner line = %d, ender line = %d\
+459 Wanted %s, got %s\
+460 Beginning panic to start of next declaration\
+461 Panic: popping
+462 from shadow stack\
+463 Ending panic at eof\
+464 Ending dcl panic\
+465 Initialization complete, starting parser\
+466 \\*****************TABLES********************\\
+467 Pushing new file frame for file %s\
+468 Popping file frame for file %s (interface = %d)\
+469  import ids =
+470  public_packages =
+471 Modifying current package name in structures.\
+472  rejecting species
+473  subsumed by
+474 Retrying types for pattern function.\
+475 Do_first_pass:
+476 at entry:
+477 sol_cnt = %d, expect_contr =
+478 contribution list =
+479 at end:
+480 comparison of contribution lists yields %d.\
+481 after first pass, soln_count is %d, viable expr is %p\contributions =
+482 starting second pass.\
+483 \  main_rep_type =
+484 \  reptype.type  =
+485 \  rep_role      =
+486 \  posnlist      =
+487 Generating role modify code for expr \
+488 Gen_role_modify gets the following structure.\
+489 Gen_role_modify: returning.
+490 Getting structure for ROLE_SELECT pattern\
+491 Have structure for ROLE_SELECT pattern, result =\
+492 --There is a non-primitive, getting a basic structure.\
+493 --All are primitive\
+494 Pattern function species for %s is
+495 Installing patfun species %s:
+496  -- ignored\
+497 Here are the patfun expectation entries for %s:\
+498 Searching constructor list: 
+499 Creating expectation from anticipation: %s: 
+500 Get_context_preamble: doing %s\
+501 Context expr: replacing %s by expr in table\
+502 Context expr: replacing %s by new id\
+503 \Replacing context exprs (context %s): in expr is\
+504 \Make_context_expr: defining %s as\
+505 Checking for used id in make_context_expr, name = %s, local =\
+506 \Make_context_expr: preamble is\
+507 \Context expr replacement result is\
+508 Context: considering id %s for replacement\
+509 Context: replacing id %s\
+510 Contains: transferring visibility from old expectation to new_exp.\
+511 Deleting old expectation.\
+512 EXPECTATION: (old = %d, irr = %d, line = %d)\
+513 Expand rules:\
+514 Pattern rules:\
+515 Pattern expectations:\
+516 DESCRIP_CHAIN:\
+517 ROLE_CHAIN:\
+518 Patfun expectation: 
+519  -- equal\
+520  There was a bad expectation: going to general case.\
+521 \After deleting subsumed expectations, the expectations are as follows.\
+522 Result of define_global_id is\ 
+523 \Define_prim_id for "%s": 
+524 Resulting parts:\
+525 Defining expansion %s, mode %lx, kind %d, prim = %d, species = 
+526 Installing role 
+527 Here is the resulting role chain.\
+528 This role is already in the table.\
+529 For id %s: 
+530  Looked up role:
+531 \Got container for expectation list:
+532 Trying expand part:\
+533 Got a restrictive rule.\
+534 Pushing file %s\
+535 Popping file %s, archive = %d\
+536 Archiving main frame (package %s)\
+537 Archiving an import frame for package %s\
+538 Checking the anticipate table for completeness.\
+539 Checking the expect table for completeness.\
+540 Rejecting mode -- unification failed.\
+541 This mode yields a restrictive type binding -- holding on it.\
+542   target species = 
+543 --Handling as forward apply.\
+544 --Handling as primitive apply.\
+545 --Handling as reverse apply.\
+546 (i = %d) binding to wrapped
+547 Trying simple bindings\
+548 Checking for unwrap warning: (bind, val) =\
+549 Generating variable, current offset = %d\
+550 get_restriction_type:
+551 result is 
+552 source list =\
+553 target = 
+554 Issuing definition from anticipation.\
+555 issue_dispatch_defns: var = 
+556 issue_dispatch_defns: %s:
+557 translate_match: starting %p (%s)\
+558 translate_match: ending %p\
+559 translate_match: fixed pattern %p\
+560 local_declare_all: declaring 
+561 No domain-restrictive binding.\
+562 Looking for cross-binding.\
+563 Found cross-binding, variables:\
+564 No cross binding.\
+565 Checking lower bounds.\
+566 Removing structured t1-constraint %p >= 
+567 Try binding variable %p to 
+568 Binding failed to find solution: %p = 
+569 Removing structured t2-constraint %p >= 
+570 Adding t2-constraint A >= B where A and B are:\
+571 Constraint A >= B did not yield a solution, where A and B are:\
+572 The following are the other variables.\
+573 Trying simple fictitious bindings\
+574 Trying primary fictitious family member bindings\
+575 Trying fictitious wrapped family member bindings\
+576 Attributed package: %s\
+577 Visible in: 
+578 Declaring curried constructor %s in terms of basic constructor\%s: 
+579 pat_fun_tag: E3 field is NULL, returning -1.\
+580 pat_fun_tag: tag name is NULL, returning -1.\
+581 pat_fun_tag: returning %d for function %s.\
+582 fun = %s\
+583 All structured lower bounds are gone.  Looking for constraint.\Here are the two types t1 and t2 after lifting lower bounds.\
+584 Trying to violate simple constraint A >= B where A and B are:\
+585 --could not violate.\
+586 --success, adding variable %p to restrictively bound vars.\
+587 Checking cluster with the following variables.
+588 get_define_case_parts: heading =\
+589 
+590 Packages beneath %s: 
+591 
+592 

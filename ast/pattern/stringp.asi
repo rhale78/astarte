@@ -1,0 +1,24 @@
+%% File: pattern/stringp.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 2000 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==============================================================
+Package 		Astarte_StringP_Imp
+
+			Implements "stringp"
+================================================================
+
+Define 
+  dollar_P         = listPatternFunction(pull);
+  hex_P            = listPatternFunction(pullHex);
+  white_P          = listPatternConstant(skipWS);
+  theWS_P          = listPatternFunction(pullWS);
+  theLine_P        = listPatternFunction(pullLine);
+  theString_P      = listPatternFunction(pullString);
+  theId_P          = listPatternFunction(pullId);
+  theBalanced_P ?p = listPatternFunction(pullBalanced p)
+%Define
+
+%Package

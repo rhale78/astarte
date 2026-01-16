@@ -1,0 +1,24 @@
+Package testpat 
+
+%% Test list patterns
+
+Directory standard.
+Import "pattern/listpat"; "collect/string"; "misc/check".
+
+Execute
+  Let a = "The quick brown fox jumped over the lazy dogs.".
+  Match theString ?a's ++ ? = a.
+  Line[a's].
+  Check["The"].
+
+  Let b = "23 456 9812".
+  Match $(?i:Natural) ++ ?rest = b.
+  Line[i $$ 4, "  ", $rest].
+  Check["  23  \" 456 9812\""].
+
+  Match ($(?j:Natural) ++ $(?k:Integer)) ++ " " ++ ?r = b.
+  Line[j$$4, k$$5, " ", $r].
+  Check["  23  456 \"9812\""].
+%Execute
+
+%Package

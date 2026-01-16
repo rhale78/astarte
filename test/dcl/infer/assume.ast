@@ -1,0 +1,36 @@
+Package assumptions 
+
+%% Test Assume and tags
+
+Assume n: Natural.
+Assume x,y: INTEGER`a.
+Assume
+  1: INTEGER`a;
+  1.0: Rational;
+%Assume
+
+Define f(?n) = n.
+
+Define g(?x) = x.
+
+Define h(?) = 1.
+
+Define i(?) = 1.0.
+
+Define j(?) = 1: Natural.
+
+Define k(?r,?s) = (r: `a, s: `a).
+
+Define l(?n: INTEGER`a) = n:INTEGER`a.
+
+Assume n: INTEGER`a.
+
+Define m(?n) = n.
+
+Assume n: ?.
+
+Define p(?n) = n.
+
+%Package
+
+

@@ -1,0 +1,26 @@
+Package operr
+
+%% Test operator conflict error.
+
+=======================================================
+Operator op1(*).
+Operator op1(#).
+
+%% The following should complain about inconsistent declarations.
+
+Let ?x op1 ?y = x + y.
+
+=======================================================
+Operator #(+).
+
+%% The following should yield a complaint.
+
+Let ?x # ?y = x + y.
+
+=======================================================
+%% The following should yield a complaint.
+
+Operator ##(true).
+=======================================================
+
+%Package

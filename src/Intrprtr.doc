@@ -1,0 +1,423 @@
+/*****************************************************************
+ * File:    Intrprtr.doc
+ * Purpose: Describe the interpreter
+ * Author:  Karl Abrahamson
+ ****************************************************************/
+
+
+          =====================================
+	  High level description of interpreter
+          =====================================
+
+  REMARKS
+  Terminology is somewhat strange, since provisional terms were used
+  and then modified.  The word 'type' is sometimes used in place of 
+  species, sometimes in place of genus, when the genus is given by a
+  type expression.   The word 'class' is used in some places to mean genus,
+  community, species or family.  The word 'entity' is used for a data item.
+  In some places, the word 'place' is used for shared box, 
+  and 'box' for nonshared box.
+
+
+     ======================================================
+			Overview
+     ======================================================
+
+The main program is in file src/intrprtr/intrprtr.c.  It reads
+command line options, initializes, and calls the package reader to
+read in the packages.  It then calls the evaluator on each execute
+declaration encountered.
+
+The package reader is in src/intrprtr/package.c.  It reads the packages
+and sets up data structures that describe the packages.  
+
+The evaluator is in src/evaluate/evaluate.c.  It processes instructions,
+one after another.  The instructions are for an abstract machine whose
+basic objects are described in src/machdata/entity.h, and further in
+src/machdata/sment.h or src/machdata/lgent.h.  Data structures for
+the abstract machine are described in src/machstrc.  The language of the
+abstract machine is described in src/evaluate/language.doc.
+
+     =========================================================
+     Directories and files for the interpreter are as follows.
+     =========================================================
+
+
+***************************************************************************
+                            ARCHITECTURE AND CONFIGURATION
+***************************************************************************
+
+src/misc/config.h
+src/misc/files.h
+----------------
+  Local configuration.  Where are the directories?  config.h needs
+  to be edited to configure.
+
+src/misc/options.h
+-------------------
+  Top level option selector.  This file needs to be edited to 
+  configure the architecture.
+
+src/misc/debug.h
+src/misc/prod.h
+src/misc/tstconfig.h
+----------------
+  Compilation options.
+
+src/misc/16bitn.h
+src/misc/32bita.h
+src/misc/32bitn.h
+src/misc/32bita.h
+-----------------
+  Definitions according to word size and alignment requirements.
+
+src/misc/unixl.h
+src/misc/unixm.h
+src/misc/unixs.h
+src/misc/win16.h
+----------------
+  Operating system characteristics and more compilation options.
+
+***************************************************************************
+                            CONSTANTS
+***************************************************************************
+
+src/misc/limits.h
+-----------------
+  Compiled in limits that cannot be exceeded.
+
+src/misc/misc.h
+---------------
+  Included by every file.  Reads the misc header files, as well as
+  stdio.h.  Defines TRUE, FALSE.
+
+src/misc/perform.h
+----------------
+  Sizes of data structures and parameters that affect performance.
+
+src/misc/types.h
+----------------
+  Types used in both the compiler and the interpreter.
+
+
+***************************************************************************
+                            UTILITIES
+***************************************************************************
+
+src/utils/filename.c
+src/utils/filename.h
+--------------------
+  Utilities for managing file and directory names.
+
+src/utils/hash*
+-------------------
+  These files implement hash tables, and are used mainly by the table manager.
+
+  hash.doc: Description
+  hash.h:   Prototypes
+  hash.c:   General functions
+  hash1.c:  Hash tables with just a key
+  hash2.c:  Hash tables with a key and a value.
+
+src/utils/lists*
+--------------------
+  These files implement linked lists.
+
+  lists.doc: 	Description
+  lists.h: 	Prototypes
+  lists.c: 	Implementation
+  listutil.c: 	Assorted utilities for lists, including
+		reverse, append, membership testing, delete, copy,
+		subscript, length, merge sorted lists, sort,
+		intersection, 
+
+src/utils/strops.c
+src/utils/m_strops.c
+src/utils/strops.h
+------------------------
+  These files implement misc string and character operations for
+  the compiler and the interpreter.
+	
+src/utils/rdwrt.c
+src/utils/rdwrt.h
+-------------------------
+  Input and output functions used for writing integers into files and
+  reading them back, and for placing and getting integers in byte
+  arrays.
+
+
+src/utils/miscutil*
+--------------------
+  Miscellaneous utilities.
+
+
+src/alloc/*
+-----------
+  Storage allocation and freeing.
+
+  allocate.h: Prototypes for all files in directory alloc.
+  allocate.c: Basic (generic) storage allocation.
+  allocors.c: Allocators and freers for assorted types.
+  aloclist.c: Allocators and freers for lists.
+  aloctype.c: Allocators and freers for types.
+  gcalloc.c:  Allocators and freers for interpreter types that are subject
+              to garbage collection.
+  mrcalloc.c: Allocators and freers for interpreter types that are handled
+	      by reference counts.
+  
+
+***************************************************************************
+			DATA STRUCTURES
+***************************************************************************
+
+src/classes/*
+-------------
+  These files handle Astarte species, genera, etc. as data structures.
+
+  type.doc:    Description of TYPE data structure.
+  classes.h:   Prototypes for all files in directory classes.
+  type.c:      Build type nodes.
+  copytype.c:  Copying type structures.
+  printty.c:   Print a type.
+  typeutil.c:  Misc utilities for types, including
+	       test for hermit type, powers of types, equality test,
+	       test for a variable in a class structure, reduction in
+	       size, replacement of vars, membership tests in lists.
+  m_tyutil.c:  More utilities for the interpreter.
+
+
+src/machstrc/*
+--------------------
+  Abstract machine data structures.
+
+  The currently running function is described by variable the_act.
+  Variable the_act has type ACTIVATION.  In general, type ACTIVATION is
+  used to describe a running thread.
+
+  The_act.continuations is a linked chain of frames describing the 
+  run-time stack of functions waiting for called functions to return.
+  The nodes of that chain have type CONTINUATION.  (A continuation holds
+  a subset of the information held in an activation.)
+
+  The_act.stack is a stack that is used for instruction execution.  
+  For example, the addition function pops two numbers from the stack 
+  and pushes their sum.  The return value of a function is placed 
+  on the stack. Continuations do not store a stack, since one stack is
+  shared.  The stack structure is described by type STACK.
+
+  The_act.env points to an environment structure that describes identifier
+  bindings.  The environment has type ENVIRONMENT.
+
+  The_act.contol is a list of branch-points and try-points, indicating
+  what the current thread should do when it fails.  It is a chain of
+  nodes of type CONTROL.
+
+  The_act.coroutines is a list of activations of sibling coroutines.
+
+  machStrc.h:		Prototypes
+  actvn.c:		Activations and continuations.
+  actvn.doc:		Discussion of activations and continuations.
+  control.c:		The control, used for backtracking, etc.
+  environ.c:		The environment (for identifier bindings).
+  envsize.c:		Sizes for environment frames.
+  stack.c:		The stack, used for computation of expressions.
+  state.c:		The state (box bindings).
+  
+
+***************************************************************************
+			TABLES                           
+***************************************************************************
+
+src/tables/*
+------------
+  Table manager.
+
+  tables.h:	  Prototypes.
+  consts.c:	  Constant and string tables.
+  m_glob.c:	  Global identifier bindings.
+
+src/clstbl*
+-----------
+  Tables for managing information about types, data abstractions, etc.
+
+  classtbl.c:	  Main table for maintaining information about the species
+		  and the abstraction hierarchy.
+  classtbl.h:	  Prototypes, etc.
+  m_dflt.c:	  Keeping track of defaults for abstractions.
+  m_dflt.h:	  Prototypes.
+  meettbl.c: 	  Table of meets for abstractions.
+  meettbl.h:	  Prototypes.
+  stdtytbl.c:	  Functions for creating standard species and abstractions.
+  stdtytbl.h:	  Prototypes.
+  typehash.c:	  Hash table for keeping track of species.  (Each species
+		  is stored only once.)
+  typehash.h:	  Prototypes.
+
+
+***************************************************************************
+			TYPE INFERENCE AND UNIFICATION
+***************************************************************************
+
+src/unify/*
+-----------
+  Unification and related functions for types. 
+
+  constraint.c: Handling of constraints on polymorphic types.
+  constraint.h: Prototypes
+  unify.h:	Prototypes
+  unify.doc:	Discussion of unification.
+  unify.c:	Unification of polymorphic types.
+
+
+***************************************************************************
+			DATA ITEMS (ENTITIES)                            
+***************************************************************************
+
+src/machdata/*
+--------------
+  Representation of entities and computation of some standard entities.
+
+  entity.doc:	Description of entity representation.
+  entity.h:	Definitions for entity representation.
+		There are two forms, described in sment.h and lgent.h.
+		Only one form is used -- see options.h to select the
+		form.
+  sment.h:	Description of entities as represented in the compact form.
+  lgent.h:	Description of entities as represented in the larger form.
+  gc.h:		Description and definitions for marking during
+		garbage collection.
+  smgc.h:	Specifics of gc.h for compact entities.
+  lggc.h:	Specifics of gc.h for larger entities.
+  entity.c:	Computation of some standard entities.
+  except.h:	Standard exceptions.
+  except.c: 	Trapping, exception naming.
+  wrap.c:	Handling of entity wrapping and unwrapping.
+
+
+***************************************************************************
+			EVALUATION                            
+***************************************************************************
+
+src/evaluate/*
+--------------
+  Instruction evaluation.
+
+  evaluate.h:		Prototypes.
+  apply.c:		Handling of function calls and returns.
+  coroutin.c:		Handling of coroutines.  (Not perfected, and
+			not advertised.)
+  eval.c:		Evaluation of promises that come from lazy
+			evaluation.
+  evalsup.c:		Miscellaneous routines for the evaluator.
+  evaluate.c:		Core of evaluator.
+  fail.c:		Handling of failure and timeouts.
+  instinfo.c:		Information about the forms and names of instructions.
+  instruc.h:		Definitions for instructions of abstract machine.
+  language.doc:		Description of abstract machine.
+  lazy.c:		Evaluation of lazy objects, including global ids.
+  lazyprim.c:		Handling of lazy primitives, and some thread handling.
+  typeinst.c:		Evaluation of instructions that build types.
+
+
+***************************************************************************
+			GETTING PACKAGES, TOP LEVEL
+***************************************************************************
+
+src/interpreter/*
+-----------------
+  Front end to interpreter.
+
+  interpreter.h:	Prototypes.
+  interpreter.c:	Entry to interpreter.
+  intvars.c:		Global variables for interpreter.
+  package.c:		Package reader.
+  package.doc:		Description of interpreter globals, package structure.
+
+
+***************************************************************************
+		RUN-TIME SUPPORT AND BUILT_IN LIBRARIES
+***************************************************************************
+
+src/rts/*
+---------
+  Run-time support and library functions.
+
+  rts.h:		Prototypes.
+  append.c:		Handling of appends. Okasaki's algorithm is
+			implemented here.
+  array.c:		Handling of contiguously allocated lists.
+  bigint.c:		Handling of large integers.
+  bitvec.c:		Bit vectors.
+  compare.c:		Comparison operations.
+  integer.c:		Integer ops at entity level instead of bigint level.  
+  io.c:			Input and output.
+  keyboard.h:		Keyboard stuff for MSWIN implementation.
+  number.c:		General numeric operations.
+  numconv.c:		Conversion between numeric types.
+  product.c:		Cartesian products and lists.
+  prtnum.c:		Conversion between numbers and strings.
+  rational.c:		Rational ops.
+  real.c:		Real ops.
+  system.c:		System utilities.
+  tostring.c:		General conversions to string.
+  tstrutil.c:		Support for printing of numbers, etc.
+
+
+***************************************************************************
+			GARBAGE COLLECTION                            
+***************************************************************************
+
+src/gc/*
+--------
+  gc.h:		Prototypes.
+  gc.c:		Garbage collector.
+  gcstate.c:	Garbage collection of state (boxes).
+
+
+***************************************************************************
+			ERROR REPORTING
+***************************************************************************
+
+src/error/m_error.c
+src/error/m_error.h
+--------------------
+  Error reporting functions.
+
+***************************************************************************
+			MSWIN STUFF
+***************************************************************************
+
+src/win/*
+---------
+ Support for Windows compiler/interpreter interface.
+
+***************************************************************************
+			MISCELLANEOUS                            
+***************************************************************************
+
+src/standard/*
+--------------
+  Declare standard types, etc.
+
+  stdtypes.h:	Prototypes.
+  stdtypes.c:	Define standard species, families, abstractions.
+
+src/show/*
+----------
+  Miscellaneous display functions
+
+  getinfo.h,
+  getinfo.c:		Get info on the running program, such as
+			names of environment cells.
+  gprint.h,
+  gprint.c:		General print, possibly to screen.
+  printrts.h,
+  printrts.c:		Display the run-time stack at abort, plus debugger.
+  profile.c:		Maintain and print profile information. (-prof option)
+  prtent.h,
+  prtent.c:		Display an object.
+
+
+src/debug/*
+-----------
+  Support for debugging the interpreter.

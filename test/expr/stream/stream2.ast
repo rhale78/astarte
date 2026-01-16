@@ -1,0 +1,16 @@
+Package teststream2 
+
+%% Test streams
+
+Execute
+  Writeln["Should print 5,6,7 on separate lines\n"].
+  Try
+    Let x = Stream 5 then 6 then 7..
+    Write[$x, "\n"].
+    {false}
+  %Try
+%Execute
+
+%Package
+
+ 

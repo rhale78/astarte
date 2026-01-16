@@ -1,0 +1,43 @@
+Package Testrandom 
+
+%% Test random number generator
+
+Directory standard.
+Import "misc/random".
+
+Let DoTest(?seed). =
+  Let numtests = 100000.
+  Writeln["There is a delay here, so be patient"].
+  SetRandomSeed seed.
+  Let cnt = array(128).
+  For ?i from 0 _upto_ 127 do Assign cnt#_i := 0..
+  For ? from 1 _upto_ numtests do
+    Let r = random(128).
+    Assign cnt#_r := @(cnt#_r) + 1.
+  %For
+
+  Writeln["Census\n"].
+  For ?i from 0 _upto_ 127 do Writeln[i $$ 3, @(cnt#_i) $$ 5]..
+
+  Let avg = numtests _div_ 128.
+  Writeln["\nAverage = ", $avg].
+
+  Writeln["\nHistogram\n"].
+  For ?i from 65 _upto_ 90 do
+    Let k = 10*i.
+    Write[$k, "-", $(k+9), " "].
+    For ?j from 0 _upto_ 127 do 
+      Let c = @(cnt#_j).
+      If k <= c _and_ c <= k+9 then Write["*"]..
+    %For
+    Writeln[].
+  %For
+%Let
+
+Execute
+  DoTest "834099234174066822101849383440722543871298673".
+  DoTest "29876611192377610812236442037184664090018216372".
+  DoTest "38792874561090170471998392810471549339203768641".
+%Execute
+
+%Package

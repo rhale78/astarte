@@ -1,0 +1,117 @@
+%% File: char.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===================================================================
+Package		 Astarte_Char
+
+		 Interface
+=====================================================================
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package describes species Char, and provides related operations.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=====================================================================
+
+=========================================================
+
+Let eol = '\n'.
+
+Description
+
+ Char		%" Char is a species whose members are characters.  
+ 		%"
+		%" Use single quotes for character constants.  For
+		%" example, 'a' and '*' are members of species Char.
+		%"
+		%" Char is a member of genus RANKED, so you can ask
+		%" for the rank of a character.  The rank is the
+		%" internal code of the character.  To convert back from
+		%" character code to a character, use function char.
+		%" So
+		%"      rank('a') = 98
+		%"      char(98) = 'a'
+		%"
+		%" Function $ converts a character to a string.  For
+		%" example, $('a') = "a".
+		%"
+		%" (The following paragraph uses backslash forms.  Each
+		%" backslash is given as two backslashes, to prevent 
+		%" those forms from being interpreted as special characters
+		%" in this description (which is a string).  If you are
+		%" seeing the string, rather than the file that defines
+		%" the string, you will see only one backslash.)
+		%"
+		%" You can create a character constant having a given
+		%" internal representation.  Constant '\\{3}', for
+		%" example, is the character whose internal code is 3.
+		%" The backslash and braces are required.  Other special
+		%" characters are 
+		%"
+		%"	'\\n' 	(newline)
+		%"	'\\t' 	(tab)
+		%"	'\\'  	(backslash)
+ 		;
+
+ char		: Natural -> Char
+
+		%" char(n) is the character whose code is n.
+                ;
+		
+%Description
+
+Expect
+  toLower	: Char -> Char
+ 
+ 		%" toLower(c) is c if c is not an upper case letter, 
+		%" and is the corresponding lower case letter if c
+		%" is an upper case letter.
+		;
+  
+  toUpper	: Char -> Char
+
+		%" toUpper(c) is c if c is not a lower case letter, 
+		%" and is the corresponding upper case letter if c
+		%" is a lower case letter.
+		;
+  
+  letter?	: Char -> Boolean
+  
+  		%" letter?(c) is true when c is a letter (a-z or A-Z).
+		;
+
+  lower?	: Char -> Boolean
+  
+  		%" lower?(c) is true when c is a lower case letter.
+		;
+		
+  upper?	: Char -> Boolean
+  
+  		%" upper?(c) is true when c is a upper case letter.
+		;
+  
+  digit?	: Char -> Boolean
+  
+  		%" digit?(c) is true when c is a decimal digit.
+		;
+
+  white?	: Char -> Boolean
+  
+  		%" white?(c) is true when c is a space, tab or newline.
+		;
+  
+  printable?	: Char -> Boolean
+  
+  		%" printable?(c) is true when character c can be
+		%" shown.
+		;
+
+%Expect
+
+%Package
+
+

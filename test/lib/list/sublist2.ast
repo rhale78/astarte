@@ -1,0 +1,11 @@
+Package TestListops 
+
+Import "misc/check".
+
+Execute
+  Let j5 = [:Stream 1 then 2 then 3 %Stream:].
+  Line[$j5##(1,2)].
+  Check["1,"].
+%Execute
+
+%Package  

@@ -1,0 +1,369 @@
+%% File collect.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_Collection 
+
+			Interface
+==============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package describes general collections, such as lists, sets, etc.
+If F is a member of community COLLECTION, then F(T) is a kind of 
+collection with members of species T.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+===========================================
+Extension
+  
+  Abstraction{transparent} COLLECTION(`a)
+    %" COLLECTION is a community holding different kinds
+    %" of collections.  For example, family List is a
+    %" member of COLLECTION.  See also SET.
+  %Abstraction
+  
+  Relate
+    List           isKindOf COLLECTION;
+    COLLECTION(EQ) isKindOf EQ;
+    
+    COLLECTION & ORDER             = [ORDER];
+    COLLECTION & EQ                = COLLECTION(EQ);
+    COLLECTION & TRANSPARENT_ORDER = List;
+  %Relate
+  
+  Default COLLECTION => List.
+%Extension
+
+===================================================================
+
+===================================================================
+%%		COLLECTION OPERATIONS
+===================================================================
+
+Operator _in_(==).
+
+===========================================
+
+Abbrev {noExport}: 
+  A      = `a;
+  B      = `b;
+  E      = EQ`a;
+  Col    = {COLLECTION`c};
+  ColW   = COLLECTION``c;
+  ColA   = Col(A);
+  ColB   = Col(B);
+  ColE   = Col(E);
+  ColWA  = ColW(A);
+%Abbrev
+
+==================================================
+%% The following are virtual, and must be defined 
+%% by any package that extends COLLECTION.
+==================================================
+
+Anticipate
+  emptyCollection  : ColA
+
+		   %" @{nil []}
+		   %"
+		   %" emptyCollection is an empty collection.
+		   %" The default kind of collection is a list.
+		   ;
+
+  emptyCollection? : ColA -> Boolean
+
+		   %" @{emptyCollection nil []}
+		   %"
+		   %" Predicate emptyCollection? tests for an empty
+		   %" collection.  So emptyCollection?(emptyCollection)
+		   %" is true.
+		   ;
+
+  size             : ColA -> Natural
+
+		   %" @{length}
+		   %"
+		   %" size(s) is the number of members of collection s.
+		   ;
+
+  sizeAtLeast	   : Natural -> ColA -> Boolean
+  
+		   %" @{length size}
+		   %" 
+		   %" (sizeAtLeast n c) is true if collection c has at
+		   %" least n members.  It might not need to compute
+		   %" the entire size.
+		   ;
+
+  toList	   : ColA -> [A]
+
+		   %" @{list}
+		   %"
+		   %" toList(c) is a list containing the members of 
+		   %" collection c.  toList might be lazy.
+		   ;
+
+  eagerToList	   : ColA -> [A]
+
+		   %" @{list toList}
+		   %"
+		   %" eagerToList(c) is a list containing the members of 
+		   %" collection c.  It must be eager.
+		   ;
+
+  fromList         : [A] -> ColA
+
+		   %" @{toList}
+		   %"
+		   %" fromList(l) is a collection of the members of
+		   %" list l.  The type of collection to be returned
+		   %" is determined by the species of fromList.
+		   ;
+
+  _in_		: (E, ColE) -> Boolean
+  
+		%" @{member} #{Collection}
+		%"
+		%" (x _in_ s) is true if x is a member of s.  For
+		%" example, 3 _in_ [4,3,2] is true, as is 3 _in_ [3,5,6].
+		%"
+		%" Operator '_in_' has the same precedence
+		%" and associativity as ==.  See lang/operator.ast.
+		;
+%Anticipate
+
+================================================
+%% The following definitions are provided here.
+================================================
+
+Expect
+  {default}:
+
+  emptyCollection   : ColWA;
+  emptyCollection?  : ColWA -> Boolean;
+  
+  toList,
+   eagerToList	    : ColWA -> [A];
+   
+  fromList	    : [A] -> ColWA;
+   
+  _in_		    : (E, ColW(E)) -> Boolean;
+      
+  {underride}:
+
+  size		: ColA -> Natural;
+      
+  sizeAtLeast	: Natural -> ColA -> Boolean;
+
+  _in_		: (E, ColE) -> Boolean;
+  
+  each		: ColA	-> A
+
+		%" #{Collection}
+		%"
+		%" each(c) produces a stream of the members of c.
+		%" For example, each([1,2,3]) successively produces
+		%" 1, then 2, then 3. 
+		%"
+		%" The order for a list is the same as the order of
+		%" the list.  For a set, the order is unspecified.
+		;
+
+  eachMixed	: ColA	-> A
+
+		%" @{each} #{Collection}
+		%"
+		%" eachMixed(c) produces the members of collection c in
+		%" a mixed stream.  For example, eachMixed([1,2])
+		%" has the same effect as Mix 1 with 2 %Mix.
+		;
+
+  map		: (A -> B) -> ColA -> ColB
+
+		%" #{Collection}
+		%"
+		%" If l = [a,b,c], then (map f l) = [f(a), f(b), f(c)].
+		%"
+		%" In general, (map f) applies f to each element of its
+		%" argument collection, and produces a new collection
+		%" of the same kind.  Map is quasi-lazy: If l is
+		%" lazy, then (map f l) will not evaluate f or l
+		%" until necesssary; if l is explicit, then map
+		%" might apply f, producing the explicit result list.
+		;
+
+  MapProc    	: (A -> ()) -> ColA -> ()
+
+		%" #{Collection}
+		%"
+		%" If l = [a,b,c], then MapProc (P), l %MapProc 
+		%" computes P(a), P(b) and P(c). 
+		%" In general, MapProc f, x %MapProc applies P to 
+		%" each element of its argument collection.
+		;
+
+  mapSuccesses	: (A -> B) -> ColA -> ColB
+  
+		%" @{map} #{Collection}
+		%"
+		%" (mapSuccesses f l) is similar to (map f l), but 
+		%" failed evaluations of f are ignored.  So if 
+		%" f(a) and f(c) succeed, but f(b) fails, then
+		%" (mapSuccesses f [a,b,c]) = [f(a), f(c)].
+		%"
+		%" Be careful.  If an evaluation of f causes an
+		%" exception that is trapped, then mapSuccesses
+		%" does not ignore the trap.
+		;
+		
+  filter	: (A -> Boolean) -> ColA -> ColA
+
+		%" @{delete} #{Collection}
+		%"
+		%" (filter f l) is the collection of all members of l that
+		%" satisfy predicate f.  For example, if function
+		%" positive? returns true only on a positive number,
+		%" then
+		%"
+		%"  filter positive? [4, -2, -6, 2, 8, -12] = [4, 2, 8]
+		;
+
+  bpartition	: (A -> Boolean) -> ColA -> (ColA, ColA)
+
+		%" @{filter separate classify} #{Collection}
+		%"
+		%" (bpartition f l) = (l1,l2) where l1 consists of all
+		%" members x of l for which f(x) is true, and l2 consists
+		%" of all members x of l for which f(x) is false.  
+		%" The collections in the result are of the same kind
+		%" as in the argument. When l is a list, the members of 
+		%" l1 and l2 are in the same order in which they 
+		%" occur in l.
+		%"
+		%" For example, suppose that function positive? returns
+		%" true on a positive number and false on a negative 
+		%" number.  Then
+		%"
+		%"   bpartition [-4, 2, 5, -6, 8] = ([2, 5, 8], [-4, -6])
+		;
+
+  partition	: [A -> Boolean] -> ColA -> [ColA]
+
+		%" @{filter separate classify} #{Collection}
+		%"
+		%" Let tl = [p1,p2,...,pn] be a list of predicates,
+		%" and c be a collection.  Then (partition tl c)
+		%" produces a list [r1,r2,...,rn,r(n+1)], where r1
+		%" consists of the members of c that satisfy p1,
+		%" r2 consists of the members of c that satisfy p2
+		%" but not p1, ..., rn consists of the members of c
+		%" that satisfy pn but not any previous predicates
+		%" in tl, and r(n+1) consists of those members
+		%" of c that do not satisfy any of the predicates
+		%" in tl. See bpartition.
+		;
+
+  someSatisfy	: (A -> Boolean) -> ColA -> Boolean
+
+		%" @{exist} #{Collection}
+		%"
+		%" (someSatisfy  f l) is true if l has a member x
+		%" where f(x) is true.  For example,
+		%"
+		%" someSatisfy zero? [9,0,9,3]  is true
+		%" someSatisfy zero? [8,7]      is false
+		%" someSatisfy ?f []            is false.
+		;
+
+  allSatisfy	: (A -> Boolean) -> ColA -> Boolean
+
+		%" @{forall} #{Collection}
+		%"
+		%" (allSatisfy  f l) is true if every member x of l
+		%" satisfies f(x) = true.  For example,
+		%"
+		%" allSatisfy zero? [0,0]  is true
+		%" allSatisfy zero? [3]    is false
+		%" allSatisfy f []         is true.
+		;
+
+  select	: pot__fail ~>
+		  (A -> Boolean) -> ColA -> A
+
+		%" #{Collection}
+		%"
+		%" (select f l) is the first member of l
+		%" that satisfies f(x), and fails with exception
+		%" testX if no member of l satisfies f.  
+		%"
+		%" For example,
+		%"
+		%"  select (__ > 4) [3,5,2,7] = 5.
+		;
+
+  fold		: (A, (A,A) -> A) -> ColA -> A
+
+		%" @{reduce sum} #{Collection}
+		%"
+		%" fold (init,op) [a,b,c] = a op b op c provided init is
+		%" an identity for operator op, and op is associative.
+		%" For some kinds of collections, where order is undefined,
+		%" op should be commutative as well.
+		%"
+		%" For example, if l is a list, then fold(0,+)(l) is 
+		%" the sum of all numbers in list l.
+		;
+
+  min		: COLLECTION`c(ORDER`a) -> ORDER`a
+   
+		%" @{minimum smallest} #{Collection}
+		%"
+		%" min(c) is the smallest member of collection c.
+		%" min(c) fails with exception emptyListX
+		%" if c is empty.
+		;
+
+  max		: COLLECTION`c(ORDER`a) -> ORDER`a
+   
+		%" @{maximum largest} #{Collection}
+		%"
+		%" max(c) is the largest member of collection c.
+		%" max(c) fails with exception emptyListX
+		%" if c is empty.
+		;
+
+  $		: ColA -> String
+%Expect
+
+==========================================================
+%% Addding List to COLLECTION will cause the anticipations
+%% given above to become expectations, indicating that
+%% they are provided here.
+==========================================================
+
+Extension
+  Relate{noExpect{_in_}} List isKindOf COLLECTION.
+%Extension
+
+Expect{from Astarte_Search} _in_: (E, [E]) -> Boolean.
+
+=======================================================
+%% 		Operations for lists
+=======================================================
+
+Let
+  toList	   = idf;
+  eagerToList	   = idf;
+  fromList 	   = idf;
+  size             = length;
+  emptyCollection  = [];
+  emptyCollection? = nil?
+%Let
+
+=======================================================
+%Package
+

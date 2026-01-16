@@ -1,0 +1,412 @@
+<HTML>
+<head>
+<title>Astarte: basic matrix library</title>
+</head>
+<body>
+<center>
+<a href="read.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="setlib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC7. Matrices</font></h1>
+</center>
+<menu>
+  <li><a href=#build>Building matrices</a>
+  <li><a href=#select>Selecting members</a>
+  <li><a href=#submat>Selecting slices and submatrices</a>
+  <li><a href=#modify>Modifying a matrix</a>
+  <li><a href=#size>Getting the size</a>
+  <li><a href=#map>Mapping</a>
+</menu>
+
+<hr>
+A matrix is a two-dimensional list.  
+It is represented by a list of lists, where all of the member
+lists have the same length.  For example, matrix 
+<pre>
+    E=   a b c d
+         e f g h
+         i j k l
+</pre>
+is represented by the list of lists
+<pre>
+        [[a,b,c,d],
+         [e,f,g,h],
+         [i,j,k,l]]
+</pre>
+A matrix is allowed to have no members.  An empty matrix 
+always has no rows and no columns
+
+<p>The following operations are available by importing package
+<a href="ast/collect/matrix.ast">collect/matrix.ast</a>.
+
+<a name=build></a>
+<hr>
+<h2><font color=mediumblue>Building matrices</font></h2>
+
+<dl>
+<a name=above></a>
+<p><dt><font color=red>_above_</font>
+<dd>: (Matrix(`a), Matrix(`a)) -&gt; Matrix(`a)
+<p><font color=#D00090>x _above_ y</font> is the matrix
+obtained by writing matrix x above matrix y.  
+For example,
+using the matrix E shown above, 
+<font color=#D00090>E _above_ E</font> is
+<pre>
+         a b c d
+         e f g h
+         i j k l
+         a b c d
+         e f g h
+         i j k l
+</pre>
+It is required that x and y have the same number of columns.
+Otherwise, x _above_ y fails with exception sizeX.
+
+<a name=aside></a>
+<p><dt><font color=red>_aside_</font>
+<dd>: ([`a], Matrix(`a)) -&gt; Matrix(`a)
+<p><font color=#D00090> c _aside_ x</font> is the
+matrix obtained by adding column c to the left side of 
+matrix x.  
+For example, if c is list [u,v,w] and x is
+the matrix E above, then <font color=#D00090>c _aside_ x</font> is
+<pre>
+       u a b c d
+       v e f g h
+       w i j k l
+</pre>
+It is required that c have the same number of members as x has
+rows.  Otherwise, c _aside_ x fails with exception sizeX.
+
+<p>You can use _aside_ in patterns.  
+For example,
+<font color=#D00090>Match ?c _aside_ ?m = E.</font> binds
+c to [a,e,i] and m to matrix
+<pre>
+       b c d
+       f g h
+       j k l
+</pre>
+
+<a name=atop></a>
+<p><dt><font color=red>_atop_</font>
+<dd>: ([`a], Matrix(`a)) -&gt; Matrix(`a)
+<p><font color=#D00090> r _atop_ x</font> is the
+matrix obtained by adding row to the top of 
+matrix x.  
+For example, if r is list [t,u,v,w] and x is
+the matrix E above, then <font color=#D00090>r _atop_ x</font> is
+<pre>
+         t u v w
+         a b c d
+         e f g h
+         i j k l
+</pre>
+It is required that r have the same number of members as x has
+columns.  Otherwise, r _atop_ x fails with exception sizeX.
+
+<p>You can use _atop_ in patterns.  
+For example,
+<font color=#D00090>Match ?r _atop_ ?m = E.</font> binds
+r to [a,b,c,d] and m to matrix
+<pre>
+      e f g h
+      i j k l
+</pre>
+
+<a name=beside></a>
+<p><dt><font color=red>_beside_</font>
+<dd>: (Matrix(`a), Matrix(`a)) -&gt; Matrix(`a)
+<p><font color=#D00090>x _beside_ y</font> is the matrix
+obtained by writing matrix x to the left of matrix y.  
+For example,
+using the matrix E shown above, <font color=#D00090>E _beside_ E</font> is
+<pre>
+         a b c d a b c d
+         e f g h e f g h
+         i j k l i j k l
+</pre>
+It is required that x and y have the same number of rows.
+Otherwise, x _beside_ y fails with exception sizeX.
+
+<a name=matrix></a>
+<p><dt><font color=red>matrix</font>
+<dd>[[`a]] -&gt; Matrix(`a)
+<p><font color=#D00090>matrix L</font> is a matrix whose list
+of rows is given by list-of-lists L.  All member lists of list L must
+have the same length, or matrix fails with exception sizeX.
+
+</dl>
+
+<a name=select></a>
+<hr>
+<h2><font color=mediumblue>Selecting members</font></h2>
+
+<dl>
+
+<a name=sharp></a>
+<p><dt><font color="red"> #</font>
+<dd>: (Matrix(`a), (Natural,Natural)) -&gt; `a 
+<p><font color=#D00090>x # (i,j)</font> 
+is the member of matrix x at row
+i and column j, where indexing is from 1.  
+If there is no such entry, it fails with
+exception subscriptX.
+
+<a name=sharpzero></a>
+<p><dt><font color="red"> #_</font>
+<dd>: (Matrix(`a), (Natural,Natural)) -&gt; `a 
+<p><font color=#D00090>x #_ (i,j)</font> 
+is the member of matrix x at row
+i and column j, where indexing is from 0.  
+If there is no such entry, it fails with
+exception subscriptX.
+
+</dl>
+
+<a name=submat></a>
+<hr>
+<h2><font color=mediumblue>Selecting slices and submatrices</font></h2>
+
+<dl>
+<a name=dblsharp></a>
+<p><dt><font color=red>##</font>
+<dd>: (Matrix(`a), ((Natural,Natural),(Natural,Natural)) -&gt; Matrix(`a) 
+<p> <font color=#D00090>x ## ((i,n),(j,m))</font> 
+is the matrix obtained from x by deleting the first
+i rows and j columns, and then taking the first
+n rows and m columns from what is left.
+For example, using the
+matrix E from above, 
+<font color=#D00090>E##((1,2),(1,3))</font> is matrix
+<pre>
+    f g h
+    j k l
+</pre>
+If i is larger than the number of rows or j is larger than the
+number of columns, then the result of x##((i,n),(j,m)) is 
+an empty matrix.  If n is larger than the number or remaining rows
+or m is larger than the number of remaining columns, then all of
+the rows or columns are taken.
+
+<a name=column></a>
+<p><dt><font color="red"> column</font>
+<dd>: Natural -&gt; Matrix(`a) -&gt; [`a]
+<p><font color=#D00090>column n x</font> 
+is the n-th column of matrix x, numbering
+from 1.  For example, if x is the matrix E above, then column 2 x is
+list [b,f,j].
+This fails with exception subscriptX if there is no such column.
+
+<a name=columnzero></a>
+<p><dt><font color="red"> column_</font>
+<dd>: Natural -&gt; Matrix(`a) -&gt; [`a]
+<p> <font color=#D00090>column_ n x</font> 
+is the n-th column of matrix x, numbering
+from 0.  For example, if x is the array E above, then column_ 2 x is
+list [c,g,k].
+This fails with exception subscriptX if there is no such column.
+
+<a name=columns></a>
+<p><dt><font color=red> columns</font>
+<dd>: Matrix(`a) -&gt; [[`a]]
+<p> <font color=#D00090>columns x</font> is a list of
+the columns of matrix x.  For example, if x is the matrix
+E above, then colunms x is list
+<pre>
+  [[a,e,i],
+   [b,f,j],
+   [c,g,k],
+   [d,h,i]]
+</pre>
+
+<a name=diagLR></a>
+<p><dt><font color="red"> diagLR</font>
+<dd>: (Natural,Natural) -&gt; Matrix(`a) -&gt; [`a]
+<p> <font color=#D00090>diagLR (i,j) x</font> 
+is the left-to-right diagonal of two-dimensional
+list x that contains the entry at row i, column j (numbering from 1).
+For example, if x is the matrix E above, 
+then <font color=#D00090>diagLR(1,2) x</font> is list
+[b,g,l], since the b is in row 1, column 2.  
+If there is no such entry, then diagLR fails with exception
+subscriptX.
+
+<a name=diagLRzero></a>
+<p><dt><font color="red"> diagLR_</font>
+<dd>: (Natural,Natural) -&gt; Matrix(`a) -&gt; [`a]
+<p> <font color=#D00090>diagLR_ (i,j) x</font> 
+is the left-to-right diagonal of matrix
+x that contains the entry at row i, column j (numbering from 0).
+For example, if x is the matrix E above, 
+then <font color=#D00090>diagLR_(0,1) x</font> is list
+[b,g,l], since the b is in row 0, column 1.  
+If there is no such entry, then diagLR_ fails with exception
+subscriptX.
+
+<a name=diagRL></a>
+<p><dt><font color="red"> diagRL</font>
+<dd>: (Natural,Natural) -&gt; Matrix(`a) -&gt; [`a]
+<p> <font color=#D00090>diagRL (i,j) x</font> 
+is the right-to-left diagonal of matrix
+list x that contains the entry at row i, column j (numbering from 1).
+For example, if x is the matrix E above, 
+then <font color=#D00090>diagRL(1,4) x</font> is list
+[d,g,j].  If there is no such entry, then diagRL fails with exception
+subscriptX.
+
+<a name=diagRLzero></a>
+<p><dt><font color="red"> diagRL_</font>
+<dd>: (Natural,Natural) -&gt; Matrix(`a) -&gt; [`a]
+<p> <font color=#D00090>diagRL_ (i,j) x</font> 
+is the right-to-left diagonal of matrix
+x that contains the entry at row i, column j (numbering from 0).
+For example, if x is the matrix E above, 
+then <font color=#D00090>diagRL_(1,2) x</font> is list
+[d,g,j], since the g is in row 1, column 2.  
+If there is no such entry, then diagRL_ fails with exception
+subscriptX.
+
+<a name=row></a>
+<p><dt><font color="red"> row</font>
+<dd>: Natural -&gt; Matrix(`a) -&gt; [`a]
+<p> <font color=#D00090>row n x</font> 
+is the n-th row of matrix x, numbering
+from 1.  For example, if x is the matrix E above, then row 2 x is
+list [e,f,g,h].
+This fails with exception subscriptX if there is no such row.
+
+<a name=rowzero></a>
+<p><dt><font color="red"> row_</font>
+<dd>: Natural -&gt; Matrix(`a) -&gt; [`a]
+<p> <font color=#D00090>row_ n x</font> 
+is the n-th row of matrix x, numbering
+from 0.  For example, if x is the matrix E above, then row_ 2 x is
+list [i,j,k,l].
+This fails with exception subscriptX if there is no such row.
+
+<a name=rows></a>
+<p><dt><font color=red> rows</font>
+<dd>: Matrix(`a) -&gt; [[`a]]
+<p> <font color=#D00090>rows x</font> is a list of
+the rows of matrix x.  For example, if x is the matrix
+E above, then rows x is list
+<pre>
+        [[a,b,c,d],
+         [e,f,g,h],
+         [i,j,k,l]]
+</pre>
+
+<a name=splitAtLeft></a>
+<p><dt><font color=red>splitAtLeft</font>
+<dd>: Matrix(`a) -&gt; ([`a], Matrix(`a))
+<p> <font color=#D00090>splitAtLeft x</font> returns the pair
+consisting of the leftmost column of matrix x and the matrix obtained
+by removing the leftmost column of x.
+For example, if x is the matrix E above,
+then splitAtLeft x is pair ([a,e,i],A) where A is matrix
+<pre>
+    b c d
+    f g h
+    j k l
+</pre>
+
+<a name=splitAtTop</a>
+<p><dt><font color=red>splitAtTop</font>
+<dd>: Matrix(`a) -&gt; ([`a], Matrix(`a))
+<p> <font color=#D00090>splitAtTop x</font> returns the pair
+consisting of the first row of matrix x and the matrix obtained
+by removing the first row of x.
+For example, if x is the matrix E above,
+then splitAtTop x is pair ([a,b,c,d],A) where A is matrix
+<pre>
+    e f g h
+    i j k l
+</pre>
+
+</dl>
+
+</dl>
+
+<a name=modify></a>
+<hr>
+<h2><font color=mediumblue>Modifying a matrix</font></h2>
+
+<dl>
+<a name=sharpeq></a>
+<p><dt><font color=red>#=</font>
+<dd>: (Matrix(`a), ((Natural,Natural),`a)) -&gt; Matrix(`a) 
+<p> <font color=#D00090>x #= ((m,n),v)</font> 
+is matrix obtained from x by replacing
+x#(m,n) by v.
+
+<a name=sharpzeroeq></a>
+<p><dt><font color=red>#_=</font>
+<dd>: (Matrix(`a), ((Natural,Natural),`a)) -&gt; Matrix(`a) 
+<p> <font color=#D00090>x #_= ((m,n),v)</font> 
+is matrix obtained from x by replacing
+x#_(m,n) by v.
+
+<a name=transpose></a>
+<p><dt><font color=red>transpose</font>
+<dd>: Matrix(`a) -> Matrix(`a)
+<p><font color=#D00090>transpose(m)</font> is the transpose
+of matrix m.  (If t is the transpose of m, then rows of t are
+columns of m, and columns of t are rows of m.)
+</dl>
+
+<a name=size></a>
+<hr>
+<h2><font color=mediumblue>Getting the size</font></h2>
+
+<dl>
+
+<a name=ncols></a>
+<p><dt><font color="red"> ncols</font>
+<dd>: Matrix(`a) -&gt; Natural
+<p> <font color=#D00090>ncols x</font> 
+is the number of columns in matrix x.
+
+<a name=nrows></a>
+<p><dt><font color="red"> nrows</font>
+<dd>: Matrix(`a) -&gt; Natural
+<p> <font color=#D00090>nrows x</font> 
+is the number of rows in matrix x.
+
+</dl>
+
+<a name=mapping></a>
+<hr>
+<h2><font color=mediumblue> Mapping</font></h2>
+
+<dl>
+
+<a name="map"></a>
+<p><dt><font color="red"> map </font>
+<dd>: (`a -&gt; `b) -&gt; (Matrix(`a) -&gt; Matrix(`b))
+<p><font color=#D00090>map f m</font> 
+is the result of replacing each member x of matrix
+m by f(x).
+</dl>
+
+<hr>
+<center>
+<a href="read.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="setlib.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,434 @@
+%% File: string.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================================
+Package		 	Astarte_StringImp 
+
+			Implements "string"
+====================================================================
+
+====================================================================
+Directory standard.
+Import 
+  "thread/semaphor";
+  "collect/listfun";
+  "lang/char"
+%Import
+
+====================================================================
+Advise nowarn missingDefinition all.
+====================================================================
+
+Abbrev StringBox = <:String:>.
+
+====================================================================
+%% 		 	Character sets
+====================================================================
+
+Let digitsSet           = denseSet "0123456789".
+Let newlineOrPercentSet = denseSet "\n%".
+Let newlineSet		= denseSet "\n".
+Let whiteSpaceSet       = denseSet " \t\n\{13}".
+Let tabNlSet            = denseSet "\t\n".
+Let commaParensSet      = denseSet ",()".
+Let parensSet           = denseSet "()".
+
+====================================================================
+%% 			++>
+====================================================================
+
+Let ?a ++> ?b = a ++ " " ++ b.
+
+====================================================================
+%% 			wsFlatten
+====================================================================
+
+Let wsFlatten = rfold(nil,++>). 
+
+====================================================================
+%% 			filterComments
+====================================================================
+
+Define filterComments ?s =
+  Await then
+
+    %%--------------------------------------------------------
+    %% We grab a line at a time, to keep from scanning over
+    %% too much before going lazy.
+    %%--------------------------------------------------------
+
+    Match (?n,?r,?) = scanForChar(s, ' ', newlineOrPercentSet, true).
+
+    Choose first matching r
+
+      %%--------------------------------------------------------
+      %% If r is nil, then there is no newline or % in s.  So
+      %% just return s.
+      %%--------------------------------------------------------
+
+      case [] => s
+
+      %%--------------------------------------------------------
+      %% If r begins with "%%", then pull off the comment and
+      %% recur.  Note that rr begins with a newline, or is empty.
+      %% The newline is considered part of the comment.
+      %%--------------------------------------------------------
+
+      case ['%','%' & ?rest] =>
+	Match (?,?rr,?) = scanForChar(rest, ' ', newlineSet, true).
+	(s##(0,n) ++ If nil? rr then nil else tail rr %If)
+
+      %%--------------------------------------------------------
+      %% Otherwise, just return this line plus filterComments of
+      %% the remaining lines.  Get n+1 characters, which will
+      %% include the % or newline found at the scanForChar
+      %% for % or newline.
+      %%--------------------------------------------------------
+
+      else => s##(0,n+1) ++ filterComments(tail r)
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			wrapLines
+====================================================================
+
+%%-----------------------------------
+%% wrapLinesHelp wraps a single line.
+%%-----------------------------------
+
+Define wrapLinesHelp ?n ?s =
+  Await then
+    Let a = s##(0,n).
+    Let b = s##(n,largenum).
+    If nil? b
+      then a
+      else a ++ "\n" ++ wrapLinesHelp n b
+    %If
+  %Await
+%Define
+
+============
+Let wrapLines ?n ?s =
+  Await then
+    If nil? s then nil else
+      Match (?aLine,?rest) = pullLine(s).
+      (wrapLinesHelp n aLine ++ wrapLines n rest)
+    %If
+  %Await
+%Let
+
+====================================================================
+%% 			indentLines
+====================================================================
+
+Let indentLines ?n ?s =
+  Let indent_l = dup n ' '.
+  Let indent_f ?x = indent_l ++ x.
+  Value flatten(map indent_f (breakIntoLines s)).
+%Let
+
+=====================================================================
+%% 			toLower
+%%			toUpper
+====================================================================
+
+Let toLower(?s) = pack(map toLower s).
+Let toUpper(?s) = pack(map toUpper s).
+
+=====================================================================
+%% 			parensAround
+====================================================================
+
+Let parensAround(?l) = "("  ++  (l _separateBy_ ", ")  ++  ")".
+
+====================================================================
+%% 			blank?
+====================================================================
+
+Let blank? ?s = nil?(skipWS(s)).
+
+====================================================================
+%% 			wsExplode
+====================================================================
+
+Define wsExplode = pulls pullString.
+
+====================================================================
+%% 			expandTabs
+====================================================================
+
+Define expandTabsHelp (?n,?m) ?s =
+  Let spaces = pack(dup n ' ').
+  Match spanOthers tabNlSet ?pref_l ++ ?rest_l= s.
+  Choose
+    case nil? rest_l => pref_l
+    
+    do Match (?found_l, ?afterTab_l) = listToPair(rest_l).
+    
+    case found_l == '\n' => pref_l ++ "\n" ++ expandTabsHelp (n,0) s
+    
+    else => 
+      Let k = length(pref_l).
+      Let preflen_l = m + k.
+      Let preflenmod_l = preflen_l _mod_ n.
+      Let tabChars_l = n -- preflenmod_l.
+      (pref_l 
+       ++ spaces##(preflenmod_l, n)
+       ++ expandTabsHelp (n, preflen_l + tabChars_l) afterTab_l)
+  %Choose  
+%Define
+
+============
+
+Let expandTabs ?n ?s = expandTabsHelp (n,0) s.
+
+====================================================================
+%% 			pullString
+====================================================================
+
+Let pullString ?s =
+
+  %%--------------------------------------------------------
+  %% Skip over leading white space.
+  %%--------------------------------------------------------
+
+  Let rest1 = skipWS(s).
+  Choose first matching rest1
+
+    %%-----------------------------------------------------------------
+    %% If there is only white space, fail with exception listExhaustedX.
+    %%-----------------------------------------------------------------
+
+    case [] => fail listExhaustedX
+
+    %%--------------------------------------------------------
+    %% If the string starts with a ", then read a quoted string.
+    %%--------------------------------------------------------
+    
+    case ['"' & ?] _also_ ?x => pull x
+    
+    %%--------------------------------------------------------
+    %% If the string does not begin with a ", then get a 
+    %% maximal non-white-space string.
+    %%--------------------------------------------------------
+
+    case spanOthers whiteSpaceSet ?x ++ ?rest2 =>
+      Subcases
+	case nil? rest2 => (rest1,nil)
+	else => (x, rest2)
+      %Subcases
+  %Choose
+%Let
+
+====================================================================
+%% 			readChar
+====================================================================
+
+Let readChar(?b) = c |
+  Extract [[?c]] from b.
+%Let
+
+===============
+
+Let readChar() = readChar(stdin!).
+
+====================================================================
+%% 			readNonblankChar
+====================================================================
+
+Let readNonblankChar(?b) = c |
+  Extract [white, [?c]] from b.
+%Let
+
+===============
+
+Let readNonblankChar() = readNonblankChar(stdin!).
+
+====================================================================
+%% 			readString
+====================================================================
+
+Let readString (?b) = s |
+  Extract [theString(?s)] from b.
+%Let
+
+============
+
+Let readString() = readString stdin!.
+
+====================================================================
+%% 			pullWS
+====================================================================
+
+Let pullWS ?s = (x, r) |
+  Match span whiteSpaceSet ?x ++ ?r = s.
+%Let
+
+====================================================================
+%%			pullLine
+====================================================================
+
+Let pullLine(?s) =
+  {not nil? s else listExhaustedX}
+  Match spanOthers newlineSet ?x ++ ?r = s.
+  If nil? r
+    then (s, nil)
+    else (x, tail r)
+  %If
+%Let
+
+====================================================================
+%%			breakIntoLines
+====================================================================
+
+Let breakIntoLines ?l =
+  Await l then
+    Choose first
+      case nil? l => []
+      do Match (?n,?r) = maybeFindMember (newlineSet, true) l.
+      case nil? r => [l]
+      else => l##(0,n) :: breakIntoLines(tail r)
+    %Choose
+  %Await
+%Let
+
+====================================================================
+%% 			readLine 
+====================================================================
+
+Let readLine(?b) = l |
+  Extract [theLine(?l)] from b.
+%Let
+
+============
+
+Let readLine() = readLine(stdin!).
+
+====================================================================
+%% 			readUpToN
+====================================================================
+
+Let readUpToN (?b) ?n = result |
+  Extract [theUpToN n ?result] from b.
+%Let
+
+============
+
+Let readUpToN = readUpToN stdin!.
+
+
+====================================================================
+%% 			read
+====================================================================
+
+Let read(?b) = result |
+  Extract [$(?result)] from b.
+%Let 
+
+============
+
+Let read() = read stdin!.
+
+=====================================================================
+%%			pullBalanced
+=====================================================================
+
+Let pullBalancedHelp (?l,?search_l,?x) =
+
+  Loop (?n, ?depth_l, ?rst) = (0, 0, x)
+    do Match (?m,?rr) = maybeFindMember(search_l, true) rst.
+
+    exitcase nil? rr =>
+      If depth_l == 0 
+        then (n+m, nil)
+	else fail testX
+      %If
+    
+    loopcase head(rr) == l =>
+      continue (n+m+1, depth_l + 1, tail(rr))
+    
+    else =>  %% head(rr) == right paren
+      Subcases
+        exitcase depth_l == 0 => fail testX
+	exitcase depth_l == 1 => (n+m+1, tail(rr))
+	loopcase else         => continue (n+m+1, depth_l -- 1, tail(rr))
+      %Subcases
+  %Loop
+%Let
+
+===================================
+      
+Let pullBalanced (?l,?r) ?x =
+  Let search_l = denseSet[l,r].
+  Match (?n, ?rest_l) = pullBalancedHelp(l,search_l,x).
+  Value (x ## (0,n), rest_l).
+%Let
+
+=====================================================================
+%%			pullBalToComma
+=====================================================================
+%% pullBalToComma(s) returns a pair (n,r) where the n is the length of the
+%% shortest prefix of s that is balanced w.r.t. parentheses, and is
+%% immediately followed by either a comma or right parenthesis.  r
+%% is the suffix of s starting at the comma or right parenthesis.
+====================================================================
+
+Let pullBalToComma(?s) =
+  Loop (?n,?dpth,?r) = (0,0,s) first
+    do Let stopAt = If zero? dpth then commaParensSet else parensSet %If.
+       Match (?k,?t,?) = scanForChar(r, ' ', stopAt, true).
+
+    exitcase nil? t => (n+k,nil)
+
+    do Match [?nextch & ?rest] = t.
+
+    exitcase nextch == ',' => (n+k, t)
+
+    loopcase nextch == '(' => continue (n+k+1, dpth+1, rest)
+
+    exitcase zero? dpth    => (n+k, t)
+
+    loopcase else          => continue (n+k+1, dpth--1, rest)
+  %Loop
+%Let 
+
+=====================================================================
+%%			pullParenListHelp
+=====================================================================
+%% pullParenListHelp(s) returns a pair (l,r) where l is the list of
+%% comma-separated, balanced strings in s, and r is the rest.  List l
+%% is in reverse order.
+====================================================================
+
+Let pullParenListHelp(?s) =
+  Loop (?l, ?r) = (nil, s) first
+    exitcase nil? r        => fail conversionX
+
+    do Match (?n,?t) = pullBalToComma(r).
+
+    exitcase nil? t        => fail conversionX
+
+    exitcase head t == ')' => ([r##(0,n) & l], tail t)
+
+    loopcase else          => continue ([r##(0,n) & l], tail t)
+  %Loop
+%Let
+
+=====================================================================
+%% 			pullParenList
+====================================================================
+
+Let pullParenList(?s) = (reverse l, rest) |
+  Let ss = skipWS(s).
+  {not nil? ss _and_ head ss == '(' else conversionX}
+  Match (?l,?rest) = pullParenListHelp(tail ss).
+%Let
+
+=====================================================================
+
+%Package

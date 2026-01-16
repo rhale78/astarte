@@ -1,0 +1,20 @@
+Package testexec 
+
+%% Test some errors with Execute dcls
+
+Let x:Natural = 1.
+Let x:Integer = 2.
+
+%% The following should complain about unresolvable overload
+
+Execute
+  Writeln[$x].
+%Execute
+
+%% The following should complain the the type is not ().
+
+Execute
+  1
+%Execute
+
+%Package

@@ -1,0 +1,124 @@
+Package usedpref 
+
+%% Test nonemptyPrefix
+
+Directory standard. Import "collect/string"; "collect/boxes".
+
+%% Simple nonshared array
+
+Execute
+  Let a = nonsharedArray(10).
+  Assign a#_4 := 3.
+  Assign a#_0 := 1.
+  Assign a#_1 := 2.
+%%  Let aup = usedPrefix(a).
+  Let anp = nonemptyPrefix(a).
+%%  Writeln[$aup].
+%%  Writeln["a list of 5 nonshared boxes\n"].
+  Writeln[$anp].
+  Writeln["a list of 2 nonshared boxes\n"].
+%Execute
+
+%% Simple shared array
+
+Execute
+  Let a = sharedArray(10).
+  Assign a#_4 := 3.
+  Assign a#_0 := 1.
+  Assign a#_1 := 2.
+%%  Let aup = usedPrefix(a).
+  Let anp = nonemptyPrefix(a).
+%%  Writeln[$aup].
+%%  Writeln["a list of 5 shared boxes\n"].
+  Writeln[$anp].
+  Writeln["a list of 2 shared boxes\n"].
+%Execute
+
+%% Linked list and simple general array (from pack)
+
+Execute
+  Var abx.
+  Assign abx := nil.
+  For ? from 0 _upto_ 9 do 
+    Assign abx := [emptyBox() & @abx].
+  %For
+  Let a = @abx.
+  Let ap = pack a.
+  Assign a#_4 := 3.
+  Assign a#_0 := 1.
+  Assign a#_1 := 2.
+%%  Let aup = usedPrefix(a).
+  Let anp = nonemptyPrefix(a).
+%%  Writeln[$aup].
+%%  Writeln["a list of 5 shared boxes\n"].
+  Writeln[$anp].
+  Writeln["a list of 2 shared boxes\n"].
+
+%%  Let apup = usedPrefix(ap).
+  Let apnp = nonemptyPrefix(ap).
+%%  Writeln[$apup].
+%%  Writeln["a list of 5 shared boxes\n"].
+  Writeln[$apnp].
+  Writeln["a list of 2 shared boxes\n"].
+%Execute
+
+%% Appended list
+
+Execute
+  Var abx.
+  Assign abx := nil.
+  For ? from 0 _upto_ 9 do 
+    Assign abx := @abx ++ [emptyBox()].
+  %For
+  Let a = @abx.
+  Let ap = pack a.
+  Assign a#_4 := 3.
+  Assign a#_0 := 1.
+  Assign a#_1 := 2.
+%%  Let aup = usedPrefix(a).
+  Let anp = nonemptyPrefix(a).
+%%  Writeln[$aup].
+%%  Writeln["a list of 5 shared boxes\n"].
+  Writeln[$anp].
+  Writeln["a list of 2 shared boxes\n"].
+
+%%  Let apup = usedPrefix(ap).
+  Let apnp = nonemptyPrefix(ap).
+%%  Writeln[$apup].
+%%  Writeln["a list of 5 shared boxes\n"].
+  Writeln[$apnp].
+  Writeln["a list of 2 shared boxes\n"].
+%Execute
+
+%% Time out (longer list)
+
+Execute
+  Var abx.
+  Assign abx := nil.
+  For ? from 0 _upto_ 300 do 
+    Assign abx := [emptyBox() & @abx].
+  %For
+  Let a = @abx.
+  Let ap = pack a.
+  Assign a#_250 := 3.
+  Assign a#_0 := 1.
+  Assign a#_1 := 2.
+  Assign a#_2 := 2.
+%%  Let aup = usedPrefix(a).
+  Let anp = nonemptyPrefix(a).
+%%  Writeln[wrapLines 80 $aup, "\n(length is ", $length(aup), ")"].
+%%  Writeln["a list of 251 shared boxes\n"].
+  Writeln[$anp].
+  Writeln["a list of 3 shared boxes\n"].
+
+%%  Let apup = usedPrefix(ap).
+  Let apnp = nonemptyPrefix(ap).
+%%  Writeln[wrapLines 80 $apup, "\n(length is ", $length(apup), ")"].
+%%  Writeln["a list of 251 shared boxes\n"].
+  Writeln[$apnp].
+  Writeln["a list of 3 shared boxes\n"].
+%Execute
+
+
+%Package
+

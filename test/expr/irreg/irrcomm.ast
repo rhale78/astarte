@@ -1,0 +1,40 @@
+Package testirregular 
+
+%% Test irregular functions with communities
+
+Import "misc/check".
+
+Extension
+  Species{noEqual} F1(`a) = `a.
+  Species{noEqual} F2(`a) = `a.
+  Community Comm = F1 | F2.
+  Species{noEqual} W(`a) = irregular Comm`a(`a).
+%Extension
+
+Let{irregular} unw1 ?x = unw x.
+
+Let test(?x) = x | unw | unf1.
+
+Let test1(?x) = x | unw1 | unf1.
+
+Execute
+  Let a = f1(3).
+  Let b = f2(-5).
+  Let w1 = w(a).
+  Let w2 = w(b).
+  Let c = unf1(unw1(w1)).
+  Line[$c, ":", typeOf c].
+  Check["3:Natural"].
+  Let d = unf2(unw1(w2)).
+  Line[$d, ":", typeOf d].
+  Check["-5:Integer"].
+  Let e = test w1.
+  Line[$e, ":", typeOf e].
+  Check["3:Natural"].
+  Let f = test1 w1.
+  Line[$f, ":", typeOf f].
+  Check["3:Natural"].
+%Execute
+
+%Package
+

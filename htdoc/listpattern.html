@@ -1,0 +1,462 @@
+<HTML>
+<head>
+<title>Astarte: list patterns</title>
+</head>
+<body>
+<center>
+<a href="listlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC3. Pattern Matching in Lists</font></h1>
+</center>
+
+<menu>
+  <li><a href=#extract>Pattern forms that extract from boxes</a>
+  <li><a href=#extractpats>Pattern forms for use with Extract</a>
+  <li><a href=#concat>Forms that do not use boxes</a>
+  <li><a href=#fun>Functions for removing prefixes and suffixes of lists</a>
+  <li><a href=#exception>Exceptions</a>
+</menu>
+
+<hr>
+This page describes pattern forms that can be used for
+many different species of lists, including strings.  Forms that are
+specific to strings are described in
+<a href="read.html#pattern">reading from strings</a>.
+
+<p>The following are only available if you import package
+<a href="ast/pattern/listpat.ast">pattern/listpat.ast</a>.
+
+<a name="extract"></a>
+<hr>
+<h2><font color=mediumblue> Pattern forms that extract from boxes </font></h2>
+
+<dl>
+
+<p><dt><font color="red"> Extract</font>
+<dd> Pattern match 
+<font color=#D00090><b><pre>  Extract[p1,p2,...,pn] from b.</pre></b></font> 
+requires that b is a box that contains a list.  
+It matches each pattern p1,...,pn in turn against the content 
+of box b and removes each from the front of the list before doing
+the next match in the sequence.  When the match is finished, box b
+contains what is left over after the last match.
+
+<p>Suppose that
+box b holds a list L, and suppose that p1 matches list x1, p2 matches
+x2, etc.  Then after the match, box b holds the remainder r, where
+L = x1 ++ x2 ++ ... ++ xn ++ r. 
+For example, if x and y each have species Natural and
+stdin! contains &quot;29+347 abc&quot; then
+<font color="#D00090">
+<b><pre>
+  Extract[$(?x), &quot;+&quot;, $(?y)] from stdin!.
+</pre></b>
+</font>
+binds
+<b><pre>
+  x = 29
+  y = 347
+  stdin! := &quot; abc&quot;
+</pre></b>
+This example has used a constant pattern (&quot;+&quot;) and the $ form
+described for <a href=read.html>strings</a>.
+
+<a name=extractlc></a>
+<p><dt><font color=red> extract</font>
+<dd> Pattern match
+<font color=#D00090><b>
+<pre>  Match extract[p1,p2,...,pn] = b.</pre></b></font> 
+is equivalent to
+<font color=#D00090><b><pre>  Extract[p1,p2,...,pn] from b.</pre></b></font> 
+Use this form in situations where you need to put a pattern (for example,
+in a choose-matching expression) but want to do an extract.
+
+</dl>
+<a name="extractpats"></a>
+<hr>
+<h2><font color=mediumblue> Pattern forms for use with Extract </font></h2>
+
+The following are some general pattern forms for use with extract.
+These can be used with any type of list that supports equality tests.
+Other forms that can only be used with lists of characters are
+described in <a href=read.html#pattern>pattern matching in strings</a>.
+
+<dl>
+<p><dt><font color=red> constants</font>
+<dd> If c is a list, then <font color=#D00090>Extract [c] from b.</font>
+removes list c from the front of the content of box b.  If
+c is not a prefix of @b, then this extraction fails 
+with exception testX.
+<p>Example:
+If b contains &quot;brown fox&quot; then
+<font color=#D00090>
+<b><pre>
+  Extract [&quot;brown&quot;] from b.
+</pre></b>
+</font>
+leaves b holding &quot; fox&quot;.  
+
+<p><dt><font color="red">lists</font>
+<dd> A pattern can be a list.  For example, 
+to extract a single member m, use
+<font color=#D00090>
+<b><pre>
+  Extract [[?m]] from b.
+</pre></b>
+</font>
+
+<a name=theN></a>
+<p><dt><font color="red">theN</font>
+<dd>: Natural -&gt; [`a] -&gt; [`a]
+<p> Statement
+<font color=#D00090>
+<b><pre>  Extract[theN n p] from b.</pre></b>
+</font>
+extracts a prefix of n
+members from the content of b, and matches pattern p against them.  
+If there are fewer than n characters, the match fails with
+exception testX.
+
+<a name=theUpToN></a>
+<p><dt><font color="red">theUpToN</font>
+<dd>: Natural -&gt; [`a] -&gt; [`a]
+<p> Statement
+<font color=#D00090>
+<b><pre>  Extract[theUpToN n p] from b.</pre></b>
+</font> 
+extracts a prefix of n
+members from content of b, and matches pattern p against them. 
+If there are fewer than n characters, all of them are extracted.
+
+<a name=span></a>
+<p><dt><font color="red"> span</font>
+<dd>: COLLECTION`c(EQ`a) -&gt; [EQ`a] -&gt; [EQ`a]
+<p> Pattern match 
+<font color=#D00090><b><pre>  Extract[span c p] from b.</pre></b></font> 
+matches a maximal prefix of the content of box b that
+contains only members of collection c. 
+
+<p>Example:
+if box stdin! holds string 
+&quot;aabdcar&quot; before the following example match is performed, then
+x will be bound to string &quot;aab&quot; and stdin! will be set to hold &quot;dcar&quot;.
+<br><font color="#D00090">
+<p>Extract[span &quot;abc&quot; ?x] from stdin!.
+</font>
+
+<a name=spanOthers></a>
+<p><dt><font color="red"> spanOthers</font>
+<dd>: COLLECTION`c(EQ`a) -&gt; [EQ`a] -&gt; [EQ`a]
+<p> Pattern match 
+<font color=#D00090><b><pre>  Extract[spanOthers c p] from b.</pre></b></font> 
+matches a maximal prefix of the content of box b that
+contains only nonmembers of collection c.
+
+<p>Example:
+If box stdin! holds &quot;abaacdacn&quot;, then
+<font color="#D00090"><b><pre>
+  Extract[spanOthers &quot;dn&quot; ?x] = stdin!.
+</pre></b>
+</font>
+<p>binds x to &quot;abaac&quot;, and puts &quot;dacn&quot; in stdin!.
+
+<a name=lookingAt></a>
+<p><dt><font color="red"> lookingAt</font>
+<dd>: EQ`a -&gt; [EQ`a]
+<p> Pattern match 
+<font color=#D00090><b><pre>  Extract[lookingAt c] from b.</pre></b></font> 
+succeeds if list (@b) is a nonempty list and the 
+first member of list (@b) is c.  It does not alter what is
+in box b.  This is used to confirm that a particular member is present.
+
+<a name=lookingAtSatisfying></a>
+<p><dt><font color="red"> lookingAtSatisfying</font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a]
+<p> Pattern match 
+<font color=#D00090><b><pre>  Extract[lookingAtSatisfying f] from b.</pre></b></font>
+succeeds if list (@b) is a nonempty list, and f(head(@b)) is true.
+It does not alter what is in box b.
+
+<a name=lookingAtNilOrSatisfying></a>
+<p><dt><font color="red"> lookingAtNilOrSatisfying</font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a]
+<p> Pattern match 
+<font color=#D00090>
+<b><pre>  Extract[lookingNilOrAtSatisfying f] from b.</pre></b>
+</font> 
+succeeds if either (@b) is an empty list or (@b) is a nonempty list 
+and f(head(@b)) is true.
+It does not alter what is in box b.
+
+<a name=lookingAtMember></a>
+<p><dt><font color="red"> lookingAtMember</font>
+<dd>: COLLECTION`c(EQ`a) -&gt; [EQ`a]
+<p> lookingAtMember is used to check that an item 
+is a member of a given collection in a pattern match.
+<font color=#D00090>
+<b><pre>  Extract[lookingAtMember c] from b.</pre></b>
+</font> 
+succeeds if the contents of box b (@b) is a 
+nonempty list, and the head of (@b) is a member of collection c.
+This match does not alter what is in box b.
+
+<a name=lookingAtNonmember></a>
+<p><dt><font color="red"> lookingAtNonmember</font>
+<dd>: COLLECTION`c(EQ`a) -&gt; [EQ`a]
+<p> lookingAtNonmember is used to check that an item is
+not a member of a given collection.  
+<font color=#D00090>
+<b><pre>  Extract[lookingAtNonmember c] from b.</pre></b>
+</font> 
+succeeds if (@b) is a nonempty list and 
+head(@b) is not a member of collection c.
+It does not alter what is in box b.
+
+<a name=lookingAtNilOrMember></a>
+<p><dt><font color="red"> lookingAtNilOrMember</font>
+<dd>: COLLECTION`c(EQ`a) -&gt; [EQ`a]
+<p> Pattern match
+<font color=#D00090>
+<b><pre>  Extract[lookingAtNilOrMember c] from b.</pre></b>
+</font> 
+succeeds if either @b is an empty list or @b is a nonempty list
+and head(@b) is a member of collection c.
+It does not alter what is in box b.
+
+<a name=lookingAtNilOrNonmember></a>
+<p><dt><font color="red"> lookingAtNilOrNonmember</font>
+<dd>: COLLECTION`c(EQ`a) -&gt; [EQ`a]
+<p> Pattern match
+<font color=#D00090>
+<b><pre>  Extract(lookingAtNilOrNonmember c) from b.</pre></b>
+</font>
+succeeds if either @b is an empty list or @b is a nonempty list
+and head(@b) is not a member of collection c.
+It does not alter what is in box b.
+
+<a name=lookingAtSublist></a>
+<p><dt><font color="red"> lookingAtSublist</font>
+<dd>: [EQ`a] -&gt; [EQ`a]
+<p> Pattern match 
+<font color=#D00090><b><pre>  Extract[lookingAtSublist p] from b.</pre></b></font> 
+succeeds if list (@b) has p as a prefix.  It does not alter
+what is in box b.  In general, pattern lookingAtSublist p
+matches list p, without modifying the box.
+
+</dl>
+
+<a name="concat"></a>
+<hr>
+<h2><font color=mediumblue> Forms that do not use boxes </font></h2>
+
+Most forms for pattern matching in lists use ++ to allow
+one pattern to follow another.  The forms that are used
+with extract (above) can also be used with ++.  
+For example,
+<font color=#D00090>
+<b><pre>
+  Match span &quot;abc&quot; ?x ++ ?r = &quot;cabacrgca&quot;.
+</pre></b>
+</font>
+binds x to &quot;cabac&quot; and r to &quot;rgca&quot;.  Match
+<font color=#D00090>
+<b><pre>
+  Match ?r ++ span &quot;abc&quot; ?x = &quot;cabacrgca&quot;.
+</pre></b>
+</font>
+binds x to &quot;ca&quot; and binds r to &quot;cabacrg&quot;.  You can also use these forms
+without ++.  Pattern match
+<font color=#D00090>
+<b><pre>
+  Match span &quot;abc&quot; ?x = t.
+</pre></b>
+</font>
+succeeds only if t contains only characters a, b and c, and it
+binds x to t when it succeeds.
+
+<p>Operator ++ can also be used by itself in patterns.  Here
+are descriptions of ++ and related operators.
+
+<dl>
+<a name=concata></a>
+<p><dt><font color="red">++</font>
+<dd>: ([`a], [`a]) -&gt; [`a]
+<p> Pattern match 
+<font color=#D00090><b><pre>  Match ?x ++ ?y = t.</pre></b></font> binds x and y in
+every possibly way (in separate threads) such that
+x ++ y = t.  It uses a stream, so that the pairs
+(x,y) are tried in increasing order by the length of x.
+That is, it backtracks over all solutions.
+
+<p><b>Note.</b> Handling of pattern p ++ q is overridden for
+some kinds of patterns so that it does not use backtracking.
+Instead, it uses special forms.  
+For example,
+<font color=#D00090><b><pre>  Match &quot;abc&quot; ++ ?x = t.</pre></b></font>
+checks to see whether &quot;abc&quot; is 
+a prefix of t, and if so removes it, and binds x to what is left.
+If n has species Natural, then 
+<font color=#D00090>
+<b><pre>
+  Match $(?n) ++ ?x = &quot;345 444&quot;.
+</pre></b>
+</font>
+binds n to 345 and x to &quot; 444&quot;.  It does not try all possible prefixes
+to see if one is a number.  If you want to get backtracking regardless
+of the pattern form, use ++/ instead.
+
+<p><b>Note.</b> Pattern ?x ++ ?y assumes that x and y are examined
+independently.  If a pair (x,y) is returned and that pair is rejected
+without examining all of x or any of y, then no further pairs are returned.
+The idea is that, if you have rejected pair (x,y) without examining
+all of x or any of y, then you will surely also reject all pairs (x',y')
+where x' is longer than x and y' is shorter than y.  
+If this is not the case, use
+function ++! instead of ++ in the pattern.
+
+<a name=concatb></a>
+<p><dt><font color="red">++/</font>
+<dd>: ([`a], [`a]) -&gt; [`a]
+<p> Pattern match
+<font color=#D00090><b><pre>  Match ?x ++/ ?y = t.</pre></b></font> is the same as
+Match ?x ++ ?y = t %Match, but has no special forms.  It always
+uses a stream to get all pairs (x,y) such that x ++ y = t.
+
+<a name=concatc></a>
+<p><dt><font color="red">++//</font>
+<dd>: ([`a], [`a]) -&gt; [`a]
+<p> Pattern match
+<font color=#D00090><b><pre>  Match ?x ++// ?y = t.</pre></b></font> 
+is the similar to
+Match ?x ++/ ?y = t %Match, but it uses Mix rather than
+Stream, so the different options are explored in parallel.
+
+<a name=concatd></a>
+<p><dt><font color="red">++!</font>
+<dd>: ([`a], [`a]) -&gt; [`a]
+<p> Pattern match
+<font color=#D00090><b><pre>  Match ?x ++! ?y = t.</pre></b></font> is the same as
+Match ?x ++/ ?y = t %Match, but it returns all pairs,
+regardless of how the results are examined.  See the note above
+about assumptions on how results are examined.
+
+<a name=firstOccurrence></a>
+<p><dt><font color="red">firstOccurrence</font>
+<dd>: [EQ`a] -&gt; [EQ`a]
+<p> Pattern match
+<font color=#D00090>
+<b><pre>  Match ?x ++ firstOccurrence(a) ++ ?y = t.</pre></b>
+</font>
+finds the first occurrence of list <i>a</i> in list <i>t</i>, 
+binds <i>x</i> to the 
+part of <i>t</i> that occurs before that occurrence and binds <i>y</i> to the
+part that follows that occurrence.  If <i>a</i> does not occur in <i>t</i>,
+then the match fails with exception testX.  
+For example,
+<font color=#D00090>
+<b><pre>
+  Match ?x ++ firstOccurrence(&quot;nip&quot;) ++ ?y = &quot;manipulate&quot;.
+</pre></b>
+</font>
+binds
+<b><pre>
+  x = &quot;ma&quot;
+  y = &quot;ulate&quot;
+</pre></b>
+To use firstOccurrence, you must import
+<a href=ast/collect/findlist.ast>collect/findlist.ast</a>.
+</dl>
+
+<a name="fun"></a>
+<hr>
+<h2><font color=mediumblue> Functions for removing prefixes and suffixes of lists </font></h2>
+
+<dl>
+<a name=pullN></a>
+<p><dt><font color="red">pullN</font>
+<dd>: Natural -&gt; [`a] -&gt; ([`a], [`a])
+<p> <font color=#D00090>(pullN n s)</font> 
+is a pair (w,r) where w is the first n members of s
+and r is the rest of s.
+So s = w ++ r.  If there are fewer than n members in s, then
+pullN n s fails.
+
+<p>Example:
+<font color="#D00090">pullN 4 [6,2,8,9,2,4,6]</font> 
+= ([6,2,8,9],[2,4,6]).
+
+<a name=pullUpToN></a>
+<p><dt><font color="red">pullUpToN</font>
+<dd>: Natural -&gt; [`a] -&gt; ([`a], [`a])
+<p> <font color=#D00090>(pullUpToN n s)</font> 
+is a pair (w,r) where w is the first n members of s
+and r is the rest of s.
+So s = w ++ r.  If there are fewer than n things in the list x,
+then pullUpToN n x = (x,[]).
+<p>Example:
+<br><font color="#D00090">pullUpToN 4 [6,2,8,9,2,4,6] </font>
+= ([6,2,8,9],[2,4,6])
+<br> <font color="#D00090">pullUpToN 4 &quot;ab&quot;</font> 
+= (&quot;ab&quot;, &quot;&quot;).
+
+<a name=pulls></a>
+<p><dt><font color="red">pulls</font>
+<dd>: ([`a] -&gt; (`b, [`a])) -&gt; [`a]   -&gt; [`b]
+<p> <font color=#D00090>(pulls puller s)</font> 
+repeatedly pulls things from list s 
+using puller to do the pull.  puller should be a function that
+acts like one of the pull functions described here or in
+<a href="read.html">string patterns</a>.
+<p>Example:
+Using pull:String -&gt; (Natural, String), natural
+numbers are successively removed from the string.
+<br><font color="#D00090">
+pulls (pull:String -&gt; (Natural, String)) &quot;12 234 99 &quot;</font> = 
+[12, 234, 99].
+
+<p><b>Note:</b> If the puller fails with exception listExhaustedX,
+then pulls assumes the puller is saying there is no useful information
+left, and pulls returns an empty list.
+
+<p>Example:
+<font color=#D00090>pulls (pullN 3) &quot;abcde&quot;</font> = 
+[&quot;abc&quot;].  (The remaining two characters are not enough
+for the required 3; pullN 3 &quot;de&quot; fails 
+with exception listExhaustedX.)
+
+</dl>
+
+<a name=exception></a>
+<hr>
+<h2><font color=mediumblue>Exceptions </font></h2>
+
+<dl>
+<p><dt><font color=red>listExhaustedX</font>
+<dd>: ExceptionSpecies
+<p> List patterns fail with exception listExhaustedX when they
+attempt to get a value from an empty list.
+</dl>
+
+<hr>
+<center>
+<a href="listlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">Next</a>
+</center>
+</body>
+</HTML>

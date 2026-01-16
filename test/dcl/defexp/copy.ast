@@ -1,0 +1,33 @@
+Package copy 
+
+%% Test Let{copy}
+
+Directory standard.  Import "misc/check".
+
+Let{default} z = 1.
+
+Let{copy} w = z.
+
+Let{override} z = 2.
+
+Execute
+  Line[(z:Natural) $$ 3, (w:Natural) $$ 3].
+  Check["  2  1"].
+%Execute
+
+Expect a: REAL`x.
+
+Let{default} a: Natural = 1.
+
+Let{copy} b = a.
+
+Let{override} a = 2.
+
+Execute
+  Line[(a:Natural) $$ 3, (b:Natural) $$ 3].
+  Check["  2  1"].
+  Line[(a:Integer) $$ 3, (b:Integer) $$ 3].
+  Check["  2  2"].
+%Execute
+
+%Package

@@ -1,0 +1,340 @@
+%% File: expect.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_Expect
+=============================================================
+
+=============================================================
+%% This package describes expectation management.
+=============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+=================================================================
+			EXPECTATIONS
+=================================================================
+
+An expectation for an identifier is a possibly polymorphic 
+species expression indicating a set of species for which the
+identifier is defined.  For example, expectation
+
+  f: `a -> `a
+
+indicates that f should be defined for all species of the form
+S -> S, where S is a species.  So, for example, there should be
+a version of f with species Natural -> Natural, and another version
+of species (Natural, Natural) -> (Natural, Natural).
+
+You can set up an expectation in a few ways.  The following descriptions
+tell about expect-declarations and anticipate-declarations.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+==================================================================
+			Export
+==================================================================
+
+Description
+
+ "Expect"	%" ================================================
+		%" 		EXPECTATIONS
+		%" ================================================
+		%"
+		%" Declaration 
+		%"
+		%"   Expect id:S %Expect
+		%"
+		%" creates an expectation that identifier id should
+		%" be defined for every species that is included
+		%" in polymorphic species S.  For example, declaration
+		%"
+		%"   Expect f: (`a,`b) -> Boolean
+		%"
+		%" says that identifier f will be (or has been) defined
+		%" for each species of the form (A,B) -> Boolean.
+		%"
+		%" Expectations can be met either before or after they
+		%" are made, and can be met by polymorphic definitions
+		%" or by a collection of declarations that together
+		%" cover all required species.
+		%"
+		%" When an expectation is given in the export part of
+		%" a package, it is required that the expectation be
+		%" satisfied within that package, either by imports or
+		%" in the export part or in the body.
+		%" So, when an expect-declaration is read during an
+		%" import, the compiler keeps in mind that the imported
+		%" expectation will be met within the imported package.
+		%" It will not allow a conflicting definition to be made.
+		%"
+		%" ================================================
+		%" 		MULTIPLE EXPECTATIONS
+		%" ================================================
+		%"
+		%" Declaration
+		%"
+		%"   Expect x,y,z: S %Expect
+		%"
+		%" abbreviates
+		%"
+		%"   Expect x: S %Expect
+		%"   Expect y: S %Expect
+		%"   Expect z: S %Expect
+		%"
+		%" You can declare any number of identifiers this way.
+		%"
+		%" ================================================
+		%" 		DESCRIPTIONS WITH EXPECTATIONS
+		%" ================================================
+		%"
+		%" You can give a description with an expect-declaration,
+		%" provided you are only expecting one identifier.
+		%" Declaration
+		%"
+		%"   Expect id:S "description" %Expect
+		%"
+		%" abbreviates
+		%"
+		%"   Expect id:S %Expect
+		%"   Description id:S "description" %Description
+		%"
+		%" Often, descriptions are several lines long, and you
+		%" use long string constants for them.  So, for example,
+		%" you might say
+		%"
+		%"   Expect zip: ([`a], [`b]) -> [(`a,`b)]
+		%"      %" [a1,a2,a3] zip [b1,b2,b3] = 
+		%"      %" [(a1,b1),(a2,b2),(a3,b3)].
+		%"      %" In general, zip applies to any two lists of
+		%"      %" the same length.  If the lists have 
+		%"      %" different lengths, then zip fails with 
+		%"      %" exception sizeX.
+		%"   %Expect
+		%"
+		%" ================================================
+		%" 		MODES FOR EXPECT DECLARATIONS
+		%" ================================================
+		%"
+		%" An expect declaration can have modes, in {...}.
+		%" Here are the modes and their meanings.  They can
+		%" be combined in reasonable ways.
+		%"
+		%" assume	Expect{assume} id:S %Expect abbreviates
+		%"		    Expect id:S %Expect
+		%"		    Assume id:S %Assume
+		%"
+		%" missing	Expect{missing} id:S %Expect abbreviates
+		%"		    Expect id:S %Expect
+		%"		    Missing id:S %Missing
+		%"
+		%" pattern	Expect{pattern} id:S %Expect abbreviates
+		%"		    Expect id:S %Expect
+		%"		    Assume id: pattern %Assume
+		%"
+		%" noExport	This mode is used in conjunction with
+		%"		modes 'assume' and 'pattern', and modifies
+		%"		the implicit assume declaration.  For
+		%"		example, Expect{assume,noExport} id:S %Expect
+		%"		abbreviates
+		%"		    Expect id:S %Expect
+		%"		    Assume{noExport} id:S %Assume
+		%"
+		%" private	See import.ast.
+		%"
+		%" override
+		%" underride
+		%" default
+		%" irregular	When an expect declaration is imported,
+		%"		it is treated similarly to a let- or
+		%"		define-declaration.  These modes are
+		%"		used for the implicit definition made
+		%"		in that case.
+		;
+
+ "Anticipate"	%" Declaration 
+		%"
+		%"    Anticipate id:S %Anticipate
+		%"
+		%" is similar to Expect id:S %Expect, but with the
+		%" following differences.
+		%"
+		%" (1) When declaration Expect id:S %Expect is read
+		%"     during an import, it is assumed that id:S will
+		%"     be defined by the imported package.  No such 
+		%"     assumption is made with an anticipate-declaration.
+		%"     So an anticipate declaration has no responsibility
+		%"     associated with it. 
+		%"
+		%" (2) Suppose that polymorphic species S has a variable
+		%"     that ranges over an extensible genus G.
+		%"     Declaration Expect id:S %Expect
+		%"     indicates that definitions will be made in
+		%"     the current package in such a way that, even
+		%"     when a new species is added to G later, say
+		%"     in another package, the definition(s) in this
+		%"     package will still cover all of S.  On the other
+		%"     hand, declaration Anticipate id:S %Anticipate
+		%"     indicates that definitions of id need only cover
+		%"     those species that are actually declared to
+		%"     be members of G.  Typically, any package that
+		%"     adds a new species to G takes on the responsibility
+		%"     to give appropriate definitions of id.
+		%"
+		%" Most features of expect-declarations are shared
+		%" by anticipate-declarations.  For example, you can
+		%" write
+		%"
+		%"   Anticipate x,y,z: S %Anticipate
+		%"
+		%" and you can include a description, as in
+		%"
+		%"   Anticipate g:S "description" %Anticipate
+		%"
+		%" ================================================
+		%" 		IMPLICIT EXPECTAIONS
+		%" ================================================
+		%"
+		%" Suppose that G is an extensible genus, and that
+		%" anticipation
+		%"
+		%"    Anticipate f: G`a -> G`a
+		%"
+		%" has been given.  When a package adds species S to
+		%" genus G, you would usually like for the compiler to 
+		%" realize that this package should take on the
+		%" responsibility to define f:S -> S.  You can force
+		%" the compiler to issue declaration
+		%"
+		%"    Expect f: S -> S.
+		%"
+		%" implicitly if you "mark" the variables.  You mark
+		%" a variable by enclosing it in {...}.  So, for 
+		%" example, you write
+		%"
+		%"    Anticipate f: {G`a} -> {G`a}
+		%"
+		%" (It suffices to mark just one occurrence of the
+		%" variable, but you normally mark them all.)  If
+		%" no variable is marked, then no implicit expectations
+		%" will be made.
+		%"
+		%" You can also suppress the implicit expectations at the
+		%" point where species S is added to genus G, if
+		%" desired.  See lang/genus.ast.
+		%"
+		%" There is a circumstance where no implicit declaration
+		%" will be made.  If the polymorphic species of an
+		%" anticipation has two different marked variables that
+		%" range over genera that are being extended, then
+		%" no implicit expect-declaration will be issued.
+		%" In that case, it is your reponsibility to write
+		%" your own expect declarations.  For example, if
+		%" you write
+		%"
+		%"   Anticipate g: ({G`a}, {G`b}) -> {G`a}
+		%"
+		%" then, when genus G is extended, no implicit
+		%" expect declaration will be made.
+		%"
+		%" ================================================
+		%" 	  MODES FOR ANTICIPATE DECLARATIONS
+		%" ================================================
+		%"
+		%" In addition to mode 'incomplete', you may use
+		%" the modes of expect-declarations, excluding those
+		%" that are used only for implicit definitions
+		%" that are made with expect-declarations.
+		;
+
+ "Missing"	%" When the compiler reaches the end of a package,
+		%" it checks that all expectations have been met.
+		%" Sometimes, you do not intend to meet all expectations.
+		%" You can indicate that certain expectations will not
+		%" be met using a missing-declaration.  Declaration
+		%"
+		%"   Missing x:S %Missing
+		%"
+		%" indicates that no warnings should be given that
+		%" identifier x is not defined for any species in
+		%" polymorphic species S.
+		%"
+		%" If you attempt to use x of any species that is
+		%" is in polymorphic species S, the compiler will
+		%" search for a definition.  (It is permissible to
+		%" create a definition that covers part or all of
+		%" the missing species.  Typically, you only cover
+		%" part of the polymorphic species.)  If no definition
+		%" of the appropriate species is found, then the
+		%" compiler will give a warning that x is being used
+		%" with a species that was declared missing.  You
+		%" can suppress this test if desired by using
+		%" expression (missing x).  You need to do this for
+		%" every occurrence of x where you want to suppress
+		%" the test.
+		%"
+		%" ================================================
+		%" 		MODES FOR MISSING DECLARATIONS
+		%" ================================================
+		%"
+		%" The following modes alter the way a missing
+		%" declaration is handled.
+		%"
+		%"  strong	Declaration Missing{strong} x:S %Missing
+		%"		indicates that no definitions of x for
+		%"		any species in polymorphic species S
+		%"		should be allowed.  You will get a 
+		%"		warning for each attempt to define x
+		%"		for a strongly-missing species.
+		%"
+		%"  imported	Declaration Missing{imported} x:S %Missing
+		%"		indicates that, when the compiler checks
+		%"		that expectations have been met, this 
+		%"		missing-declaration should only cover
+		%"		expectations that are imported by the
+		%"		current package, not expectations that
+		%"		are made in this package.  Use this
+		%"		when an imported package gives too
+		%"		general an expectation, but you do
+		%"		not want your missing-declaration to
+		%"		hide mistakes that you make in this
+		%"		package.
+		%"
+		%"  hide	Sometimes, you want to avoid using
+		%"		definitions that were imported. 
+		%"		Declaration Missing{hide} x:S %Missing
+		%"		is similar to Missing x:S %Missing, 
+		%"		but indicates that the compiler should
+		%"		behave as if no definitions of x for
+		%"		any species in polymorphic species S
+		%"		have been given.  This only affects
+		%"		how the compiler check each occurrence
+		%"		of an identifier, to see if it is
+		%"		using a missing species.  It does not
+		%"		affect the check at the end of the
+		%"		package to see whether expecations have
+		%"		been met.
+		%"
+		%"		A Missing{hide} declaration only marks
+		%"		definitions that were made at the time
+		%"		the missing-declaration was issued as
+		%"		hidden.  Subsequent definitions will not
+		%"		be hidden.
+		%"
+		%" You may write Missing{mode} x,y,z: S %Missing as
+		%" an abbreviation for
+		%"
+		%"   Missing{mode} x: S %Missing
+		%"   Missing{mode} y: S %Missing
+		%"   Missing{mode} z: S %Missing
+		;
+
+ "missing"	%" See "Missing".
+		;
+
+%Description
+
+%Package

@@ -1,0 +1,38 @@
+<HTML>
+<head>
+<title>Astarte: setup</title>
+</head>
+<body>
+
+<h1> Setting up your account </h1>
+
+To use Astarte in the Austin 320 lab at ECU, put one of the
+following directories in your path.
+<ul>
+  <p><li> For use on Sparcstations: /export/other/sparc/bin
+  <p><li> For use on Dells: /export/stu/x86/bin
+</ul>
+You are best off editing
+your .cshrc file.  Find a line that looks like this.
+<pre>
+   set path = (~/bin $OWpaths $lpath /usr/ucb /bin /usr/bin /etc .)
+</pre>
+Add the following after that line.
+<pre>
+   /bin/sparc
+   if ( $status ) then
+     setenv PATH ${PATH}:/export/other/x86/bin
+   else
+     setenv PATH ${PATH}:/export/stu/sparc/bin
+   endif
+</pre>
+Then reread your .cshrc file, by typing 
+<pre>
+   source .cshrc
+</pre>
+You only need to do the source command after modifying .cshrc, not at
+subsequent logins.
+
+</body>
+</HTML>
+

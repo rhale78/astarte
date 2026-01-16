@@ -1,0 +1,25 @@
+Package openfail 
+
+%% Test open scopes with fail
+
+Import "misc/check".
+
+Execute
+  open If 0 == 0 then
+     Let x = 1.
+  else
+     fail testX
+  %If
+  Line[$x].
+  Check["1"].
+
+  open If 0 == 0 then
+     Let y = 1.
+  else
+     {false}
+  %If
+  Line[$y].
+  Check["1"].
+%Execute
+
+%Package

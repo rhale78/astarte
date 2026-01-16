@@ -1,0 +1,19 @@
+Package assume1 export
+
+%% This package and assume2.ast and assume3.ast check that
+%% assumptions and abbreviations are hidden appropriately
+%% at imports.
+
+Abbrev{noExport} AA = Integer.
+Abbrev BB = Integer.
+
+Assume{noExport} nn: Integer.
+Assume mm: Integer.
+
+Import "assume2".
+
+Let g = f.
+Let gg = ff.
+
+%Package
+

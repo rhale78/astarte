@@ -1,0 +1,9 @@
+Package dir2
+
+%% Test directory dcls
+
+Directory "subdir;$".
+Import "dir3".
+Import "collect/search".
+
+%Package

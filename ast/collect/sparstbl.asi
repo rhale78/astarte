@@ -1,0 +1,169 @@
+%% File: sparstbl.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================================
+Package 		Astarte_SparseTblImp
+
+			Implements "sparstbl"
+=======================================================================
+
+Import  "collect/srchtree".
+
+Extension
+  Species{transparent,noEqual,noDollar}
+    SparseTable(ORDER`a, `b) =
+      makeSparseTable(BinarySearchTree (ORDER`a, `b))
+  %Species
+%Extension
+
+Abbrev
+  K     = ORDER`k;
+  V     = `v;
+  TblKV = {SparseTable}(K,V);
+%Abbrev
+
+========================================================================
+
+Bring
+  emptyTable	: TblKV 		from emptyTree;
+  emptyTable?	: TblKV -> Boolean 	from emptyTree?;
+  toList,
+   eagerToList	: TblKV -> [(K,V)];
+  size		: TblKV -> Natural;
+%Bring
+
+========================================================================
+%%			sparseTable
+========================================================================
+
+Let sparseTable   = table.
+
+========================================================================
+%%			sparseMemoize
+========================================================================
+
+Let sparseMemoize = memoize (emptyTable: SparseTable(`?,`?)).
+
+========================================================================
+%%			compareKeys
+%%			keyCompare
+========================================================================
+
+Let compareKeys((?k1,?), (?k2,?)) = compare(k1,k2).
+
+Let keyCompare(?k1, (?k2,?)) = compare(k1,k2).
+
+========================================================================
+%%			+/
+========================================================================
+
+Let makeSparseTable(?t) +/ ?pr = 
+  makeSparseTable(insertIfNotPresent compareKeys t pr)
+%Let
+
+========================================================================
+%%			+//
+========================================================================
+
+Let makeSparseTable(?t) +// ?pr = 
+  makeSparseTable(insertReplacing compareKeys t pr)
+%Let
+
+========================================================================
+%%			update
+========================================================================
+
+Let update (makeSparseTable(?t), ?pr, ?f) =
+  Let f'(?k,?v) = (k,f(v)).
+  Value makeSparseTable(insertUpdating compareKeys t pr f').
+%Let
+
+========================================================================
+%%			_minusKey_
+========================================================================
+
+Let makeSparseTable(?t) _minusKey_ ?k =
+  makeSparseTable(delete keyCompare t k)
+%Let
+
+========================================================================
+%%			_keyMember?_
+========================================================================
+
+Let ?k _keyMember?_ makeSparseTable(?t) =
+  Untrap binarySearchTreeX =>
+    Try
+        Ignore member keyCompare t k.
+      then true
+      else false
+    %Try
+  %Untrap
+%Let
+
+========================================================================
+%%			_in_
+========================================================================
+
+Let ?x _in_ makeSparseTable(?t) =
+  Untrap binarySearchTreeX =>
+    Try
+        Let m = member keyCompare t (left x).
+      then m == x
+      else false
+    %Try
+  %Untrap
+%Let
+
+========================================================================
+%%			memberWithKey
+========================================================================
+
+Let memberWithKey(?k, makeSparseTable(?t)) =
+  Untrap binarySearchTreeX =>
+    Try
+        Let result = member keyCompare t k.
+      then result
+      else fail tableX
+    %Try
+  %Untrap
+%Let
+
+========================================================================
+%%			_at_
+========================================================================
+
+Let ?tbl _at_ ?k = v |
+  Match (?,?v) = memberWithKey(k,tbl).
+%Let
+
+========================================================================
+%%			min
+%%			max
+%%			extractMin
+%%			extractMax
+========================================================================
+
+Let
+  min(makeSparseTable ?t) = min(t) |
+    {not emptyTree? t else tableX};
+  
+  max(makeSparseTable ?t) = max(t) |
+    {not emptyTree? t else tableX};
+  
+  extractMin(makeSparseTable ?t) = (m, makeSparseTable t') |
+    {not emptyTree? t else tableX}
+    Match (?m,?t') = extractMin t.;
+			    
+  extractMax(makeSparseTable ?t) = (m, makeSparseTable t') |
+    {not emptyTree? t else tableX}
+    Match (?m,?t') = extractMax t.;
+%Let
+
+=======================================================================
+%Package
+
+
+

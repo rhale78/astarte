@@ -1,0 +1,319 @@
+%% File: pattern.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=========================================================
+Package 		Astarte_Pattern
+
+			Interface
+===========================================================
+
+Import "listpat".
+
+Extension
+  Species{noEqual}: 
+  
+    PatternFunction(`b -> `a)  = `a -> `b
+    
+      %" A value of species PatternFunction(A -> B) is a pattern
+      %" function that can be used (with *) in patterns as if *p
+      %" had species A -> B.  It is a first class value, so it can be
+      %" passed to functions, for example.
+      %"
+      %" See function patternFunction for how to create a PatternFunction
+      %" value.
+      ;
+      
+    PatternConstant(`a) = `a -> ()
+    
+      %" A value of species PatternConstant(A) is a pattern
+      %" constant that can be used (with *) in patterns as if *p
+      %" had species A.  It is a first class value, so it can be
+      %" passed to functions, for example.
+      %"
+      %" See function patternConstant for how to create a PatternConstant
+      %" value.
+      ;
+      
+    ListPatternFunction(`b -> [`a]) = [`a] -> (`b,[`a])
+        
+      %" A value of species ListPatternFunction(A -> [B]) is a pattern
+      %" function that can be used (with *) in patterns as if *p
+      %" had species A -> [B].  It matches a sublist, and binds its 
+      %" parameter to a value of species A.  A ListPatternFunction
+      %" can be used in conjunction with ++ in patterns, and can
+      %" be used in extract patterns.
+      %"
+      %" A ListPatternFunction is a first class value, so it can be
+      %" passed to functions, for example.
+      %"
+      %" See function listPatternFunction for how to create a 
+      %" ListPatternFunction value.
+      ;
+      
+  ListPatternConstant([`a]) = [`a] -> [`a]
+
+      %" A value of species ListPatternConstant([A]) is a pattern
+      %" constant that can be used (with *) in patterns as if *p
+      %" had species [A].  It matches a sublist.   A ListPatternConstant
+      %" can be used in conjunction with ++ in patterns, and can
+      %" be used in extract patterns.
+      %"
+      %" A ListPatternConstant is a first class value, so it can be
+      %" passed to functions, for example.
+      %"
+      %" See function listPatternConstant for how to create a 
+      %" ListPatternConstant value.
+      ;
+      
+  %Species
+%Extension
+
+==============================================================
+
+Description
+  patternFunction
+  
+    %" patternFunction(f) is a first class pattern function
+    %" that can be used in patterns, by using operator *.
+    %" If p is patternFunction(f), then pattern match
+    %"
+    %"   Match *p(?x) = t.
+    %"
+    %" is equivalent to
+    %"
+    %"   Match ?x = f(t).
+    %"
+    %" If f has type A -> B, then patternFunction(f) has type
+    %" PatternFunction(B -> A), so that *p behaves, in terms of
+    %" its type, like a function of type B -> A.
+    ;
+    
+  patternConstant
+  
+    %" patternConstant(f) is a first class pattern constant
+    %" that can be used in patterns, by using operator *.
+    %" If p is patternConstant(F), then pattern match
+    %"
+    %"   Match *p = t.
+    %"
+    %" is equivalent to
+    %"
+    %"   F(t).
+    %"
+    %" If F has type A -> (), then patternConstant(F) has type
+    %" PatternConstant(A), so that *p behaves, in terms of
+    %" its type, like a constant of type A.
+    ;
+  
+  listPatternFunction
+  
+    %" listPatternFunction(f) is a first class pattern function
+    %" that can be used in patterns, by using operator *.
+    %" If p is listPatternFunction(f), then pattern match
+    %"
+    %"   Match *p(?x) ++ ?rest = t.
+    %"
+    %" is equivalent to
+    %"
+    %"   Match (?x,?rest) = f(t).
+    %"
+    %" That is, f should behave like one of the pull functions
+    %" that pulls a prefix from a list.  Similarly, statement
+    %"
+    %"   Extract *p(?x) from bx.
+    %"
+    %" is equivalent to
+    %"
+    %"   Match (?x,?rst) = f(@bx).
+    %"   Assign bx := rst.
+    %"
+    %" Pattern match
+    %"
+    %"   Match *p(?x) = t.
+    %"
+    %" is equivalent to
+    %"
+    %"   Match (?x,[]) = f(t).
+    %"
+    %" If f has type [A] -> (B,[A]), then listPatternFunction(f) has
+    %" species ListPatternFunction(B -> [A]), so that *p behaves, 
+    %" in terms of its type, like a function of type B -> [A].
+    ;
+  
+  listPatternConstant
+  
+    %" listPatternConstant(f) is a first class pattern constant
+    %" that can be used in patterns, by using operator *.
+    %" If p is listPatternConstant(f), then pattern match
+    %"
+    %"   Match *p ++ ?rest = t.
+    %"
+    %" is equivalent to
+    %"
+    %"   Match ?rest = f(t).
+    %"
+    %" Similarly, statement
+    %"
+    %"   Extract *p from bx.
+    %"
+    %" is equivalent to
+    %"
+    %"   Assign bx := f(@bx).
+    %"
+    %" Pattern match
+    %"
+    %"   Match *p = t.
+    %"
+    %" is equivalent to
+    %"
+    %"   Match [] = f(t).
+    %"
+    %" If f has type [A] -> [A], then listPatternFunction(f) has
+    %" species ListPatternFunction([A]), so that *p behaves, 
+    %" in terms of its type, like a constant of type [A].
+    ;
+
+%Description
+
+==============================================================
+
+Expect{missing,pattern}:
+
+  *: PatternFunction(`b -> `a) -> `b -> `a
+  
+   %" * is used to convert a PatternFunction value (a first
+   %" class pattern function) into a true pattern inside a 
+   %" pattern match.  Write
+   %"
+   %"  Match *p(?n) = tgt.
+   %"
+   %" to run pattern function p, letting it bind n.
+   ;
+   
+  *: PatternConstant(`a) -> `a
+
+   %" * is used to convert a PatternConstant value (a first
+   %" class pattern constant) into a true pattern inside a 
+   %" pattern match.  Write
+   %"
+   %"  Match *p = tgt.
+   %"
+   %" to match pattern p against target tgt.
+   ;
+
+  *: ListPatternFunction(`b -> [`a]) -> `b -> [`a]
+
+   %" * is used to convert a ListPatternFunction value (a first
+   %" class pattern function for pattern matching lin lists) 
+   %" into a true pattern inside a pattern match.  Write
+   %"
+   %"  Match *p(?n) ++ ?rest = tgt.
+   %"
+   %" to run list pattern function p, letting it bind n according
+   %" to a prefix of list tgt, and to bind rest to what follows that 
+   %" prefix.  You can also use *p in Extract statements, such as
+   %"
+   %"  Extract *p(?n) from bx.
+   ;
+
+  *: ListPatternConstant([`a]) -> [`a]
+
+   %" * is used to convert a ListPatternConstant value (a first
+   %" class pattern constant for pattern matching lin lists) 
+   %" into a true pattern inside a pattern match.  Write
+   %"
+   %"  Match *p ++ ?rest = tgt.
+   %"
+   %" to match list pattern function p against a prefix of list tgt, 
+   %" and to bind rest to what follows that prefix.  You can also 
+   %" use *p in Extract statements, such as
+   %"
+   %"  Extract *p from bx.
+   ;
+%Expect
+
+===============================================================
+
+Pattern
+  *(p:PatternFunction(`b -> `a))(?x) =>
+    Match patternFunction(?f) = p.
+    Match ?x = f(target).;
+    
+  *(p:PatternConstant(`a)) =>
+    Match patternConstant(?F) = p.
+    F(target).;
+    
+  *(p:ListPatternFunction(`b -> [`a]))(?x) =>
+    Match listPatternFunction(?puller) = p.
+    Match (?x,[]) = puller(target).;
+    
+  *(p:ListPatternFunction(`b -> [`a]))(?x) ++ ?rest =>
+    Match listPatternFunction(?puller) = p.
+    Match (?x,?rest) = puller(target).;
+    
+  *(p:ListPatternConstant(`a)) =>
+    Match listPatternConstant(?puller) = p.
+    {nil? (puller target)};
+    
+  *(p:ListPatternConstant(`a)) ++ ?rest =>
+    Match listPatternConstant(?puller) = p.
+    Match ?rest = puller(target).;
+%Pattern
+
+===========================================================
+
+Expect
+  const_P	: EQ`a -> PatternConstant(EQ`a)
+  
+  		%" const_P(c) is a pattern constant that matches
+		%" only c.  For example,
+		%"
+		%"   Match *(const_P 4) = 4.
+		%"
+		%" succeeds, but
+		%"
+		%"   Match *(const_P 5) = 4.
+		%"
+		%" fails.
+		;
+		
+  constList_P	: [EQ`a] -> ListPatternConstant([EQ`a])
+  
+  		%" constList_P(c) is a pattern constant that 
+		%" matches only constant c, and can be used in
+		%" list pattern matches.  For example,
+		%"
+		%"  Match *(constList_P "abc") ++ ?rest = "abcdef".
+		%"
+		%" succeeds, binding rest to "def".
+		;
+		
+  span_P	: COLLECTION`?(EQ`a) -> ListPatternFunction([EQ`a] -> [EQ`a])
+  
+  		%" Pattern function *(span_P c) is equivalent to pattern 
+		%" function (span c).  See span.
+		;
+		
+  spanOthers_P	: COLLECTION`?(EQ`a) -> ListPatternFunction([EQ`a] -> [EQ`a])
+  
+  		%" Pattern function *(spanOthers_P c) is equivalent to 
+		%" pattern function (spanOthers c).  See spanOthers.
+		;
+		
+  theN_P	: Natural -> ListPatternFunction([`a] -> [`a])
+  
+  		%" Pattern *(theN_P n)is equivalent to pattern function 
+		%" (theN n).  See theN.
+		;
+
+  theUpToN_P	: Natural -> ListPatternFunction([`a] -> [`a])
+  
+  		%" Pattern *(theUpToN_P n) is equivalent to pattern function 
+		%" (theUpToN n).  See theUpToN.
+		;
+%Expect
+
+%Package

@@ -1,0 +1,13 @@
+Package circconstraint
+
+%% Test types with circular constraints.
+
+Advise show one.
+Execute
+  Let a: `x = 2.
+  Let b: `y constraint (`y >= `x) constraint (`x >= `y) = 3.
+  Let c = a + b.
+  Writeln[$c].
+%Execute
+
+%Package

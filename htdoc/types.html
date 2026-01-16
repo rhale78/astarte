@@ -1,0 +1,357 @@
+<HTML>
+<head>
+<title>Astarte type system</title>
+</head>
+<body>
+<center>
+<a href="tagexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdspecies.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T1. Type System </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#species> Species</a>
+  <li> <a href=#simplespec> Simple species</a>
+  <li> <a href=#fam> Parameterized species</a>
+  <li> <a href=#compxspec> Complex Species</a>
+  <li> <a href=#polymorphism> Polymorphism</a>
+  <li> <a href=#infer> Type inference</a>
+  <li> <a href=#genus> Data Abstractions</a>
+  <li> <a href=#community> Parameterized Data Abstrations</a>
+  <li> <a href=#abbrev> Abbreviations</a>
+  <li> <a href=#seconspec> Secondary species</a>
+  <li> <a href=#irregfunc> Irregular functions</a>
+  <li> <a href=#constraints> Constraints</a>
+  <li> <a href=#constop> Constraints and standard operations</a>
+  <li> <a href=#aspecies> Species as values</a>
+  <li> <a href=#topictypes> Topics on types</a>
+</menu>
+
+<hr>
+Astarte is a typed language with a <i>polymorphic</i> type system.  
+This page discusses a few important aspects of the type system, and
+provides links to other pages that give details.
+
+<a name=species></a>
+<hr>
+<h2><font color=mediumblue>Species</font></h2>
+
+<p>A specific type is called a <font color=blue><i>species</i></font>.  
+<b>Each data item or value has exactly one species.</b>
+For example, the value <i>true</i>
+has species Boolean.  We will occasionally use the word <i>type</i>
+for a species.
+
+<p>Numeric species include Natural, Integer, Rational and Real.  Since each
+value has just one species, there must be a separate value 0 for each
+of these species.  0:Natural is not the same as 0:Integer.
+
+<p>Some symbols have more than one meaning, just as some words have
+more than one meaning.  For example, the constant
+0 can stand for 0:Natural, 0:Integer, 0:Rational or 0:Real.  So it
+names four different values.
+
+<a name=simplespec></a>
+<hr>
+<h2><font color=mediumblue> Simple species </font></h2>
+
+A species is a set of items, or values.  
+For example, species Natural
+contains values 0, 1, 2, ...
+There is a small collection of basic species for you to use,
+including numeric species, species Boolean for truth values,
+and a few others.  The simple species that are provided are
+described in 
+<menu>
+<li>T2. <a href="stdspecies.html">Standard species</a>.
+</menu>  
+You can also create your own species.  See
+<menu>
+<li>T15. <a href="speciesdcl.html">Creating your own species</a>.
+</menu>
+
+<a name=fam></a>
+<hr>
+<h2><font color=mediumblue> Parameterized species </font></h2>
+
+For any species T you can form another species List(T) that
+consists of lists whose members have species T.  
+For example,
+[true,false,false] is an item that has species List(Boolean).
+List is an example of a parameterized species, also called a
+<font color=blue><i>family</i></font>.
+Topics on parameterized species are 
+<menu>
+<li>T3. <a href="stdfam.html">Standard parameterized species</a>,
+<li>T16. <a href=famdcl.html>Creating your own parameterized species</a>.
+</menu>
+
+<a name=compxspec></a>
+<hr>
+<h2><font color=mediumblue> Complex Species </font></h2>
+
+You can build up species from simpler species.  
+For example, given
+any two species A and B, you can form the species (A,B) consisting
+of ordered pairs whose left-hand member has species A and whose
+right-hand member has species B.  Ordered pair (true,&quot;frog&quot;) has
+species (Boolean, String).  
+
+<p>You can also create species of functions.
+For example, 
+Boolean -&gt; Boolean is a the species of a function
+that takes a parameter of species Boolean and produces a result
+of species Boolean.  Ways of constructing complex species
+are discussed in 
+<menu>
+<li>T4. <a href=specexpr.html>Complex species</a>.
+</menu>
+
+<a name="polymorphism"></a>
+<hr>
+<h2><font color=mediumblue> Polymorphism </font></h2>
+
+Consider the function dup(x) = (x,x).  This function should, ideally, be 
+able to work on any species of item x.  
+For example, dup(true) = (true,true)
+(where dup has species Boolean -&gt; (Boolean,Boolean)) and 
+dup(&quot;frog&quot;) = (&quot;frog&quot;,&quot;frog&quot;) (where dup has species 
+String -&gt; (String,String)).  
+Function dup is 
+<font color=blue><em>polymorphic</em></font>.  
+That is, it works on many different types of data.
+
+<p>In a typed programming language, 
+each function must have a type.  What type
+should function dup have?  If we decide that function dup takes
+a parameter of species Boolean, then we preclude using it on a string.
+
+<p>The solution is to introduce 
+<font color=blue><em>type variables</em></font>.  A type variable
+stands for a unknown or arbitrary type.  You can write a type variable
+in Astarte as a grave accent (`) followed by a name for the
+variable.  Often, short variable names such as `a and `b are used.
+The polymorphic type of function dup is `a -&gt; (`a,`a).  
+That is, it is a function
+that takes a parameter of an arbitrary type T and produces a result
+of type (T,T).
+
+<p> Generally, we use the word <em>type</em> for a polymorphic species,
+and <em>species</em> when there is no polymorphism.
+Polymorphism is discussed further in 
+<menu>
+<li>T5. <a href="polymorphism.html">Polymorphism</a>.
+</menu>
+
+<a name=infer></a>
+<hr>
+<h2><font color=mediumblue> Type inference </font></h2>
+
+The compiler performs type inference.  This means that you can write
+programs without including any type information at all, and you
+can begin programming without understanding the type system.  
+The compiler can infer the information that you leave out.
+
+<p>If you get a type error, the compiler will show you the types that
+mismatched.  Unless you are familiar with the type system, this will
+not make much sense to you.  If you do not understand the types, just 
+look carefully at what you wrote; something is wrong with it.  But
+see 
+<menu>
+<li>T10. <a href=typeerror.html>Understanding type errors</a> 
+</menu>
+for hints on how to understand the error messages.
+
+<p> Type inference does not always find the error at the line where
+it occurs.  Sometimes, a mistake that you have made is consistent
+up to a point, and it is only later that the inconsistency becomes
+evident.  You might want to put in some 
+<menu>
+<li>E20. <a href="tagexpr.html">Assumptions or tags</a> 
+</menu>
+to get a more accurate error report.
+
+<p> For more details on type inference, see
+<menu>
+<li>T9. <a href="infer.html">Type inference</a>.
+<li>T24. <a href="defaultdcl.html">Defaults</a>
+</menu>
+
+<a name="genus"></a>
+<hr>
+<h2><font color=mediumblue> Data Abstractions </font></h2>
+
+A data abstraction can be thought of as a set of species.  
+For example, there is a standard
+abstraction RRING that contains the species Integer, Rational and Real.
+We will also use the shorter term 
+<font color=blue><i>genus</i></font> for a data
+abstraction.
+
+<p>Data abstractions are used to limit the values that 
+type variables can take on.
+If you write RRING`a, then you have a variable that can only be one
+of the species in RRING.
+
+<p>The subtraction function (-), 
+for example, is defined to be polymorphic,
+but to work only on species in RRING.  The subtraction function
+itself has type (RRING`a,RRING`a) -&gt; RRING`a.  That is, it takes
+a pair of T's, where T must be one of the species in RRING, and
+produces a result of species T.
+
+<p> Additional topics on data abstractions are 
+<menu>
+<li>T6. <a href="stdgenus.html">Standard data abstractions</a>,
+<li>T11. <a href="hierarchy.html">Relations among data abstractions</a>,
+<li>T17. <a href="genusdcl.html">Creating new data abstractions</a>.
+</menu>
+
+<p>Variables are discussed further in 
+<menu>
+<li>T7. <a href="typevar.html">Type variables</a>.
+</menu>
+Some
+<menu>
+<li>T8. <a href=polyexample.html>Examples of polymorphic types</a> 
+</menu>
+are provided as well.
+
+<a name="community"></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Parameterized Data Abstractions </font></h2>
+
+A parameterized data abstraction can be thought of as a set of
+parameterized species.
+Topics on parameterized data abstractions are
+<menu>
+<li>T12. <a href="commhier.html">Relations among parameterized data abstractions</a>,
+<li>T13. <a href="stdcomm.html">Standard parameterized data abstractions</a>
+and 
+<li>T18. <a href="commdcl.html">Creating new parameterized data abstractions</a>
+</menu>
+</font>
+
+<a name=abbrev></a>
+<hr>
+<h2><font color=mediumblue> Abbreviations </font></h2>
+
+Sometimes it is convenient to abbreviate species.  
+<menu>
+<li>T19. <a href=abbrev.html>Abbrev declarations</a> 
+</menu>
+allow you to do that.
+
+<a name=seconspec></a>
+<hr>
+<h2><font color=mediumblue> Secondary species </font></h2>
+
+Astarte allows you to put off some type checking until run-time.
+This is done by having an item carry around its species with it,
+so that the run-time system can examine the species and determine
+what to do.  This feature is discussed under
+<menu>
+<li>T20. <a href="secondary.html">Secondary species</a>.
+</menu>
+
+<a name=irregfunc></a>
+<hr>
+<h2><font color=mediumblue> Irregular functions </font></h2>
+
+In order to use secondary species effectively, it must be possible
+to extract the intrinsic species (the species that an item carries
+with it) of an item.  Irregular functions do that job.  Read
+about 
+<menu>
+<li>T21. <a href="irregular.html">Irregular functions</a> 
+</menu>
+for how to create and use them.
+
+<a name=constraints></a>
+<hr>
+<h2><font color=mediumblue> Constraints </font></h2>
+
+We have already seen that variables can be constrained as to which
+species they can take on.  
+For example, variable RRING`a can only
+stand for a species in data abstraction RRING.
+
+<p> Astarte provided another form of constraint on type variables,
+allowing you to relate the values of different variables to one
+another.  This mechanism is used with secondary species, and
+is described in 
+<menu>
+<li>T22. <a href="constraint.html">Constraints</a>.
+</menu>
+
+<a name=constop></a>
+<hr>
+<h2><font color=mediumblue> Constraints and standard operations </font></h2>
+
+Some standard operations have constraints in their polymorphic
+types.  You can find out about them at
+<menu>
+<li>T23. <a href="stdconstraint.html">Standard operations with constrained types</a>.
+</menu>
+
+<a name=aspecies></a>
+<hr>
+<h2><font color=mediumblue> Species as values </font></h2>
+
+A species can be made into a value and treated like other values.
+See 
+<menu>
+<li>T25. <a href=aspecies.html>Species as values</a>.
+</menu>
+
+<a name=topictypes></a>
+<hr>
+<h2><font color=mediumblue> Topics on types</font> </h2>
+
+The following is a table of contents of the type section, containing
+the links from this page.
+
+<menu>
+<li>T2. <a href="stdspecies.html">Standard species</a>
+<li>T3. <a href="stdfam.html">Standard parameterized species</a>
+<li>T4. <a href=specexpr.html>Complex species</a>
+<li>T5. <a href="polymorphism.html">Polymorphism</a>
+<li>T6. <a href="stdgenus.html">Standard data abstractions</a>
+<li>T7. <a href="typevar.html">Type variables</a>
+<li>T8. <a href=polyexample.html>Examples of polymorphic types</a> 
+<li>T9. <a href="infer.html">Type inference</a>
+<li>T10. <a href=typeerror.html>Understanding type errors</a> 
+<li>T11. <a href="hierarchy.html">Relations among data abstractions</a>
+<li>T12. <a href="commhier.html">Relations among parameterized data abstractions</a>
+<li>T13. <a href="stdcomm.html">Standard parameterized data abstractions</a>
+<li>T14. <a href="extensiondcl.html">Extension declarations</a>
+<li>T15. <a href="speciesdcl.html">Creating your own species</a>
+<li>T16. <a href=famdcl.html>Creating your own parameterized species</a>
+<li>T17. <a href="genusdcl.html">Creating new data abstractions</a>
+<li>T18. <a href="commdcl.html">Creating new parameterized data abstractions</a>
+<li>T19. <a href=abbrev.html>Abbrev declarations</a> 
+<li>T20. <a href="secondary.html">Secondary species</a>
+<li>T21. <a href="irregular.html">Irregular functions</a> 
+<li>T22. <a href="constraint.html">Constraints</a>
+<li>T23. <a href="stdconstraint.html">Standard operations with constrained types</a>
+<li>T24. <a href="defaultdcl.html">Defaults</a>
+<li>T25. <a href="aspecies.html">Species as values</a>
+<li>T26. <a href="typecontext.html">Left and right context in types</a>
+</menu>
+
+<hr>
+<center>
+<a href="tagexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdspecies.html">Next</a>
+</center>
+</body>
+</HTML>

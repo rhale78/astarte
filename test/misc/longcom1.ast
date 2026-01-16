@@ -1,0 +1,13 @@
+<<<<<
+This file should start out in a long comment.
+
+>>>>>>>>>>
+Package longcom1
+
+Let num = 2.
+
+Execute
+  Writeln["Fine"].
+%Execute
+
+%Package

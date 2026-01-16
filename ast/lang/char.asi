@@ -1,0 +1,63 @@
+%% File: char.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_CharImp
+
+			Implements "char"
+=============================================================
+
+Import "collect/denseset".
+
+=============================================================
+%%			toLower
+=============================================================
+
+Let toLower(?c) = 
+  If 'A' <= c _and_ c <= 'Z'
+    then char(rank(c) -- rank('A') + rank('a'))
+    else c
+  %If
+%Let
+
+=============================================================
+%%			toUpper
+=============================================================
+
+Let toUpper(?c) = 
+  If 'a' <= c _and_ c <= 'a'
+    then char(rank(c) -- rank('a') + rank('A'))
+    else c
+  %If
+%Let
+
+=============================================================
+%%			letter?
+%%			lower?
+%%			upper?
+%%			digit?
+%%			white?
+=============================================================
+
+Let 
+  letter?(?c) = 'a' <= c _and_ c <= 'z' _or_ 'A' <= c _and_ c <= 'Z';
+  lower?(?c)  = 'a' <= c _and_ c <= 'z';
+  upper?(?c)  = 'A' <= c _and_ c <= 'Z';
+  digit?(?c)  = '0' <= c _and_ c <= '9';
+  white?(?c)  = c _in_ " \t\n\{13}";
+%Let
+
+=============================================================
+%%			printable?
+=============================================================
+
+Let printableChars = 
+  denseSet "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 \t\n!@#$%^&*-_=+|\\/~?.,:;`'\"<>()[]{}"
+%Let
+
+Let printable?(?c) = c _in_ printableChars.
+
+%Package

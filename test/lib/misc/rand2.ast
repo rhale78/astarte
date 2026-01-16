@@ -1,0 +1,22 @@
+Package rand2
+
+%% Test random number generator.
+
+Import "misc/random".
+
+Execute
+  Randomize().
+  Let zeros = 0.
+  Let ones  = 0.
+  For ? from 1 _upto_ 1500000 do
+    If coinToss() == 0 
+      then Relet zeros = zeros + 1.
+      else Relet ones  = ones + 1.
+    %If
+  %For
+  Writeln["zeros: ", $zeros].
+  Writeln["ones : ", $ones].
+  Writeln["Percentage zeros: ", ~(zeros // (zeros + ones)) $$(8,5)].
+%Execute
+
+%Package

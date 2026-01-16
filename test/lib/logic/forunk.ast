@@ -1,0 +1,15 @@
+Package forunk
+
+%% Test what a for loop does with an unknown list
+%% This program should deadlock.
+
+Execute
+  Writeln["Should deadlock"].
+  Var{logic} x holding [Natural].
+  For ? from x do
+    Writeln["I am in the loop"].
+    Fail interruptX.
+  %For
+%Execute
+
+%Package

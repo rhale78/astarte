@@ -1,0 +1,64 @@
+Package rolemod 
+
+%% Test modifiers x/{: ... :}
+
+Import "misc/check".
+
+Extension
+  Species TestType1 = (r1 ~> Natural, r2 ~> Integer, r3 ~> Natural).
+%Extension
+
+Execute
+  Let a = testType1(1,2,3).
+  Let b = a /{:r1~> 5 :}.
+  Line[$b].
+  Check["testType1(5,2,3)"].
+%Execute
+
+Execute
+  Let a = testType1(1,2,3).
+  Let b = a /{: r1~> 5, r3~> 7:}.
+  Line[$b].
+  Check["testType1(5,2,7)"].
+%Execute
+
+Extension 
+  Species TestType2 = tt2a | tt2b(r1~> Natural, r2~> Natural, r3~> Natural).
+%Extension
+
+Execute
+  Let a = tt2b(1,2,3).
+  Let b = a /{: r2~> 9 :}.
+  Line[$b].
+  Check["tt2b(1,9,3)"].
+%Execute
+
+Extension
+  Species{noEqual} TestType3 = (r31~> ANY, r32~> ANY).
+%Extension
+
+Execute
+  Let a = testType3(<<1>>,<<2>>).
+  Let b = a/{:r32~> <<5>>:}.
+  Line[$b].
+  Check["testType3(1,5)"].
+  Let c = a/{:r31~> <<8>>, r32~> <<9>>:}.
+  Line[$c].
+  Check["testType3(8,9)"].
+%Execute
+
+Extension
+  Species{noEqual} TestType4 = tt4a (r41~> ANY, r42~> ANY) | tt4b.
+%Extension
+
+Execute
+  Let a = tt4a(<<1>>,<<2>>).
+  Let b = a/{:r42~> <<5>>:}.
+  Line[$b].
+  Check["tt4a(1,5)"].
+  Let c = a/{: r41~> <<8>>, r42~> <<9>> :}.
+  Line[$c].
+  Check["tt4a(8,9)"].
+%Execute
+
+%Package

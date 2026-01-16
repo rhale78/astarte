@@ -1,0 +1,29 @@
+Package bitvec2
+
+%% Test bitvec, unbitvec for list of boolean
+
+Import "collect/bitvec".
+
+Execute
+  Let l = [true,false,true,true,false].
+  Let a = bitvec(false,l).
+  Let b = bitvec(true,l).
+  Writeln["a = ", $a].
+  Writeln["b = ", $b].
+  
+  Let c:(Boolean, [Boolean]) = unbitvec(a).
+  Let d:(Boolean, [Boolean]) = unbitvec(b).
+  Writeln["c = ", $c].
+  Writeln["d = ", $d].
+  
+  Let e = bitvec(false, []).
+  Let f = bitvec(true, []).
+  Let g:(Boolean, [Boolean]) = unbitvec(e).
+  Let h:(Boolean, [Boolean]) = unbitvec(f).
+  Writeln["e = ", $e].
+  Writeln["f = ", $f].
+  Writeln["g = ", $g].
+  Writeln["h = ", $h].
+%Execute
+
+%Package

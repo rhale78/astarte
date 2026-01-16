@@ -1,0 +1,187 @@
+%% File: operator.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================================
+Package Astarte_Operator 
+=======================================================================
+
+=======================================================================
+%% This package describes how to use and define binary and unary
+%% operators.
+=======================================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+========================================================================
+			Binary Operators
+========================================================================
+
+If op is a binary operator, then 
+
+	a op b
+
+abbreviates (op)(a,b).  For example, 1 + 2 abbreviates (+)(1,2).
+Operators have precedence and associativity levels, to resolve
+ambiguities in binary operator syntax.  For example, * has higher
+precedence than +, so a+b*c is understood to be the same as
+a+(b*c).  Similarly + associates to the left, so a+b+c is
+understood to mean (a+b)+c.  Operator ++, on the other hand, associates
+to the right, so a++b++c is understood to mean a++(b++c).
+You can use parentheses to override precedence and associativity rules.
+
+Here are the standard binary operators, in decreasing order of
+precedence.
+
+	Operators(s)			Associativity    Precedence
+	------------			-------------    ----------
+
+	_opL9_				left		 high
+
+	
+	_opR9_, _o_			right            
+
+	
+	_opL8_,	#, ##, _as_,
+	        _eagerCutBy_		left
+	
+	
+	_opR8_, ^			right
+	
+	
+	_opL7_, *, /, //, _div_, _mod_	left
+
+	
+	_opR7_				right
+	
+	
+	_opL6_, +, -, --, _monus_	left
+	
+	
+	_opR6_				right
+	
+	
+	_opL5_, $$, _upto_, _downto_, 
+	        _leftin_		left
+	
+	
+	_opR5_, ::			right
+
+	
+	_opL4_, +/			left
+	
+
+	_opR4_, ++			right
+	
+	
+	<, >, <=, >=, ==, =/=, 
+	_eq_, _neq_, _is_		none
+	
+	
+	_opL3_				left
+	
+	
+	_opR3_, _and_, _andf_		right
+	
+	
+	_opL2_				left
+	
+
+	_opR2_, _or_, _orf_		right
+	
+	
+	_opL1_, _where_, _also_, 
+	        _orelse_, _orthen_, 
+		_orwith_		left
+	
+	
+	_opR1_, ==>, _implies_ 		right
+	
+
+	_bar_, ||, |			left
+	
+	
+	_butIfFail_			left
+	
+	
+	:=				right            low
+
+Note: Symbols :=, |, _and_, _implies_ and _or_ are reserved.  You cannot
+redefine their meanings or their precedence. 
+
+========================================================================
+			Unary Operators
+========================================================================
+
+Some symbols are unary operators.  If op is a unary operator, then
+
+	op a
+
+is understood to mean (op)(a), but application of a unary operator
+has lower precedence than ordinary function application.  Also, 
+application of unary operators associates to the right, unlike
+ordinary application, which associates to the left.  The standard 
+unary operators are 
+
+	$  +  -  /  //  ^^  @  ~  not
+
+So, for example, if you write - / x, you mean -(/(x)).
+
+
+========================================================================
+			Making Operators Normal
+========================================================================
+
+If op is a binary or unary operator, then you can use (op) as an
+expression, without any special syntactic characteristics.  For
+example, (+) is the addition function.  An operator will be treated
+as a normal identifier when it is followed by any of the following tokens.
+
+	)
+	]
+	}
+	;
+	,
+	.
+	|
+	=
+	%...
+	by
+
+=======================================================================
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=======================================================================
+			Export
+=======================================================================
+
+Description
+
+ "Operator"	%" See package lang/operator.ast for a discussion of
+		%" binary and unary operators.
+		%"
+		%" Declaration
+		%"
+		%"   Operator a(b) %Operator
+		%"
+		%" declares a to be a binary operator with
+		%" the same precedence and associativity
+		%" as b.  Multiple binary operator declarations 
+		%" for a given identifier must be consistent.
+		%"
+		%" Declaration
+		%"
+		%"   Operator a %Operator
+		%"
+		%" declares a to be a unary operator.  It is not a
+		%" good idea to define very many unary operators.
+		%" Doing so will lead to confusion.  You will find
+		%" yourself using extra parentheses to avoid that
+		%" confusion.  But extra parentheses are precisely
+		%" what unary operators are intended to avoid.  So
+		%" keep your unary operators few.
+
+%Description
+
+%Package

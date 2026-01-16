@@ -1,0 +1,144 @@
+<HTML>
+<head>
+<title>Astarte: note to new users</title>
+</head>
+<body>
+<center>
+<a href="syntax.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="expressions.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> M5. A Note to New Users </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#types> Types (Species)</a>
+  <li> <a href=#subtractingnumbers> Subtracting natural numbers</a>
+  <li> <a href=#arithmetic> Arithmetic</a>
+  <li> <a href=#namescapital> Names that start with a capital letter</a>
+</menu>
+
+<hr>
+There are some aspects of Astarte that tend to catch novices by surprise.
+This page calls attention to some.
+
+<a name=types></a>
+<hr>
+<h2><font color=mediumblue> Types (Species) </font></h2>
+
+Astarte is a typed language.  However, it appears to be untyped,
+since you do not need to put explicit type information into your program.  
+The compiler determines type information for you.  Be
+sure that your definitions make sense from a point of 
+view of types, or they will not compile.  If you get a type
+error that you do not understand, try reading
+<a href=typeerror.html>understanding type errors</a>.
+
+<a name=subtractingnumbers></a>
+<hr>
+<h2><font color=mediumblue> Subtracting natural numbers </font></h2>
+
+The library uses type Natural (natural numbers, including 0, 
+but not including any negative numbers)
+for quite a few things.  For example, if you use <i>x</i>#<i>i</i> 
+to select the <i>i</i>-th member of list <i>x</i>, 
+then <i>i</i> must be a natural number.
+
+<p>When subtracting natural numbers, you are supposed to use
+operator --, not operator -.  <i>x</i> -- <i>y</i> 
+is defined to be |<i>x</i> - <i>y</i>|.
+That way, you cannot get a negative answer.  If you use
+ordinary subtraction (-) on natural numbers, you will get
+a type error, because subtraction is not defined on natural numbers.
+
+<a name=arithmetic></a>
+<hr>
+<h2><font color=mediumblue> Arithmetic </font></h2>
+
+Astarte does not allow mixing of numeric types in expressions.
+For example, if <i>n</i> has type Natural and <i>i</i> has type
+Integer, then <i>n</i>+<i>i</i> is not an admissible expression.  
+One way around this
+is to use a unary +.  If <i>n</i> is any kind of number, 
+then +<i>n</i> is the same number possibly converted to another type.
+For example, you can write (+<i>n</i>) + <i>i</i>
+
+<p> Operations are typically polymorphic, allowing several different
+types.  The available types of numeric operations are noted in
+the documentation.  For example, the addition function can have the following
+types.  
+(<i>T</i>,<i>T</i>) -&gt; <i>T</i> indicates that it takes a pair of 
+things of type <i>T</i>, and produces something of type <i>T</i>.
+<b><pre>
+      +: (Natural, Natural) -&gt; Natural
+      +: (Integer, Integer) -&gt; Integer
+      +: (Rational, Rational) -&gt; Rational
+      +: (Real, Real) -&gt; Real
+</pre></b>
+As you can see, there is no definition of type 
+(Natural, Integer) -&gt; Integer.  You cannot add things of different types.
+
+<a name=exponentiation></a>
+<p> Exponentiation is available, but it is a little tricky.  The
+method employed depends on the type of the exponent.  There are
+three different exponentiation operators.
+<ol>
+  <p><li> x^n  is x to the n-th power, where n has type Natural.  x can be
+  any kind of number.
+
+  <p><li> x^/i is x to the i-th power, where i has type Integer.  This 
+  allows negative powers.  x must be of type Rational or Real, or
+  some other type that is closed under division.
+
+  <p><li>x^~r is x to the r-th power, where r has type Real.  
+  The algorithm uses logarithms, and requires that x is not negative.
+</ol>
+For reasons
+that are difficult to explain here, there is no exponentation operator
+where the exponent has type Rational.  
+
+<a name=namescapital></a>
+<hr>
+<h2><font color=mediumblue> Names that start with a capital letter </font></h2>
+
+Names that start with a capital letter are used to name
+types and data abstractions, and also to name procedures, 
+which are functions that are 
+run for their side effects, and do not return values.  
+You must be careful how you use names
+that begin with a capital letter.  
+<b>Don't use names that begin with a capital letter to name your
+own things until you understand them.</b>
+
+<p>Each time you use a procedure P, you must include an end marker %P after
+the use.  For example, you write
+<font color=#D00090>
+<b><pre>
+     Writeln ["Hello"] %Writeln
+</pre></b>
+</font>
+to run procedure Writeln on list ["Hello"].  The end marker can be
+replaced with a period if it occurs on the same line as the name of
+the procedure.  For example, you can write
+<font color=#D00090>
+<b><pre>
+     Writeln ["Hello"].
+</pre></b>
+</font>
+
+<p>There is more detail about procedures in 
+<a href="applyexpr.html#procedure">Procedures</a>.
+
+<hr>
+<center>
+<a href="syntax.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="expressions.html">Next</a>
+</center>
+</body>
+</HTML>

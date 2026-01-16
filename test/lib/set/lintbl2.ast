@@ -1,0 +1,25 @@
+Package TestTable2 
+
+%% Test Package lintbl.ast, operations:
+%%   linMemoize
+
+Directory standard. Import "collect/lintbl".
+
+Team
+  Define fib = linMemoize fibb.
+  Define fibb(?n) =
+    If n <= 1
+      then n
+      else fib(n--1) + fib(n--2)
+    %If
+  %Define
+%Team
+
+Execute
+  Writeln["Table of fibonacci numbers\n"].
+  For ?i from 0 _upto_ 20 do
+    Writeln[i $$ 5, fib(i) $$ 10].
+  %For
+%Execute
+
+%Package

@@ -1,0 +1,94 @@
+%% File: modular.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===================================================================
+Package 		Astarte_Modular 
+
+			Interface
+===================================================================
+
+===================================================================
+%% This package provides species Modular and some basic functions
+%% on modular numbers.  For example, (3 _modulo_ 5) is number
+%% 3 in the field of integers mod 5.  
+%% (3 _modulo_ 5) + (4 _modulo_ 5) == (2 _modulo_ 5).
+%%
+%% Note: Species Modular is put in genus FIELD, in spite of the fact
+%% that Z[n] is only a field when n is prime.  When n is composite,
+%% division can fail, if it there is no appropriate inverse.  When no
+%% inverse of a number exists, division fails with exception
+%% domainX("no inverse").
+===================================================================
+
+Directory standard.
+Import "math/math".
+
+=============================================
+
+Extension
+  Expect species Modular
+    %" Modular is a species of numbers that support modular
+    %" arithmetic.  (n _modulo_ m) is number n, but where
+    %" arithmetic is done modulo m.
+  %Expect
+  
+  Relate Modular isKindOf FIELD.
+%Extension
+
+=============================================
+
+Expect
+  _modulo_ 	: (INTEGER`a, Natural) -> Modular
+  
+  		%" a _modulo_ m is integer a in the ring of integers
+		%" modulo m.  
+		%"
+		%" There is a special case where m = 0.  a _modulo_ 0
+		%" is a value that has no modulus.  In such values,
+		%" ordinary integer arithmetic is done.  They can
+		%" be combined with any other modulus.  Only
+		%" nonnegative integers can be computed in this way.
+		%"
+		%" If a negative number is created with modulus 0,
+		%" the operation that creates it fails with exception
+		%" modulusX.  It is not allowed to compute the
+		%" reciprocal of a modular number with modulus 0.
+		%" Doing so causes failure with exception modulusX.
+  		;
+  	
+  modulus	: Modular -> Natural
+  
+  		%" modulus(a _modulo_ m) = m.
+  		;
+		
+  remainder	: Modular -> Natural
+  
+  		%" remainder(a _modulo_ m) = a.
+  		;
+		
+  _as_		: (INTEGER`a, Modular)  -> Modular;
+  
+  _as_		: (Modular, Modular)    -> Modular;
+%Expect
+
+==============================================
+Missing
+  _as_:  (Modular, SEMIGROUP`x)   -> SEMIGROUP`x;
+  _as_:  (NFIELD`x, Modular)      -> Modular
+%Missing
+==============================================
+Operator _modulo_(_mod_).
+==============================================
+Exception 
+  trap modulusX "Modular operation on numbers with mismatched moduli"
+%Exception
+==============================================
+Pattern ?i _modulo_ ?n  => 
+  Match ?i = + (remainder target).
+  Match ?n = modulus target.
+%Pattern
+==============================================
+%Package

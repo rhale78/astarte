@@ -1,0 +1,62 @@
+<HTML>
+<head>
+<title>Astarte: controlling evaluation</title>
+</head>
+<body>
+<center>
+<a href="random.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="fcpattern.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L13. Controlling Evaluation </font></h1>
+</center>
+
+The following functions can be used to control how evaluation 
+is done.  See <a href="lazyexpr.html">lazy evaluation</a> for
+a discussion of lazy evaluation.
+
+<dl>
+<a name=force></a>
+<p><dt><font color="red"> force </font>
+<dd>: `a -&gt; `a
+<p> <font color=#D00090>force(e)</font> 
+evaluates e up to the point where its top level structure
+is known, and returns e.  For example, if e is a list, then force(e)
+will evaluate e until it is known either that e is the empty list or that
+e is a list that has a head and tail.  The head and tail might not be
+evaluated.
+
+<a name=forceAll></a>
+<p><dt><font color="red"> forceAll </font>
+<dd>: `a -&gt; `a
+<p> forceAll completely evaluatee a value, 
+evaluating all lazy parts.  For example,
+if the value is a list, then the entire list, including all of its 
+members, will be evaluated.  
+<font color=#D00090>forceAll(e)</font> returns the value of e.
+
+<a name=forceList></a>
+<p><dt><font color="red"> forceList </font>
+<dd>: [`a] -&gt; [`a]
+<p> <font color=#D00090>forceList(e)</font> 
+evaluates the entire structure of list e, but not
+the members of the list.  It returns e.
+</dl>
+
+<hr>
+<center>
+<a href="random.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="fcpattern.html">Next</a>
+</center>
+</body>
+</HTML>

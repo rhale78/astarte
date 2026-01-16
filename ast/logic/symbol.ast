@@ -1,0 +1,152 @@
+%% File: symbol.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=============================================================
+Package 		Astarte_Symbol 
+===============================================================
+
+===============================================================
+%% This package implements species Symbol.  A symbol is represented
+%% by a string, but is intended to hide the structure of the
+%% string.
+%%
+%% To construct a symbol, use function #.  For example,
+%% #"mouse" is the symbol mouse.
+===============================================================
+
+===============================================================
+			Export
+===============================================================
+
+Extension
+  Expect{noDollar} species Symbol
+    %" Symbol is a species of symbols, each completely
+    %" described by its name.
+  %Expect
+  
+  Relate Symbol isKindOf ORDER.
+%Extension
+
+===============================================================
+Expect
+  #		: String -> Symbol
+  
+  		%" #(s) is string s, as a symbol.  # is also
+		%" a pattern function.
+		;
+		
+  #		: [String] -> [Symbol]
+  
+  		%" #[a,b,c] = [#a, #b, #c].
+		;
+		
+  $		: Symbol -> String;
+  
+  pull		: String -> (Symbol, String);
+  
+  symbolName	: Symbol -> String
+  
+  		%" symbolName(s) is the name of symbol s.
+		;
+
+  symbolNames	: [Symbol] -> [String]
+  
+  		%" symbolNames([a,b,c]) = [symbolName(a), symbolName(b), 
+		%" symbolName(c)].
+		;
+  
+  symlist	: String -> [Symbol]
+  
+  		%" symlist "abc def ghi" = [#"abc", #"def", #"ghi"].
+		%"
+		%" In general, symlist breaks a string at white space
+		%" and produces a list of the symbols obtained.
+		%"
+		%" Parts of the string that are surrounded by double quotes
+		%" are kept together as individual symbols.  For
+		%" example,
+		%"
+  		%" symlist "\"abc def\" ghi" = [#"abc def", #"ghi"].
+		
+		
+		;
+  
+  compare	: (Symbol, Symbol) -> Comparison;
+  
+  {private}:
+  
+  unmakeSymbol	: Symbol -> String;
+%Expect
+
+===================
+Pattern
+  #(?s) => Match ?s = symbolName(target).;
+  #(?x) => Match ?x = symbolNames(target).
+%Pattern
+
+==================================================
+%%		Begin Implementation
+%% 
+%% The following parts are exported so that the
+%% compiler will be able to expand them.
+==================================================
+
+Extension
+  Species{noDollar} Symbol = makeSymbol String.
+%Extension
+
+==================================================
+%%			symbolName
+%%			symbolNames
+==================================================
+
+Let symbolName = unmakeSymbol.
+
+Bring symbolNames: [{Symbol}] -> [String] from idf.
+
+==================================================
+%%			compare
+==================================================
+
+Bring compare: ({Symbol}, {Symbol}) -> Comparison.
+
+===============================================================
+			Implementation
+===============================================================
+
+Import "collect/string".
+
+==================================================
+%%			#
+==================================================
+
+Let #(?s) = makeSymbol(internString s).
+
+Let # = eagerMap(#).
+
+==================================================
+%%			$
+==================================================
+
+Let $(# ?s) = '#' :: $s.
+
+==================================================
+%%			pull
+==================================================
+
+Let{override} pull(?s) = (#name, rest) |
+  Match white ++ '#'::$(?name:String) ++ ?rest = s.
+%Let
+
+==================================================
+%%			symlist
+==================================================
+
+Define symlist ?s = map (#) (wsExplode s).
+
+==================================================
+%Package
+

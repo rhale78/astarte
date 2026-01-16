@@ -1,0 +1,24 @@
+Synopsis: astc options file
+
+Most common options (<n> is a number, without <> around it.  <file> is a file)
+-a       Show id types from imported packages except standard package.
+-A       Show id types from all imported packages.
+-d       Turn off listing, but show id types.
+-f       Do a full listing, showing both the interface and the implementation.
+-i       Suppress indentation checking.
+-k       Suppress warnings about patterns not being exhaustive.
+-l       Do not write a listing.
+-L<file> Write the listing into file <file>.
+-s       Show types of identifiers at a type error.
+-1       Stop at the first error.
+
+Less common options
+-b       Turn on behavior checking.
+-c       Start reading the program in a long comment.
+-e       Give short error messages.
+-F       List all files read, including imported files.
+-I<dir>  Search directory <dir> for imported files.
+-ns      Do not read standard.ast.
+-nw      Suppress all warnings.
+-p<n>    Set pattern match/expand substitution depth to <n>.
+-w       Give warnings, even those that have been suppressed.

@@ -1,0 +1,553 @@
+<HTML>
+<head>
+<title>Astarte: logic programming</title>
+</head>
+<body>
+<center>
+<a href="functionalprog.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="procedural.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue>Introduction to Logic Programming in Astarte</font></h1>
+</center>
+
+<menu>
+  <li><a href=#logicprog>Logic programming</a>
+  <li><a href=#predicate>Predicates</a>
+  <li><a href=#fact>Stating facts</a>
+  <li><a href=#facts>Basic facts</a>
+  <li><a href=#computation>Computation</a>
+  <li><a href=#vargoal>Unknowns in goals</a>
+  <li><a href=#recursion>Recursion</a>
+  <li><a href=#symbols>Symbols</a>
+  <li><a href=#unification>Unification</a>
+  <li><a href=#append>Logic programming with lists</a>
+  <li><a href=#positive>Positive thinking</a>
+  <li><a href=#cut>Cutting the proof tree</a>
+  <li><a href=#orparallel>Or-parallel logic programming</a>
+</menu>
+
+<hr>
+You will need to import the package 
+<a href=ast/logic/logic.ast>logic/logic.ast</a> to use the
+features discussed here.
+
+<a name=logicprog></a>
+<hr>
+<h2><font color=mediumblue>Logic programming</font></h2>
+
+There is more than one kind of logic programming.  
+The kind described here is representative of the language Prolog.
+
+<p>Like functional programming, logic programming is based on writing facts.
+However, the facts are written in a different form.  Where in functional
+programming the facts are equations, in logic programming the facts are
+implications.  That is, you say that one thing implies another.
+
+<a name=predicate></a>
+<hr>
+<h2><font color=mediumblue>Predicates</font></h2>
+
+<p>In order to use logic programming, we need the notion of a 
+<i>predicate</i>.  A predicate is a function that produces a Boolean
+result.  So it classifies things into just two groups: true and false.
+An example is predicate odd?, where odd?(1) = true but odd?(2) = false.
+
+<p>In logic programming, it is convenient to use a different form of
+predicate.  Instead of producing a Boolean result, a predicate produces
+a result of species ().  That is, it produces no useful information.
+However, the predicate <i>succeeds</i> when it is true, and <i>fails</i>
+when it is false.  The standard predicate odd? (which produces a Boolean
+result) can be made into a funtion that fails on an even number as follows.
+<font color=#D00090>
+<b><pre>
+  Define Odd(?x). = {odd?(x)}.
+</pre></b>
+</font>
+
+In this style, the constant () is thought of as standing for <i>true</i>,
+and {false} stands for <i>false</i>.
+
+<a name=fact></a>
+<hr>
+<h2><font color=mediumblue>Stating facts</font></h2>
+
+Facts are implications, saying that one thing is true if another is
+true.  For example, suppose that Mother(x,y) succeeds if x is the mother
+of y, and we want Parent(x,y) to succeed if x is a parent of y.
+We should certainly state the fact that, if Mother(x,y) is true, then
+Parent(x,y) is also true.
+
+<p>Implications are written backwards.  To say Mother(x,y) implies
+Parent(x,y), you write
+<font color=#D00090>
+<b><pre>
+   case Parent(?x,?y). &lt;- Mother(x,y).
+</pre></b>
+</font>
+
+<p>Just as a function in a functional program can have several
+defining equations, a predicate in logic programming can have several
+defining facts.  Suppose that Father(x,y) succeeds just when x is
+the father of y.  Then here is a definition of the Parent predicate.
+<font color=#D00090>
+<b><pre>
+  Define Parent by all
+    case Parent(?x,?y). &lt;- Mother(x,y).
+    case Parent(?x,?y). &lt;- Father(x,y).
+  %Define
+</pre></b>
+</font>
+
+<a name=facts></a>
+<hr>
+<h2><font color=mediumblue>Basic facts</font></h2>
+
+A program needs to include some facts that are not implications.  They
+can be stated by saying that they are implied by <i>true</i>, which is
+written () in a logic program.  For example, facts about predicates
+Mother and Father can be stated as follows.
+<font color=#D00090>
+<b><pre>
+  Define Mother by all
+    case Mother(&quot;minnie&quot;, &quot;joan&quot;). &lt;- ()
+    case Mother(&quot;joan&quot;, &quot;curly&quot;).  &lt;- ()
+    case Mother(&quot;joan&quot;, &quot;larry&quot;).  &lt;- ()
+  %Define
+
+  Define Father by all
+    case Father(&quot;larry&quot;, &quot;mike&quot;). &lt;- ()
+  %Define
+</pre></b>
+</font>
+
+<a name=computation></a>
+<hr>
+<h2><font color=mediumblue>Computation</font></h2>
+
+Computation is performed using two key tools.
+<ol>
+  <p><li>Choice mode <i>all</i> indicates that backtracking should
+  be used to try the cases.  For example, when you try to compute
+  Parent(x,y), two threads are created.  The first thread tries to
+  compute Mother(x,y), and the second tries to compute Father(x,y).
+  Backtracking is designed to suspend the second thread until the
+  first one fails.  So computation will proceed immediately with
+  Mother(x,y).  But if and when that fails, the computation will
+  resume automatically with the other thread.
+
+  <p><li>Logic programming uses <i>unknowns</i> to represent unknown
+  values that are found by the process of <i>unification</i>
+  during computation.  Unknowns are explored now.
+</ol>
+
+<p>How would you define predicate Grandparent, where Grandparent(x,y)
+is true if x is a grandparent of y?  Clearly, Grandparent(x,y) is true
+(succeeds) if there is some z such that Parent(x,z) succeeds and
+Parent(z,y) succeeds.  But how can z be determined?
+
+<p>The answer is to let the system find z.  Just leave it unknown.  When
+you create an unknown on the right-hand side of &lt;-, you are implicitly
+asking if that unknown exists.  Here is a definition of the Grandparent
+predicate.
+<font color=#D00090>
+<b><pre>
+  Define Grandparent by all
+    case Grandparent(?x,?y). &lt;- Var{logic} z.
+                                Parent(x,z).
+				Parent(z,y).
+  %Define
+</pre></b>
+</font>
+When you create an unknown, make it a logic unknown, as shown for z.
+
+<p>Since predicate Grandparent has only one case, it can be written
+as a single case, as follows.
+<font color=#D00090>
+<b><pre>
+  Define Grandparent(?x,?y). &lt;- 
+    Var{logic} z.
+    Parent(x,z).
+    Parent(z,y).
+  %Define
+</pre></b>
+</font>
+
+
+<p>Computation involves solving equations just as for functional
+programming.  However, now the equation solver binds not only
+pattern variables but also unknowns.  For example, suppose that
+predicates Mother and Father are defined as they are above.
+Computation of Grandparent(&quot;joan&quot;, &quot;mike&quot;) goes as follows.
+<ol>
+  <p><li>There only one fact about Grandparent to use.  It says
+  to create a new unknown z, and then to do Parent(&quot;joan&quot;,z) followed by
+  Parent(z,&quot;mike&quot;).
+
+  <p><li>Computation of Parent(&quot;joan&quot;,z) causes two threads to be tried.
+  The first tries Mother(&quot;joan&quot;, z), the second tries Father(&quot;joan&quot;, z).
+  The Mother thread is tried first.
+
+  <p><li>Computation of Mother(&quot;joan&quot;,z) leads to three threads, for
+  the three cases.  The first thread tries to solve equation
+  <pre> (&quot;joan&quot;,z) = (&quot;minnie&quot;,&quot;joan&quot;)</pre>
+  There is no solution, so this thread fails.  The second thread
+  tries to solve equation
+  <pre> (&quot;joan&quot;,z) = (&quot;joan&quot;,&quot;curly&quot;)</pre>
+  This equation succeeds, binding unknown z to &quot;curly&quot;.  This thread
+  will continue, having finished with Parent(&quot;joan&quot;, z), and will try
+  to prove Parent(z,&quot;mike&quot;).  Note that z is no longer unknown.  It
+  has been bound to &quot;curly&quot;.  Computation of logic programs is
+  <i>active</i>.  It binds unknowns to try to make the computation succeed.
+
+  <p><li> The thread that has bound z to &quot;curly&quot; will fail, since we
+  have no information about &quot;curly&quot; being anyone's parent.  This will
+  cause the program to backtrack and to try the third thread for 
+  Mother(&quot;joan&quot;, z).  That thread tries to solve equation
+  <pre>(&quot;joan&quot;, z) = (&quot;joan&quot;, &quot;larry&quot;)</pre>
+  This equation is solved by binding z to &quot;larry&quot;.  
+
+  <p><li> Now we return to computing Parent(z,&quot;mike&quot;), with z bound to
+  &quot;larry&quot;.  That is, we are trying to compute Parent(&quot;larry&quot;, &quot;mike&quot;).
+  Two treads will be tried, one doing Mother(&quot;larry&quot;, &quot;mike&quot;) (and failing),
+  the other doing Father(&quot;larry&quot;, &quot;mike&quot;) (and succeeding).  When all is
+  done, computation of Grandparent(&quot;joan&quot;, &quot;mike&quot;) succeeds, meaning
+  that it is true.
+</ol> 
+This process is much easier to see in a tree diagram showing the
+threads and whether they succeed or fail.  Here is a diagram of the
+computation of Grandparent(&quot;joan&quot;, &quot;mike&quot;).  Each node of the tree
+contains a list of statements that must be evaluated.
+The diagram is made more compact by using the abbreviations
+J = &quot;joan&quot;, M = &quot;mike&quot;, C = &quot;curly&quot; and L = &quot;larry&quot;.  The successful
+thread is shown in blue.
+<pre>
+                           <font color=blue>Grandparent(J, M)</font>
+                                  <font color=blue>|</font>
+                         <font color=blue>(Parent(J,z). Parent(z,M).)</font>
+                        <font color=blue>/</font>                          \
+  <font color=blue>(Mother(J, z). Parent(z,M).)</font>                    (Father(J,z). Parent(z,M).)
+  /           |                <font color=blue>\</font>                      |
+  |           |                 <font color=blue>\</font>                   .....
+ fail       z = C               <font color=blue>z = L</font>
+              |                   <font color=blue>|</font>
+              |                   <font color=blue>|</font>
+         Parent(C,M).          <font color=blue>Parent(L, M).</font>
+        /           \          /           <font color=blue>\</font>
+   Mother(C,M)  Father(C,M)  Mother(L,M)   <font color=blue>Father(L,M)</font>
+   /   |     \      |        /   |    \       <font color=blue>|</font>
+fail  fail fail    fail   fail fail  fail   <font color=blue>success</font>
+</pre> 
+
+<a name=vargoal>
+<hr>
+<h2><font color=mediumblue>Unknowns in goals</font></h2>
+
+Logic programming allows you to try to compute, or <i>prove</i>, goals
+that contain unknowns.  Suppose, for example, that you compute
+<font color=#D00090>
+<b><pre>
+   Var{logic} who.
+   Grandparent(&quot;joan&quot;, who).
+</pre></b>
+</font>
+Computation of this leads to just one successful thread.  That thread
+binds who = &quot;larry&quot;.  Similarly, computing
+<font color=#D00090>
+<b><pre>
+   Var{logic} who.
+   Grandparent(who, &quot;larry&quot;).
+</pre></b>
+</font>
+leads to a single successful thread that binds who to &quot;joan&quot;. Try writing
+the computation trees to see this.
+
+<a name=recursion>
+<hr>
+<h2><font color=mediumblue>Recursion</font></h2>
+
+You can use recursion in definitions.  For example, here is a 
+definition of predicate Ancestor, where Ancestor(x,y) is true if
+x is an ancestor of y.
+<font color=#D00090>
+<b><pre>
+  Define Ancestor by
+    case Ancestor(?x,?y). &lt;- Parent(x,y).
+    case Ancestor(?x,?y). &lt;- Var{logic} z.
+                             Parent(x,z).
+                             Ancestor(z,y).
+  %Define
+</pre></b>
+</font>
+
+<a name=symbols></a>
+<hr>
+<h2><font color=mediumblue>Symbols</font></h2>
+
+In symbolic computing, you often use names for things in the
+domain of discourse.  We have used names &quot;joan&quot; and &quot;larry&quot;, for
+example.  If you use strings for those names, you find your program
+doing frequent equality tests between those strings.  Equality testing
+involves testing character by character.
+
+<p>The equality tests can be sped up by using <i>symbols</i>.  If
+<i>s</i> is a string the #<i>s</i> is the symbol whose name is <i>s</i>.
+Symbols have the advantage that equality testing is cheap for them.
+(The strings that name symbols are stored in a hash table, so that
+all occurrences of a given symbol point to the same string in memory.
+Comparing symbols for equality is done by comparing the addresses
+where their names are stored, not by looking at the individual
+characters in the names.)
+
+If you use symbols, the definition of the Mother predicate looks like this.
+<font color=#D00090>
+<b><pre>
+  Define Mother by all
+    case Mother(#&quot;minnie&quot;, #&quot;joan&quot;). &lt;- ()
+    case Mother(#&quot;joan&quot;, #&quot;curly&quot;).  &lt;- ()
+    case Mother(#&quot;joan&quot;, #&quot;larry&quot;).  &lt;- ()
+  %Define
+</pre></b>
+</font>
+Alternatively, you can give names to frequently used symbols, and refer
+to them by their names.  For example, you can write
+<font color=#D00090>
+<b><pre>
+   Define 
+     minnie = #&quot;minnie&quot;;
+     joan   = #&quot;joan&quot;;
+     curly  = #&quot;curly&quot;;
+     larry  = #&quot;larry&quot;
+   %Define
+</pre></b>
+</font>
+and then write
+<font color=#D00090>
+<b><pre>
+  Define Mother by all
+    case Mother(minnie, joan). &lt;- ()
+    case Mother(joan, curly).  &lt;- ()
+    case Mother(joan, larry).  &lt;- ()
+  %Define
+</pre></b>
+</font>
+
+<a name=unification></a>
+<hr>
+<h2><font color=mediumblue>Unification</font></h2>
+
+When a logic program is run, you want equality tests to be active.
+That is, they should not just test for equality, but should try to
+solve an equation, binding unknowns to try to make the equation true.
+Active equality testing is called <i>unification</i>.
+
+<p>When a pattern variable occurs two or more times in a pattern,
+the pattern matcher must implicitly do an equality test.  For logic
+programming, you want that equality test to be done using unification.
+If you use the form of definition that we have used here, using
+&lt;- in the cases, all equality testing that is called for in 
+pattern matching is done using unification.
+
+<a name=append></a>
+<hr>
+<h2><font color=mediumblue>Logic programming with lists</font></h2>
+
+Logic programming works well for computing with lists.  For example,
+we can define a predicate Append(x,y,z), which is true just when
+z = x ++ y.  Here is its definition.  Check each case to see why it
+is true.
+<font color=#D00090>
+<b><pre>
+  Define Append by all
+    case Append(nil,    ?a, ?a).     &lt;- ()
+    case Append(?h::?t, ?a, ?h::?r). &lt;- Append(t, a, r).
+  %Define
+</pre></b>
+</font>
+
+The append predicate can be used in several different <i>modes</i>.
+For example, to find the result of appending x and y, you can write
+<font color=#D00090>
+<b><pre>
+  Var{logic} result.
+  Append(x,y,result).
+</pre></b>
+</font>
+Suppose you want to compute result = x _lminus y.  This is the result
+of removing list y from the front of list x.  So [a,b,c,d] _lminus_ [a,b]
+is [c,d].  Here is a definition of _lminus_ using the Append predicate.
+Notice that this definition melds functional and logic programming
+styles.  It uses a predicate defined in a logic programming style
+to implement a function.
+<font color=#D00090>
+<b><pre>
+  Define ?x _lminus_ ?y =
+    Var{logic} result.
+    Append(y, result, x).
+    Value result.
+  %Define
+</pre></b>
+</font>
+This just says, find me a list called result such that Append(y, result, x)
+is true.  That is, x = y ++ result.
+
+<p>A membership testing predicate is also easy to write using Append.
+In this case, we are staying within the logic programming paradigm.
+Suppose Member(x,y) is to succeed just when x is a member of list y.
+<font color=#D00090>
+<b><pre>
+  Define Member(?x,?y). &lt;- 
+    Var{logic} a,b.
+    Append(a, x::b, y).
+  %Define
+</pre></b>
+</font>
+This just says that <i>x</i> is a member of list <i>y</i> just when there exist
+lists <i>a</i> and <i>b</i> such that <i>a</i> ++ (<i>x</i>::<i>b</i>) = <i>y</i>.
+
+<a name=positive></a>
+<hr>
+<h2><font color=mediumblue>Positive thinking</font></h2>
+
+When doing logic programming, think in terms of what is true, not
+in terms of what is false.  Anything that you don't say is presumed
+to be false.  For example, here is a direct definition of the Member
+predicate.
+<font color=#D00090>
+<b><pre>
+  Define Member by all
+    case Member(?x, ?x::?y). &lt;- ()
+    case Member(?x, ?a::?y). &lt;- Member(x,y).
+  %Define
+</pre></b>
+</font>
+
+Here is a definition of a member function in a functional style 
+for contrast.  Notice that there are three cases, one stating
+negative information.  There is no corresponding case in the
+prior definition, because in logic programming you only state
+positive facts.
+<font color=#D00090>
+<b><pre>
+  Define member by first
+    case member(?x,[])     = false
+    case member(?x,?x::?y) = true
+    case member(?x,?a::?y) = member(x,y)
+  %Define
+</pre></b>
+</font>
+
+<a name=cut></a>
+<hr>
+<h2><font color=mediumblue>Cutting the proof tree</font></h2>
+
+Sometimes it is necessary to control the computation of a logic
+program.  One way to do that is in careful ordering of your
+implications, and of the subgoals on the right-hand side of the
+implications.  Another important way of controlling computation
+is via <i>cuts</i>.  A cut destroys other threads, and works as
+follows.
+<ol>
+  <p><li> First, you set a <i>cut point</i> in a thread.
+  <p><li> After computation has progressed for a while, and several
+  threads have possibly been created, one of those threads performs
+  a Cut operation.  The effect of the cut is to destroy all other
+  threads back to the nearest cut point.
+</ol>
+For example, suppose the computation tree looks like this.  Goals
+have been replaced by the word &quot;goal&quot;, and a cut-point is shown.
+<pre>
+                          goal
+                         /    \
+                     goal      goal
+                      |
+                   cut-point
+                      |
+                     goal
+                    /    \
+                 goal     goal
+                /    \
+             goal     goal
+              |
+             Cut
+</pre>
+when the Cut is reached, all other threads (and their associated goals)
+are removed, back to the cut point, yielding
+<pre>
+                          goal
+                         /    \
+                     goal      goal
+                      |
+                   cut-point
+                      |
+                     goal
+                    /
+                 goal
+                /
+             goal
+              |
+             Cut
+</pre>
+To set a cut point, use CutHere ... %CutHere.  The cut point is
+installed when the CutHere construct is entered, and is removed when
+that construct is exited.  You can wrap CutHere ... %CutHere around
+the cases in a definition by cases.  For example, here is a definition
+of the Member predicate that does a cut when a success is reached.
+<font color=#D00090>
+<b><pre>
+  Define Member by all
+    CutHere
+      case Member(?x, ?x::?y). &lt;- Cut.
+      case Member(?x, ?a::?y). &lt;- Member(x,y).
+    %CutHere
+  %Define
+</pre></b>
+</font>
+The effect of the Cut is to prevent the second case from being tried,
+since the thread that would have done that case is destroyed.
+
+<p>Cuts are an important way to decrease memory and time utilization
+by logic programs.  But be careful with them.  It takes careful
+reasoning to understand that a cut is the right thing to do.
+Arguments in favor of cuts are often wrong in practice.
+
+
+<a name=orparallel></a>
+<hr>
+<h2><font color=mediumblue>Or-parallel logic programming</font></h2>
+
+You can cause different threads to be tried in parallel by using
+mode <i>all mixed</i> instead of <i>all</i>.  Here is a definition
+of the member predicate that tries different members in parallel.
+<font color=#D00090>
+<b><pre>
+  Define Member by all mixed
+    case Member(?x, ?x::?y). &lt;- ()
+    case Member(?x, ?a::?y). &lt;- Member(x,y).
+  %Define
+</pre></b>
+</font>
+This kind of programming is called <i>or-parallel</i> because the
+alternative ways of doing something (the branches of an <i>or</i>)
+are tried in parallel.
+
+<p>Be careful with this.  Although it might seem appealing to try things
+in parallel, doing so can be very costly in terms of memory, since
+the different branches of the computation are all using memory
+simultaneously.  It is easy to run out of memory in a parallel search.
+
+
+
+<hr>
+<center>
+<a href="functionalprog.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="procedural.html">Next</a>
+</center>
+</body>
+</HTML>

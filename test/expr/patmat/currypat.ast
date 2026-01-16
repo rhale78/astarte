@@ -1,0 +1,15 @@
+Package currypat
+
+%% Test curried patterns
+
+Import "misc/check".
+
+Pattern p1 ?a b => Match ?a + b = target..
+
+Execute
+  Match p1 ?a 2 + 4 = 20.
+  Line[$a].
+  Check["14"].
+%Execute
+
+%Package

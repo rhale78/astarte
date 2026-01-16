@@ -1,0 +1,17 @@
+Package indent1
+
+%% Check indentation checking
+
+Execute
+  Loop ?i = 0
+    loopcase i < 10 =>
+Writeln["i < 0"].
+       continue i + 1
+    
+    exitcase else =>
+Writeln["else"].
+      Writeln["Done"].
+  %Loop
+%Execute
+
+%Package

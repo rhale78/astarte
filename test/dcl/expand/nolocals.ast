@@ -1,0 +1,19 @@
+Package nolocals export
+
+%% Test pattern match translation in function without locals.
+
+Import "misc/check".
+
+Pattern f(?x,?y) => 
+    Match ?x = target.
+    Match ?y = target.
+%Pattern
+
+Let g(f(?,?)) = 0.
+
+Execute
+  Line[$(g(2,3))].
+  Check["0"].
+%Execute
+
+%Package

@@ -1,0 +1,4 @@
+s#stderr#TRACE_FILE#g
+s#static const short#static const FARR short#
+s#short	yyssa[YYINITDEPTH]#short* yyssa = (short *) alloc(YYINITDEPTH * sizeof(short))#
+s#YYSTYPE	yyvsa[YYINITDEPTH]#YYSTYPE* yyvsa = (YYSTYPE *) alloc(YYINITDEPTH * sizeof(YYSTYPE))#

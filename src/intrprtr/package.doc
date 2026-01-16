@@ -1,0 +1,31 @@
+/**********************************************************************
+ * File:    machine/package.doc
+ * Purpose: Describe input of packages
+ * Author:  Karl Abrahamson
+ **********************************************************************/
+
+When a package is read in by package.c, it is
+put into an array of unsigned characters.  
+The description of the package currently being read in is in
+current_pack_params.  package_descr[n] holds a description of package
+number n, in somewhat less detail. 
+
+
+Functions for getting packages are
+
+read_package(s)		Reads package s, if it has not already been read.
+
+read_to_end(f)		Reads instructions from file f into the package 
+			until an END_I instruction is seen.
+
+do_patches()		Fix up forward label references.
+
+init_package_reader()	Should be called when starting interpreter.
+
+index_at_label(n)	Returns the index stored at global label n.
+
+index_at_addr(s)	Gets the integer n at address *s, moves *s just 
+			beyond that integer, and returns the integer
+			at address *s + n.  Used to get an index whose index
+			is in the code.
+

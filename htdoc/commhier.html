@@ -1,0 +1,91 @@
+<HTML>
+<head>
+<title>Astarte: parameterization and the hierarchy</title>
+</head>
+<body>
+<center>
+<a href="hierarchy.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdcomm.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T12. Parameterization and the Hierarchy</font></h1>
+</center>
+
+<menu>
+  <li> <a href=#param> The parameterized hierarchy</a>
+  <li> <a href=#tyinghierac> Tying together the genus and community hierarchies</a>
+  <li> <a href=#cartesian> Cartesian products and the hierarchy</a>
+</menu>
+
+<a name=param></a>
+<hr>
+<h2><font color=mediumblue> The parameterized hierarchy </font></h2>
+
+A parameterized genus is similar to a genus.  But where a genus is a 
+set of species, a parameterized genus is a set of families.
+To facilitate talking about parameterized genera, we call them
+<font color=blue><i>communities</i></font> 
+(since they are collections of families).
+
+<p>Communities and families are related to one another in much the
+same way as genera and species.  
+For example, there is a 
+subcommunity relation among communities. 
+
+<font color=brown>
+<a name=tyinghierac></a>
+<hr>
+<h2><font color=mediumblue> Tying together the genus and community hierarchies </font></h2>
+
+<p> A family or community can belong to a genus.
+For example, 
+genus ORDER contains species List(T) for
+every species T that is in genus ORDER.  This is done by putting
+family List in genus ORDER.  Lists are ordered lexicographically,
+with members near the front having higher priority.
+So, For example, [2,4,8] &lt; [2,5,2].
+
+<a name=opaque></a>
+<p> There are two kinds of families and communities: 
+<font color=blue><i>opaque</i></font> and 
+<font color=blue><i>transparent</i></font>.
+If you put an opaque family F in a genus G, then G contains
+F(T) for every species T.  If you put a transparent family F in
+genus G, then G contains F(T) for every species T that is a member
+of genus G.
+
+<p> For example, 
+List is a transparent family.  Since List is a
+member of genus ORDER, species List(Natural) is in genus ORDER.
+But List(Complex) is not in ORDER, since species Complex is not
+in genus ORDER.
+
+<a name=cartesian></a>
+<hr>
+<h2><font color=mediumblue> Cartesian products and the hierarchy </font></h2>
+
+Cartesian product (ordered pair) species can also belong to genera.
+Product species are implicitly transparent in both the left and
+right side.  For example, 
+ORDER contains all cartesian product
+species of the form (S,T), where S and T are both members of ORDER.
+Ordered pairs are ordered lexicographically, with (a,b) &lt; (c,d) if
+either a &lt; c or a = c and b &lt; d.
+</font>
+
+<hr>
+<center>
+<a href="hierarchy.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdcomm.html">Next</a>
+</center>
+</body>
+</HTML>
+

@@ -1,0 +1,34 @@
+Package wconv
+
+%% Test conversions involving wrapped numbers.
+
+Import "misc/check".
+
+Execute
+  Assign showIntrinsic! := true.
+%Execute
+
+Execute
+  Let a = +(2:Natural): RFIELD.
+  Line[$a].
+  Check["<<2:Rational>>"].
+%Execute
+
+Execute
+  Let a = +(2:Integer): REAL.
+  Line[$a].
+  Check["<<2:Integer>>"].
+%Execute
+
+Execute
+  Untrap conversionX =>
+    Try
+      Let a = +(2.0):INTEGER.
+      Line[$a].
+      Check["Should not get here"].
+    %Try
+  %Untrap
+%Execute
+
+
+%Package

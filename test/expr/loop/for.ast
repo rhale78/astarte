@@ -1,0 +1,67 @@
+Package testfor 
+
+%% Test for loops
+
+Import "misc/check".
+
+Define factorial1 ?n = @r |
+    Let r = makebox(1).
+    For ?i from 2 _upto_ n do
+      Assign r := @r * i.
+    %For
+%Define
+
+Execute
+  Line[factorial1 0 $$ 10].
+  Check["         1"].
+  Line[factorial1 1 $$ 10].
+  Check["         1"].
+  Line[factorial1 2 $$ 10].
+  Check["         2"].
+  Line[factorial1 3 $$ 10].
+  Check["         6"].
+  Line[factorial1 4 $$ 10].
+  Check["        24"].
+%Execute  
+
+Define PrintSums ?l. =
+  Line[].
+  For (?a, ?b) from l do
+    Moreline[a + b $$ 10].
+  %For
+%Define
+
+Execute
+  PrintSums[(1,2), (3,4), (5,6)].
+  Check["         3         7        11"].
+%Execute
+
+Define PrintBigs ?l. =
+  Line[].
+  For (?n _where_ n > 10) from l do Moreline[n $$ 10]..
+%Define
+
+Execute
+  PrintBigs[].
+  Check[].
+  PrintBigs[2].
+  Check[].
+  PrintBigs[50].
+  Check["        50"].
+  PrintBigs[2,6,35,1,42].
+  Check["        35        42"].
+%Execute
+
+Execute
+  Let l = [[(1,2),(3,4)],[],[(5,6),(7,8),(9,10)]].
+  Line[].
+  For [?h & ?t] from l do
+    Moreline[$h].
+    For (?x,?y) from t do
+       Moreline[$x,$y].
+    %For
+  %For
+  Check["(1,2)34(5,6)78910"].
+%Execute
+
+%Package

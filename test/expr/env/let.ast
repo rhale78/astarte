@@ -1,0 +1,68 @@
+Package lett 
+
+%% Test Let, Define exprs, ids
+
+%% Let 
+
+Execute
+   Let mymax1 =
+     ((?x,?y) => If x < y then y else x %if)
+   %Let
+
+   Let mymax2(?x,?y) =
+     If x < y then y else x %if
+   %Let
+
+   Let mymax3 by one
+     case mymax3((?x,?y) _where_ x <= y) = y
+     case mymax3((?x,?y) _where_ x >= y) = x
+   %Let
+
+   Let mymax4 ?x ?y =
+     If x > y then x else y.
+   %Let
+   
+   Define sum by one
+     case sum 0 ?x = x
+     case sum (?n+1) ?x = sum n x+1
+   %Define
+
+   If mymax1(5,2) =/= mymax2(2,5) _or_ 
+      mymax2(5,2) =/= mymax3(2,5) _or_
+      mymax3(5,2) =/= mymax4 2 5  _or_
+      mymax4 5 2  =/= mymax1(2,5) then
+     Writeln["Bad max "].
+   %If
+
+   If sum 3  6 =/= 9 then Writeln["Bad sum"]..
+%Execute
+
+%% Define -- recursive functions
+
+Execute
+  Define factorial1 = 
+    (?n => If zero? n then 1 else n*factorial1(n--1) %if)
+  %Define
+
+  Define factorial2 ?n =
+    If n == 0 then 1 else n * factorial2(n--1).
+  %Define
+  
+  Define factorial3 by one
+    case factorial3 0 = 1
+    case factorial3 (?n _where_ n > 0) = n * factorial3(n--1)
+  %Define
+
+  For ?i from 0 _upto_ 10 do
+    Let f1 = factorial1(i).
+    Let f2 = factorial2(i).
+    Let f3 = factorial3(i).
+    If f1 =/= f2 _or_ f2 =/= f3 then
+      Writeln["Bad factorials: ", $i, " ", $f1, " ", $f2, " ", $f3].
+    %If
+  %For
+%Execute
+
+%Package
+
+

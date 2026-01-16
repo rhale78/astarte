@@ -1,0 +1,42 @@
+Package testrtv 
+
+%% Test run-time variables
+
+Import "misc/check".
+
+%% The following unwraps a, fetches dollar for the correct type.
+%% The unwrap is in an open if, to check that type survives exit from
+%% a conditional.
+
+Define F (?a,?x). =
+  open If x == 0 
+    then Match ?<<?y>>? = a.
+    else Match ?<<?y>>? = a.
+  %If
+  Line[$(idf(y))].
+%Define
+
+%% Similar, but for a curried function.  Need to check that the 
+%% environment is handled correctly.
+
+Define f ?a ?x =
+  open If x == 0 
+    then Match ?<<?y>>? = a.
+    else Match ?<<?y>>? = a.
+  %If
+  Line[$(idf(y))].
+%Define
+
+
+Execute
+  F (<<2>>:ANY, 0).
+  Check["2"].
+  F (<<2.0>>:ANY, 0).
+  Check["2"].
+  (f (<<2>>:REAL) 0)
+  Check["2"].
+  (f (<<2.0>>:REAL) 0)
+  Check["2"].
+%Execute
+
+%Package

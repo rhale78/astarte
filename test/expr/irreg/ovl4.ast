@@ -1,0 +1,11 @@
+Package spec 
+
+Define{irregular} (f: Natural -> Natural) = forget.
+
+Advise show.
+Execute
+  Let x:Natural = f(2).
+  Writeln[$x].
+%Execute
+
+%Package

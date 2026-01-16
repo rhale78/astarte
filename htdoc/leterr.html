@@ -1,0 +1,36 @@
+<HTML>
+<head>
+<title>Astarte: let for define</title>
+</head>
+<body>
+
+<center>
+<h1><font color=mediumblue> Let for Define </font></h1>
+</center>
+
+If you make a recursive definition using Let instead of Define, you
+will get an error.  For example, definition
+<font color=#D00090>
+<b><pre>
+Let sum by
+  case sum []       = 0
+  case sum (?h::?t) = h + sum(t)
+%Let
+</pre></b>
+</font>
+causes an error message complaining that identifier sum is undefined.
+Fix this by using Define.  The correct definition is
+<font color=#D00090>
+<b><pre>
+Define sum by
+  case sum []       = 0
+  case sum (?h::?t) = h + sum(t)
+%Define
+</pre></b>
+</font>
+
+<hr>
+<a href=index.html>Back to top</a>&nbsp&nbsp
+<a href=trouble.html>trouble shooting</a>
+</body>
+</HTML>

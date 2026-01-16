@@ -1,0 +1,128 @@
+Package testtry 
+
+%% Test Try, {}, exception, fail, untrap
+
+Import "misc/check".
+
+Exception newEx.
+
+Execute
+  Try
+    Let a = 1.
+  then
+    Let b = 2.
+    Line[a $$ 5, b $$ 5].
+    Check["    1    2"].
+  else
+    Write["bad Try\n"].
+  %Try
+
+  Try
+    Let a = 6.
+    Line[$a].
+  %Try
+
+  open Try
+    Let a = 6.
+  else
+    Let a = 5.
+  %Try
+  Line[a $$ 5].
+  Check["    6"].
+
+  Try
+    {false}
+  then
+    Write["bad Try\n"].
+  %Try
+
+  Line[].
+  Try {1 == 1} then Line["good"]. else ().
+  Check["good"].
+  Try {1 == 2} then Writeln["bad"]. else ().
+  Try {1 == 1} then () else Writeln["bad"]..
+  Line[].
+  Try {1 == 2} then () else Line["good"]..
+  Check["good"].
+
+  Line[].
+  Try 
+    Untrap domainX("") =>
+      {false else domainX("fail")}
+    %Untrap
+  then
+    Write["bad Try\n"].
+  else
+    If domainX? exception 
+      then Line["good"].
+      else Line["bad"].
+    %If
+  %Try
+  Check["good"].
+
+  Line[].
+  Try 
+    Untrap domainX("") =>
+      Let e = 2.
+      Line[$e].
+      (fail(domainX "fail2"))
+    %Untrap
+  then
+    Write["bad Try\n"].
+  else
+    If domainX? exception 
+      then Line["good"].
+      else Line["bad"].
+    %If
+  %Try    
+  Check["good"].
+
+  Line[].
+  Try 
+    Untrap all =>
+      Let e = 2.
+      Line[$e].
+      (fail(domainX "fail3"))
+    %Untrap
+  then
+    Write["bad Try\n"].
+  else
+    Try Match domainX(?) = exception.
+      then Line["good"].
+      else Line["bad"].
+    %Try
+  %Try    
+  Check["good"].
+
+  Untrap all =>
+    Try
+      fail emptyListX
+    then
+      Writeln["bad"].
+    else
+      Try
+        fail(domainX "fail4")
+      then
+        Writeln["bad"].
+      else
+        Line[$exception].
+	Check["domainX(\"fail4\")"].
+      %Try
+      Line[$exception].
+      Check["emptyListX"].
+    %Try
+  %Untrap
+%Execute
+
+Execute
+  Try {false else newEx}
+    then Writeln["Bad"].
+    else 
+      Line["exception ", $newEx].
+      Check["exception testtry.newEx"].
+  %Try
+%Execute
+
+%Package
+
+

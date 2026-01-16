@@ -1,0 +1,59 @@
+Package testprint 
+
+%% Test FWriteln
+
+Import "system/system".
+
+Let DoPrint(?f). =
+  FWriteln f, ["lines should be in matching pairs\n"].
+
+  %% basic
+
+  FWriteln f, ["hello"].
+  FWriteln f, ["hello\n"].
+
+  %% appended list
+
+  FWriteln f, ["hello" ++ " and hello again"].
+  FWriteln f, ["hello and hello again\n"].
+
+  %% list
+
+  FWriteln f, [['a','b','c']].
+  FWriteln f, ["abc\n"].
+  Let x = ['c'].
+  Let y = 'b' :: x.
+  Let z = 'a' :: y.
+  FWriteln f, [z].
+  FWriteln f, ["abc\n"].
+
+  %% constructed string
+
+  FWriteln f, [pack(['a','b','c','d','e','f','g'])].
+  FWriteln f, ["abcdefg\n"].
+
+  %% lazy list
+
+  Let a = nonsharedBox [].
+  For ?c from "abcdef" do 
+    Assign a := (:c :: @a:).
+  %For
+  FWriteln f, [@a].
+  FWriteln f, ["fedcba\n"].
+%Let
+
+Execute
+  DoPrint(@stdout!).
+  Writeln["Completed first print"].
+  Let f = outfile("test.out").
+  DoPrint(f).
+  CloseFile(f).
+  Writeln["Completed second print"].
+  Writeln["Current directory: ", getCwd()].
+  Write[infile("test.out")].
+  Writeln["Completed third print"].
+  DoPrint(@stderr!).
+  Writeln["Completed fourth print"].
+%Execute
+%Package
+

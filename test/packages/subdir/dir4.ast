@@ -1,0 +1,9 @@
+Package dir4 export
+
+%% Test directory dcls.  This file is imported by ../dir5.ast.
+
+Execute
+  Writeln["All went well"].
+%Execute
+
+%Package

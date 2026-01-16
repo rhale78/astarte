@@ -1,0 +1,96 @@
+Package except
+
+%% Test standard exception testers, constructors, $.
+
+Import "misc/check".
+
+Import "except2".
+
+Let Test(?x,?t). =
+  Line[$x].
+  If t(x) else 
+    Writeln["Bad exception test on ", $x].
+  %If
+%Let
+
+Execute
+  Test(badInputX, badInputX?).
+  Check["badInputX"].
+  Test(bindUnknownX, bindUnknownX?).
+  Check["bindUnknownX"].
+  Test(cannotSeekX, cannotSeekX?).
+  Check["cannotSeekX"].
+  Test(closedFileX, closedFileX?).
+  Check["closedFileX"].
+  Test(conversionX, conversionX?).
+  Check["conversionX"].
+  Test(domainX("test"), domainX?).
+  Check["domainX(\"test\")"].
+  Test(emptyBoxX, emptyBoxX?).
+  Check["emptyBoxX"].
+  Test(emptyListX, emptyListX?).
+  Check["emptyListX"].
+  Test(infiniteLoopX, infiniteLoopX?).
+  Check["infiniteLoopX"].
+  Test(limitX, limitX?).
+  Check["limitX"].
+  Test(memoryX, memoryX?).
+  Check["memoryX"].
+  Test(noCaseX, noCaseX?).
+  Check["noCaseX"].
+  Test(noDefX("test"), noDefX?).
+  Check["noDefX(\"test\")"].
+  Test(noFileX("test"), noFileX?).
+  Check["noFileX(\"test\")"].
+  Test(sizeX, sizeX?).
+  Check["sizeX"].
+  Test(speciesX, speciesX?).
+  Check["speciesX"].
+  Test(systemX, systemX?).
+  Check["systemX"].
+  Test(testX, testX?).
+  Check["testX"].
+  Test(tooManyFilesX, tooManyFilesX?).
+  Check["tooManyFilesX"].
+  Test(subscriptX, subscriptX?).
+  Check["subscriptX"].
+  Test(noFontX("test"), noFontX?).
+  Check["noFontX(\"test\")"].
+  Test(interruptX, interruptX?).
+  Check["interruptX"].
+  Test(ensureX("test"), ensureX?).
+  Check["ensureX(\"test\")"].
+  Test(requireX("test"), requireX?).
+  Check["requireX(\"test\")"].
+  Test(compareX, compareX?).
+  Check["compareX"].
+  Test(myX("test"), myX?).
+  Check["myX(\"test\")"].
+%Execute
+
+%% The following forces an overload.  Check if that is a problem.
+
+Let compareX?(?x) = x.
+
+Execute
+  Let a = compareX.
+  Match compareX = a.
+  Writeln["Success"].
+%Execute
+
+Execute
+  Let a = domainX("abc").
+  Match domainX(?s) = a.
+  Line[s].
+  Check["abc"].
+%Execute
+
+Execute
+  Let a = myX("abc").
+  Match myX(?s) = a.
+  Line[s].
+  Check["abc"].
+%Execute
+
+%Package
+

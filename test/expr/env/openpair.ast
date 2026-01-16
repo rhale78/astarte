@@ -1,0 +1,18 @@
+Package openpair
+
+%% Test visibility with open pairs, tuples.
+
+Import "misc/check".
+
+Execute
+  open Let p1 = open (Let a = 1., 2).
+  Line[$a, $p1].
+  Check["1((),2)"].
+  open Let p3 = open (Let b = 1., b).
+  open Let p4 = open (Let c = 2., Let d = 3., Let e = 4.).
+  Line[$c, $d, $e, $p3, $p4].
+  Check["234((),1)((),(),())"].
+%Execute
+
+%Package
+

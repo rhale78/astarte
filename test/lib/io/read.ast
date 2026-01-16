@@ -1,0 +1,67 @@
+Package testRead 
+
+%% Test input functions
+
+Import "collect/string".
+
+Execute
+  Let f = infile [] "tstdata.txt".
+  Let fa = makebox(f).
+  Let fb = makebox(f).
+  Let fd = makebox(f).
+  
+  Let i1:Natural = read(fb).
+  Let i2:Natural = read(fb).
+  Let i3:Natural = read(fb).
+  Writeln[i1 $$ 10, i2 $$ 10, i3 $$ 10].
+  Let fc = makebox(@fb).
+  Let fe = makebox(@fb).
+  Let s1 = readLine(fb).
+  Let s2 = readLine(fb).
+  Let s3 = readLine(fb).
+  Let s4 = readLine(fb).
+  Writeln[s1, "\n", s2, "\n", s3, "\n", s4, "\n"].
+
+  %% Force garbage collection.
+
+  For ? from 0 _upto_ 1000 do Let p =  (1,2)..
+
+  Let j1:Natural = read(fa).
+  Let j2:Natural = read(fa).
+  Let j3:Natural = read(fa).
+  Writeln[j1 $$ 10, j2 $$ 10, j3 $$ 10].
+  Let t1 = readLine(fa).
+  Let t2 = readLine(fa).
+  Let t3 = readLine(fa).
+  Let t4 = readLine(fa).
+  Writeln[t1, "\n", t2, "\n", t3, "\n", t4, "\n"].
+
+  Let r1 = readLine(fc).
+  Let r2 = readLine(fc).
+  Let r3 = readLine(fc).
+  Let r4 = readLine(fc).
+  Writeln[r1, "\n", r2, "\n", r3, "\n", r4, "\n"].
+
+  %% Force several garbage collections.
+
+  For ? from 0 _upto_ 10000 do Let p = (1,2)..
+
+  Let k1:Natural = read(fd).
+  Let k2:Natural = read(fd).
+  Let k3:Natural = read(fd).
+  Writeln[k1 $$ 10, k2 $$ 10, k3 $$ 10].
+  Let u1 = readLine(fd).
+  Let u2 = readLine(fd).
+  Let u3 = readLine(fd).
+  Let u4 = readLine(fd).
+  Writeln[u1, "\n", u2, "\n", u3, "\n", u4, "\n"].
+
+  Let v1 = readLine(fe).
+  Let v2 = readLine(fe).
+  Let v3 = readLine(fe).
+  Let v4 = readLine(fe).
+  Writeln[v1, "\n", v2, "\n", v3, "\n", v4, "\n"].
+%Execute
+
+%Package
+

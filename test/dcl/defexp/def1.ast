@@ -1,0 +1,56 @@
+Package testdef1 
+
+%% Test Define declarations
+
+Directory standard. Import "misc/check".
+
+%% Basic
+
+Define uno = 1.
+Execute 
+  Line [uno $$ 10].
+  Check[1 $$ 10].
+%Execute
+
+%% Function with pattern Match
+
+Define f ?x = x.
+Execute 
+  Line [f(uno) $$ 10].
+  Check[1 $$ 10].
+%Execute
+
+%% Curried
+
+Define h ?x ?y = x + y.
+Execute 
+  Line [(h 2 3) $$ 10].
+  Check[5 $$ 10].
+%Execute
+
+%% Default, override.  Places second define beneath first expectation.
+
+Define{default} id ?x = x.
+Define{override} id(?x, ?y) = (y,x).
+Execute
+  Line[id(1) $$ 10].
+  Check[1 $$ 10].
+  Let x = id(1,2).
+  Line["(", left x $$ 0, ",",  right x $$ 0, ")"].
+  Check["(2,1)"].
+%Execute
+
+%% Underride.
+
+Expect id': `a -> `a.
+Define id'(?x, ?y) = (y,x).
+Define{underride} id' ?x = x.
+Execute
+  Line[id'(1) $$ 10].
+  Check["         1"].
+  Let x = id'(1,2).
+  Line["(", left x $$ 0, ",",  right x $$ 0, ")"].
+  Check["(2,1)"].
+%Execute
+
+%Package

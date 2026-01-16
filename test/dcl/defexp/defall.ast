@@ -1,0 +1,71 @@
+Package defall
+
+%% Test definition kinds (unification, all, etc.)
+
+Import "logic/unify".
+
+%% f1 to f6 are correct.
+
+Let f1 by first
+  case f1(nil)      = nil
+  case f1(?h :: ?t) = h :: t
+%Let
+
+Let f2 by all
+  case f2(nil)      = nil
+  case f2(?h :: ?t) = h :: t
+%Let
+
+Let f3 by all
+  case f3(nil)      <- nil
+  case f3(?h :: ?t) <- h :: t
+%Let
+
+Let f4 by all
+  case f4(nil)      <-? nil
+  case f4(?h :: ?t) <-? h :: t
+%Let
+
+Let f5 by first
+  case f5(nil)      <- nil
+  case f5(?h :: ?t) <- h :: t
+%Let
+
+Let f6 by first
+  case f6(nil)      <-? nil
+  case f6(?h :: ?t) <-? h :: t
+%Let
+
+%% The following should be flagged as incorrect.
+
+Let f1a by all
+  case f1a(nil)      = nil
+  case f1a(?h :: ?t) = h :: t
+%Let
+
+Let f2a by one
+  case f2a(nil)      = nil
+  case f2a(?h :: ?t) = h :: t
+%Let
+
+Let f3a by first
+  case f3a(nil)      <- nil
+  case f3a(?h :: ?t) <- h :: t
+%Let
+
+Let f4a by one
+  case f4a(nil)      <-? nil
+  case f4a(?h :: ?t) <-? h :: t
+%Let
+
+Let f5a by all mixed
+  case f5a(nil)      <- nil
+  case f5a(?h :: ?t) <- h :: t
+%Let
+
+Let f6a by all
+  case f6a(nil)      <-? nil
+  case f6a(?h :: ?t) <-? h :: t
+%Let
+
+%Package

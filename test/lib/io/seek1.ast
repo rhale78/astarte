@@ -1,0 +1,18 @@
+Package seek1 
+
+%% Test seeking in files
+
+Import "misc/check".
+
+Execute
+  Let f = infile("tstdata2.txt").
+  Let g = f##(10,20).
+  Line[g].
+  Check["klmnopqrstuvwxyzabcd"].
+
+  Let a = f#_30.
+  Line[$a].
+  Check["'e'"].
+%Execute
+
+%Package

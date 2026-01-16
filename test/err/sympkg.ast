@@ -1,0 +1,7 @@
+Package +
+
+%% Test a package whose name is a symbolic id.
+
+Let f(?x) = x.
+
+%Package

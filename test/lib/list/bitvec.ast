@@ -1,0 +1,517 @@
+Package testbitvec 
+
+Directory standard.
+Import "collect/bitvec"; "misc/check".
+
+%%--------------------- bvNull ---------------------------
+
+Execute
+  Let a = bvNull.
+  Line[$a].
+  Check["0"].
+%Execute
+
+%%--------------------- stringToBitvec  ---------------------------
+
+Execute
+
+  Assume unbitvec: Bitvec -> Integer.
+  
+  Writeln["stringToBitvec"].
+
+  Let sbv1 = stringToBitvec "0".
+  Let sbv2 = stringToBitvec "7".
+  Let sbv3 = stringToBitvec "023".
+  Let sbv4 = stringToBitvec "723".
+  Let sbv5 = stringToBitvec "2".
+  Let sbv6 = stringToBitvec "5".
+  Line
+       [$sbv1, "(", $unbitvec sbv1, ") "]
+    ++ [$sbv2, "(", $unbitvec sbv2, ") "]
+    ++ [$sbv3, "(", $unbitvec sbv3, ") "]
+    ++ [$sbv4, "(", $unbitvec sbv4, ") "]
+    ++ [$sbv5, "(", $unbitvec sbv5, ") "]
+    ++ [$sbv6, "(", $unbitvec sbv6, ")"]
+  %Line
+  Check["0(0) 7(-1) 023(19) 723(-45) 02(2) 75(-3)"].
+%Execute
+
+%%--------------------- bvNot ---------------------------
+
+Execute
+
+  Writeln["bvNot"].
+
+  Let b = bvNot bvNull.
+  Line[$b].
+  Check["7"].
+
+  Let bb = bvNot b.
+  Line[$bb].
+  Check["0"].
+
+  Let c = stringToBitvec "01234567".
+  Let cc = bvNot c.
+  Line[$cc].
+  Check["76543210"].
+
+  Let ccc = bvNot cc.
+  Line[$ccc].
+  Check["01234567"].
+%Execute
+
+%%--------------------- _bvAnd_ ---------------------------
+
+Execute
+
+  Writeln["_bvAnd_"].
+
+  Let c  = stringToBitvec "01234567".
+  Let d  = stringToBitvec "07654321".
+  Let g  = stringToBitvec "71234567".
+  Let gg = stringToBitvec "77654321".
+  Let p  = stringToBitvec "0123456712345671234567".
+  Let q  = stringToBitvec "7123456712345671234567".
+
+  Let e = c _bvAnd_ d.
+  Let e' = d _bvAnd_ c.
+  Line[$c, " ", $d, " ", $e, " ", $e'].
+  Check["01234567 07654321 01214121 01214121"].
+
+  Let h = c _bvAnd_ g.
+  Let h' = g _bvAnd_ c.
+  Line[$c, " ", $g, " ", $h, " ", $h'].
+  Check["01234567 71234567 01234567 01234567"].
+
+  Let k = d _bvAnd_ g.
+  Let k' = g _bvAnd_ d.
+  Line[$d, " ", $g, " ", $k, " ", $k'].
+  Check["07654321 71234567 01214121 01214121"].
+
+  Let l = g _bvAnd_ c.
+  Let l' = c _bvAnd_ g.
+  Line[$g, " ", $c, " ", $l, " ", $l'].
+  Check["71234567 01234567 01234567 01234567"].
+
+  Let n = g _bvAnd_ gg.
+  Let n' = gg _bvAnd_ g.
+  Line[$g, " ", $gg, " ", $n, " ", $n'].
+  Check["71234567 7654321 71214121 71214121"].
+
+  Let m = g _bvAnd_ p.
+  Let m' = p _bvAnd_ g.
+  Line[$g, " ", $p, " ", $m, " ", $m'].
+  Check[$g, " ", $p, " ", $p, " ", $p].
+
+  Let r = g _bvAnd_ q.
+  Let r' = q _bvAnd_ g.
+  Line[$g, " ", $q, " ", $r, " ", $r'].
+  Check[$g, " ", $q, " ", $q, " ", $q].
+
+  Let s = c _bvAnd_ p.
+  Let s' = p _bvAnd_ c.
+  Line[$c, " ", $p, " ", $s, " ", $s'].
+  Check[$c, " ", $p, " ", $c, " ", $c].
+
+  Let t = c _bvAnd_ q.
+  Let t' = q _bvAnd_ c.
+  Line[$c, " ", $q, " ", $t, " ", $t'].
+  Check[$c, " ", $q, " ", $c, " ", $c].
+%Execute
+
+%%--------------------- _bvOr_ ---------------------------
+
+Execute
+
+  Writeln["_bvOr_"].
+
+  Let c = stringToBitvec "01234567".
+  Let d = stringToBitvec "07654321".
+  Let g = stringToBitvec "71234567".
+  Let gg = stringToBitvec "77654321".
+
+  Let f = c _bvOr_ d.
+  Line[c $$ 8, " ", d $$ 8, " ", f $$ 8].
+  Check["01234567 07654321 07674767"].
+
+  Let p = d _bvOr_ g.
+  Line[$d, " ", $g, " ", $p].
+  Check["07654321 71234567 7674767"].
+
+  Let q = g _bvOr_ c.
+  Line[$g, " ", $c, " ", $q].
+  Check["71234567 01234567 71234567"].
+
+  Let r = g _bvOr_ d.
+  Line[$g, " ", $d, " ", r $$ 8].
+  Check["71234567 07654321 77674767"].
+
+  Let s = g _bvOr_ gg.
+  Line[g $$ 9, " ", gg $$ 9, " ", s $$ 9].
+  Check["771234567 777654321 777674767"].
+%Execute
+
+%%--------------------- _bvXor_ ---------------------------
+
+Execute
+
+  Writeln["_bvXor_"].
+
+  Let c  = stringToBitvec "01234567".
+  Let d  = stringToBitvec "07654321".
+  Let g  = stringToBitvec "71234567".
+  Let gg = stringToBitvec "77654321".
+  Let p  = stringToBitvec "0123456712345671234567".
+  Let q  = stringToBitvec "7123456712345671234567".
+
+  Let e = c _bvXor_ d.
+  Let e' = d _bvXor_ c.
+  Line[c $$ 8, " ", d $$ 8, " ", e $$ 8, " ", e' $$ 8].
+  Check["01234567 07654321 06460646 06460646"].
+
+  Let f = d _bvXor_ g.
+  Let f' = g _bvXor_ d.
+  Line[$d, " ", $g, " ", $f, " ", $f'].
+  Check["07654321 71234567 76460646 76460646"].
+
+  Let h = g _bvXor_ c.
+  Let h' = c _bvXor_ g.
+  Line[$g, " ", $c, " ", $h, " ", $h'].
+  Check["71234567 01234567 70000000 70000000"].
+
+  Let j = g _bvXor_ gg.
+  Let j' = gg _bvXor_ g.
+  Line[g $$ 9, " ", gg $$ 9, " ", j $$ 9, " ", j' $$ 9].
+  Check["771234567 777654321 006460646 006460646"].
+
+  Let m = g _bvXor_ p.
+  Let m' = p _bvXor_ g.
+  Let mr = "7654321065432100000000".
+  Line[$g, " ", $p, " ", $m, " ", $m'].
+  Check[$g, " ", $p, " ", mr, " ", mr].
+
+  Let r = g _bvXor_ q.
+  Let r' = q _bvXor_ g.
+  Let rr = "0654321065432100000000".
+  Line[$g, " ", $q, " ", $r, " ", $r'].
+  Check[$g, " ", $q, " ", rr, " ", rr].
+
+  Let s = c _bvXor_ p.
+  Let s' = p _bvXor_ c.
+  Let sr = "0123456712345670000000".
+  Line[$c, " ", $p, " ", $s, " ", $s'].
+  Check[$c, " ", $p, " ", sr, " ", sr].
+
+  Let t = c _bvXor_ q.
+  Let t' = q _bvXor_ c.
+  Let tr = "7123456712345670000000".
+  Line[$c, " ", $q, " ", $t, " ", $t'].
+  Check[$c, " ", $q, " ", tr, " ", tr].
+%Execute
+
+%%--------------------- _bvShr_ ---------------------------
+
+Execute
+  Writeln["_bvShr_"].
+
+  Let a = stringToBitvec "1234567".
+  Let b = _bvShr_(a,0).
+  Let c = _bvShr_(a,1).
+  Let d = _bvShr_(a,2).
+  Let e = _bvShr_(a,15).
+  Let f = _bvShr_(a,16).
+  Let g = _bvShr_(a,17).
+  Let h = _bvShr_(a,30).
+  Let i = _bvShr_(a,largenum).
+  Line[$a, " ", $b, " ", $c, " ", $d, " ", $e].
+  Check["01234567 01234567 0516273 0247135 012"].
+  Line[$f, " ", $g, " ", $h, " ",$i].
+  Check["05 02 0 0"].
+
+  Let aa = stringToBitvec "71234567".
+  Let bb = _bvShr_(aa,0).
+  Let cc = _bvShr_(aa,1).
+  Let dd = _bvShr_(aa,2).
+  Let ee = _bvShr_(aa,15).
+  Let ff = _bvShr_(aa,16).
+  Let gg = _bvShr_(aa,17).
+  Let hh = _bvShr_(aa,30).
+  Let ii = _bvShr_(aa,largenum).
+  Line[$aa, " ", $bb, " ", $cc, " ", $dd, " ", $ee].
+  Check["71234567 71234567 74516273 76247135 712"].
+  Line[$ff, " ", $gg, " ", $hh, " ",$ii].
+  Check["745 762 7 7"].
+%Execute
+
+Execute
+  Let a = stringToBitvec "07654321".
+  Let b = _bvShr_(a,0).
+  Let c = _bvShr_(a,1).
+  Let d = _bvShr_(a,2).
+  Let e = _bvShr_(a,15).
+  Let f = _bvShr_(a,16).
+  Let g = _bvShr_(a,17).
+  Let h = _bvShr_(a,30).
+  Let i = _bvShr_(a,largenum).
+  Line[$a, " ", $b, " ", $c, " ", $d, " ", $e].
+  Check["07654321 07654321 03726150 01753064 076"].
+  Line[$f, " ", $g, " ", $h, " ",$i].
+  Check["037 017 0 0"].
+
+  Let aa = stringToBitvec "77654321".
+  Let bb = _bvShr_(aa,0).
+  Let cc = _bvShr_(aa,1).
+  Let dd = _bvShr_(aa,2).
+  Let ee = _bvShr_(aa,15).
+  Let ff = _bvShr_(aa,16).
+  Let gg = _bvShr_(aa,17).
+  Let hh = _bvShr_(aa,30).
+  Let ii = _bvShr_(aa,largenum).
+  Line[$aa, " ", $bb, " ", $cc, " ", $dd, " ", $ee].
+  Check["7654321 7654321 726150 753064 76"].
+  Line[$ff, " ", $gg, " ", $hh, " ",$ii].
+  Check["7 7 7 7"].
+%Execute
+
+%%--------------------- _bvShl_ ---------------------------
+
+Execute
+  Writeln["_bvShl_"].
+
+  Let a = stringToBitvec "1234567".
+  Let b = _bvShl_(a,0).
+  Let c = _bvShl_(a,1).
+  Let d = _bvShl_(a,2).
+  Let e = _bvShl_(a,15).
+  Let f = _bvShl_(a,16).
+  Let g = _bvShl_(a,17).
+  Let h = _bvShl_(a,30).
+  Line[$a, " ", $b, " ", $c, " ", $d, " ", $e].
+  Check["01234567 01234567 02471356 05162734 0123456700000"].
+  Line[$f, " ", $g, " ", $h].
+  Check["0247135600000 0516273400000 012345670000000000"].
+
+  Let aa = stringToBitvec "71234567".
+  Let bb = _bvShl_(aa,0).
+  Let cc = _bvShl_(aa,1).
+  Let dd = _bvShl_(aa,2).
+  Let ee = _bvShl_(aa,15).
+  Let ff = _bvShl_(aa,16).
+  Let gg = _bvShl_(aa,17).
+  Let hh = _bvShl_(aa,30).
+  Line[$aa, " ", $bb, " ", $cc, " ", $dd, " ", $ee].
+  Check["71234567 71234567 762471356 745162734 7123456700000"].
+  Line[$ff, " ", $gg, " ", $hh].
+  Check["76247135600000 74516273400000 712345670000000000"].
+%Execute
+
+Execute
+  Let a = stringToBitvec "07654321".
+  Let b = _bvShl_(a,0).
+  Let c = _bvShl_(a,1).
+  Let d = _bvShl_(a,2).
+  Let e = _bvShl_(a,15).
+  Let f = _bvShl_(a,16).
+  Let g = _bvShl_(a,17).
+  Let h = _bvShl_(a,30).
+  Line[$a, " ", $b, " ", $c, " ", $d, " ", $e].
+  Check["07654321 07654321 017530642 037261504 0765432100000"].
+  Line[$f, " ", $g, " ", $h].
+  Check["01753064200000 03726150400000 076543210000000000"].
+
+  Let aa = stringToBitvec "77654321".
+  Let bb = _bvShl_(aa,0).
+  Let cc = _bvShl_(aa,1).
+  Let dd = _bvShl_(aa,2).
+  Let ee = _bvShl_(aa,15).
+  Let ff = _bvShl_(aa,16).
+  Let gg = _bvShl_(aa,17).
+  Let hh = _bvShl_(aa,30).
+  Line[$aa, " ", $bb, " ", $cc, " ", $dd, " ", $ee].
+  Check["7654321 7654321 7530642 7261504 765432100000"].
+  Line[$ff, " ", $gg, " ", $hh].
+  Check["753064200000 726150400000 76543210000000000"].
+%Execute
+
+%%--------------------- bvMin, bvMax ---------------------------
+
+Execute
+  Writeln["bvMin, bvMax"].
+
+  Let a = stringToBitvec "1234".
+  Match (?na,?a') = bvMin(a).
+  Line[$na, " ", $a'].
+  Check["2 01230"].
+  Match (?na', ?a'') = bvMax(a).
+  Line[$na', " ", $a''].
+  Check["9 0234"].
+
+  Let b = stringToBitvec "035600000000000".
+  Match (?nb,?b') = bvMin(b).
+  Line[$nb, " ", $b'].
+  Check["34 035400000000000"].
+  Match (?nb', ?b'') = bvMax(b).
+  Line[$nb', " ", $b''].
+  Check["40 015600000000000"].
+%Execute
+
+%%--------------- bvMask -----------------
+
+Execute
+
+  Writeln["bvMask"].
+
+  Let a = bvMask 0.
+  Line[$a].
+  Check["0"].
+
+  Let b = bvMask 3.
+  Line[$b].
+  Check["07"].
+
+  Let c = bvMask 16.
+  Line[$c].
+  Check["0177777"].
+
+  Let d = bvMask 26.
+  Line[$d].
+  Check["0377777777"].
+%Execute
+
+%%--------------- bvField --------------------
+
+Execute
+
+  Writeln["bvField"].
+
+  Let a = stringToBitvec "01234567".
+  Let b = bvField(a,3,6).
+  Line[$b].
+  Check["056"].
+  Line[$bvField(a, 15, 6)].
+  Check["012"].
+  Line[$bvField(a, 16, 5)].
+  Check["05"].
+  Line[$bvField(a, 17, 6)].
+  Check["02"].
+  Line[$bvField(a, 4, 20)].
+  Check["051627"].
+  Line[$bvField(a, 4, 16)].
+  Check["051627"].
+  Line[$bvField(a, 0, 1)].
+  Check["01"].
+  Line[$bvField(a, 3, 1)].
+  Check["0"].
+
+  Let c = bvField(a,9,9).
+  Line[$c].
+  Check["0234"].
+
+  Let d = stringToBitvec "71234567".
+  Let e = bvField(d,3,6).
+  Line[$e].
+  Check["056"].
+  Line[$bvField(d, 15, 6)].
+  Check["012"].
+  Line[$bvField(d, 16, 5)].
+  Check["05"].
+  Line[$bvField(d, 17, 6)].
+  Check["062"].
+  Line[$bvField(d, 4, 20)].
+  Check["03451627"].
+  Line[$bvField(d, 4, 16)].
+  Check["051627"].
+  Line[$bvField(d, 0, 1)].
+  Check["01"].
+  Line[$bvField(d, 3, 1)].
+  Check["0"].
+
+  Let f = bvField(d,9,9).
+  Line[$f].
+  Check["0234"].
+%Execute
+
+%% -------------- bvSetBits ---------------------
+
+Execute
+  Writeln["bvSetBits"].
+
+  Let a = stringToBitvec "01234567".
+  Line[$bvSetBits(a, [0], true)].
+  Check["01234567"].
+  Line[$bvSetBits(a, [3], true)].
+  Check["01234577"].
+  Line[$bvSetBits(a, [3,10], true)].
+  Check["01236577"].
+  Line[$bvSetBits(a, [40], true)].
+  Check["020000001234567"].
+  Line[$bvSetBits(a, [48,40], true)].
+  Check["010020000001234567"].
+
+  Let b = stringToBitvec "71234567".
+  Line[$bvSetBits(b, [0], true)].
+  Check["71234567"].
+  Line[$bvSetBits(b, [3], true)].
+  Check["71234577"].
+  Line[$bvSetBits(b, [3,10], true)].
+  Check["71236577"].
+  Line[$bvSetBits(b, [40], true)].
+  Check["71234567"].
+  Line[$bvSetBits(b, [48,40], true)].
+  Check["71234567"].
+
+  Let c = stringToBitvec "01234567".
+  Line[$bvSetBits(c, [0], false)].
+  Check["01234566"].
+  Line[$bvSetBits(c, [3], false)].
+  Check["01234567"].
+  Line[$bvSetBits(c, [3,11], false)].
+  Check["01230567"].
+  Line[$bvSetBits(c, [40], false)].
+  Check["01234567"].
+  Line[$bvSetBits(c, [48,40], false)].
+  Check["01234567"].
+
+  Let d = stringToBitvec "71234567".
+  Line[$bvSetBits(d, [0], false)].
+  Check["71234566"].
+  Line[$bvSetBits(d, [3], false)].
+  Check["71234567"].
+  Line[$bvSetBits(d, [3,11], false)].
+  Check["71230567"].
+  Line[$bvSetBits(d, [40], false)].
+  Check["757777771234567"].
+  Line[$bvSetBits(d, [48,40], false)].
+  Check["767757777771234567"].
+%Execute
+
+%%--------------- bvSetField --------------------
+
+Execute
+
+  Writeln["bvSetField"].
+
+  Let a = stringToBitvec "01234567".
+  Let b = bvSetField(a,3,6,stringToBitvec "01").
+  Line[$b].
+  Check["01234017"].
+
+  Let c = bvSetField(a,9,9,stringToBitvec "7").
+  Line[$c].
+  Check["01777567"].
+
+  Let d = stringToBitvec "71234567".
+  Let e = bvSetField(d,3,6, stringToBitvec "33").
+  Line[$e].
+  Check["71234337"].
+
+  Let f = bvSetField(d,9,9,stringToBitvec "701").
+  Line[$f].
+  Check["71701567"].
+%Execute
+
+
+%Package
+
+
+

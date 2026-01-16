@@ -1,0 +1,927 @@
+%% File: string.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==============================================================
+Package 		Astarte_String 
+
+			Interface
+================================================================
+
+================================================================
+%% A string is a list of characters.  The following are available to
+%% all packages.
+================================================================
+
+Description
+
+ String		%" String abbreviates [Char].
+		%"
+		%" You can create a string constant using double quotes.
+		%" "abc" is the list ['a', 'b', 'c'].  You may include
+		%" special character forms such as \\n and \\t and \\{3}
+		%" in a string constant.  (You may not include a null,
+		%" character (code 0) in a string constant, however.)
+		%" To include a backslash in a string, use \\ (\\\\).  To 
+		%" include a quote, use \" (\\\").
+		%"
+		%" String constants of the form "a string constant" are
+		%" not allowed to contain true line breaks.  If you want
+		%" a multi-line string constant, use a long string.
+		%" It consists of consecutive lines, each having %"
+		%" as its first non-space characters.  What you
+		%" are reading is a long string constant.  There is a
+		%" newline at the end of each line in a long string
+		%" constant.
+		;
+
+ $		: `a -> String
+
+		%" $(x) is x converted to a string.  $ is
+		%" a unary operator.
+		%"
+		%" When a new species is created, by default a new
+		%" definition of $ is given.  The definition of
+		%" $ tries to give a reasonable representation of
+		%" each individual in the new species.  If you define
+		%"
+		%"   Species T = green | blue(Natural).
+		%"
+		%" then the default definition of $ gives
+		%"
+		%"   $(green) = "green"
+		%"   $(blue(20)) = "blue(20)"
+		%"
+		%" If this definition of $ is not desired, then use
+		%" option noDollar to suppress it, as in
+		%"
+		%"   Species{noDollar} T = green | blue(Natural).
+		;
+
+ $$		: (String, Natural) -> String
+
+		%" s $$ n is string s padded on the left by enough
+		%" spaces to make n characters.  If s has length
+		%" greater than n, then s $$ n = s.
+		;
+
+ enumToStringF	: [String] -> RANKED`a -> String
+
+		%" enumToStringF l x is the rank(x)-th member of list l.
+		%" It is used in automatic definitions of $ For
+		%" enumerated types.
+                ;
+		
+ internString	: String -> String
+ 
+ 		%" internString(s) is the same string as s, but is a
+		%" version that is stored in a table.  Interning a
+		%" string has two advantages.  First, only one
+		%" copy of the string will be kept.  Second, equality
+		%" tests are efficient for interned strings.  (Since
+		%" equal interned strings are stored at the same 
+		%" memory address, it suffices to compare addresses.)
+		;
+
+ _leftin_	: (String, Natural) -> String
+
+		%" (s _leftin_ n) is string s padded on the right by enough
+		%" spaces to make n characters.  If s has length
+		%" greater than n, then s leftin n = s.
+                ;
+		
+  pull		: String -> (`a, String)
+
+		%" pull(s) = (n,r) skips over leading white space
+		%" in s, then looks for a
+		%" description of a value of the species of n.  
+		%" n is the value described, and r is the suffix
+		%" of s after the description of n.
+		%"
+		%" pull(s) fails with exception listExhaustedX if
+		%" s is nil or has only white space, and fails with
+		%" exception conversionX if the start of s (after
+		%" white space) does not have the correct form.
+		%"
+		%" The default for pull is pullId.  The default
+		%" should be overridden if other forms of
+		%" representation should be allowed.
+		%"
+		%" See pattern function $.
+		;
+
+  pullId	: String -> (`a, String)
+
+		%" pullId(s) extracts an identifier x from the front of
+		%" string s, and returns pair (v,rest) where v is the
+		%" value of identifier x in the outer environment, and
+		%" rest is that part of s that follows x.  Identifier
+		%" x must end at white-space.  Fails with exception
+		%" noDefX(x) if either x is not an identifier or x
+		%" is an unknown id.  Be careful that the type system
+		%" is aware of the species of the result.  For
+		%" example, pullId("nil abc") = ([], " abc"), where
+		%" the species of [] is determined from context.
+		%"
+		%" See pattern function theId.
+		;
+
+  pullHex	: String -> (Natural, String)
+  
+  		%" pullHex(s) tries to extract a leading hexadecimal
+		%" number from s.  It skips over leading white space
+		%" and gets a maximal sequence of hexadecimal digits.
+		%" It returns the pair (n,r) where n is the natural
+		%" number represented by those digits and r is the
+		%" suffix of s that follows those digits.
+		;
+
+ Show		:  Outfile(Char) -> `a -> ()
+
+		%" Show f, x %Show prints view(x) on file f.  
+		%" See view.
+		;
+
+ showApply	: (String, `a) -> String
+
+		%" Function showApply is used in automatic definitions 
+		%" of $, and is probably not something that you want
+		%" to use directly.
+		%"
+		%" showApply(a,b) is a string of the form a($b).
+		%"
+		%" For example, 
+		%"
+		%"    showApply("f", 3) = "f(3)".
+		%"
+		%" In the case where b is an ordered pair, 
+		%" showApply does put parentheses around b.  So 
+		%"
+		%"   showApply("f", (2,3)) = "f(2,3)".
+		;
+
+ showCurriedApply: Natural -> (String, `a) -> String
+ 
+		%" Function showCurriedApply is used in automatic 
+		%" definitions of $ for new species, and is probably
+		%" not something that you want to use directly.
+		%"
+ 		%" showCurriedApply k (a,(b1,b2,...,bn)) is a string of the
+		%" form a (b1)(b2)...(bn) where n is k+1.  In the case
+		%" where bi is a pair, extra parentheses are not added.
+		%"
+		%" For Example,
+		%"
+		%"   showCurriedApply 1 ("f", (2,3,4)) = "f(2)(3,4)".
+		;
+ 
+ showTagged	: `a -> String
+
+		%" showTagged(x) is $x followed by : followed by
+		%" $(speciesOf(x)).  For example, showTagged(34:Natural)
+		%" is the string "34:Natural".
+		;
+
+ skipWS		: String -> String
+
+		%" skipWS(s) is that part of s that follows any leading
+		%" white space.  For example, skipWS("  abc") = "abc".
+		%"
+		%" See pattern function white.
+	   	;
+
+ stringToInteger: String -> Integer
+
+		%" stringToInteger(s) is the integer described by
+		%" decimal string s.  It fails with exception
+		%" conversionX if s is not a decimal number.
+		%" Leading and trailing white space are allowed.
+		;
+
+ stringToNatural: String -> Natural
+
+		%" stringToNatural(s) is the natural number described by
+		%" decimal string s.  It fails with exception
+		%" conversionX if s is not a decimal number.
+		%" Leading and trailing white space are allowed.
+		;
+
+ stringToRational: String -> Rational
+
+		%" stringToRational(s) is the rational number described
+		%" by string s.  It fails with exception conversionX
+		%" if s is not a valid number representation.
+		%" Numbers can be in the same form as constants
+		%" in programs.
+		%" Leading and trailing white space are allowed.
+		;
+
+ stringToReal	: String -> Real
+
+		%" stringToReal(s) is the real number described
+		%" by string s.  It fails with exception conversionX
+		%" if s is not a valid number representation.
+		%" Numbers can be in the same form as constants
+		%" in programs.
+		%" Leading and trailing white space are allowed.
+		;
+
+ wrapPuller	: (String -> (`a, String)) -> (String -> (``b, String))
+  		    constraint (``b >= `a)
+
+		%" wrapPuller(f) converts a pull function f that produces
+		%" an arbitrary species into a pull function that
+		%" produces a secondary species.
+		;
+		
+%Description
+
+================================================================
+%% This package provides assorted operations on strings.
+%% It also provides patterns that can be used to extract
+%% values from strings.  Most of what is provided here
+%% is easiest to use through pattern matching.
+%%
+%%   Extract [p1,p2,...,pn] from v.
+%%
+%% will successively pull off prefixes of the content of
+%% box v that match p1, p2, ..., pn.  If you want to
+%% allow arbitrary white space between the patterns
+%% p1, p2,..., pn, including in front of p1, use
+%%
+%%   Extract separated [p1,p2,...,pn] from v.
+%%
+%% The pattern elements that you can use as p1,...,pn
+%% are as follows.  By white-space, we mean any sequence
+%% of space, tab and newline characters.
+%%
+%%    $(p)		Converts from some string representation.
+%%			For example, if n has species Natural, 
+%%			then 
+%%
+%%				Match extractL[$(?n)] from v.
+%%
+%%			will extract a decimal number from the
+%%			start of v, and bind n to that number.
+%%
+%%    hex(p)		Matches a hexadecimal number.  It matches
+%%			p against the number represented.
+%%
+%%    theLine(p)	Matches one line, and matches p against
+%%                      that line, with the newline removed.  To
+%%			remove the first line from the content of
+%%			v and bind l to that line, you use
+%%
+%%				Match extractL[theLine(?l)] from v.
+%%
+%%    theString(p)	Matches a maximal string that contains no
+%%			white-space, and matches p against that
+%%			string.  It skips over any leading white
+%%			space.
+%%
+%%    theCharConst(p)   Matches a string that is a character constant
+%%                      such as 'a' or '\n'.
+%%
+%%    theN n p		Matches n characters and matches p against those n 
+%%			characters.  There must be n characters.
+%%
+%%    theUpToN n p	Matches n characters (or to the end of the
+%%			string), and matches p against those n 
+%%			characters.
+%%
+%%    white		Matches arbitrary white space (including
+%%			the empty string).  If you write
+%%
+%%				Match extractL[white] from v.
+%%
+%%			then all leading white-space in v will
+%%			be removed.
+%%
+%%    theWS(p)		Matches white space, and matches p against
+%%			that white space.  This is similar to white,
+%%			but lets you see what the white-space is.
+%%
+%% For example, if x and y each have species Natural and
+%% stdin! contains "29+347 abc" then
+%%
+%%   Match extractL[$(?x), "+", $(?y)] from stdin!.
+%%
+%% binds
+%%
+%%       x = 29
+%%       y = 347
+%%       stdin! := " abc"
+%%
+%% If the match fails, the exception will generallly be testX,
+%% listExhaustedX or conversionX.  If you want to try a match
+%% and continue if the match failed, you will probably want to
+%% untrap conversionX.
+================================================================
+
+Directory standard.
+Import 
+  "pattern/listpat";
+%Import
+
+=========================================================
+
+Abbrev {noExport}:
+  StringBox = <:String:>;
+%Abbrev
+
+=========================================================
+
+Operator ++> (++).
+
+=========================================================
+
+Expect
+  ++>		: (String, String) -> String
+
+		%" a ++> b  =  a ++ " " ++ b.
+		;
+
+  wsFlatten	: [String] -> String
+
+		%" wsFlatten(l) is the concatenation of the 
+		%" members of list l, with a space between
+		%" consecutive members.  For example,
+		%" wsFlatten["abc", "def", "gh"] = "abc def gh".
+		;
+
+  wsExplode	: String -> [String]
+
+		%" wsExplode(s) produces a list of the white-space
+		%" separated substrings of s.  For example, 
+		%" wsExplode(" abc de fgh") = ["abc", "de", "fgh"].
+		;
+
+  filterComments : String -> String
+
+		 %" filterComments(s) is the result of purging all
+		 %" Astarte-style comments from string s.  Only
+		 %" %%-style comments are recognized, not
+		 %" <<<<...>>>> style comments.
+		 ;
+
+  wrapLines	: Natural -> String -> String
+
+		%" wrapLines n s returns the result of inserting line
+		%" breaks after each n consecutive non-newline 
+		%" characters in s.  Use it to shorten long lines.
+		;
+		
+  indentLines	: Natural -> String -> String
+  
+  		%" indentLines n s returns the result of inserting
+		%" n spaces in front of each line in s.
+		;
+
+  toLower	: String -> String
+ 
+ 		%" toLower(s) is the result of converting all letters
+		%" in s to lower case.
+		;
+ 
+  toUpper	: String -> String
+ 
+ 		%" toUpper(s) is the result of converting all letters
+		%" in s to upper case.
+		;
+ 
+  parensAround	: [String] -> String
+
+		%" parensAround(l) is a string consisting of the
+		%" members of l, separated by commas, with parentheses
+		%" around them.  For example, 
+		%" parensAround["ab","cd","ef"] = "(ab,cd,ef)".
+		;
+
+  blank?	: String -> Boolean
+
+		%" blank?(s) is true if s contains only white space.
+		;
+		
+  expandTabs	: Natural -> String -> String
+  
+  		%" (expandTabs n s) returns the result of replacing
+		%" each tab in string s by enough spaces to
+		%" simulate a tab, where tab stops are every n spaces.
+		;
+		
+  breakIntoLines: String -> [String]
+  
+  		%" breakIntoLines(s) produces a list of the lines
+		%" of string s, where the terminating newline has
+		%" been removed from each line.  For example,
+		%" breakIntoLines("abc\ndef\nghi\n") =
+		%" ["abc", "def", "ghi"].  It is not necessary
+		%" that s end with a newline character.
+		;
+  
+  pullString	: String -> (String, String)
+
+		%" pullString(s) returns a pair (p,r) where p is
+		%" obtained by skipping over leading white space in s,
+		%" and getting a prefix of the remainder up to the 
+		%" first white space character or the end of s, and 
+		%" r is the suffix of s following p.  For example,
+		%" pullString(" abc def ghi") = ("abc"," def ghi").
+		%"
+		%" If the first nonwhite character of s is a double
+		%" quote, then pullString(s) pulls a quoted string
+		%" from the front of s.  The quotes are removed.
+		%" For example, 
+		%" pullString(" \"a b c\" def") = ("a b c", " def").
+		%"
+		%" If L contains only white space, then pullString(L)
+		%" fails with exception listExhaustedX.
+		%"
+		%" See pattern function theString.
+		;
+
+  pullLine	: String -> (String, String)
+
+		%" pullLine(s) = (p,r) where p is a prefix of s up to but
+		%" not including the first newline character, and r is the
+		%" suffix of s that follows the first newline character. 
+		%" If there is no newline character in s, and s is not
+		%" nil, then p = s and r = nil.  If s = nil, then
+		%" pullLine(s) fails with exception listExhaustedX.
+		%" For example, pullLine("abc\ndef") = ("abc","def").
+		%"
+		%" See pattern function theLine.
+		;
+
+  {override}:
+
+  {}:
+
+  pullBalanced	: (Char, Char) -> String -> (String, String)
+  
+  		%" pullBalanced (l,r) x is pair (bal,rest) where
+		%" bal is a prefix of x that is balanced with respect
+		%" to left-parenthesis l and right parenthesis r, and
+		%" rest is the rest of x.  (x = bal ++ rest).
+		%"
+		%" Anything up to the first occurrence of l is
+		%" included in bal.
+		%"
+		%" For example, pullBalanced('(', ')') pulls off a
+		%" string that is balanced with respect to parentheses.
+		%"
+		%" If there is no balanced prefix of x, then
+		%" pullBalanced(l,r) x fails with exception textX.
+		%"
+		%" See pattern function theBalanced.
+		;
+
+  pullParenList	: String -> ([String], String)
+
+		%" pullParenList(s) reads a balanced parenthesized prefix
+		%" of s, and returns a pair (l,r) consisting of a list l
+		%" of the balanced, comma-separated parts of that prefix
+		%" and the suffix r of s that follows the prefix.  Fails
+		%" with exception conversionX if s does not have the 
+		%" right form.  For example, 
+		%" pullParenList("(abc,def,(ghi,klm)),nop") =
+		%" (["abc", "def", "(ghi,klm)"], ",nop").
+		;
+
+  pullWS	: String -> (String,String)
+
+		%" pullWS(s) = (w,s') where w is the leading white space
+		%" in s and s' is the suffix of s after w.  For example,
+		%" pullWS("  abc") = ("  ", "abc").
+		%"
+		%" See pattern function theWS.
+		;
+
+  read		: pot__sideEffect ~> 
+		  StringBox -> `a
+
+		%" read(b) computes (here,rest) as pull of the content
+		%" of box b, puts rest in b, and returns here.  For
+		%" example, if the output species of read is Natural,
+		%" and box b holds "123 abcde" then read(b) produces
+		%" value 123, and puts " abcde" into box b.
+		%"
+		%" If there are no nonwhite-space characters in @b and a
+		%" nonwhite-space character is required, the read(b) fails
+		%" with exception listExhaustedX.  If read fails because
+		%" the form of the data is wrong, then it fails with
+		%" exception conversionX.
+		%"
+		%" read is not atomic, and should not run
+		%" concurrently with another read from the same box.
+		;
+
+  read		: pot__sideEffect ~> 
+		  Lockable(StringBox) -> `a
+		  
+		%" read(b) for a lockable box b is similar to
+		%" read(b) for a simple box, but it locks the box
+		%" while reading.
+		;
+
+  read		: pot__sideEffect ~>
+		  () -> `a
+
+		%" read() is equivalent to read(stdin!).
+		;
+
+  readLine	: pot__sideEffect ~>
+		  StringBox -> String
+
+		%" readLine(b) pulls a line from the front of @b
+		%" (see pullLine), and sets b to the rest of @b.
+		%" The pulled line (not including the newline
+		%" character) is returned.
+		%"
+		%" If there are no characters in @b, then
+		%" readLine fails with exception listExhaustedX.
+		%"
+		%" readLine is not atomic, and should not run
+		%" concurrently with another read from the same box.
+		;
+		
+  readLine	: Lockable(StringBox) -> String
+  
+  		%" readLine(b) for a lockable box b is similar to
+		%" readLine(b) for a simple box, but it locks the
+		%" box while reading.
+		;
+  
+  readLine	: pot__sideEffect ~>
+		  () -> String
+
+		%" readLine() is equivalent to  readLine(stdin!).
+		;
+
+  readString	: pot__sideEffect ~>
+		  StringBox -> String
+
+		%" readString(b) pulls a string from the front of @b
+		%" (see pullString), and sets b to the rest of @b.
+		%" The pulled string is returned.
+		%"
+		%" If there are no nonwhite-space characters in @b, then
+		%" readString(b) fails with exception listExhaustedX.
+		%"
+		%" readString is not atomic, and should not run
+		%" concurrently with another read from the same box.
+		;
+
+  readString	: Lockable(StringBox) -> String
+  
+  		%" readString(b) for a lockable box b is similar to
+		%" readString(b) for a simple box, but it locks the
+		%" box while reading.
+		;
+  
+  readString	: pot__sideEffect ~>
+		  () -> String
+
+		%" readString() is equivalent to readString(stdin!).
+		;
+
+  readChar	: StringBox -> Char
+  
+  		%" readChar(b) removes a single character from the
+		%" front of @b and returns it, storing the shortened
+		%" string back into box b.
+		%"
+		%" If @b is empty then readChar(b) fails with 
+		%" exception listExhaustedX.
+		;
+		
+  readChar	: Lockable(StringBox) -> Char
+  
+  		%" readChar(b) for a lockable box b is similar to
+		%" readChar(b) for a simple box, but it locks the
+		%" box while reading.
+		;
+  
+  readChar	: () -> Char
+  
+  		%" readChar() is equivalent to readChar(stdin!).
+		;
+		
+  readNonblankChar: StringBox -> Char
+  
+  		%" readNonblankChar(b) removes the first nonwhite-space 
+		%" character from the front of @b, plus all white
+		%" space that precedes it, and returns that character,
+		%" storing the shortened string back into box b.
+		%"
+		%" If @b contains no nonwhite-space characters 
+		%" then readChar(b) fails with exception listExhaustedX.
+  		;
+		
+  readNonblankChar: Lockable(StringBox) -> Char
+  
+  		%" readNonblankChar(b) for a lockable box b is similar to
+		%" readNonblankChar(b) for a simple box, but it locks the
+		%" box while reading.
+		;
+		
+  readNonblankChar: () -> Char
+  
+  		%" readNonblankChar() is equivalent to 
+		%" readNonblankChar(stdin!).
+		;
+  
+  readUpToN	: pot__sideEffect ~>
+		  StringBox -> Natural -> String
+
+		%" (readUpToN b n) returns the first n characters of @b,
+		%" and sets b to the rest of @b.  If n is larger
+		%" than the length of @b, readUpToN(b,n) returns @b,
+		%" and sets b to nil.
+		%"
+		%" readUpToN is not atomic, and should not run
+		%" concurrently with another read from the same box.
+		;
+
+  readUpToN	: Lockable(StringBox) -> Natural -> String
+  
+  		%" readUptoN(b) for a lockable box b is similar to
+		%" readUptoN(b) for a simple box, but it locks the
+		%" box while reading.
+		;
+		
+  readUpToN	: pot__sideEffect ~>
+		  Natural -> String
+
+		%" readUpToN(n) is the same as (readUpToN stdin! n).
+		;
+%Expect
+
+=========================================================
+%%
+%% Here, the pattern functions begin.
+%%
+=========================================================
+
+Expect {missing,pattern}:
+  theLine	: String -> String
+		
+  		%" #{pattern}
+		%"
+		%" Pattern theLine(?x) ++ rest matches ?x against the
+  		%" first line of target (with the newline at the end 
+		%" deleted), and matches rest against that part of
+		%" the target that follows the first line.
+		%"
+		%" When theLine(p) is used in a pattern without ++, 
+		%" that part of the target not matched by theLine(p) 
+		%" must be white space.
+		;
+
+  white		: String
+  
+  		%" #{pattern}
+		%"
+		%" Pattern white ++ rest matches rest against that part
+  		%" of the target that follows any leading white space.
+		%" For example,
+		%"
+		%"  Match white ++ ?r = "  abc".
+		%"
+		%" binds r = "abc".
+		;
+		
+  theWS		: String -> String
+  
+  		%" #{pattern}
+		%"
+  		%" Pattern theWS(?x) ++ rest pulls a maximal 
+		%" white-space prefix from the front of the target, 
+		%" and matches rest against the part of the target 
+		%" that follows the white-space. For example,
+		%"
+		%"  Match theWS(?x) ++ ?r = "  abc".
+		%"
+		%" binds x = "  " and r = "abc".
+		;
+		
+  hex		: Natural -> String
+  
+  		%" #{pattern}
+		%"
+		%" Pattern hex(?x) ++ rest matches ?x against
+		%" the natural number represented by a hexadecimal
+		%" number in the target, and ?rest against what
+		%" follows that hexadecimal number.
+		;
+
+  theString 	: String -> String
+  
+  		%" #{pattern}
+		%"
+  		%" Pattern theString(?x) ++ rest pulls a white-space
+  		%" delimited string from the front of the target,
+  		%" and matches rest against that part the follows
+  		%" x.  For example,
+		%"
+		%"  Match theString(?s) ++ ?r = " abc def".
+		%"
+		%" binds s = "abc" and r = " def".
+		%"
+		%" If the target begins with a quoted string,
+		%" the entire quoted string is extracted.  For
+		%" example, 
+		%"
+		%"  Match theString(?s) ++ ?r = " \"a quoted string\" rest".
+		%"
+		%" binds s = "a quoted string" and r = " rest".
+		%"
+		%" When theString(p) is used in a pattern without ++, 
+		%" that part of the target not matched by theString(p)
+		%" must be white space.
+		%"
+		%" Pattern theString(s) uses function pullString to
+		%" get the prefix.
+		;
+
+  theId		: `a -> String
+  
+  		%" #{pattern}
+		%"
+		%" Pattern theId(?x) ++ ?rest gets an identifier i from
+		%" the start of the target string.  It binds x to the
+		%" value of that identifier, and rest to the suffix
+		%" that follows the identifier.
+		%"
+		%" Pattern theId(?x) is equivalent to theId(?x) ++ white,
+		%" when not used with ++.
+		;
+  
+  theBalanced	: (Char, Char) -> String -> String
+  
+  		%" #{pattern}
+		%"
+		%" Pattern theBalanced ('(',')') ?x ++ ?r matches
+		%" ?x against a balanced (with respect to parentheses)
+		%" prefix of the target, and ?r against what follows
+		%" that prefix.  Anything before the first occurrence
+		%" of '(' is part of x.  If there is no balanced prefix,
+		%" then the match fails.
+		%"
+		%" For example,
+		%"
+		%"   Match theBalanced ('(',')') ?x ++ ?r = " (a(b)c)de".
+		%"
+		%" binds x = " (a(b)c)" and r = "de".
+		;
+
+    wsExtractL	: [String] -> <:String:>
+  
+  		%" #{pattern}
+		%"
+  		%" Pattern wsExtractL(?x) is similar to extractL(?x), 
+		%" but allows any amount of white space between parts 
+		%" of list x.  See separated.
+		;
+%Expect
+
+========================================================
+
+Assume wsFlatten: pattern.
+
+========================================================
+
+========================================================
+
+Description
+  $		: `a -> String
+  
+  		%" #{pattern}
+		%"
+		%" Pattern $(?x) ++ rest pulls ?x from the front of the
+  		%" target, and matches rest against the rest of the
+  		%" target.  The species of ?x is determined from context.
+  		%" Any species for which a definition of function 
+		%" "pull" is available is admissible.  For example,
+		%"
+		%"  Match $(?x:Natural) ++ ?r = "291 463".
+		%"
+		%" binds x = 291 and r = " 463".
+		%"
+		%" See the definitions of pull for what is pulled.
+		%" The definition depends on the species that is
+		%" being pulled.
+		%"
+		%" When $(p) is used in a pattern without ++, 
+		%" that part of the target not matched by $(p) must
+		%" be white space.
+		;
+		
+    ++>		: (String, String) -> String
+  
+  		%" #{pattern}
+		%"
+  		%" Pattern ?a ++> ?b is similar to pattern ?a ++ ?b,
+  		%" but allows any amount of white space between
+  		%" ?a and ?b.  It is the same as pattern
+  		%" ?a ++ white ++ ?b.
+		;
+
+  wsFlatten	: [String] -> String
+  
+  		%" #{pattern}
+		%"
+  		%" Pattern wsFlatten[?a,?b,?c] is the same as pattern
+  		%" white ++ ?a ++ white ++ ?b ++ white ++ ?c.  The
+  		%" argument of wsFlatten can be a list of any length,
+  		%" but it must be an explicitly enumerated list.
+		;
+%Description
+========================================================
+
+Pattern
+
+  %%------ $ --------
+  
+  $(?x) ++ ?rest => Match (?x,?rest) = pull(target).;
+
+  $(?x)          => Match $(?x) ++ white = target.;
+
+
+  %%------- hex --------
+  
+  hex(?x) ++ ?rest => Match (?x,?rest) = pullHex(target).;
+  
+  hex(?x)	     => Match hex(?x) ++ white = target.;
+  
+
+  %%------ white  ------
+  
+  white ++ ?rest => Match ?rest = skipWS(target).;
+
+  white          => {nil?(skipWS(target))};
+
+  %%------ theWS -------
+  
+  theWS(?x) 	     => Match (?x,nil) = pullWS(target).;
+
+  theWS(?x) ++ ?rest => Match (?x,?rest) = pullWS(target).;
+  
+
+  %%----- theLine -----
+  
+  theLine(?x) ++ ?rest => Match (?x,?rest) = pullLine(target).;
+
+  theLine(?x)          => Match theLine(?x) ++ white = target.;
+
+
+  %%----- theString -----
+  
+  theString(?x) ++ ?rest => Match (?x,?rest) = pullString(target).;
+
+  theString(?x)          => Match theString(?x) ++ white = target.;
+
+
+  %% ------ theId -------------
+  
+  theId(?x) ++ ?rest => Match (?x,?rest) = pullId target.;
+  
+  theId(?x)          => Match theId(?x) ++ white = target.;
+  
+
+  %% ------ theBalanced ---------
+  
+  theBalanced p ?x ++ ?rest => Match (?x,?rest) = pullBalanced p target.;
+  
+  theBalanced p ?x          => Match theBalanced p ?x ++ white = target.;
+
+
+  %%----- ++> ------
+  
+  ?a ++> ?b => Match ?a ++ white ++ ?b = target.;
+
+
+  %%----- wsFlatten -----
+  
+  wsFlatten a           => {wsFlatten a == target};
+  wsFlatten []          => ();
+  wsFlatten [] ++ ?rest => Match ?rest = target.;
+  wsFlatten(?h :: ?t)   => 
+     Match white ++ ?h ++ wsFlatten(?t) = target.;
+  wsFlatten(?h :: ?t) ++ ?rest => 
+     Match white ++ ?h ++ wsFlatten(?t) ++ ?rest = target.;
+
+
+  %%----- wsExtractL -----
+  
+  wsExtractL ?x  => Match extract1(wsFlatten ?x) = target.
+
+%Pattern
+
+==========================================================
+
+%Package		  
+
+

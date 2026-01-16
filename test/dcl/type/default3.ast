@@ -1,0 +1,7 @@
+Package dflt3 export
+
+%% Helper for default2.ast
+
+Default REAL => Rational.
+
+%Package

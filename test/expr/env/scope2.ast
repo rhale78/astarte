@@ -1,0 +1,15 @@
+Package scope
+
+%% Test scoping in applications.
+
+Execute
+  (Let x = 1. Writeln) ([$x])
+%Execute
+
+Execute
+  (Let x = 1. Writeln)(["Good"])
+  Writeln[$x].
+%Execute
+
+
+%Package

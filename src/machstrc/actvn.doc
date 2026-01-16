@@ -1,0 +1,156 @@
+/**********************************************************************
+ * File:    machStrc/actvn.doc
+ * Purpose: Describe activation records and continuation records.
+ * Author:  Karl Abrahamson
+ **********************************************************************/
+
+An ACTIVATION holds information necessary to resume a deferred
+or suspended computation.  Global variable the_act holds
+information about the currently executing computation.
+
+A CONTINUATION holds partial information necessary to resume a
+deferred or suspended computation, and is used for a frame in the
+run-time stack.  It lacks its own stack, state
+and control, since those are provided from outside when the 
+continuation is returned to.  
+
+Continuations and activations are referenced counted.  Some (those in use 
+in controls, etc.) are managed using reference counts, and some (those
+pointed to directly to by entities, such as those in lazy entities)
+are managed by the garbage collector.
+
+------------------------------------------------------------------------
+The fields of an activation are as follows.  Those for continuations
+are a subset of these.
+
+kind		0 - This activation is an ordinary activation, and when
+		    resumed, will start at its program_ctr location.
+		1 - This activation is the beginning of a lazy evaluation,
+		    and its program_ctr points to the byte that holds
+		    the environment size index.  The actual code starts
+		    after that.
+		2 - This activation has been terminated by another thread.
+		    When it starts, set failure = TERMINATE_EX.
+
+actmark		Used when marking activations during garbage collection.
+
+ref_cnt		The reference count.  Only relevant for ref-count managed
+		activations.
+
+in_atomic	number of atomic-constructs currently inside.
+
+progress	Tells if this activation has made progress since its
+		last repause.  1 indicates progress, 0 indicates no
+		progress.
+
+waiting_applies When a MULTI_APPLY_I or TAIL_MULTI_APPLY_I instruction
+		is executed, it queues up REV_APPLY_I instructions, to
+		be done when a RETURN_I instruction is done.
+		waiting_applies tells how many REV_APPLY_I instuctions
+		are queued up.
+
+name		name of the currently executing function, for 
+		reporting to user.
+
+program_ctr	The address of the next instruction to execute.
+
+type_binding_lists A list of binding lists for types.  When a type is 
+		  fetched from an environment, variables in the type are 
+		  subject to the bindings in first list in this list.
+		  (If this list is NIL, then its first member is considered
+		  to be NIL.)
+
+stack		The current stack.  (The stack is used for holding
+		temporary results and for parameter passing.)
+
+state_a		This is the current state.
+
+state_hold	A list of states that have been pushed by PRESERVE_I 
+		instructions.  
+
+control		The current control.  This holds activations that have
+		been suspended as part of backtracking or concurrent
+		execution (stream or mix).
+
+embedding_tries The control can contain nodes that belong to Try 
+		expressions.  It is possible for it to contain 
+		nodes that belong to constructs that this thread has 
+		already exited.
+
+		embedding_tries is a stack of the identities of nodes in
+		the control that correspond to constructs that the
+		current thread is inside, with more recently entered
+		constructs having their ids closer to the top (front).
+
+embedding_marks This is similar to embedding_tries, but tells identities
+		of MARK_F nodes that correspond to CutHere constructs that
+		the current thread is inside.
+
+env		The environment for this activation.
+
+num_entries	Number of entries in env that are being used by this 
+		activation.
+
+exception_list	The head of this list is the current value of `exception'.
+		Other members are for try-elses in which the current
+		try-else is embedded.  If this list is NIL, then there
+		is no currently active value of 'exception'.  In a 
+		continuation, this field is called EXCEPTION_LIST.
+
+continuation	This is the sub-activation to return to, when the current
+		activation does a RETURN_I.  There are no stack, states
+		or control fields.  
+
+st_depth	The depth of the current run-time stack.  (That is, this
+		is the length of the chain of continuations pointed to
+		by continuation.)
+
+coroutines	A list whose head is a list of coroutines that are
+		waiting for execution, and whose tail is a list of 
+		coroutines that have executed and paused.  If this field
+		is NIL, then both of those lists are NIL.
+
+trap_vec_a	The current trap vector.
+
+trap_vec_hold	A list of trap vectors for traps or untraps in which 
+		this computation is embedded.  These are the ones that
+		will be brought back when the trap or untrap is exited.
+
+result_type_instrs  Address of END_LET_I-terminated instructions that leave,
+		    on the type stack, the type of the result that will be 
+		    on stack at a RETURN_I instruction.
+
+=========================================================================
+Activations and continuations are also stored with functions and 
+lazy entities.  Not all fields are used.  Used fields are as follows.
+
+Function: (Continuation)
+  ref_cnt
+  program_ctr
+  env
+  num_entries
+  result_type_instrs
+  continuation  (Not a true continuation.  Used to link continuation cells
+		 that are in function nodes into a chain for scanning
+		 during the collect phase of garbage collection.)
+
+Lazy: (Activation)
+  ref_cnt
+  exception
+  program_ctr
+  env
+  num_entries
+  states
+  trap_vecs
+  result_type_instrs
+
+Lazy List: (Activation)
+  All fields
+  
+
+Activations and continuations can occur in entities.  There, the entity
+is sole owner of the activation or continuation.  When an activation or
+continuation occurs outside an entity, it is managed by a reference
+count.
+
+

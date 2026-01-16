@@ -1,0 +1,15 @@
+Package ant3 
+
+%% This Package tests completeness testing with anticipations.
+%% It should complain that tst is incomplete.
+
+Export
+
+Import "ant1".
+
+Extension
+  Species Myint = Natural.
+  Relate Myint isKindOf C.
+%Extension
+
+%Package

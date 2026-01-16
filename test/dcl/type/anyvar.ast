@@ -1,0 +1,9 @@
+Package anyvar
+
+%% Test equivalence of `a and ANY`a
+
+Let f(?x:`a, ?y:ANY`a) = (x,y).
+
+Let g(?x:`a, ?y:``a) = (x,y).
+
+%Package

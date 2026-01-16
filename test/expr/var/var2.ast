@@ -1,0 +1,66 @@
+Package var2 
+
+%% Test Var dcl/expr for one dimensional arrays
+
+Import "collect/boxes".
+
+Var a1(10) holding Natural.
+
+Var a2(10), a3(20) holding Natural.
+
+Var a4(10) holding Natural := 1 _upto_ 10.
+
+Var a5(10) holding Natural all := 1.
+
+Var a6(10), a7(10) holding Natural all := 2.
+
+Var{nonshared} b1(10) holding Natural.
+
+Var{nonshared} b2(10), b3(20) holding Natural.
+
+Var{nonshared} b4(10) holding Natural := 1 _upto_ 10.
+
+Var{nonshared} b5(10) holding Natural all := 1.
+
+Var{nonshared} b6(10), b7(10) holding Natural all := 2.
+
+Execute
+  For ?i from 0 _upto_ 9 do
+    If emptyBox?(a1#_i) else Writeln["Bad"]..
+    If emptyBox?(a2#_i) else Writeln["Bad"]..
+    If emptyBox?(a3#_i) else Writeln["Bad"]..
+  %For
+
+  For ?i from 0 _upto_ 9 do
+    If @(a4#_i) =/= i+1 then Writeln["Bad"]..
+    If @(a5#_i) =/= 1   then Writeln["Bad"]..
+    If @(a6#_i) =/= 2   then Writeln["Bad"]..
+    If @(a7#_i) =/= 2   then Writeln["Bad"]..
+  %For
+
+  For ?i from 0 _upto_ 9 do
+    If emptyBox?(b1#_i) else Writeln["Bad"]..
+    If emptyBox?(b2#_i) else Writeln["Bad"]..
+    If emptyBox?(b3#_i) else Writeln["Bad"]..
+  %For
+
+  For ?i from 0 _upto_ 9 do
+    If @(b4#_i) =/= i+1 then Writeln["Bad"]..
+    If @(b5#_i) =/= 1   then Writeln["Bad"]..
+    If @(b6#_i) =/= 2   then Writeln["Bad"]..
+    If @(b7#_i) =/= 2   then Writeln["Bad"]..
+  %For
+%Execute
+
+Execute
+  Var x1(10),x2(10) all := 3.
+  Var x3(10) := 1 _upto_ 10.
+
+  For ?i from 0 _upto_ 9 do
+    If @(x1#_i) =/= 3 then Writeln["Bad"]..
+    If @(x2#_i) =/= 3 then Writeln["Bad"]..
+    If @(x3#_i) =/= i+1 then Writeln["Bad"]..
+  %For
+%Execute
+
+%Package

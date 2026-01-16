@@ -1,0 +1,14 @@
+Package longcomm
+
+%% Test long comments
+
+<<<<<<<< Here is 
+a long comment.  
+
+Here is the end of
+the comment.
+>>>>>>>>
+
+Let f(?x) = x.
+
+%Package

@@ -1,0 +1,16 @@
+Package list2
+
+%% Sublist: STRING_TAG.
+
+Import "misc/check".
+
+Execute
+  Let a = "abcde".
+  Let b = tail a.
+  Let c = b##(0,2).
+  Let d = b##(1,3).
+  Line[c, " ", d].
+  Check["bc cde"].
+%Execute
+
+%Package

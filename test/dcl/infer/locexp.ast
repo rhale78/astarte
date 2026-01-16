@@ -1,0 +1,32 @@
+Package locexp
+
+%% Test reporting errors at definitions
+%% that do not match local expectations.
+
+Expect
+  f: `a -> `a
+%Expect
+
+Let f(?x) = (x,x).
+
+Expect
+  g: `a -> (`a,`a);
+  h: `a -> `a;
+  h: `a -> (`a,`a)
+%Expect
+
+Team
+  Define g(?x) = (x,x).
+  Define h(?x) = (x,x,x).
+%Team
+
+Expect
+  k: `a -> `a
+%Expect
+
+Team
+  Description k: `a -> (`a,`a) "A description".
+  Define k(?x) = (x,x).
+%Team
+
+%Package

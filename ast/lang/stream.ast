@@ -1,0 +1,116 @@
+%% File: stream.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package 	Astarte_Stream 
+=================================================================
+
+=================================================================
+%% This package describes how to use streams, which provide
+%% the backtracking control mechanism.  The things described
+%% here are available to all packages.
+%%
+%% Streams can be created by stream expressions.  
+=================================================================
+
+=================================================================
+			Export
+=================================================================
+Description 
+
+ "Stream"	%" Expression
+		%"
+		%"   Stream a then b %Stream
+		%"
+		%" is evaluated as follows.  On entry, it produces two
+		%" threads, where the first thread is computing a and
+		%" the second thread is computing b.  The thread that
+		%" computes b is disabled, however.  Only the thread that
+		%" computes a is enabled.  When and if the thread that
+		%" is computing a (and all of its subthreads) fails, 
+		%" the thread that computes b is enabled, and it runs.
+		%"
+		%" Another way to view what is happening is to see this
+		%" expression as returning more than one value, not both
+		%" at once but one at a time.  For example, 
+		%"
+		%"   Stream 1 then 2 %Stream
+		%"
+		%" returns 1 first.  If the value 1 leads to later 
+		%" failure, then the system backtracks into this stream
+		%" expression, and the stream expression instead returns
+		%" 2.
+		%"
+		%" You may write 
+		%"
+		%"   Stream a then b then c %Stream
+		%" 
+		%" for
+		%"
+		%"   Stream a then Stream b then c %Stream %Stream
+		%"
+		%" In general, any number of parts can be used, separated
+		%" by 'then'.
+		%"
+		%" For Example
+		%"
+		%"   Try
+		%"     Let a = Stream 1 then 2 then 3 %Stream.
+		%"     Writeln[$a].
+		%"     {false}
+		%"   %Try
+		%"
+		%" prints
+		%"	1
+		%"	2
+		%"	3
+
+%Description
+
+=================================================================
+%% Another way to create a stream is using function each.
+
+Description
+ each		: [`a] -> `a
+
+		%" each(l) produces a stream of the members of l.
+		%" For example, each([1,2,3]) successively produces
+		%" 1, then 2, then 3.
+%Description
+
+=========================================================================
+%% A stream is similar in some ways to a list.  Where a list is produced
+%% as a single value, a stream is produced one value at a time.  You
+%% can convert a stream to a list as follows.
+
+Description
+ "[:"	%" Expression [:e:] computes all values generated, in a stream,
+	%" by expression e, and builds a list of those values.  For
+	%" example, [:Stream 1 then 2 %Stream:] = [1,2].  Expression
+	%" [:e:] is a lazy list.  Only as much as is actually needed
+	%" will be computed.
+%Description
+
+=========================================================================
+%%You may cut off backtracking if desired.  
+
+Description
+  "Cut"		%" Cut e %Cut produces only the first value produced
+		%" by e, and discards all others that might be produced
+		%" on backtracking into e.  For example,
+		%"
+		%"   [: Cut  Stream 1 then 2 %Stream %Cut :]
+		%"
+		%" produces [1].
+%Description
+=========================================================================
+%%You may also create streams using choose and let/define expressions.
+%%Use choose all rather than choose first.
+
+%%For more on streams, see thread.ast.
+
+%Package
+

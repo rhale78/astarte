@@ -1,0 +1,17 @@
+Package denseset
+
+Import "collect/denseset".
+Import "collect/bitvec".
+Import "misc/check".
+
+Let digitsSet = denseSet "0123456789".
+Let digitsPointSet = digitsSet \/ denseSet ".eE+-".
+
+Execute
+  Line ["digitsSet = ", $digitsSet].
+  Check["digitsSet = \"0123456789\""].
+  Line ["digitsPointSet = ", $digitsPointSet].
+  Check["digitsPointSet = \"+-.0123456789Ee\""].
+%Execute
+
+%Package

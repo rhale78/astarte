@@ -1,0 +1,17 @@
+Package badindent
+
+%% Test indentation warnings.
+
+  Let f(?x) =
+Let y = 1.
+     Let z = 2
+  %Let
+  Writeln[$x, $y, $z].
+%Let
+
+Let g(?x) =
+    Let y = 1.
+    Let z = 3
+  %Let Writeln[$x, $y, $z]. %Let
+
+%Package

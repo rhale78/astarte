@@ -1,0 +1,47 @@
+Package exc1 
+
+%% Test exceptions
+
+Import "misc/check".
+
+Exception 
+  ex1;
+  trap ex2;
+  ex3 Natural;
+%Exception
+======================
+Execute
+  Try
+    fail ex1
+  then
+    Writeln["BAD"].
+  else
+    Line[$exception].
+  %Try
+  Check["exc1.ex1"].
+
+  Try
+    fail(ex3(5))
+  then
+    Writeln["BAD"].
+  else
+    Match ex3(?x) = exception.
+    Line[$x].
+  %Try
+  Check["5"].
+%Execute
+
+Exception dX1 "Exception dX1 happened".
+Exception dX2 Natural "Exception dX2 happened".
+
+%% The following should fail.
+
+Execute
+  Writeln["Should fail with exception dX2(0), and say"].
+  Writeln["Exception dX2 happened\n"].
+  Fail dX2(0).
+%Execute
+
+%Package
+
+  

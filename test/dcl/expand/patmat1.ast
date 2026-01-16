@@ -1,0 +1,32 @@
+Package patmat1
+
+%% Test patterns and expanders with locally defined symbols.
+
+Import "misc/check".
+
+Pattern ff(?x) => 
+  Let z = target.
+  Match ?x = z.
+%Pattern
+
+Expand gg(?x) =>
+  Let w = x+x.
+  (w+w)
+%Expand
+
+Execute
+  Let w = 1.
+  Let z = 2.
+  Match ff(?n) = 4.
+  Let m = gg(8).
+  Line["w = ", $w].
+  Check["w = 1"].
+  Line["z = ", $z].
+  Check["z = 2"].
+  Line["n = ", $n].
+  Check["n = 4"].
+  Line["m = ", $m].
+  Check["m = 32"].
+%Execute
+
+%Package

@@ -1,0 +1,28 @@
+Package chsErr4 
+
+
+%% Should complain about a case after an else.
+
+Execute
+  Choose first
+    case 1 == 2 => Writeln["Bad"].
+    else => Writeln["Good"].
+    case 1 == 3 => Writeln["Bad"].
+  %Choose
+%Execute
+
+%% Should complain about a case after an else.
+
+Execute
+  Choose first
+    case 1 == 2 => 
+      Subcases
+        case false => Writeln["Bad"].
+	else => Writeln["Good"].
+      %Subcases
+    else => Writeln["Good"].
+    case 1 == 3 => Writeln["Bad"].
+  %Choose
+%Execute
+
+%Package

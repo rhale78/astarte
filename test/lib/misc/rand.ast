@@ -1,0 +1,25 @@
+Package rand
+
+%% Test random bit generator.
+
+Import "misc/random".
+
+Execute
+  Let zeros = 0.
+  Let ones  = 0.
+  For ? from 1 _upto_ 20 do
+    For ? from 1 _upto_ 70 do
+      Let t = coinToss().
+      Write[$coinToss()].
+      If t == 0 
+        then Relet zeros = zeros + 1.
+	else Relet ones  = ones + 1.
+      %If
+    %For
+    Writeln[].
+  %For
+  Writeln["zeros: ", $zeros].
+  Writeln["ones : ", $ones].
+%Execute
+
+%Package

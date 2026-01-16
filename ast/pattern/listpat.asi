@@ -1,0 +1,105 @@
+%% File listpat.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=======================================================================
+Package 		Astarte_ListpatImp
+
+			Implements "listpat"
+=========================================================================
+
+====================================================================
+%% 			appendSplit!
+====================================================================
+
+Let appendSplit! ?l =
+  Loop (?x,?y) = (nil,l) all
+    exitcase true => (x,y)
+    loopcase not nil? y => continue (x++[head y], tail y)
+  %Loop
+%Let
+
+====================================================================
+%% 			appendSplit
+====================================================================
+
+%%------------------------------------------------------------
+%% Each time we split l into x ++ y, we add a lazy nil to the
+%% end of x, and make y lazy.  If control comes back and 
+%% neither the lazy nil nor y has been evaluated, then
+%% we can avoid trying other pairs (x,y) with longer x.
+%%------------------------------------------------------------
+
+Let appendSplit ?l =
+  Loop (?x,?y) = (nil,l) all
+    do Let lazyNil_l = (:nil:).
+       Let lazyY_l   = (:y:).
+       
+    exitcase true => (x ++ lazyNil_l, lazyY_l)
+    
+    loopcase not nil? y _and_ (notLazy? lazyNil_l _or_ notLazy? lazyY_l) => 
+      continue (x ++ [head y], tail y)
+  %Loop
+%Let
+
+====================================================================
+%% 			mixAppendSplit
+====================================================================
+
+Let mixAppendSplit ?l =
+  Loop (?x,?y) = (nil,l) all mixed
+    exitcase true => (x,y)
+    loopcase not nil? y => continue (x++[head y], tail y)
+  %Loop
+%Let
+
+====================================================================
+%% 			pullN
+====================================================================
+
+Let pullN ?n ?s = (s##(0,n), s##(n,largenum)) |
+  {length(s) >= n else listExhaustedX}
+%Let
+
+====================================================================
+%% 			pullUpToN
+====================================================================
+
+Let pullUpToN ?n ?s = (s##(0,n), s##(n,largenum)).
+
+=====================================================================
+%% 			pulls
+====================================================================
+
+Define pulls ?puller ?l =
+  Await then
+    Untrap listExhaustedX =>
+      Choose first
+        case nil? l => nil
+        case do Match (?a,?b) = puller(l). => [a & pulls puller b]
+	case listExhaustedX?(exception) => nil
+	else => fail exception
+      %Choose
+    %Untrap
+  %Await
+%Define
+
+=====================================================================
+%% 			repeatPull
+====================================================================
+
+Define repeatPull ?puller ?l =
+  Await then
+    Choose first
+      case nil? l => nil
+      case do Match ?p _also_ (?,?r) = puller(l). =>
+        [p & repeatPull puller r]
+      case listExhaustedX?(exception) => nil
+      else => fail exception
+    %Choose
+  %Await
+%Define
+
+%Package

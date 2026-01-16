@@ -1,0 +1,42 @@
+Package testtype2 Export
+
+%% Test uniform families
+
+Import "misc/check".
+
+Extension
+  Species
+    F1 `a = `a;
+    F2 `a = (F1 `a, Natural);
+    F3 `a = makeF3(F2 `a);
+  %Species
+%Extension
+
+Execute
+  Let a = f1(2).
+  Match f1(?b) = a.
+  Line[b $$ 5].
+  Check["    2"].
+
+  Let c = f2(f1(3), 4).
+  Match f2(f1(?d), ?e) = c.
+  Line[d $$ 5, e $$ 5].
+  Check["    3    4"].
+  
+  Let f = makeF3(c).
+  Match makeF3(?g) = f.
+  Match f2(f1(?h), ?i) = g.
+  Line[h $$ 5, i $$ 5].
+  Check["    3    4"].
+  
+  If a == a 
+    else Writeln["BAD"].
+  %If
+  Let aa = f1(3).
+  If a == aa
+    then Writeln["BAD"].
+  %If
+
+%Execute
+
+%Package

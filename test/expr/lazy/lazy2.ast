@@ -1,0 +1,35 @@
+Package lazy2
+
+%% Test lazyHead, lazyTail, notLazy?, lazyPack
+
+Import "misc/check".
+
+Execute
+  Let x = (:[2,3,4]:).
+  Let y = lazyHead x.
+  Let z = lazyTail x.
+  Line[$notLazy?(x)].
+  Check["false"].
+  
+  Line[$x, " ", $y, " ", $z].
+  Check["[2,3,4] 2 [3,4]"].
+  
+  Line[$notLazy?(x)].
+  Check["true"].
+%Execute
+
+Execute
+  Let x = lazyPack[2,3,4].
+  Line[$notLazy?(x)].
+  Check["false"].
+
+  Line[$head(x)].
+  Check["2"].
+  
+  Line[$notLazy?(x)].
+  Check["true"].
+%Execute
+
+%Package
+
+

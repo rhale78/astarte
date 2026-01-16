@@ -1,0 +1,286 @@
+<HTML>
+<head>
+<title>Astarte: creating functions</title>
+</head>
+<body>
+<center>
+<a href="patternmatch.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="conditional.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E11. Creating Functions </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#funcexpr> Function expressions</a>
+  <li> <a href=#define> Defining functions: single case</a>
+  <li> <a href=#by> Defining functions: multiple cases</a>
+  <li> <a href=#choicemode> Choice modes</a>
+  <li> <a href=#caseforms> Definition case forms</a>
+  <li> <a href=#then> Actions at the end of definitions with multiple cases</a>
+</menu>
+
+<a name=funcexpr></a>
+<hr>
+<h2><font color=mediumblue> Function expressions </font></h2>
+
+Functions are values in Astarte.  You can give functions names,
+put them into variables, return them from other functions, etc.
+
+<p>The most basic way to define a function is using an expression of
+the form (?<i>x</i> =&gt; <i>e</i>) where <i>x</i> is an 
+identifier and <i>e</i> is an expression
+that can use <i>x</i>.  The function that this expression denotes
+is the function <i>f</i>(<i>x</i>) = <i>e</i>.  
+<font color=BLACK>For example</font>,
+<font color="#D00090">
+<b><pre>
+      (?x =&gt; 2*x)
+</pre></b>
+</font>
+is the function that returns twice its argument.
+
+<P> In general, you can use an expression of the form
+(<i>p</i> =&gt; <i>e</i>) where <i>p</i> is a pattern and 
+<i>e</i> is an expression.  This 
+is the same as (?<i>x</i> =&gt; Match <i>p</i> = <i>x</i> %Match (<i>e</i>)), 
+where <i>x</i> is some new identifier.  
+<font color=BLACK>For example</font>
+<font color="#D00090">
+<b><pre>
+      ((?x,?y) =&gt; x + 2*y)
+</pre></b>
+</font>
+is the function <i>f</i> defined by <i>f</i>(<i>x</i>,<i>y</i>) = <i>x</i> + 2<i>y</i>.  
+(However, this function is
+anonymous; it is not called <i>f</i> or anything else.)
+
+<a name=define></a>
+<hr>
+<h2><font color=mediumblue> Defining functions: single case </font></h2>
+
+Usually, you want to create a function and give it a name
+simulataneously.  You can do that as follows.  All of the forms shown
+in this and subsequent sections work equally well for let, 
+define or relet statements, even if they are
+only shown for one of those kinds of statements.
+
+<dl>
+
+<p><dt><font color="red"> Let <i>f</i> <i>p</i> = <i>e</i> %Let</font>
+<dd> You can define a function using a let statement.  Definition
+<b><pre>
+  Let <i>f</i> <i>p</i> = <i>e</i> %Let
+</pre></b>
+is equivalent to 
+<b><pre>
+  Let <i>f</i> = (<i>p</i> =&gt; <i>e</i>) %Let
+</pre></b>
+A let-statement cannot be recursive.
+<p><font color=BLACK>Example:</font> <font color="#D00090">Let dbl(?x) = 2*x.</font>
+
+<p><dt><font color="red"> Define <i>f</i> <i>p</i> = <i>e</i> %Define</font>
+<dd> You can define a function using a define statement.  The form shown is
+equivalent to 
+<b><pre>
+   Define <i>f</i> = (<i>p</i> =&gt; <i>e</i>) %Define
+</pre></b>
+A define statement can be recursive.
+<font color=BLACK>For example</font>, 
+the factorial function can be defined as
+<font color="#D00090">
+<b><pre>
+    Define factorial(?n) =
+      If n == 0 then 0 else n*factorial(n--1) %If
+    %Define
+</pre></b>
+</font>
+
+<p><dt><font color="red"> Let <i>f</i> <i>p</i> <i>q</i> = <i>e</i> 
+%Let</font>
+<dd> A <font color=blue><i>curried</i></font> 
+function is a function that produces another function
+as its result.  
+You can define a curried function using a let or define statement.  
+The let statement shown above is equivalent to 
+<b><pre>
+   Let <i>f</i> = (<i>p</i> =&gt; (<i>q</i> =&gt; <i>e</i>)) %Let
+</pre></b>
+You can use any number of parameters.
+<font color=BLACK>For example</font>, 
+function <i>compose</i> such that compose f g x = f(g(x))
+can be written as follows.
+<font color="#D00090">
+<b><pre>
+     Let compose ?f ?g ?x = f(g(x)).
+</pre></b>
+</font>
+This definition of compose is equivalent to
+<font color="#D00090">
+<b><pre>
+     Let compose = (?f =&gt; (?g =&gt; (?x =&gt; f(g(x)) ))).
+</pre></b>
+</font>
+So compose is the function composition function; 
+(compose f g) is the function h
+defined by h(x) = f(g(x)).
+</dl>
+
+<a name="by"></a>
+<hr>
+<h2><font color=mediumblue> Defining functions: multiple cases </font></h2>
+
+If your function definition has several cases, you can use the
+form
+<font color=#D00090>
+<b><pre>
+     Let <font color=black><i>f</i></font> by <font color=black><em>choice-mode</em></font>
+       <font color=black><em>cases</em></font>
+     %Let
+</pre></b>
+</font>
+or
+<font color=#D00090>
+<b><pre>
+     Let <font color=black><i>f</i> <i>p</i></font> by <font color=black><em>choice-mode</em>
+       <em>cases</em></font>
+     %Let
+</pre></b>
+</font>
+where <em>cases</em> is a sequence of cases, <em>choice-mode</em>
+tells how the cases are tried, and <i>p</i> is a pattern that is matched
+against the argument.  
+<font color=BLACK>For example</font>, a function that takes
+the maximum of two values can be written as follows.
+<font color="#D00090">
+<b><pre>
+     Let max by first
+       case max(?a,?b) = a  when a >= b
+       else max(?a,?b) = b
+     %Let
+</pre></b>
+</font>
+If you prefer, you can write it as follows, although it does
+not read as well.
+<font color="#D00090">
+<b><pre>
+     Let max(?a,?b) by first
+       case max(?) = a  when a >= b
+       else max(?) = b
+     %Let
+</pre></b>
+</font>
+There are similar forms for define and relet statements.
+
+<a name="choicemode"></a>
+<h3><font color=mediumblue>Choice modes</font></h3>
+The options for choice-mode are
+as follows.
+<dl>
+<p><dt><font color="red"> first</font>
+<dd> Try the cases in the order written, choosing the first
+that is applicable.  If you omit the choice-mode, the default is <i>first</i>.
+
+<p><dt><font color="red"> one</font>
+<dd> Try the cases in an <i>arbitrary</i> order, choosing the first
+one that is encountered that is applicable.  This is useful in telling
+a reader that the cases can be read independently of one another.  When
+reading the third case, for example, you are not required to be
+aware that the third case will only be tried if the first two cases
+are not chosen.  The third case might, in fact, be the first one tried.
+
+<p><dt><font color="red"> one mixed</font>
+<dd> Try the cases in parallel, choosing the first
+one whose selection condition succeeds.  The selection condition succeeds
+if the pattern match succeeds and the when condition, if present, is true.
+
+<p><dt><font color="red"> all </font>
+<dd> Try all cases using separate threads, using a stream
+that produces the result of the first case first, etc.
+See <a href=streams.html>streams</a>.
+
+<p><dt><font color="red"> all mixed </font>
+<dd> Try all cases using separate threads, using
+a mixed stream, and producing the results in an arbitrary order.
+See <a href=streams.html>streams</a>.
+</dl>
+
+<a name=caseforms></a>
+<h3><font color=mediumblue>Definition case forms</font></h3>
+
+The cases have the forms
+<dl>
+
+<p><dt><font color="red"> case f p = e when c</font>
+<dd> Define f(p) = e, where p is a pattern.  This definition is
+only used if p matches the input and condition c is true.  
+You can omit the <i>when c</i> phrase.
+
+<p><dt><font color="red"> case f p q = e when c</font>
+<dd> This is similar to the preceding case, but for a curried function.
+You can have any number of parts.
+
+<p><dt><font color="red"> else f p = e</font>
+<dd> This can only used as a last case.  This case
+will only be taken if no other cases apply.  (A case applies if its
+pattern match succeeds and its when clause, if present, is true.)
+
+<a name=do></a>
+<p><dt><font color="red"> do f p =&gt; e</font>
+<dd> <font color=brown>
+When this case is encountered, pattern p is matched against 
+the function argument, and expression e is evaluated.
+Expression e must have species ().  
+If the match fails, then evaluation of the function fails.
+If the choice mode is <i>one</i> or <i>one mixed</i> or <i>all mixed</i>, 
+then this can only be the first case.
+
+<p>Any bindings done in a do-case are defined for all subsequent cases.
+When the choice mode is <i>all</i>, the do phrase is done by
+a thread that is common to all the cases that follow.
+
+<p>There are curried do-forms, such as 
+<font color=#D00090>do f p q r =&gt; e</font>, as well.
+</font>
+</dl>
+
+<a name="then"></a>
+<hr>
+<h2><font color=mediumblue> Actions at the end of definitions with multiple cases </font></h2>
+
+As a final case in a definition with multiple cases, you can
+have a final action.  It has the form
+<b><pre>
+      then p =&gt; s
+</pre></b>
+This action will be done after the function value has been
+computed.  It will match pattern p against the result of the
+function, and then will evaluate statement s.  
+<font color=BLACK>For example</font>,
+<font color="#D00090">
+<b><pre>
+      Let max(?a,?b) by first
+        case max ? = a when a >= b
+        case max ? = b 
+        then ?res =&gt; Writeln["max(", $a, ",", $b, ") = ", $res].
+      %Let
+</pre></b>
+</font>
+defines a function that takes the maximum of two values and
+prints an indication of what it did.  It still returns the result.
+
+<hr>
+<center>
+<a href="patternmatch.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="conditional.html">Next</a>
+</center>
+</body>
+</HTML>

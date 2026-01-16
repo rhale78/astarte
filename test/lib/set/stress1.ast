@@ -1,0 +1,28 @@
+Package stress1
+
+Import "collect/sparsset".
+Import "misc/check".
+
+Assume s: SparseSet(`?).
+
+Execute
+  Let s = emptySet.
+  For ?i from 1 _upto_ 1000 do
+    Relet s = s +/ 2*i.
+  %For
+  For ?i from 1 _upto_ 1000 do
+    Line[$((2*i) _in_ s)].
+    Check["true"].
+  %For
+  For ?i from 1 _upto_ 1000 do
+    Line[$((2*i + 1) _in_ s)].
+    Check["false"].
+  %For
+  For ?i from 1 _upto_ 1000 do
+    Relet s = s -/ 2*i.
+  %For
+  Line[$s].
+  Check["[]"].
+%Execute
+
+%Package

@@ -1,0 +1,21 @@
+Package testlazylist1 
+
+%% Test [:...:]
+
+Directory standard.  Import "misc/check".
+
+Define nats =
+  [:Loop ?i = 0 all
+      exitcase true => i
+      loopcase true => continue i+1
+    %Loop
+  :]
+%Define
+
+Execute
+  Line[$(nats##(0,21))].
+  Check["[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"].
+%Execute
+
+%Package
+

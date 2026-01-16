@@ -1,0 +1,51 @@
+Package misc
+
+%% This package test miscellaneous boolean operations.
+
+Import "misc/check".
+
+%% not
+
+Execute
+  Line eagerMap($) [not true, not false].
+  Check["falsetrue"].
+%Execute
+  
+%% ==>, _andf_, _orf_
+
+Execute
+  Line eagerMap($) [true _orf_ true, true _orf_ false, 
+  	            false _orf_ true, false _orf_ false]
+  %Line
+  Check["truetruetruefalse"].
+
+  Line eagerMap($) [true _andf_ true, true _andf_ false, 
+  	            false _andf_ true, false _andf_ false]
+  %Line
+  Check["truefalsefalsefalse"].
+
+  Line eagerMap($) [true ==> true, true ==> false, 
+  	            false ==> true, false ==> false]
+  %Line
+  Check["truefalsetruetrue"].
+%Execute
+
+%% boolean, rank
+
+Execute
+  Line[$boolean(0), $boolean(1)].
+  Check["falsetrue"].
+  Line[$rank(false), " ", $rank(true)].
+  Check["0 1"].
+  
+  Untrap conversionX =>
+    Try
+      Let a = boolean(2).
+    then
+      Writeln["Bad: ", $a].
+    %Try
+  %Untrap
+%Execute
+
+
+%Package

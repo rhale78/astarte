@@ -1,0 +1,44 @@
+Package Testcomplex1
+
+%% Test +, -, * and / for complex numbers.
+
+Import "math/complex" %Import
+Import "misc/check" %Import
+
+Execute
+  Let a = complex(~0,~1) + complex(~2,~(-1)).
+  Line[re a $$ 20, im a $$ 20].
+  Check[" 2.000000000000E+000 0.000000000000E+000"].
+
+  Let b = complex(~0.0, ~1.0) - complex(~2.0, ~(-1.0)).
+  Line[re b $$ 20, im b $$ 20].
+  Check["-2.000000000000E+000 2.000000000000E+000"].
+
+  Let c = complex(~0.0, ~1.0) * complex(~2.0, ~(-1.0)).
+  Line[re c $$ 20, im c $$ 20].
+  Check[" 1.000000000000E+000 2.000000000000E+000"].
+
+  Let d = complex(~0.0, ~1.0) / complex(~2.0, ~(-1.0)).
+  Line[re d $$ 20, im d $$ 20].
+  Check["-2.000000000000E-001 4.000000000000E-001"].
+
+  Let x = (complex(~0,~1)/complex(~2,~(-1)))*complex(~2,~(-1)).
+  Line[re x $$ 20, im x $$ 20].
+  Check[" 0.000000000000E+000 1.000000000000E+000"].
+
+  Let z = 1.
+  Line[re z $$ 20, im z $$ 20].
+  Check[" 1.000000000000E+000 0.000000000000E+000"].
+
+  Let z' = 1.0.
+  Line[re z' $$ 20, im z' $$ 20].
+  Check[" 1.000000000000E+000 0.000000000000E+000"].
+
+  Let z'' = complex(1).
+  Line[re z'' $$ 20, im z'' $$ 20].
+  Check[" 1.000000000000E+000 0.000000000000E+000"].
+
+%Execute
+
+%Package
+

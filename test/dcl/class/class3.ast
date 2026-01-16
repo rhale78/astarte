@@ -1,0 +1,82 @@
+Package class3
+
+%% Test parameterized classes.
+
+Import "object".
+Import "misc/check".
+
+  Extension
+    Class Stack(`a)
+      Const size : Natural.          %% The physical size of an array that
+                                     %% holds the stack contents.
+
+      Var 
+        depth holding Natural := 0;  %% The current number of members
+        content(my-size) holding `a  %% The stack contents
+      %Var
+
+      Expect
+        Push  : `a -> ();
+        pop   : () -> `a;
+        Empty : () -> ();
+        empty?: () -> Boolean
+      %Expect
+    %Class
+  %Extension
+
+  Exception 
+    trap stackUnderflowX; 
+    trap stackOverflowX
+  %Exception
+
+  Define Ask Stack ?s => empty?() %Ask =
+    @(my depth) == 0
+  %Define
+
+  Define Ask Stack ? => 
+           Empty. 
+         %Ask =
+    Assign my depth := 0.
+  %Define
+
+  Define Ask Stack ? => pop() %Ask =
+    If my empty?() then 
+      fail stackUnderflowX
+    else
+      Let currentIndex = @(my depth).
+      Decrement my depth.
+      Value @( my content # currentIndex ).
+    %If
+  %Define
+
+  Define Ask Stack ? => 
+           Push(?s). 
+         %Ask =
+    If @(my depth) >= my size then
+      fail stackOverflowX
+    else
+      Increment my depth.
+      Assign (my content) # (@my depth) := s.
+    %If
+  %Define
+
+ Define Stack constructor
+   stringStack(?my-size) =
+     ()
+   then
+     Assign my depth := 0.
+ %Define
+
+ Define Stack constructor
+   altstringStack(?my size) = ()
+ %Define
+
+Execute
+  Let mystack = stringStack(50).
+  Ask mystack => Push("horse"). %Ask
+  Line[$(Ask mystack => pop().)].
+  Check["\"horse\""].
+%Execute
+
+%Package
+   

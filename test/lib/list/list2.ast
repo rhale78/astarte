@@ -1,0 +1,41 @@
+Package testlist2 
+
+%% Test reverse
+
+Import "collect/boxes"; "misc/check".
+
+Execute
+  Let a = [1].          	%% pair
+  Let b = [1,2].        	%% triple
+  Let c = [1,2,3].      	%% quad
+  Let d = [1,2,3,4].    	%% quint
+  Let e = [1,2,3,4,5].  	%% hex
+  Let f = e ++ e.         	%% append
+  Let g = pack(f).   		%% normal array
+  Let h:[Box(Natural)]  = nonsharedArray(5).    %% nonshared array
+  Let i:[Box(Natural)]  = sharedArray(5).	%% shared array
+  Let j = [:Stream 1 then 2 then 3 %stream:].
+  Let k = e##(1,3).		%% lazy
+  Let l = (:[1,2,3]:).		%% lazy
+  Let m = "abcde". 		%% constant string
+  Let n = pack['a','b','c'].	%% built string
+
+  Line[$reverse (nil:[Natural]), $reverse a, $reverse b, $reverse c, $reverse d, $reverse e].
+  Check["[][1][2,1][3,2,1][4,3,2,1][5,4,3,2,1]"].
+
+  Line[$reverse f, $reverse g].
+  Check["[5,4,3,2,1,5,4,3,2,1][5,4,3,2,1,5,4,3,2,1]"].
+
+  Line[$reverse j, $reverse k, $reverse l, $reverse m, $reverse n].
+  Check["[3,2,1][4,3,2][3,2,1]\"edcba\"\"cba\""].
+
+  Line[$reverse h].
+  Check["(5 consecutive boxes, in reverse order)\n"].
+  Writeln[$reverse i].
+  Writeln["(5 consecutive places, in reverse order)\n"].
+	   
+%Execute
+
+%Package
+
+

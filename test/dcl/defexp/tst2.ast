@@ -1,0 +1,29 @@
+Package testdef2 
+
+%% More tests of lazylets and lets.
+
+Directory standard.  Import "misc/check".
+
+Define len by first
+  Define len([]) = 0.
+  Define len([? & ?t]) = 1 + len(t).
+%Define
+
+Let predecessor by one
+  Let predecessor(0) = 0.
+  Let predecessor(?n+1) = n.
+%Let
+
+Execute
+  Line[$(len[])].
+  Check["0"].
+  Line[$(len[1,2,3])].
+  Check["3"].
+  Line[$(predecessor(0))].
+  Check["0"].
+  Line[$(predecessor(3))].
+  Check["2"].
+%Execute
+
+%Package
+

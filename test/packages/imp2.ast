@@ -1,0 +1,9 @@
+Package imp2 export
+
+Expect x2: Natural.
+
+implementation
+
+Let x2 = 0.
+
+%Package

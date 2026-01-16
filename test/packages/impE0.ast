@@ -1,0 +1,11 @@
+Package impE0
+
+%% Test multiple overlapping expectations being imported.
+
+Import "impE1".
+
+Execute
+  Writeln[$v].
+%Execute
+
+%Package

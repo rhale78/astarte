@@ -1,0 +1,76 @@
+%% File: sort.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%====================================================================
+Package 		Astarte_Sort
+
+			Interface
+======================================================================
+
+======================================================================
+%% This package provides some functions that sort lists, and
+%% that check whether lists are sorted.
+======================================================================
+
+Expect
+  sort		: ((`a,`a) -> Boolean) -> [`a] -> [`a]
+
+		%" (sort r l) returns the result of sorting list l
+		%" according to relation r, which should be a
+		%" total order.  For example, sort (<=) l
+		%" sorts l into ascending order, and sort (>=) l sorts
+		%" l into descending order.  The sort is stable if
+		%" the order relation r returns true when its
+		%" parameters are equal.
+		;
+
+  sortRemovingDuplicates
+		: ((`a,`a) -> Boolean) ->
+		   ((`a,`a) -> Boolean) -> [`a] -> [`a]
+
+		%" (sortRemovingDuplicates eqf r l) is the result
+		%" of sorting list l according to total order
+		%" relation r, removing duplicates.  Function eqf
+		%" is used to perform equality tests.  The first
+		%" member of each duplicated value is selected.
+		%" For example, (sortRemovingDuplicates (==) (<) l)
+		%" sorts l into ascending order, removing duplicates.
+		;
+
+  sorted?	: ((`a,`a) -> Boolean) -> [`a] -> Boolean
+
+		%" (sorted? r l) is true if list l is sorted by relation
+		%" r.  This just tests whether each consecutive pair of
+		%" values in list l are related by r.  For example,
+		%" (sorted? (<=) l) will test whether l is in
+		%" nondescending order, and (sorted? (<) l) will test
+		%" whether list l is in strictly ascending order.
+		;
+
+  mergeSortedLists: ((`a,`a) -> Boolean) -> ([`a],[`a]) -> [`a]
+
+		%" (mergeSortedLists r (a,b) merges lists a and b, which
+		%" must be sorted by relation r, into a single list that
+		%" is sorted by relation r.
+		;
+
+  mergeSortedListsRemovingDuplicates
+		  : ((`a,`a) -> Boolean) -> 
+		      ((`a,`a) -> Boolean) -> ([`a],[`a]) -> [`a]
+
+		%" (mergeSortedListsRemovingDuplicates eqf r (a,b)
+		%" merges lists  a and b, which must be sorted
+		%" by relation r and contain no duplicates, into
+		%" a single list that is sorted by relation r and
+		%" contains no duplicates.  Relation eqf is used
+		%" to perform equality checks to decide whether two
+		%" values are duplicates.
+
+%Expect
+====================================================================
+
+%Package
+

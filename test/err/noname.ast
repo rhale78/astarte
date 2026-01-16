@@ -1,0 +1,11 @@
+Package
+
+%% Test a package without a name.
+
+Define x = 1.
+
+Execute
+  Writeln["Oh dear"].
+%Execute
+
+%Package

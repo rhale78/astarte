@@ -1,0 +1,34 @@
+Package opover
+
+%% Test operator overriding.
+
+=======================================================
+Operator op2(*).
+Operator{override} op2(#).
+
+%% The following should not yield a complaint.
+
+Let ?x op2 ?y = x + y.
+
+=======================================================
+Operator{override} $$(+).
+
+%% The following should not yield a complaint.
+
+Let ?x $$ ?y = x + y.
+
+=======================================================
+%% Now swap the precedence of + and *.
+
+Operator{override} +(_opL7_).
+Operator{override} *(_opL6_).
+
+Import "misc/check".
+
+Execute
+  Line[$(2+3*5)].
+  Check["25"].
+%Execute
+=======================================================
+
+%Package

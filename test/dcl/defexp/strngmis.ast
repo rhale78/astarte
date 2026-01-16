@@ -1,0 +1,17 @@
+Package strongMissing 
+
+%% Test strong missing dcls
+
+Missing{strong} id1:`a.
+
+%% Should warn about id1 being missing.
+
+Let id1(?x) = x.
+
+Let id2(?x) = x.
+
+%% Should warn about id2 being missing.
+
+Missing{strong} id2:`a.
+
+%Package

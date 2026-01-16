@@ -1,0 +1,74 @@
+<HTML>
+<head>
+<title>Astarte: species as values</title>
+</head>
+<body>
+<center>
+<a href="defaultdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="typecontext.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T25. Species as Values </font></h1>
+</center>
+
+A species can be made a value and treated like a data item.
+Currently, the capabilities are very rudimentary, but they will
+be improved later.  The currently available features are as 
+follows.
+
+<dl>
+
+<a name=ASpecies></a>
+<p><dt><font color="red">ASpecies</font>
+<dd>When a species is treated as a value, its species is ASpecies.
+
+<a name=speciesAsValue></a>
+<p><dt><font color="red">speciesAsValue</font>
+<dd>Expression 
+<font color=#D00090>speciesAsValue <i>T</i></font>
+is species <i>T</i>, as a value of species ASpecies.
+<p>Example:
+<font color=#D00090>speciesAsValue (Integer,Integer)</font>
+is species (Integer,Integer), as a value.
+
+<a name=typeof></a>
+<p><dt><font color="red">speciesOf</font>
+<dd> <font color=#D00090>speciesOf(x)</font> 
+is the (extrinsic) species of x, as a value of species ASpecies.
+<p>Example: 
+<font color="#D00090">speciesOf(&quot;abc&quot;) </font>= [Char].
+
+<a name=intrinsictypeof></a>
+<p><dt><font color="red">intrinsicSpeciesOf</font>
+<dd> <font color=#D00090>intrinsicSpeciesOf(x)</font> 
+the intrinsic species of x, as a value of species ASpecies.
+<p>Example: 
+<font color="#D00090">intrinsicSpeciesOf(<<&quot;abc&quot;>>:ANY) </font>= 
+[Char].
+
+<a name=dollar></a>
+<p><dt><font color=red>$</font>
+<dd> $(t) is a string that describes t.  
+<p>Example:
+<font color=#D00090>$(speciesAsValue (Integer,Integer))</font> =
+&quot;(Integer,Integer)&quot;.
+
+</dl>
+
+<hr>
+<center>
+<a href="defaultdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="typecontext.html">Next</a>
+</center>
+</body>
+</HTML>

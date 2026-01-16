@@ -1,0 +1,185 @@
+<HTML>
+<head>
+<title>Astarte: making contributions</title>
+</head>
+<body>
+<center>
+<a href="debug.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bugs.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> Making Contributions </font></h1>
+</center>
+
+<menu>
+  <li><a href=#small>Suggested small contributions</a>
+  <li><a href=#medium>Suggested medium contributions</a>
+  <li><a href=#large>Suggested large contributions</a>
+</menu>
+
+<hr>
+Would you like to contribute to the project of implementing this
+system?  Contributions can be large or small.  Below is a
+list of things that can be done. 
+
+<p>If you notice anything missing that is not listed and that you
+would like to contribute, please feel free to do that as well.
+For anything that takes considerable work, however, please submit
+a proposed design before doing an implementation.
+
+<a name=small></a>
+<hr>
+<h2><font color=mediumblue> Suggested small contributions</font></h2>
+
+<ol>
+<p><li>Report any mistakes that you find in either the documentation
+or the implementation.  Before reporting mistakes in the implementation,
+please see the <a href=bugs.html>list of known bugs</a>.
+
+<!--<p><li>Check the <a href=ast/TDRec.txt>test record</a>.  You will find that
+many functions and features have undergone only limited testing.  Provide
+a test package for a function or functions or feature.  This is one
+way to understand a function.  <b>Note.</b> The test record is quite
+terse, and includes things that have not been documented at all.
+You cannot test those.  The only things that you can test are things
+that have been documented.-->
+</ol>
+
+<a name=medium></a>
+<hr>
+<h2><font color=mediumblue> Suggested medium contributions</font></h2>
+
+For these contributions, all that I can offer you is credit for having
+done them.  Your name
+will appear in anything that you write.
+
+<ol>
+<p><li>If you discover how to do something, write a tutorial for other
+students.  If you write it in html, I will incorporate it into the
+documentation, with your name as author.  This does not include specifics
+of how to solve assigned programming exercises, but does include general
+ways of doing things.
+
+<p><li>Functions are needed to convert a string to a modular number,
+and to pull a modular number from the front of a string.  The functions
+should be called stringToModular and pull.  See documentation
+on pull.  
+The implementation of pull should be consistent with the
+implementation of $, so that it is possible to write a modular number
+and read it back.  The might require a modification to $.
+
+<p><li>Functions are needed to convert a string to a complex number,
+and to pull a complex number from the front of a string.  The functions
+should be called stringToComplex and pull.  See documentation
+on pull.
+The implementation of pull should be consistent with the
+implementation of $, so that it is possible to write a complex number
+and read it back.  The might require a modification to $.
+
+<p><li>Add a time package.  The package should implement two different
+species, Duration and Date.  A duration is an interval of time, and a 
+date is an absolute time (not just to the day, but at a minimum to the 
+second).  Reasonable functions should be provided.
+For example, the difference between two dates should be a duration,
+and the sum of a date and a duration should be a date.  A function to
+get the current time of day should be provided, as well as implementations
+of $.  Use your imagination.  Be careful to take into account 
+anomolies in the calendar.  Watch out for the switch from the Julian
+calendar to the Gregorian calendar, and for the fact that there was no 
+year 0.
+
+<p><li>Implement operations on species ASpecies, such as operations
+to break down a complex species into its parts and to build a species from
+parts.  This requires making a modification to the interpreter: new
+instructions must be added.  There is not that much to it, but you 
+need to talk to me about how to do it, or see files instruc.h, evaluate.c,
+stdids.c and stdfuns.c.  The instructions should be added under
+UNARY_PREF_I and BINARY_PREF_I.
+</ol>
+
+<a name=large></a>
+<hr>
+<h2><font color=mediumblue> Suggested large contributions</font></h2>
+
+Large contributions might count for a Master's project.  If you are
+interested in any of these, please talk to me about them.  I can
+show you what needs to be done.
+
+Each of the following is
+rated according to how difficult I perceive the project to be:
+<menu>
+<p><li>(*) These appear to be straightforward, 
+although possibly requiring some thought
+and work before it becomes clear how to proceed.  There is possibly
+a substantial amount of implementation work to do.
+
+<p><li>(**)  These appear to be a little more difficult, 
+either in the thought phase or
+the implementation phase.
+
+<p><li>(***) These require substantial thought or
+a relatively large implementation (although, appropriately reduced
+in scope, possible to do as a master's project).  It might not
+be possible to do the entire job.
+</menu>
+
+<ol>
+<p><li> (*) The Astarte compiler performs an exhaustiveness check at
+pattern matches, to be sure that all cases have been taken into
+account.  This needs to be implemented. This involves working out
+data structures and algorithms, as well as coding of the solution.
+
+<p><li> (*) Provide a library that allows an Astarte program to open
+files on a remote machine, using http or ftp.  This involves
+acquiring software for network protocols, and integrating it
+into the existing interpreter (with help on how to do this).
+
+<p><li> (*) Currently, novice programmers are confused by type errors.
+Provide a type error expert that receives information about
+a type error and explains the error to the programmer, possibly
+suggesting the most likely cause.  This involves developing a basic
+understanding of the polymorphic type system that Astarte supports,
+and working out ideas for understanding common errors.
+
+<p><li> (*) Implement a debugger for Astarte programs.  A partial debugger
+exists, but needs to be improved considerably.  This involves
+little in the way of algorithm development, but mostly implementation
+of the debugger, and integration into the existing interpreter.
+
+<!-- <p><li> (*) Port the Astarte system to MS Windows.  This involves
+setting up user interaction and text editing capabilities, 
+and attaching the compiler and 
+interpreter to it.  Very few modifications will be needed to the
+compiler and interpreter, and I can make those if they are required. -->
+
+<p><li>(*) Modify the interpreter to improve handling of threads.
+Make it possible to detach a thread from its context, and make it
+possible to control threads from other threads.  
+
+<p><li> (**) Provide a small graphics library, so that an Astarte program
+can open a window and interact with the user graphically.  This
+project would have to be kept modest, with room for extension later.
+This involves use of the X-windows application program interface, if
+implemented for Unix, or of MS windows API if implemented in MS Windows.
+
+<p><li> (***) Integrate a Java interpreter into the existing Astarte
+interpreter, allowing Astarte programs to call Java functions.
+This would require modifying an existing Java interpreter,
+along with considerable interaction with me and help with
+the integration.
+
+</ol>
+
+<hr>
+<center>
+<a href="debug.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bugs.html">Next</a>
+</center>
+</body>
+</HTML>

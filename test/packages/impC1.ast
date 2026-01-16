@@ -1,0 +1,24 @@
+Package impC1
+
+%% Part of impC0 test.
+
+Export
+
+Expect v: Natural.
+Let u = 5.
+Expect{override} w: Natural.
+
+Expect v1: Natural.
+Let u1 = 5.
+Expect{override} w1: Natural.
+
+Implementation
+
+Let v = 2.
+Let{override} w = 4.
+Let v1 = 2.
+Let{override} w1 = 4.
+
+%Package
+
+

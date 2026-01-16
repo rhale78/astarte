@@ -1,0 +1,76 @@
+Package testlistcmp 
+
+%% Test comparisons for lists, pairs, ANY
+
+Import "misc/check".
+
+%% Lists
+
+<<<<<<<<
+Execute
+  Writeln["=="].
+  If [] == [] then () else Writeln["bad"]..
+  If [] == [1] then Writeln["bad"]. else ().
+  If [1] == [] then Writeln["bad"]. else ().
+  If [1,2,3] == [1,2,3] then () else Writeln["bad"]..
+  If [1,2,3] == [1,2] then Writeln["bad"]. else ().
+  If [1,2,3] == [1,2,4] then Writeln["bad"]. else ().
+
+  Writeln["<,>,<=,>="].
+  If [] < [] then Writeln["bad"]. else ().
+  If [] > [1] then Writeln["bad"]. else ().
+  If [1] >= [2] then Writeln["bad"]. else ().
+  If [1,2] >= [1,3] then Writeln["bad"]. else ().
+  If [1,2,3,4] < [1,2,2,4] then Writeln["bad"]. else ().
+  If [1,2,3,4] < [2,2,2,4] then () else Writeln["bad"]..
+%Execute
+
+Execute
+  Writeln["Max and min"].
+  Line[$(max[1,4,2])].
+  Check["4"].
+  Line[$(max[4,3,2,1])].
+  Check["4"].
+  Line[$(max[1,2,3,4])].
+  Check["4"].
+  Line[$(min[1,2,3])].
+  Check["1"].
+  Line[$(min[3,2,1])].
+  Check["1"].
+  Line[$(min[2,1,3])].
+  Check["1"].
+%Execute
+
+%% Pairs
+
+Execute
+  Writeln["Pairs"].
+  If (1,2,3) == (1,2,3) else Writeln["bad"]..
+  If (1,2,4) == (1,2,3) then Writeln["bad"]. .
+  If (2,2,3) == (1,2,3) then Writeln["bad"]. .
+  If (2,2,3) == (1,2,3) then Writeln["bad"]. .
+  If ([1,2],3) == ([1,2],3) else Writeln["bad"]..
+  If ([1,2],3) == ([],3) then Writeln["bad"]. .
+  If (1,2) < (2,1) else Writeln["bad"]..
+  If (1,2) < (1,3) else Writeln["bad"]..
+  If (1,2,3) < (1,2,4) else Writeln["bad"]..
+  If (1,2,3) < (1,4,0) else Writeln["bad"]..
+%Execute
+>>>>>>
+Execute
+  Writeln["ANY"].
+  Let x = <<1>>.
+  Let y = <<2>>.
+  If x == x else Writeln["bad"]..
+  If x == y then Writeln["bad"]. .
+  Let a = <<[1,2]>>.
+  Let b = <<[1,3]>>.
+  Let c = <<[]:[()]>>.
+  If a == a else Writeln["bad"]..
+  If c == c else Writeln["bad"]..
+  If a == b then Writeln["bad"]. .
+  If a == c then Writeln["bad"]. .
+  If a == x then Writeln["bad"]. .
+%Execute
+
+%Package

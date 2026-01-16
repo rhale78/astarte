@@ -1,0 +1,92 @@
+<HTML>
+<head>
+<title>Astarte: optional</title>
+</head>
+<body>
+<center>
+<a href="symbol.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="iolib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L8. Optional Values </font></h1>
+</center>
+
+<menu>
+  <li><a href=#basic>Basic functions</a>
+  <li><a href=#other>Other functions</a>
+</menu>
+
+<hr>
+You use optional values in situations where you might have a
+value and might not.  An optional value that might be something
+of species T has species Optional(T).
+
+<a name=basic></a>
+<hr>
+<h2><font color=mediumblue> Basic functions</font></h2>
+
+<dl>
+<p><dt><font color=red>noValue</font>
+<dd>: Optional(`a)
+<p>noValue is a non-value, as an optional value.
+
+<p><dt><font color=red>noValue?</font>
+<dd>: Optional(`a) -> Boolean
+<p><font color=#D00090>noValue?(x)</font> is true just when x is noValue.
+
+<a name=value></a>
+<p><dt><font color=red>value</font>
+<dd>: `a -&gt; Optional(`a)
+<p><font color=#D00090>value(x)</font> 
+is value x, as an optional value.  You can use
+this in patterns.
+<p>Example: <font color=#D00090>value(20)</font> is an optional number.
+
+<a name=valueq></a>
+<p><dt><font color=red>value?</font>
+<dd>: Optional(`a) -&gt; Boolean
+<p><font color=#D00090>value?(x)</font> is true just when x is not noValue.
+
+<a name=unvalue></a>
+<p><dt><font color=red>unvalue</font>
+<dd>: Optional(`a) -&gt; `a
+<p><font color=#D00090>unvalue(value(x))</font> = x.
+Expression unvalue(noValue) fails with exception testX.
+
+<p><dt><font color=red>$</font>
+<dd>: Optional(`a) -&gt; String
+<p> <font color=#D00090>$(value(x))</font> 
+= "value(<i>S</i>)" where <i>S</i> is $(x).
+$(noValue) = "noValue".
+</dl>
+
+<a name=other></a>
+<hr>
+<h2><font color=mediumblue> Other functions </font></h2>
+
+<dl>
+<a name=optionalf></a>
+<p><dt><font color=red>optionalf</font>
+<dd>: (`a -&gt; `b) -&gt; (`a -&gt; Optional(`b))
+<p> <font color=#D00090>(optionalf f x)</font> 
+= value(f(x)) when f(x) succeeds, and is
+noValue when f(x) fails.
+</dl>
+
+<hr>
+<center>
+<a href="symbol.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="iolib.html">Next</a>
+</center>
+</body>
+</HTML>

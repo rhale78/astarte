@@ -1,0 +1,31 @@
+Package srch
+
+%% Test findSublist.
+
+Directory standard.
+Import "collect/findlist".
+Import "misc/check".
+
+Execute
+  Match (?n, ?s) = findSublist "cul" "calculator".
+  Line["s = ", $s, " n = ", $n].
+  Check["s = \"culator\" n = 3"].
+
+  Match (?n1, ?s1) = findSublist "abcabd" "abcabcabcabdabe".
+  Line["s1 = ", $s1, " n1 = ", $n1].
+  Check["s1 = \"abcabdabe\" n1 = 6"].
+
+  Match (?n2, ?s2) = findSublist "abcabd" "abcabcabcabc".
+  Line["s2 = ", $s2, " n2 = ", $n2].
+  Check["s2 = \"\" n2 = 12"].
+
+  Line["\"cal\" _sublist?_ \"calculator\" = ", 
+	  $("cal" _sublist?_ "calculator")]
+  %Line
+  Check["\"cal\" _sublist?_ \"calculator\" = true"].
+  
+  Line["\"abc\" _sublist?_ \"abdabe\" = ", $("abc" _sublist?_ "abdabe")].
+  Check["\"abc\" _sublist?_ \"abdabe\" = false"].
+%Execute
+
+%Package

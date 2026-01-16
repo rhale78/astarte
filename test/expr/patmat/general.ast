@@ -1,0 +1,38 @@
+Package general 
+
+%% Test general kinds of patterns, including embedded matches.
+
+===========================================
+%% Should get a complaint.
+
+Execute
+  Let a = 1.
+  Match If ?x == ?y then ?z else ?r %If = a.
+  Writeln[$x].
+%Execute
+
+===========================================
+%% Should not get a complaint.
+
+Execute
+  Let a = 1.
+  Match (Match ?z = a. z)  = a.
+%Execute
+
+===========================================
+%% Should not get a complaint.
+
+Execute
+  Match (Let a = 1.) = ().
+%Execute
+
+===========================================
+%% Should not get a complaint.
+
+Execute
+  Match (If 1 == 2 then 3 else 4 %If) = 4.
+%Execute
+
+  
+
+%Package

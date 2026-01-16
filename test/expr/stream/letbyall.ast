@@ -1,0 +1,19 @@
+Package letbyall
+
+Advise nowarn notExhaustive one.
+
+Define each' by all
+  case each' [?h & ?] = h
+  case each' [? & ?t] = each' t
+%Define
+
+Execute
+  Writeln["Should print 1, 2 and 3 on separate lines."].
+  Try
+    Let a = each[1,2,3].
+    Writeln[$a].
+    {false}
+  %Try
+%Execute
+
+%Package

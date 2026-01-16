@@ -1,0 +1,10 @@
+Package ovl3
+
+Define{irregular} (f: Natural -> Natural) = idf.
+
+Execute
+  Let x:Natural = f(2).
+  Writeln[$x].
+%Execute
+
+%Package

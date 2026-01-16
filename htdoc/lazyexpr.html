@@ -1,0 +1,365 @@
+<HTML>
+<head>
+<title>Astarte: lazy evaluation</title>
+</head>
+<body>
+<center>
+<a href="loop.html">Prev</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="threads.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E14. Lazy Evaluation </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main>Requesting lazy evaluation</a>
+  <li> <a href=#lazyfunctions>Lazy functions</a>
+  <li> <a href=#definelazy>Defining lazy functions</a>
+  <li> <a href=#definequasi>Defining quasi-lazy functions</a>
+  <li> <a href=#funs> Library functions</a>
+  <li> <a href=#pattern> Lazy pattern matching</a>
+  <li> <a href=#forcingeval> Forcing evaluation</a>
+  <li> <a href=#sequence> Sequencing and lazy evaluation</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Requesting lazy evaluation</font></h2>
+
+Normally, evaluation is <font color=blue><i>strict</i></font>, 
+or <font color=blue><i>eager</i></font>.  That is, expressions
+are evaluated when they are encountered.  You can request lazy
+evaluation of particular expressions.  When you ask for lazy
+evaluation, evaluation of an expression is deferred until the
+value of that expression is needed.
+
+<dl>
+<a name=promise></a>
+<p><dt><font color="red"> (:<em>e</em>:) </font>
+<dd> (:<em>e</em>:) is the same as expression <em>e</em>, 
+but is evaluated on need.  Evaluation of (:<em>e</em>:) yields
+a special item called a <font color=blue><i>promise</i></font> holding 
+within it a function that will compute the value of <i>e</i> when
+it is needed.
+ 
+<p><font color=BLACK>Example:</font> <font color="#D00090">(:f(x):)</font> has the same value as f(x), but
+is not computed until it is needed.  
+
+<p>Be careful about putting commands that have side-effects inside smiles.
+Those side-effects will not happen until the expression is evaluated.  
+<font color=BLACK>For example</font>,
+<font color=#D00090>
+<b><pre>
+   Let x = (:Writeln["I am evaluating x."]. 5:).
+   Let z = x.
+   Writeln["Now I will evaluate z + 4."].
+   Let y = z + 4.
+</pre></b>
+</font>
+prints
+<b><pre>
+   Now I will evaluate z + 4.
+   I am evaluating x.
+</pre></b>
+since the value of x is only computed where it is 
+needed to form the sum z + 4.  Notice that just giving the promise named
+by x another name (z) does not force it to be evaluated.
+
+<a name=memoize></a>
+<p><dt><font color="red"> (:&amp; <em>e</em>:) </font>
+<dd> Normally, whenever a promise is evaluated, its result is
+<font color=blue><i>memoized</i></font>.  
+That is, the answer is remembered so that
+the promise will not need to be evaluated more than once.
+<font color=BLACK>For example</font>,
+<font color=#D00090>
+<b><pre>
+   Let x = (:Writeln["I am evaluating x."]. 5:).
+   Let z = x.
+   Writeln["Now I will evaluate z + 4."].
+   Let y = z + 4.
+   Let r = x + 9.
+   Writeln["Now I have y and r."].
+</pre></b>
+</font>
+prints
+<b><pre>
+   Now I will evaluate z + 4.
+   I am evaluating x.
+   Now I have y and r.
+</pre></b>
+since the promise named by x is only evaluated once.
+
+<p>Expression 
+<font color=#D00090>(:&amp;<font color=black><em>e</em></font>:)</font> 
+requests that memoization be
+suppressed.  This is used when you prefer not to use the memory
+needed to keep the answer around, and would rather recompute.
+Whether the system honors this request is up to the system.
+In some cases, memoization will still be done.  In some cases, a memoized
+value might be held for a while until it is collected by the
+garbage collector.
+
+<a name=await></a>
+<p><dt><font color="red"> Await then <em>e</em> %Await </font>
+<dd> Same as (:<em>e</em>:).
+<p><font color=BLACK>Example:</font> <font color="#D00090">
+<b><pre>
+    Await then
+      f(x)
+    %Await
+</pre></b>
+</font>
+
+<a name=quasi></a>
+<p><dt><font color="red"> Await <em>x</em> then <em>e</em> %Await </font>
+<dd> Creating and evaluating promises has some overhead cost associated
+with it, and it is a good idea to avoid it when it is not necessary.
+
+<p>This await-expression examines <i>x</i>.  If <i>x</i>
+is something that has not yet been computed, then this await-expression 
+behaves like (:<em>e</em>:); it builds a promise. 
+If <em>x</em> has been computed, and is available, then <em>usually</em>
+the await-expression evaluates <em>e</em> immediately.  Occasionally, it 
+chooses to be lazy.  This allows you, for example, to cut off deep
+recursion by becoming lazy after several recursive calls.  This kind
+of evaluation is called <i><font color=blue>quasi-lazy</font></i> evaluation.
+
+<P>Note: When deciding whether a value is known, the system only
+looks at the top level.  If, for example, you have a list that
+is known to be nonnull, and to have head <em>h</em> and tail <em>t</em>,
+then that list
+is considered already evaluated by an await-expression, even if
+<em>h</em> and <em>t</em> are not evaluated yet.  
+As long as a little bit of the
+structure of the result is explicitly available, the value is
+considered evaluated.
+
+<p><font color=BLACK>Example:</font> <font color="#D00090">
+<b><pre>
+    Await x then
+      f(x)
+    %Await
+</pre></b>
+</font>
+
+<p><dt><font color="red"> Await <em>a</em>,<em>b</em>,<em>c</em> 
+then <em>e</em> %Await </font>
+<dd> This abbreviates
+Await <em>a</em> then Await <em>b</em> then Await <em>c</em> then <em>e</em>
+%Await %Await %Await.  You can wait on any number of things.
+
+<p><dt><font color="red"> Await&amp; ... then <em>e</em> %Await </font>
+<dd> Like (:<i>e</i>:), Await expressions normally memoize their results.
+Placing &amp; after Await requests that memoization not be done.
+The system might and might not honor this request.
+
+</dl>
+
+<font color=brown>
+<P> Lazy evaluation is described in more detail in 
+<a href="ast/lang/lazy.ast">lang/lazy.ast</a>.
+</font>
+
+<a name=lazyfunctions></a>
+<hr>
+<h2><font color=mediumblue> Lazy functions </font></h2>
+
+Some of the library functions are lazy, and produce deferred values
+when they are run.  <font color=BLACK>For example</font>, function 
+<a href="listlib.html#lazyMap">lazyMap</a> is defined so that
+(lazyMap f [a,b,c,d]) = [f(a), f(b), f(c), f(d)].  However, only as
+much of the result list is evaluated as is needed.  If you only evaluate the
+head of this list, then only f(a) will be computed; f(b), f(c) and f(d)
+will remain unevaluated.
+
+<p> Some library functions are quasi-lazy.  They are usually eager on
+structures that are known, but always lazy on structures that are not known.
+<font color=BLACK>For example</font>, 
+(map f [a,b,c,d]) = [f(a), f(b), f(c), f(d)], so map computes
+the same function as lazyMap.  But map is quasi-lazy.  It might compute a 
+little more of the list than you ever look at.  Although this can lead
+to wasted work, it is typically a little faster than using a fully lazy
+function, because it avoids the overhead associated with creating and
+then evaluating promises.
+
+<a name=definelazy></a>
+<hr>
+<h2><font color=mediumblue> Defining lazy functions </font></h2>
+
+You can define lazy functions by direct means or using definition
+by cases.  Here is a definition of the lazyMap function without
+using definition by cases.  Instead, we use a choose expression.
+<font color=#D00090>
+<b><pre>
+    Define lazyMap ?f ?x =
+      Await then
+        Choose first matching x
+          case []        =&gt; []
+          case [?h &amp; ?t] =&gt; [(:f x:) &amp; lazyMap f t]
+        %Choose
+      %Await
+    %Define
+</pre></b> 
+</font>
+
+<p>In a definition by cases, you can wrap the cases in an await
+expression.  Here is an alternative definition of lazyMap.
+<font color=#D00090>
+<b><pre>
+    Define lazyMap by
+      Await then
+        case lazyMap ?  []        = []
+        case lazyMap ?f [?h &amp; ?t] = [(:f x:) &amp; lazyMap f t]
+      %Await
+    %Define
+</pre></b> 
+</font>
+
+<a name=definequasi></a>
+<hr>
+<h2> <font color=mediumblue>Defining quasi-lazy functions</font></h2>
+
+Quasi-lazy functions can be defined similarly.  Here is a definition
+of the map function by cases.
+<font color=#D00090>
+<b><pre>
+    Define map ? ?x by
+      Await x then
+        case map ?  []        = []
+        case map ?f [?h &amp; ?t] = [f x &amp; map f t]
+      %Await
+    %Define
+</pre></b> 
+</font>
+
+
+<a name="funs"></a>
+<hr>
+<h2><font color=mediumblue> Library functions </font></h2>
+
+There are some library functions that are lazy versions of
+eager library functions.  Here are some.
+
+<dl>
+<a name=lazyfun></a>
+<p><dt> <font color=red>lazy</font>
+<dd> Function lazy takes another function f and produces a
+lazy version of f.  It is define by 
+<font color=#D00090>
+<b><pre>
+    Let lazy ?f ?x = (:f x:).
+</pre></b>
+</font>
+
+<a name=lazyq></a>
+<p><dt><font color=red>lazy?</font>
+<dd> lazy?(x) is true if x has not yet been computed.  See 
+notLazy?, below.
+
+<a name=lazyHead></a>
+<p><dt><font color="red"> lazyHead</font>
+<dd> lazyHead(x) = head(x), but x is not evaluated until the
+result of lazyHead(x) is needed.
+
+<a name=lazyLeft></a>
+<p><dt><font color="red"> lazyLeft</font>
+<dd> lazyLeft(x) = left(x), but x is not evaluated until the
+result of lazyLeft(x) is needed.
+
+<a name=lazyRight></a>
+<p><dt><font color="red"> lazyRight</font>
+<dd> lazyRight(x) = right(x), but x is not evaluated until the
+result of lazyRight(x) is needed.
+
+<a name=lazyTail></a>
+<p><dt><font color="red"> lazyTail</font>
+<dd> lazyTail(x) = tail(x), but x is not evaluated until the
+result of lazyTail(x) is needed.
+
+<a name=notLazyq></a>
+<p><dt><font color="red"> notLazy?</font>
+<dd> notLazy?(x) is true if x is not lazy at its top level.
+(For example, a list that is known to be nonempty is not lazy
+at its top level.  An ordered pair is not lazy if expressions for
+its two parts have been obtained, but not necessarily evaluated.
+So, for example, if p is an ordered pair that is not lazy, then
+left(p) cannot force any lazy evaluation.)  
+
+</dl>
+
+<a name=pattern></a>
+<hr>
+<h2><font color=mediumblue> Lazy pattern matching </font></h2>
+
+The following pattern form is available.
+<dl>
+<p><dt><font color="red"> (:?x:) </font>
+<dd> This pattern matches ?x against the target, but
+it attempts to avoid evaluating the target.  
+<font color=BLACK>For example</font>,
+<font color="#D00090">
+<b><pre>
+     Match (: (?a,?b) :) = p.
+</pre></b>
+</font>
+has the same effect as
+<font color="#D00090">
+<b><pre>
+     Let a = lazyLeft(p).
+     Let b = lazyRight(p).
+</pre></b>
+</font>
+so that the target p will not be evaluated during the match.
+</dl>
+
+<a name=forcingeval></a>
+<hr>
+<h2><font color=mediumblue> Forcing evaluation </font></h2>
+
+Normally, deferred values are computed automatically when they
+are needed.  Occasionally, you want to force them to be evaluated
+early.  Use function <a href=evallib.html>force</a> to force
+evaluation until the value does not appear to be deferred at its
+top level.  Use <a href=evallib.html>forceAll</a> to fully evaluate.
+<font color=BLACK>For example</font>, 
+function pack is occasionally lazy.  Writing
+<font color=#D00090>
+<b><pre>
+      Let x = force(pack a).
+</pre></b>
+</font>
+will force pack to be eager.
+
+<a name=sequence></a>
+<hr>
+<h2><font color=mediumblue> Sequencing and lazy evaluation </font></h2>
+
+It is possible to create a value of species () that is not
+fully evaluated.  If such a value is used in sequencing, it
+is not evaluated at all.  <font color=BLACK>For example</font>,
+<font color=#D00090>
+<b><pre>
+       (:Writeln["First string"].:)
+       Writeln["Second string"].
+</pre></b>
+</font>
+only prints Second string.  The first deferred value is not evaluated.
+If you want to force evaluation of such an expression, use function 
+<a href=evallib.html>force</a>.
+
+<hr>
+<center>
+<a href="loop.html">Prev</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="threads.html">Next</a>
+</center>
+</body>
+</HTML>

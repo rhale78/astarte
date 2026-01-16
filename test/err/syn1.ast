@@ -1,0 +1,12 @@
+Package syn1
+
+%% Test a simple syntax error
+
+Execute
+  Let x = 0.
+  While x < 10
+    Relet x = x + 1.
+  %While
+%Execute
+
+%Package

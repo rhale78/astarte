@@ -1,0 +1,21 @@
+Package secimp5 export
+
+%% Test second imports.  The top level is secimpa0.ast.
+
+Import "secimpa4".
+
+Extension
+  Species TestS = Integer.
+  Relate TestS isKindOf TESTG.
+%Extension
+
+Expect Show: TestS -> ().
+Expect compare: (TestS, TestS) -> Comparison.
+
+implementation
+
+Let Show(testS(?i)). = Write[$i]..
+Let compare(testS(?i), testS(?j)) = compare(i,j).
+
+%Package
+

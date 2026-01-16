@@ -1,0 +1,1138 @@
+/*********************************************************************
+ * File:    exprs/expr.doc
+ * Purpose: Description of EXPR nodes, and routines for constructing them.
+ * Author:  Karl Abrahamson
+ *********************************************************************/
+
+*******************************************************************
+		The expression kinds are as follows.
+*******************************************************************
+
+typedef enum {
+    BAD_E,
+    IDENTIFIER_E,
+    GLOBAL_ID_E,
+    LOCAL_ID_E,
+    UNKNOWN_ID_E,
+    OVERLOAD_E,
+    CONST_E,
+    SPECIAL_E,
+    DEFINE_E,
+    LET_E,
+    MATCH_E,
+    OPEN_E,
+    PAIR_E,
+    SAME_E,
+    IF_E,
+    TRY_E,
+    TEST_E,
+    APPLY_E,
+    STREAM_E,
+    FUNCTION_E,
+    SINGLE_E,
+    LAZY_LIST_E,
+    AWAIT_E,
+    LAZY_BOOL_E,
+    TRAP_E,
+    LOOP_E,
+    RECUR_E,
+    FOR_E,
+    PAT_FUN_E,
+    PAT_VAR_E,
+    PAT_RULE_E,
+    PAT_DCL_E,
+    EXPAND_E,
+    MANUAL_E,
+    WHERE_E,
+    EXECUTE_E,
+    SEQUENCE_E
+} 
+EXPR_TAG_TYPE;
+
+
+*******************************************************************
+			Type EXPR is as follows.
+*******************************************************************
+
+typedef struct expr {
+  LONG	 		   ref_cnt;	/* Reference count for this node  */
+
+  UBYTE			   temp;        /* Used by LOCAL_ID_E nodes for   */
+					/* keeping track of nesting depth */
+					/* of open ifs, etc.		  */
+
+  UBYTE			   kind;	/* The kind of this expression    */
+
+  UBYTE			   mark;
+
+  unsigned		   pat:1,      	/* 1 if expr contains a pattern var,*/
+					/* 0 otherwise 			   */
+
+  			   bound:1,	/* 0 for an unbound id,		   */
+					/* 1 for a bound id.  Used at code */
+  					/*   generation time. 		   */
+
+  		       	   used_id:1,   /* 1 for an id that has been used, */
+					/* 0 for an id that has not been   */
+					/*   used. 			   */
+
+			   done:1,	/* 0 for a special expr or id	   */
+					/*   that has not been handled 	   */
+					/*   by do_the_defaults,	   */
+					/* 1 for one that has been handled.*/
+					/*				   */
+					/* This bit is also used in code   */
+					/* generation, on non-identifiers, */
+					/* to indicate an expression that  */
+					/* binds type variables dynamically.*/
+
+			   extra:1,     /* Used by FOR_E, PAT_RULE_E, 	   */
+					/* AWAIT_E, LOOP_E, DEFINE_E, 	   */
+					/* SPECIAL_E, GLOBAL_ID_E, 	   */
+					/* PAT_FUN_E, PAIR_E 		   */
+
+			   irregular:1,	/* For a GLOBAL_ID_E, this is 1 to */
+					/* indicate an irregular id.	   */
+
+			   nomatches:1, /* 1 if contains no match exprs    */
+
+			   patfun_prim:1; /* 1 for a pat-fun select primitive*/
+
+  struct type* 		   ty;		/* Type of this expr		   */
+
+  struct role* 		   role;	/* Role of this expr		   */
+
+  union {
+    struct {
+      SHORT primitive;   		/* Indicates whether id has a 	   */
+					/* primitive instruction 	   */
+					/* associated with it.		   */
+
+      SHORT line_num;			/* Line number where this expr	   */
+					/* begins			   */
+    } p1;
+
+    char *tag_name;
+  }			   u0;		
+
+  union {
+    struct expr*	    e1;		/* A subexpression  		 */
+    struct global_id_cell*  gic;	/* Record for a global id 	 */
+    struct list*            l0;
+  }			   u1;
+
+  union {
+    struct expr*      e2;		/* Second subexpression 	  */
+    char*             str;		/* Description of expression      */
+    struct list*      l1;     
+  }			   u2;
+
+  union{
+    char*            str;		/* Description of expression      */
+    struct expr*     e3;		/* Third subexpression            */
+    LONG     	     i;			/* an integer value 		  */
+    struct list*     l2;
+    struct {
+      SHORT scope;			/* Scope of id 			  */
+      SHORT offset;			/* Offset of id 		  */
+    }		     where;
+  }                        u3;
+
+ union {
+   struct list*	    l3;
+   char*	    str;
+   DCL_MODE	    mode;
+   LONG		    i;
+ }			   u4;
+
+} 
+EXPR;
+
+
+/********************************************************/
+/* 	The following are used to access the fields  	*/
+/********************************************************/
+
+#define NULL_E ((EXPR *) 0)
+
+#define MARKED_PF	extra
+
+#define SAME_CLOSE	bound
+
+#define PAT_RULE_MODE   temp
+#define ETEMP		temp
+#define TEAM_MODE	temp
+
+#define PRIMITIVE	u0.p1.primitive
+#define OPEN_FORM	u0.p1.primitive
+#define OPEN_LOOP	u0.p1.primitive
+#define LAZY_BOOL_FORM	u0.p1.primitive
+#define PAT_DCL_FORM	u0.p1.primitive
+#define EXPAND_FORM	u0.p1.primitive
+#define IRREGULAR_FUN	u0.p1.primitive
+#define TRAP_FORM	u0.p1.primitive
+#define TEAM_FORM	u0.p1.primitive
+#define OUTER_ID_FORM	u0.p1.primitive
+#define FOR_FORM	u0.p1.primitive
+#define LET_FORM	u0.p1.primitive
+#define DEFINE_FORM	u0.p1.primitive
+#define STREAM_MODE	u0.p1.primitive
+#define ROLE_MOD_APPLY  u0.p1.primitive
+#define IF_MODE		u0.p1.primitive
+#define SAME_MODE	u0.p1.primitive
+#define PATFUN_ARGS	u0.p1.primitive
+#define DOUBLE_COMPILE	u0.p1.primitive
+#define COROUTINE_FORM	u0.p1.primitive
+#define MAN_FORM	u0.p1.primitive
+#define RULE_LOC	u0.p1.primitive
+#define ETAGNAME	u0.tag_name
+#define LINE_NUM	u0.p1.line_num
+
+#define E1		u1.e1
+#define GIC		u1.gic
+#define EL0		u1.l0
+
+#define E2		u2.e2
+#define STR		u2.str
+#define EL1		u2.l1
+
+#define E3		u3.e3
+#define SCOPE		u3.where.scope
+#define ETEMP2		u3.where.scope
+#define OFFSET		u3.where.offset
+#define SINGLE_MODE	u3.where.offset
+#define EINT		u3.i
+#define STR3		u3.str
+#define EL2		u3.l2
+
+#define EL3		u4.l3
+#define STR4		u4.str
+#define SAME_E_DCL_MODE u4.mode
+#define TRY_KIND	u4.i
+
+#ifdef GCTEST
+# define EKIND(e)       (ekindf(e))
+#else
+# define EKIND(e)	((e)->kind)
+#endif
+
+
+ ************************************************************************
+ *			DESCRIPTION OF EXPR NODES			*
+ ************************************************************************
+ See end for list of cases for the expression kinds.
+
+ NOTE: If fields are changed, it might be necessary to change
+   copyexpr.c  (copying/ref counts)
+   alocexpr.c  (handling reference counts)
+
+ Kind	          Field                  Comment
+ --------         --------      ---------------------------
+	
+ =====================================================
+ CONST_E	       		A constant
+
+		SCOPE		The kind of constant (CHAR_CONST,
+				STRING_CONST, NAT_CONST, REAL_CONST
+				HERMIT_CONST, BOOLEAN_CONST, 
+				FAIL_CONST)
+
+		OFFSET		Global label where this const is 
+				found at run time, where applicable.
+				For FAIL_CONST, the exception number.
+
+		  STR		Description of constant. 
+				 (1) For kind CHAR_CONST, a pointer to 
+				     a string that holds the character
+				     or backslash sequence, followed by
+				     a '.
+
+				 (2) For STRING_CONST, a pointer to 
+				     string value (null terminated).
+
+				 (3) For NAT_CONST or REAL_CONST, a 
+				     pointer to a string such as "1.0" 
+				     or "200",  describing the number.
+
+				 (4) For BOOLEAN_CONST, NULL if false, 
+				     "" if true.
+
+				 (5) For HERMIT_CONST, NULL.
+
+		  ty		type.
+
+ ======================================================
+ IDENTIFIER_E			An identifier of unknown kind.  Only
+				occurs in initial parse trees, before
+				identifiers are handled.
+
+		 OUTER_ID_FORM	0 for normal id,
+				1 for outer id.
+
+		 extra		For a proc id, temporarily holds
+				  0 for an explicitly occurring id
+				  1 for an id created from a semicolon.
+
+		 OFFSET		For a proc id, temporarily holds column
+				where the proc id occurs in the program.
+
+		 STR		Name of the identifier
+
+ =====================================================
+ LOCAL_ID_E         		An identifier, local to a declaration
+
+		  bound		0 for an unbound id,
+				1 for a bound id.  Used at code 
+				  generation time.
+
+		  done		0 for an id that has not been done by
+				  do_the_defaults, 
+				1 for an id that has been done by
+				  do_the_defaults.
+
+		  temp		level of nesting of open if, try, etc.
+				in which this id is found.  Used for
+				reporting defined but unused ids.
+
+		  mark		0 for a normal id,  OBSOLETE
+				1 for an array id.
+
+		  used_id	0 for an id that has not yet been used
+				1 for an id that has been used.
+
+		  TEAM_FORM	0 for normal id,
+				TEAM_NOTE for an id declared in a team
+				expr. (Must not be redeclared at 
+				define.)
+				TEAM_DCL_NOTE for an id declared in a
+				team dcl.
+
+		  STR		Name of identifier, or NULL_S if none.
+
+		  OFFSET	One greater than the offset at run
+				time where this id is found, or 0 if
+				this id has not been defined.
+				For proc id, temporarily holds col num.
+
+		  SCOPE		The number of the environment in
+				which this id is defined, or -1 if
+				this is a local temporary.
+
+		  EL0		behavior list.  Only used in
+				check_properties.
+
+		  ty		type
+
+ =====================================================
+ GLOBAL_ID_E   			A declared identifier
+
+		  STR		name of identifier
+
+		  MARKED_PF	0 normally,
+		  (extra)	1 if forced to be a pattern function.
+
+		  bound		used to indicate an exception that
+				is to be trapped (for issuing dcl).
+
+		  irregular	0 normally,
+				1 if this is an irregular id.
+				(If primitive is PRIM_SELECT or 
+				PRIM_MODIFY then it is an 
+				irregular selector.)
+
+		  OFFSET	Location in global environment at 
+				run time.  
+
+		  PRIMITIVE  	PAT_FUN (When marked as pattern fun.)
+				-1 for a normal global id.
+				As for parts when declaring.  (See
+				tables/globtbl.c, or SPECIAL_E
+				description below.)
+
+		  SCOPE		Used to hold arg for primitive when
+				declaring.  
+
+		  GIC		Holds record in global id table, or
+				NULL in code generator if record is
+				unknown.
+
+		  EL3		Selection list when PRIMITIVE =
+				PRIM_SELECT or PRIM_MODIFY.  
+				See dcls/dclCnstr.c:
+				make_field_accessor_p.
+
+		  ty		type
+
+ =====================================================
+ OVERLOAD_E			An overloaded global id.
+
+		  MARKED_PF	0 normally,
+		  (extra)	1 if forced to be a pattern function.
+
+		  PRIMITIVE	PAT_FUN if this is a pattern function.
+				PAT_CONST if this is a pattern 
+					  constant.
+				-1 otherwise.
+
+		  STR		name of this identifier.
+
+		  GIC		record in global id table of 
+				this id.
+
+		  ty		type
+
+ =====================================================
+ SPECIAL_E        		various special expressions
+
+ NOTE: near the bottom of this file for discussion of SPECIAL_E nodes.
+
+		  PRIMITIVE	 Value          Expr represented
+				 PRIM_TARGET	target
+				 PRIM_EXCEPTION exception
+				 PRIM_STACK	Indicates a value on
+						the stack.  Used in
+						pattern matching.
+				 PRIM_CAST	A function that does
+						no computation
+				 PRIM_WRAP	A constructor that 
+						wraps -- type is
+						domain of own_type
+				 PRIM_UNWRAP	A destructor
+						that unwraps -- type is
+						codomain of own type.
+				 PRIM_QWRAP	A function that quasi-
+						wraps.  
+				 PRIM_QUNWRAP	A function that quasi-
+						unwraps by SCOPE.
+				 PRIM_EXC_WRAP  A function that builds
+						an exception.
+				 PRIM_EXC_UNWRAP A functionthat takes
+						 apart an exception.
+				 PRIM_OP	A primitive binary
+						operator, implemented 
+						by instruction SCOPE.
+				 PRIM_FUN	A primitive function,
+						implemented by instr
+						SCOPE 
+				 PRIM_SELECT	A selector.
+						SCOPE is d if only 
+						values with tag d
+						are selected, and is
+						-1 if there is no tag.
+						See EL3 and extra
+						fields.
+				 PRIM_MODIFY	A modifier.  See
+						genExec.c:gen_modify_g.
+				 PRIM_SPECIES	A species.  The E1 field
+						points to another SPECIAL_E
+						node whose ty field holds
+						the species.
+
+				 There are others.  See 
+				 tables/globtbl.c.
+
+		  irregular	0 normally
+				1 for a PRIM_SELECT that is an
+				irregular selector.
+
+		  STR		Print name, if not target or exception.
+
+		  SCOPE		Argument for a quasi-wrap or quasi-
+				unwrap.
+
+		  E1		Pattern function node associated
+				with a target expression.  (This points
+				to the pattern function in the 
+				pattern declaration that contains the
+				target expression.)  NOT REF
+				COUNTED because cyclic. 
+
+				For a PRIM_SPECIES node, the node that
+				holds the species.
+
+		  done		0 normally,
+				1 if default type handler has already 
+				  considered this unwrapper.
+
+		  EL3		Selection list when PRIMITIVE =
+				PRIM_SELECT.  See dcls/dclCnstr.c:
+				make_field_accessor_p.
+							
+		  ty		type
+
+ =====================================================
+ PAT_VAR_E          		A pattern variable
+
+		  bound		0 if this pattern variable has not
+				  yet been bound,
+				1 if this pattern variable has been
+				  bound.
+
+		  E1		local id that this identifier 
+				corresponds to. (x, if this is ?x).
+				NULL for an anonymous variable.
+
+		  STR		name (such as x), or "#anon"
+				if anonymous.
+
+		  OFFSET	0 if this var has not been bound,
+				or one greater than its offset in the
+				local environment at run time otherwise
+
+		  ETEMP2	Used when copying.
+
+		  ty		type
+
+ =====================================================
+ PAT_FUN_E  	  		A pattern function
+
+		  MARKED_PF	0 normally,
+		  (extra)	1 if forced to be a pattern function.
+
+		  patfun_prim	0 normally
+				1 for a PRIM_SELECT pat fun.
+
+		  PRIMITIVE	discr for PRIM_SELECT
+
+		  irregular	0 normally.  1 when patfun_prim = 1,
+				if this pattern functions should 
+				type-unwrap its target.
+
+		  GIC		global id cell for this id.
+
+		  STR	 	name
+
+		  E3		Rules, when defining.
+				Rule that was used, after substitution.
+
+		  EL3		selection list when patfun_prim =
+				1.
+
+		  ty		type
+
+ =====================================================
+ UNKNOWN_ID_E			an unknown identifier
+
+		 STR		name
+
+ =====================================================
+ LET_E              		Let x = e %Let
+
+		  LET_FORM	0 for a let,
+				1 for a relet
+
+		  E1		x (as expr)
+
+		  E2		e
+
+		  SCOPE		0 if closed,
+				1 if open.
+
+		  ty		type ()
+
+ =====================================================
+ DEFINE_E     	  		Define x = e %Define
+
+		  extra		0 normally
+				1 if the EL0 field of the defined
+				  id has been set during 
+				  check_properties
+
+		  DEFINE_FORM   0 for a define that is not part of team
+				1 for a part of a team
+				  (set in parser.y, but not used now)
+
+		  E1		x (as expr)
+
+		  E2		e
+
+		  SCOPE		number of the body's environment
+
+		  ty		type ()
+
+ =====================================================
+ APPLY_E             		f e
+
+		  ROLE_MOD_APPLY	0 normally
+					1 for an apply from x/{:...:}.
+
+		  E1		f
+
+		  E2		e
+
+		  SCOPE		0 for open,
+				1 for closed.
+
+		  ty		type
+
+ =====================================================
+ SEQUENCE_E             	compute a, split, then compute b.
+				b must have type ().
+
+ Note: see near the bottom of this file for a discussion of SEQUENCE_E
+ nodes.
+
+		  E1		a
+
+		  E2		b
+
+		  SCOPE		0 for closed (on e1).
+				1 for open (on e1).
+
+		  STR3,STR4	When a SEQUENCE_E node is made, two
+				PRIM_STACK SPECIAL_E nodes are made to
+				stand for the values on the stack after
+				the split.  STR3 is the name of the first
+				of those, and STR4 is the name of the
+				second one.  (Note that STR4 names the
+				top of the stack, and STR3 the value under
+				that, since the right part of a pair is
+				put on top of the stack at a split.)
+
+		  ty		type ()
+
+ NOTE: see below for discussion of SEQUENCE_E
+
+ =====================================================
+ SINGLE_E	  		Unique e %Unique
+				CutHere e %CutHere
+				Preserve all => e %Preserve
+				  (not an expression: restores all nonshared
+				   boxes to their values when the preserve
+				   started, when the preserve ends.)
+				Atomic e %Atomic
+				{: r::a, s::b,... :}
+				x/{: r::a, s::b,... :}
+
+      Note: SINGLE_E expressions should only be used where
+      the type of the SINGLE_E expression is the same as the
+      type of E1.
+
+		  E1		e for most forms above
+				(r'??'(a), s'??'(b),...) for {:...:}
+				s'!!'(r'!!'(x,a),b) for x/{:r::a,s::b:}
+
+		  SINGLE_MODE
+		  (OFFSET)	FIRST_ATT for Unique
+				CUTHERE_ATT   for CutHere
+				ATOMIC_ATT for Atomic
+				ROLE_SELECT_ATT for {:...:}
+				ROLE_MODIFY_ATT for x/{:...:}
+
+		  SCOPE		env keep mode
+				  0 = closed
+				  1 = open
+
+		  ty		type
+
+ =====================================================
+ TEST_E             		{e else ex}
+
+		  E1		e
+
+		  E2		ex, or NULL if ex is missing.
+
+		  ty		type
+
+ =====================================================
+ STREAM_E              		Stream u then v %Stream
+				Mix u with v %Mix
+
+		  STREAM_MODE	STREAM_ATT for a stream,
+				MIX_ATT for a mix
+
+		  mark		0 normally,	
+				1 if this is a choose expr stream
+				2 if this is a top level subcases 
+				  stream.
+				3 if this is a stream expr that is
+				  implicitly built as part of a
+				  larger stream.
+
+		  E1		u
+
+		  E2		v
+
+		  ty		type
+
+ =====================================================
+ AWAIT_E	 		Await e1,e2,...,en then bdy %Await
+				(:a,b,c:)
+
+		  extra		0 for a normal await
+				1 for an await of the form (:a,b,c:).
+
+                                Note: (:a,b,c:) is generated as
+                                (:((:a:),(:b:),(:c:)):) by the
+                                parser.  The outer (:..:) is marked
+                                as special (extra = 1).  It is only 
+				present to help pattern matching recognize
+                                a lazy pattern.
+
+		  DOUBLE_COMPILE 0 if should not double-compile,
+				 1 if should double-compile
+
+		  E1		(e1,e2,...,en,())
+				NULL if test part is absent.
+
+		  E2		bdy
+
+		  SCOPE		The scope of bdy
+
+		  OFFSET	0 for ordinary await
+				1 for await&
+
+		  ty		type
+
+ =====================================================
+ LAZY_LIST_E	 		[:e:]
+
+		  E1		e
+
+		  SCOPE		scope that e is run in.
+
+		  OFFSET	0 if an ordinary lazy list
+				1 if [:& ... :]
+
+		  ty		type
+
+ =====================================================
+ IF_E               		If a then b else c %If
+
+		  IF_MODE	0 normally,
+				2 for a choose-one if
+
+		  mark		0 normally,	
+				1 if this is a choose expr if
+				2 if this is a top level subcases if.
+
+		  E1		a
+
+		  E2		b
+
+		  E3		c
+
+		  ty		type
+
+ =====================================================
+ TRY_E               		Try a then b else c %Try
+
+		  IF_MODE	0 normally,
+				2 for a choose-one try
+
+		  TRY_KIND	the kind of try - one of
+				TRY_F, TRYEACH_F, TRYTERM_F, TRYEACHTERM_F.
+
+		  mark		as for IF_E
+
+		  E1		a
+
+		  E2		b
+
+		  E3		c
+
+		  ty		type
+
+ =====================================================
+ PAIR_E	           		(x1, x2)
+
+		  extra		 0 normally
+				 1 for a pair that represents
+				   parameters in a curried function
+				   definition.
+
+		  COROUTINE_FORM	0 for an ordinary pair
+					1 for a coroutine pair
+
+		  PRIMITIVE	used in std_fun_descr for kind of
+				standard primitive.  Note that this
+				is the same field as COROUTINE_FORM,
+				but is used only in std_fun_descr.
+
+		  SCOPE		0 for closed,
+				1 for open.
+
+		  E1		x1
+
+		  E2		x2
+
+		  ty		type
+
+ =====================================================
+ FUNCTION_E         		 (p => e)
+
+		  IRREGULAR_FUN 0 for a normal function
+				1 for an irregular function 
+				  (does unwrap).
+
+		  E1		p (NULL if e is NULL)  p can be
+				a SPECIAL_E(PRIM_STACK) expr, 
+				 indicating that e expects the input
+				 to be on the stack.
+
+		  E2		e (NULL if no computation is needed)
+
+		  SCOPE		Number of this function's
+				environment.
+
+		  OFFSET	0 for an ordinary function, 
+				n > 0 if this function shares another's
+				environment, and the first open cell
+				in that environment is cell n.  (1
+				in case the environment is shared, but
+				the offset has not yet been computed, 
+				as is true before code generation.)
+
+		  ty		type
+
+ =====================================================
+ LOOP_E	     	  		Loop p = a mode e %Loop, etc.
+
+		  extra		0 normally
+				1 for a loop node that has had its
+				  EL2 field set in check_properties.
+
+		  OPEN_LOOP     0 for closed,
+				1 for open.
+
+		  E1		expression match p = a (or null if
+				p and a are absent)
+
+		  E2		e		      before pattern 
+						      match subst
+				translation of 
+				(Match p = stack) e   after pattern
+						      match subst
+
+		  SCOPE		label of the top of the loop during
+				code generation.
+
+		  EL2		Stores a property list during
+				property checking.
+
+		  STR4		Name of the stack expression in E2,
+				after pattern translation.  Null before
+				pattern translation.
+
+		  ty		type
+
+ =====================================================
+ FOR_E				For p from l => e %For
+
+		  FOR_FORM      ORDERED_ATT for ordered,
+				UNORDERED_ATT for unordered.
+
+		  extra		0 if p is a general pattern
+				1 if pattern p cannot fail to match.
+
+		  E1		p         	before pattern match 
+					  	translation
+				translation of
+			        match p = stack after pattern match
+						translation
+
+		  E2		l
+
+		  E3		e
+
+		  STR4		Name of stack variable in E1, after
+				pattern translation.  (NULL before
+				pattern translation.)
+
+		  ty		type
+
+ =====================================================
+ RECUR_E      		    	continue e (in a loop)
+
+		  E1		e (NULL if none)
+
+		  E2		the loop that this recurs to.  NOT
+				REF COUNTED, since this link is
+				cyclic.
+
+		  ty		type
+
+ =====================================================
+ MATCH_E                 	Match p = e %Match
+
+		  E1		p
+
+		  E2		e
+
+		  SCOPE		0 if closed,
+				1 if open.
+
+		  ty		type ()
+
+ =====================================================
+ LAZY_BOOL_E			x op y
+
+		LAZY_BOOL_FORM	AND_BOOL	for x _and_ y
+				OR_BOOL		for x _or_ y
+				IMPLIES_BOOL    for x _implies_ y
+
+		  E1		x
+
+		  E2		y
+
+		  ty		type
+
+ =====================================================
+ WHERE_E			a _where_ b 
+
+		  E1		a
+
+		  E2		b
+
+		  ty		type
+
+ =====================================================
+ SAME_E	     	  	  	same as e
+
+		  extra		0 normally,
+				1 for a SAME_E node just above
+				  a local id that is a last use
+				  of that id.
+
+		  SAME_CLOSE	0 normally
+				1 for a SAME_E node that closes the scope
+				  of its E1 expression.
+
+		  SAME_MODE	normally 0.
+				  1 if this is a role eraser.
+
+				  2 if this is a choose-condition
+				    marker
+
+				  3 if this was installed by a
+				    type assumption
+
+				  4 if this indicates an identifier
+				    that is marked missing.
+
+				  5 if this is a marker in a team
+				    that indicates the mode and versions of
+				    a declaration.
+
+				  6 if this is a marker at the top of
+				    a choose or loop expression.  
+				    This marker is
+				    used so that a choose expression in
+				    the else part of a choose can be
+				    distinguished from more cases in the
+				    same choose expression.
+
+				  7 if this is an ask expression with 
+				    a type tag.  (The tag is in the STR
+				    field.)
+
+				  EXPECT_ATT if this is a node in a 
+				    class part list (used for describing 
+				    the parts of a class) for a constant, 
+				    variable or expectation.
+
+				  ANTICIPATE_ATT if this is a node in a 
+				    class part list that is an anticipation.
+
+		  TEAM_MODE	0 normally
+				1 if this is a team.
+
+		  E1		e
+
+		  STR		The type tag when SAME_MODE is 7.
+				Name of part when SAME_MODE is EXPECT_ATT or
+				ANTICIPATE_ATT.
+
+		  EL1		List of types (versions) when SAME_MODE
+				= 5.
+
+		  E3		Identifier ";this" when SAME_MODE is 7.
+
+		  EL2		List of roles (versions) when SAME_MODE
+				= 5.
+
+		  STR3		Description, when SAME_MODE = EXPECT_ATT or
+				ANTICIPATE_ATT.
+
+		  SAME_E_DCL_MODE The declaration mode, if SAME_MODE
+				is 5 or EXPECT_ATT or ANTICIPATE_ATT.
+
+		  ty		type
+
+ =====================================================
+ PAT_RULE_E   	  		Only used in global id table to
+				  	indicate a pattern rule. 
+
+		 PAT_RULE_MODE
+				mode (unification/equality and
+				(eager/lazy).
+			          bits 0,1 tell eager/lazy:
+				    0	both
+				    1	eager only
+				    2	lazy only
+				  bits 2,3 tell unif/equal:
+				    0	both
+				    1	unif only
+				    2	equal only
+
+		  ETAGNAME	name of tag attached to rule.
+
+		  extra		0 for closed case,
+				1 for open case.
+
+		  E2		this rule's formal expr 
+
+		  E3		this rule's translation
+
+ =====================================================
+ PAT_DCL_E			Pattern f(...) = e %Pattern
+				Pattern f = g %Pattern
+
+   Note: These were done somewhat strangely, and I haven't 
+   completely made the implementation more sane.  See PAT_RULE_E.
+
+		  PAT_DCL_FORM	0 for an ordinary pattern dcl.
+				1 for pattern f = g.
+
+		  E1		f
+
+		  E2		rules or equivalent pattern function
+
+		  SCOPE		0 normally,
+				1 if a pat const.
+
+ =====================================================
+ EXPAND_E			Expand f => g %Expand
+				Expand f = g %Expand
+
+		  EXPAND_FORM	0 for expand f => e %expand
+				1 for expand f = g %expand
+
+		  E1		f
+
+		  E2		g
+
+		  SCOPE		reserved (for compatibility with
+				PAT_DCL_E)
+
+ =====================================================
+ OPEN_E				open If ... or open Try ..., etc.
+
+		  E1		if ... or try ..., etc. for first form
+				b for second form
+
+		  EL1		list of shared ids (exprs) in then part
+
+		  EL2		list of shared ids (exprs) in else part
+
+		  ty		type
+
+ =====================================================
+ MANUAL_E			Description x s %Description
+			    or
+				Advise props for x
+
+		  MAN_FORM	0 for an ent id description
+				1 for a class id description
+				2 for an advisory
+				3 for a string description.
+
+		  E1		x (as expr) (for description)
+
+		  STR		s (for description)
+
+		  EL2		props (for advisory)
+
+ =====================================================
+ TRAP_E				Trap a => b %Trap
+				Trap all do b %Trap
+				Untrap a => b %Untrap 
+				Untrap all do b %Untrap
+
+		  TRAP_FORM	TRAP_ATT for trap, 
+				UNTRAP_ATT for untrap.
+
+		  E1		a (NULL for trap all)
+
+		  E2		b
+
+		  SCOPE		0 for closed
+				1 for open
+
+		  ty		type
+
+======================================================
+EXECUTE_E			Execute e %Execute
+
+		  E1		e
+
+
+SPECIAL EXPRESSION MARKER FOR ERRONEOUS EXPRESSIONS
+
+ =====================================================
+ BAD_E	     			Error
+
+ =====================================================
+
+
+NOTE: SEQUENCE_E and SPECIAL_E with prim = PRIM_STACK are designed to 
+interact.  The idea is to fetch the e1 value of the sequence onto the
+stack, and then to execute the e2 value, which will get values from the
+stack.  This is very fragile, and must be used carefully.  When 
+creating a SPECIAL_E/PRIM_STACK node, you must unify the type of that
+node with the type of the part of e1 that will be on the stack when
+that expr is used.  No such unification is done in type inference.
+
+
+
+/****************************************************************
+ *			LIST OF CASES				*
+ ****************************************************************/
+
+
+    case CONST_E:
+    case IDENTIFIER_E:
+    case LOCAL_ID_E:
+    case GLOBAL_ID_E:
+    case OVERLOAD_E:
+    case SPECIAL_E:
+    case UNKNOWN_ID_E:
+    case PAT_VAR_E:
+    case PAT_FUN_E:
+
+    case SINGLE_E:
+    case RECUR_E:
+    case SAME_E:
+    case UNQUOTE_E:
+    case EXECUTE_E:
+    case OPEN_E:
+    case MANUAL_E:
+    case LAZY_LIST_E:
+
+    case LET_E:
+    case DEFINE_E:
+    case APPLY_E:
+    case SEQUENCE_E:
+    case TEST_E:
+    case STREAM_E:
+    case AWAIT_E:
+    case PAIR_E:
+    case FUNCTION_E:
+    case LOOP_E:
+    case MATCH_E:
+    case LAZY_BOOL_E:
+    case WHERE_E:
+    case TRAP_E:
+    case EXPAND_E:
+
+    case IF_E:
+    case TRY_E:
+    case FOR_E:
+
+    case PAT_RULE_E: 
+    case PAT_DCL_E:
+
+    case BAD_E:
+
+
+

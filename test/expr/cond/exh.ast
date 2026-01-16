@@ -1,0 +1,23 @@
+Package exh 
+
+Extension
+  Species{noDollar} Expression =
+    | const1(Real)
+    | xx
+    | Expression + Expression
+    | Expression - Expression
+    | Expression * Expression
+    | Expression ^ Real
+  %Species
+%Extension
+
+Advise "Should say patterns are not exhaustive".
+Let $ by first
+  case $(const1(?x)) = $(x)
+  case $(?a + ?b) = $(a) ++ "+" ++ $(b)
+  case $(?a - ?b) = $(a) ++ "-" ++ $(b)
+  case $(?a * ?b) = $(a) ++ "*" ++ $(b)
+  case $(?a ^ ?r) = $(a) ++ "^" ++ $(r)
+%Let
+
+%Package

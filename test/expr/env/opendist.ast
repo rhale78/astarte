@@ -1,0 +1,38 @@
+Package opendist
+
+%% Test open distribution.
+
+Import "misc/check".
+
+Execute
+  Open Let 
+    a =
+      Let a1 = 1.
+      (a1+a1);
+    b =
+      Let b1 = 2.
+      (b1+2);
+    c =
+      Let c1 = 3.
+      (c1 + c1)
+  %Let
+  Line[$(a + a1 + b + b1 + c + c1)].
+  Check["18"].
+  
+  Var v1,v2,v3 holding Natural.
+  Open Assign
+    v1 :=
+      Let x1 = 2.
+      (x1 + x1);
+    v2 :=
+      Let x2 = 2.
+      (x2 + x2);
+    v3 :=
+      Let x3 = 3.
+      (x3 + x3)
+  %Assign
+  Line[$(x1+x2+x3)].
+  Check["7"].
+%Execute
+
+%Package

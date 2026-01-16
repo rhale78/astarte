@@ -1,0 +1,13 @@
+Package lazy 
+
+%% Test lazy pattern matching.
+
+Execute
+  Define p = (1,2).
+  Match (:?a,?b:) = p.
+  Show(@stdout!), a. Writeln[].
+  Show(@stdout!), b. Writeln[].
+  Writeln[$(a,b)].
+%Execute
+
+%Package

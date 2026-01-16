@@ -1,0 +1,295 @@
+<HTML>
+<head>
+<title>Astarte: bit vectors</title>
+</head>
+<body>
+<center>
+<a href="array.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="rlist.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC11. Bit Vectors </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Bit vectors</a>
+  <li><a href=#create>Creating bit vectors</a>
+  <li><a href=#string>Conversion to and from strings</a>
+  <li><a href=#null>The null bit vector</a>
+  <li><a href=#destroy>Destroying a bit vector</a>
+  <li><a href=#operations>Operations on bit vectors</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Bit vectors</font></h2>
+
+A bit vector is a string of 0's and 1's that has a right end, but
+is infinite to the left.  Package 
+<a href=ast/collect/bitvec.ast>collect/bitvec.ast</a>
+implements operations on bit vectors.
+
+<p>For clarity, we use notation such as ...01101 to show a bit
+vector, where the leftmost digit shown is replicated to the left.
+That notation is not available in Astarte though.
+
+<a name=BitvecType></a>
+<p>A bit vector has type <font color=red>Bitvec</font>.
+
+<a name=create></a>
+<hr>
+<h2><font color=mediumblue> Creating bit vectors </font></h2>
+
+<dl>
+<p><dt><font color=red>bitvec</font>
+<dd>: Integer -&gt; Bitvec
+<br>: (Boolean, [Boolean]) -&gt; Bitvec
+<p>If k is an integer then <font color=#D00090>bitvec(k)</font> 
+is the bit vector that is the
+infinite two's complement representation of integer k.  
+For example,
+<font color=#D00090>bitvec(2)</font> = ...0010 and 
+<font color=#D00090>bitvec(-2)</font> = ...1110.
+
+<p>If b is a boolean value and x is a list of boolean values, then
+bitvec(b,x) is a bit vector made by adding infinitely copies of b
+to the left of x.  (false is replaced by 0 and true by 1.)
+For example, 
+<font color=#D00090>bitvec(false, [true,true,true,false])</font> 
+= ...001110.
+
+<p>You can use both forms of the bitvec function in patterns.
+</dl>
+
+<a name=string></a>
+<hr>
+<h2><font color=mediumblue>Conversion to and from strings</font></h2>
+
+<dl>
+<p><dt><font color=red>$</font>
+<dd>: Bitvec -&gt; String
+<p><font color=#D00090>$(v)</font> 
+is the hexadecimal representation of v.  The first digit
+is 0 for a vector that has infinitely many
+0's and is F for a vector that has infinitely many 1's.
+<p>Example:
+$(...001001011) = "04B".
+
+<a name=bitvecToBinary></a>
+<p><dt><font color=red>bitvecToBinary</font>
+<dd>: (Bitvec,Natural) -&gt; String
+<p> <font color=#D00090>bitvecToBinary(v,k)</font> 
+is the binary representation of the
+rightmost k bits of bit vector v.
+<p>Example:
+bitvecToBinary(...001001011, 10) = "000001001011".
+
+<a name=bitvecToHex></a>
+<p><dt><font color=red>bitvecToHex</font>
+<dd>: (Bitvec,Natural) -&gt; String
+<p> <font color=#D00090>bitvecToHex(v,k)</font> 
+is the hexadecimal representation of bit vector v,
+using a total of k characters, so that it shows the rightmost
+4k bits of v.
+<p>Example:
+bitvecToHex(...001001011, 5) = "0004B".
+
+<a name=binaryToBitvec></a>
+<p><dt><font color=red>binaryToBitvec</font>
+<dd>: String -&gt; Bitvec 
+<p>binaryToBitvec takes a string representing a bit vector
+in base 2, and produces the bit vector.  If the leftmost digit
+is 0, then the bit vector is padded on the left with
+infinitely many 0's.  If the leftmost digit is 1, the
+bit vector is padded on the left with infinitely many 1's.
+<p>Examples:
+<br><font color=#D00090>binaryToBitvec(&quot;01101&quot;)</font> = ...0001101
+<br><font color=#D00090>binaryToBitvec(&quot;101010101&quot;)</font> = ...11101010101.
+
+<a name=hexToBitvec></a>
+<p><dt><font color=red>hexToBitvec</font>
+<dd>: String -&gt; Bitvec 
+<p>hexToBitvec takes a string representing a bit vector
+in base 16, and produces the bit vector.  If the leftmost digit
+is 7 or less, then the bit vector is padded on the left with
+infinitely many 0's.  If the leftmost digit is 8 or more, the
+bit vector is padded on the left with infinitely many 1's.
+<p>Examples:
+<br><font color=#D00090>hexToBitvec(&quot;02B&quot;)</font> = ...00101011
+<br><font color=#D00090>hexToBitvec(&quot;92B&quot;)</font> = ....11100100101011
+
+</dl>
+
+<a name=null></a>
+<hr>
+<h2><font color=mediumblue> The null bit vector</font></h2>
+
+<dl>
+<a name=bvNull></a>
+<p><dt><font color=red>bvNull</font>
+<dd>: Bitvec
+<p><font color=#D00090>bvNull</font> is bitvec(0), the vector of all 0's.
+
+<a name=bvNullq></a>
+<p><dt><font color=red>bvNull?</font>
+<dd>: Bitvec -&gt; Boolean
+<p><font color=#D00090>bvNull?(v)</font> is true just when v is bvNull.
+</dl>
+
+<a name=destroy></a>
+<hr>
+<h2><font color=mediumblue> Destroying a bit vector </font></h2>
+
+<dl>
+<p><dt><font color=red>unbitvec</font>
+<dd>: Bitvec -&gt; Integer
+<br>: Bitvec -&gt; (Boolean, [Boolean])
+<p> <font color=#D00090>unbitvec(v)</font> 
+is the integer k such that bitvec(k) = v, or
+is a pair (b,x) such that bitvec(b,x) = v, depending on the
+desired type of the result.
+</dl>
+
+<a name=operations></a>
+<hr>
+<h2><font color=mediumblue> Operations on bit vectors</font></h2>
+
+<dl>
+<a name=bvNot></a>
+<p><dt><font color=red>bvNot</font>
+<dd>: Bitvec -&gt; Bitvec
+<p><font color=#D00090>bvNot(v)</font> 
+is the bit vector obtained by replacing each 0 by
+a 1 and each 1 by a 0 in v.  
+<p>Example:
+bvNot(...01100) = ...10011.
+
+<a name=bvAnd></a>
+<p><dt><font color=red>_bvAnd_</font>
+<dd>: (Bitvec, Bitvec) -&gt; Bitvec
+<p><font color=#D00090>u _bvAnd_ v</font> 
+is the bitwise 'and' of bit vectors u and v.
+<p>Example:
+...00101 _bvAnd_ ...01110 = ...00100.
+
+<a name=bvOr></a>
+<p><dt><font color=red>_bvOr_</font>
+<dd>: (Bitvec, Bitvec) -&gt; Bitvec
+<p> <font color=#D00090>u _bvOr_ v</font> 
+is the bitwise 'or' of bit vectors u and v.
+<p>Example:
+...00101 _bvOr_ ...01110 = ...01111.
+
+<a name=bvXor></a>
+<p><dt><font color=red>_bvXor_</font>
+<dd>: (Bitvec, Bitvec) -&gt; Bitvec
+<p> <font color=#D00090>u _bvXor_ v</font> 
+is the bitwise exclusive 'or' of bit vectors u and v.
+<p>Example:
+...00101 _bvXor_ ...01110 = ...01011.
+
+<a name=bvShl></a>
+<p><dt><font color=red>_bvShl_</font>
+<dd>: (Bitvec, Natural) -&gt; Bitvec
+<p> <font color=#D00090>v _bvShl_ n</font> 
+is the result of shifting bit vector v to the left
+n bits, pulling in zeroes on the right.
+<p>Example:
+...00101 _bvShl_ 2 = ...0010100.
+
+<a name=bvShr></a>
+<p><dt><font color=red>_bvShr_</font>
+<dd>: (Bitvec, Natural) -&gt; Bitvec
+<p> <font color=#D00090>v _bvShr_ n</font> 
+is the result of shifting bit vector v to the right
+n bits, dropping the rightmost n bits.
+<p>Example:
+...00101 _bvShr_ 2 = ...001.
+
+<a name=bvMask></a>
+<p><dt><font color=red>bvMask</font>
+<dd>: Natural -&gt; Bitvec
+<p> <font color=#D00090>bvMask n</font> 
+is a vector of n 1's, preceded by infinitely many zeroes.
+<p>Example:
+<font color=#D00090>bvMask 2</font> = ...00011.
+
+<a name=bvMin></a>
+<p><dt><font color=red>bvMin</font>
+<dd>: Bitvec -&gt; (Natural,Bitvec)
+<p> <font color=#D00090>bvMin v</font> 
+is a pair (n,u).  The values of n and u are chosen depending on
+whether v has infinitely many 0's or infinitely many 1's.
+
+<p>If v has infinitely many 0's, then
+n is the index of the rightmost 1 in vector v, where the rightmost bit
+has index 0, and u is the vector that results by setting bit n in v to 0.
+
+<p> If v has infinitely many 1's, then n is the index of the 
+rightmost 0 in v, and u is the result of setting bit n to 1 in v.
+
+<p>Examples: 
+<p>bvMin (...0010100) = (2,...0010000),
+<p>bvMin (...11010111) = (3, ...11011111).
+<p>If there is no sought bit, then bvMin fails with exception
+domainX(&quot;no 1 bit&quot;).
+
+<a name=bvMax></a>
+<p><dt><font color=red>bvMax</font>
+<dd>: Bitvec -&gt; (Natural,Bitvec)
+<p> bvMax is similar to bvMin, but finds the leftmost 1 or 0.
+<p>Example:
+bvMax(...001001101000) 
+= (9, ...000001101000).
+
+<a name=bvField></a>
+<p><dt><font color=red>bvField</font>
+<dd>: (Bitvec, Natural, Natural) -&gt; Bitvec
+<p> <font color=#D00090>bvField(v,n,m)</font> 
+is obtained from v by shifting to the
+right n bits and then selecting only the rightmost m bits, padding with
+0's on the left.  So
+bvField(v,n,m) = bvShl(v,n) _bvAnd_ bfMask(m).
+
+<a name=bvSetField></a>
+<p><dt><font color=red>bvSetField</font>
+<dd>: (Bitvec, Natural, Natural, Bitvec) -&gt; Bitvec
+<p> <font color=#D00090>bvField(v,n,m,x)</font> 
+is obtained from bit vector v by replacing the m bits at
+indices n to n+m-1 by the righmost m bits of bit vector x.
+<p>Example:
+bvSetField(...0110010111, 2, 3, 000)
+= ...0110000011.
+
+<a name=bvSetBits></a>
+<p><dt><font color=red>bvSetBits</font>
+<dd>: (Bitvec, [Natural], Boolean) -&gt; Bitvec
+<p><font color=#D00090>bvSetBits(v,x,b)</font> 
+is obtained from v by replacing the bits whose
+indices are given by list x to 1 if b is true and 0 if b is false.
+The rightmost bit has index 0.
+<p>Example:
+bvSetBits(...01101000, [0,2,3], true) = 
+...01101101
+
+</dl>
+
+<hr>
+<center>
+<a href="array.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="rlist.html">Next</a>
+</center>
+</body>
+</HTML>

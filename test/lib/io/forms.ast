@@ -1,0 +1,28 @@
+Package testforms 
+
+%% Test read forms from standard.asi, plus stringToNatural, etc.
+
+Import "collect/string"; "misc/check".
+
+Execute
+  Let inp         = makebox(infile("tstdata1.txt")).
+  Let l           = readLine(inp).
+  Let c:Char      = read(inp).
+  Let n:Natural   = read(inp).
+  Let i:Integer   = read(inp).
+  Let r1:Rational = read(inp).
+  Let r2:Rational = read(inp).
+  Let rl:Real     = read(inp).
+  Let s           = readString(inp).
+  Ignore readChar(inp).
+  Let ss = readUpToN inp 5.
+  Line[l].
+  Check["the first line"].
+  Line[$c, " ", $n, " ", $i, " ", $r1, " ", $r2, " ", rl$$9].
+  Check["'a' 24 -40 -42 -97/10  2.3E+005"].
+  Line[s, " ", ss].
+  Check["astring fivec"].
+%Execute
+
+%Package
+

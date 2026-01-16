@@ -1,0 +1,81 @@
+Package testwith 
+
+%% Test with clauses
+
+Import "misc/check".
+
+%% Note: The following definition uses a with phrase in the
+%% wrong way with ffun.  As a result, the type of function
+%% ffun?? is not general.  The type of $ suffers a similar
+%% fate.  This is done for testing.
+
+Extension
+  Species F(`a) =
+      fpair(`b,`c) with `a = (`b,`c)
+    | ffun `a with `a = (`b -> `c)
+    | fgen `a
+  %Species
+%Extension
+
+Execute
+  Let a = fpair(10,20).
+  Let b = unfpair(a).
+  Line[$b].
+  Check["(10,20)"].
+  Let c = fgen(30).
+  Let d = unfgen(c).
+  Line[$d].
+  Check["30"].
+
+  Let e = fgen(2,3).
+  Let f = ffun(idf).
+  Let g = fgen(idf).
+  If forget a == forget e
+    then Line["bad"].
+    else Line["good"].
+  %If
+  Check["good"].
+  If forget g == forget f
+    then Line["bad"].
+    else Line["good"].
+  %If
+  Check["good"].
+  If a == a
+    then Line["good"].
+    else Line["bad"].
+  %If
+  Check["good"].
+%Execute
+
+Execute
+  Let a = fpair??(10,20).
+  Let b = unfpair??(a).
+  Line[$b].
+  Check["(10,20)"].
+  Let c = fgen(30).
+  Let d = unfgen(c).
+  Line[$d].
+  Check["30"].
+
+  Let e = fgen(2,3).
+  Let f = ffun??(idf).
+  Let g = fgen(idf).
+  If forget a == forget e
+    then Line["bad"].
+    else Line["good"].
+  %If
+  Check["good"].
+  If forget g == forget f
+    then Line["bad"].
+    else Line["good"].
+  %If
+  Check["good"].
+  If a == a
+    then Line["good"].
+    else Line["bad"].
+  %If
+  Check["good"].
+
+%Execute
+
+%Package

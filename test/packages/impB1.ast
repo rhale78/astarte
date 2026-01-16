@@ -1,0 +1,13 @@
+Package impB1
+
+%% Part of impB0 test.
+
+Export
+
+Expect{private} v: Natural.
+
+Implementation
+
+Let v = 5.
+
+%Package

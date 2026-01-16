@@ -1,0 +1,659 @@
+<HTML>
+<head>
+<title>Astarte: Reading</title>
+</head>
+<body>
+<center>
+<a href="tostring.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="matrix.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC6. Reading from Strings </font></h1>
+</center>
+
+<menu>
+  <li><a href=#pattern>Pattern matching with boxes</a>
+  <li><a href=#concat>Pattern matching without boxes</a>
+  <li><a href=#boxfun>Functions that involve boxes</a>
+  <li><a href=#fun>Functions that do not involve boxes: Genera operations</a>
+</menu>
+
+<hr>
+Some operations are provided for extracting prefixes of strings
+and converting them to various species.  You can use them directly
+as functions, or you can use pattern matching instead.  Pattern
+matching is usually more pleasant.
+
+<a name="pattern"></a>
+<hr>
+<h2><font color=mediumblue> Pattern matching with boxes</font></h2>
+
+Pattern matching in strings is conveniently done using 
+<a href=listpattern.html#extract>Extract</a>, which works
+on arbitrary lists.  Other forms for general lists can also be
+used with strings.
+
+<p>The following pattern forms are available for strings.  They are described
+in <a href="ast/collect/string.ast">collect/string.ast</a>
+and <a href="ast/pattern/listpat.ast">pattern/listpat.ast</a>.
+Most of these require imports.
+
+<dl>
+
+<a name=separated></a>
+<p><dt><font color="red">Extract separated [...]</font>
+<dd> Statement
+<font color=#D00090>
+<b><pre>
+     Extract separated[p1,p2,...,pn] from b.
+</pre></b>
+</font>
+is similar to 
+<font color=#D00090>
+<b><pre>
+     Extract[p1,p2,...,pn] from b.
+</pre></b> 
+</font>
+but it allows arbitrary white space between pattern targets,
+which Extract alone does not.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>.
+
+<a name=dollar></a>
+<p><dt><font color="red">Extract [$(p)]</font>
+<dd> Statement
+<font color=#D00090>
+<b><pre>
+     Extract [$(p)] from b.
+</pre></b>
+</font> 
+extracts a prefix that is an
+appropriate form according to the species of p, and matches
+pattern p against that prefix.  
+For example, if box b contains
+string &quot;453 9345&quot; and n has species Natural, then
+<font color="#D00090">
+<b><pre>
+      Extract[$(?n)] from b.
+</pre></b>
+</font>
+binds n to 453, and leaves box b holding &quot; 9345&quot;.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use $ in patterns.
+
+<p> Pattern $(?n) uses function pull to do the extraction.
+See <a href=#pull>pull</a> below for details on what can be read.
+
+<a name=hex></a>
+<p><dt><font color="red">Extract [hex(p)]</font>
+<dd> Statement
+<font color=#D00090>
+<b><pre>
+     Extract [hex(p)] from b.
+</pre></b>
+</font> 
+extracts a prefix of @b that is a number in hexadecimal notation, and
+matches p against the number.
+
+<p>Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use hex.
+
+<a name=theLine></a>
+<p><dt><font color="red">Extract [theLine(p)]</font>
+<dd> Statement
+<font color=#D00090>
+<b><pre>
+     Extract[theLine(p)] from b.
+</pre></b>
+</font>
+extracts one line from 
+the front of the content of b, and matches pattern p against that line.
+The newline character is not part of the line.
+For example, 
+if box b contains &quot;abc\ndef&quot;, then
+<font color="#D00090">
+<b><pre>
+     Extract[theLine(?x)] from b.
+</pre></b>
+</font>
+binds x to &quot;abc&quot; and leaves b holding &quot;def&quot;.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use theLine.
+
+<a name=theString></a>
+<p><dt><font color="red">Extract [theString(p)]</font>
+<dd> Statement
+<font color="#D00090">
+<b><pre>
+     Extract[theString(p)] from b.
+</pre></b>
+</font>
+first skips over
+white space, then extracts a maximal prefix
+that does not contain any white space characters.
+For example, 
+if box b holds &quot;  abc def&quot;, then
+<font color=#D00090>
+<b><pre>
+    Extract [theString(?s)] from b.
+</pre></b>
+</font>
+binds s to &quot;abc&quot; and leaves b holding &quot; def&quot;.
+
+<p>If the first nonwhite character of the target is a double
+quote character, then this pattern gets an entire quoted string.
+For example,
+if box b holds &quot; \&quot; ab c\&quot; def&quot;, then
+<font color=#D00090>
+<b><pre>
+    Extract [theString(?s)] from b.
+</pre></b>
+</font>
+binds s to &quot; ab c&quot; and leaves b holding &quot; def&quot;.
+
+<p>Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use theString.
+
+<a name=theId></a>
+<p><dt><font color="red">Extract [theId(p)]</font>
+<dd> Statement
+<font color="#D00090">
+<b><pre>
+     Extract[theId(p)] from b.
+</pre></b>
+</font>
+first skips over
+white space, then extracts a maximal prefix that is an
+Astarte identifier.  It gets the value of that identifier
+in the outer environment (of the same species as p) and matches
+pattern p against that value.
+
+<p>Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to used theId.
+
+<a name=white></a>
+<p><dt><font color="red">Extract[white]</font>
+<dd> Statement
+<font color="#D00090">
+<b><pre>
+     Extract[white] from b.
+</pre></b>
+</font>
+extracts all white space
+characters from the front of the content of b, and does
+nothing with them.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use white.
+
+<a name=theWS></a>
+<p><dt><font color="red">Extract [theWS(p)]</font>
+<dd> Statement
+<font color="#D00090">
+<b><pre>
+     Extract[theWS(p)] from b.
+</pre></b>
+</font>
+extracts all white space
+characters from the front of the content of b, and matches pattern p
+against them.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use theWS.
+
+<a name=theBalanced></a>
+<p><dt><font color="red">Extract [theBalanced (lp,rp) p]</font>
+<dd> Statement
+<font color="#D00090">
+<b><pre>
+     Extract[theBalanced (lp,rp) p] from b.
+</pre></b>
+</font>
+extracts a prefix of the target that is balanced with respect 
+to left parenthesis lp and right parenthesis rp.  For example,
+<font color="#D00090">
+<b><pre>
+     Extract[theBalanced ('(',')') (?s)] from b.
+</pre></b>
+</font>
+extracts a prefix, such as &quot;(x(12)(14))&quot;, that is
+balanced with respect to parentheses.
+
+</dl>
+
+<a name="concat"></a>
+<hr>
+<h2><font color=mediumblue> Pattern matching without boxes</font></h2>
+
+The pattern forms that can be used with Extract can also be used
+in matches using ++ to concatenate the pieces.  
+For example,
+<font color=#D00090>
+<b><pre>
+   Match $(?n:Natural) ++ theString(?s) ++ ?r = "42 kangaroo mice".
+</pre></b>
+</font>
+succeeds, binding n = 42, s = "kangaroo" and r = " mice".  You can 
+also use function flatten in patterns, where flatten[a,b,c] has
+the same effect as a ++ b ++ c.  So the preceding match can also
+be written
+<font color=#D00090>
+<b><pre>
+   Match flatten[$(?n:Natural), theString(?s), ?r] = "42 kangaroo mice".
+</pre></b>
+</font>
+Be careful: when you are not using Extract, an exact match is required.
+For example, match
+<font color=#D00090>
+<b><pre>
+   Match $(?n:Natural) ++ theString(?s) = "42 kangaroo mice".
+</pre></b>
+</font>
+fails, since the pattern cannot match the entire target string.
+
+<p> You can use a variable to match what you want to leave alone. 
+For example,
+<font color=#D00090>
+<b><pre>
+   Match ?a ++ "kangaroo" ++ ?b = "42 kangaroo mice".
+</pre></b>
+</font>
+binds a = "42 " and b = " mice".
+
+<a name="boxfun"></a>
+<hr>
+<h2><font color=mediumblue> Functions that involve boxes </font></h2>
+
+The following functions are used to extract a prefix of a string
+in a box, leaving the rest in the box.  They offer an alternative
+to pattern matching.
+See <a href="ast/collect/string.ast">collect/string.ast</a> for
+more detail.
+
+<dl>
+
+<a name=read></a>
+<p><dt><font color="red">read</font>
+<dd>: &lt;:String:&gt; -&gt; `a
+<p> Suppose that b is a box.  
+Then read(b) extracts a prefix of the content of b, converts
+it to an appropriate species, and returns the result.  It
+also binds box b to the remainder of its former content, just
+after the prefix that was extracted.  The species that is returned
+depends on context.  For example, 
+if box b contains &quot;244 a934&quot;,
+<font color="#D00090">
+<b><pre>
+      read(b):Natural
+</pre></b>
+</font>
+returns 244 and puts &quot; a934&quot; in box b.
+
+<p>Read uses function pull to do its work.  See
+<a href=#pull>pull</a>.
+
+<p><dt><font color="red">read</font>
+<dd>: () -&gt; `a
+<p> read() is equivalent to read(stdin!).
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use read.
+
+<a name=readLine></a>
+<p><dt><font color="red">readLine</font>
+<dd>: &lt;:String:&gt; -&gt; String
+<p> readLine(b) extracts and returns a line from the front of the
+content of box b, and binds b to the remaining lines.  The
+newline character is not in the returned string.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use readLine.
+
+<p><dt><font color="red">readLine</font>
+<dd>: () -&gt; String
+<p> readLine() is equivalent to readLine(stdin!).
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use readLine.
+
+<a name=readString></a>
+<p><dt><font color="red">readString</font>
+<dd>: &lt;:String:&gt; -&gt; String
+<p> readString(b) extracts and returns a string from the front of
+content of box b, and binds b to the remainder of the string.  The
+string is obtained by skipping leading white space, then reading
+until the end of the string or white space is encountered.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use readString.
+
+<p><dt><font color="red">readString</font>
+<dd>: () -&gt; String
+<p> readString() is equivalent to readString(stdin!).
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use readString.
+
+<a name=readUpToN></a>
+<p><dt><font color="red">readUpToN</font>
+<dd>: &lt;:String:&gt; -&gt; Natural -&gt;[`a]
+<p> readUpToN b n extracts and returns the first n 
+characters from the front of
+content of box b, and binds b to the remainder of the string. 
+If there are fewer than n members in the list, then readUpToN reads
+them all.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use readUpToN.
+
+<p><dt><font color="red">readUpToN</font>
+<dd>: () -&gt; Natural -&gt; String
+<p> readUpToN() is equivalent to readUpToN(stdin!).
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use readUpToN.
+
+</dl>
+
+<a name="fun"></a>
+<hr>
+<h2><font color=mediumblue> 
+Functions that do not involve boxes: General operations </font></h2>
+
+The following functions are available for manipulating strings.
+See <a href="ast/collect/string.ast">collect/string.ast</a> for
+more detail.
+
+<dl>
+<a name=dblplusgt></a>
+<p><dt><font color="red">++&gt;</font>
+<dd>: (String,String) -&gt; String
+<p> <font color=#D00090>a ++&gt; b</font> = a ++ &quot; &quot; ++ b.
+<p>Example:<font color="#D00090">
+$(23) ++&gt; $(44)</font> = &quot;23 44&quot;.
+If you use ++&gt; in a pattern, it works in a way similar to
+++, but it allows white space between the parts.  
+For example,
+<font color=#D00090>
+<b><pre>
+   Match &quot;abc&quot; ++&gt; &quot;def&quot; = &quot;abc  def&quot; 
+</pre></b>
+</font>
+succeeds.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use ++&gt;.
+
+<a name=blankq></a>
+<p><dt><font color="red">blank?</font>
+<dd>: String -&gt; Boolean
+<p> <font color=#D00090>blank?(s)</font> 
+is true if s contains only white space.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use blank?
+
+<a name=breakIntoLines></a>
+<p><dt><font color="red">breakIntoLines</font>
+<dd>: String -&gt; [String]
+<p> <font color=#D00090>breakIntoLines(s)</font> 
+is a list of the lines in string s.
+<p>Example: 
+<font color="#D00090">breakIntoLines(&quot;abc\ndef\nghi\n&quot;)</font> 
+= [&quot;abc&quot;, &quot;def&quot;, &quot;ghi&quot;].
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use breakIntoLines.
+
+<a name=expandTabs></a>
+<p><dt><font color="red">expandTabs</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>expandTabs n s</font> 
+is the result of expanding tabs in string s,
+assuming that there is a tab stop every n characters.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use expandTabs.
+
+<a name=filterComments></a>
+<p><dt><font color="red">filterComments</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>filterComments(s)</font> 
+is the result of removing all Astarte-style
+comments from string s.  Only %% style comments are recognized,
+not &lt;&lt;&lt;&lt;&lt;...&gt;&gt;&gt;&gt; style comments.  
+Function filterComments is quasi-lazy,
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use filterComments.
+
+<a name=indentLines></a>
+<p><dt><font color="red">indentLines</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>indentLines n s</font> 
+is the result of inserting n blanks at
+the front of each line in string s.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use indentLines.
+
+<a name=internString></a>
+<p><dt><font color="red">internString</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>internString(s)</font> 
+is the same string as s, but it refers
+to a copy of s that is stored in a hash table.  Only one
+copy of any given string is stored in this hash table. 
+Equality comparisons between two strings, both of which have
+been interned, is done by comparing pointers.
+
+<p> Once a string has been put into the hash table, it is
+never removed.  So only intern a string if you like 
+the idea of keeping that string around.
+
+<a name=pull></a>
+<p><dt><font color="red">pull</font>
+<dd>: String -&gt; (`a,String)
+<p> <font color=#D00090>pull(s)</font>
+is a pair (w,r) where w is obtained by
+extracting a prefix of s and converting it to an
+appropriate species, and r is the rest of s.
+If s is empty or has only white space, then pull(s)
+fails with exception listExhaustedX.
+
+<p>The species of w, and the form of the string that 
+determines w, depends on the species of pull.
+Standard implementations are as follows.  All of these
+skip over any leading white space in the string before
+looking for the desired substring.
+<dl>
+<p><dt> <font color=red>Char</font>
+<dd> The character must be in the form of an Astarte
+character constant, such as 'a' or '\n'.  To pull just the
+first character of a string, use listToPair.  See
+<a href=char.html#pull>characters</a>.
+
+<p><dt> <font color=red>Numeric</font>
+<dd> Numbers should be in the form of Astarte numeric constants,
+possibly including an initial minus sign.
+See <a href=natural.html#pull>LN1</a>,
+<a href=integer.html#pull>LN2</a>,
+<a href=rational.html#pull>LN3</a>,
+<a href=real.html#pull>LN4</a>.
+
+<p><dt> <font color=red>Lists</font>
+<dd> A list is read in the form of a list constant, such as
+[2,3,4].  See <a href=listlib.html#pull>lists</a>.
+
+<p><dt> <font color=red>Strings</font>
+<dd> A string must be in the form of an Astarte string constant,
+in double quotes.  To read a string delimited by spaces instead
+of quotes, use pullString (or pattern theString).
+
+<p><dt> <font color=red>Ordered pairs</font>
+<dd> An ordered pair, triple, etc. is written surrounded
+by parentheses, using commas as separators.  
+For example,
+you can read (2,3,4) when pull has species String -&gt;
+((Natural, Integer, Natural), String).  See
+<a href=tupleexpr.html#pull>ordered pairs</a>.
+
+<p><dt> <font color=red>Default</font>
+<dd> The default for pull is to read an identifier, and to return
+the value of that identifier.  This, 
+For example, can be
+used to read a function that has a name.  Only identifiers that
+are defined in the outer scope can be used.
+</dl> 
+
+<a name=pullId></a>
+<p><dt><font color="red">pullId</font>
+<dd>: String -&gt; (`a,String)
+<p> <font color=#D00090>pullId(s)</font>
+is a pair (w,r) where w is obtained by
+extracting an identifier from the front of string s and then
+looking up the value of that identifier, and r is the rest of s.
+The type of identifier w is determined by the codomain of pullId.
+
+<a name=pullLine></a>
+<p><dt><font color="red">pullLine</font>
+<dd>: String -&gt; (String,String)
+<p> <font color=#D00090>pullLine(s)</font> 
+is a pair (w,r) where w is the first line of string
+s, and r is the rest of s.
+So, if s contains a newline character, then s = w ++ &quot;\n&quot; ++ r.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use pullLine.
+
+<a name=pullString></a>
+<p><dt><font color="red">pullString</font>
+<dd>: String -&gt; (String,String)
+<p> <font color=#D00090>pullString(s)</font> 
+is a pair (w,r) where w is obtained by skipping
+any leading white space in string s, and then taking all characters up
+to white space, and r is the rest of s. So s = x ++ w ++ r, where x
+consists of leading white space.
+
+<p>For example,
+<font color=#D00090>
+<b><pre>
+  pullString(&quot; abc def&quot;) = (&quot;abc&quot;, &quot; def&quot;)
+</pre></b>
+</font>
+
+<p>In the special case where the first nonwhite character of s is a double
+quote character, pullString removes an entire quoted string.
+For example,
+<font color=#D00090>
+<b><pre>
+  pullString(&quot; \&quot;a horse and carriage\&quot; and rest&quot;) = (&quot;a horse and carriage&quot;, &quot; and rest&quot;)
+</pre></b>
+</font>
+<p>If there is only white space in s, then pullString(s) fails with
+exception listExhaustedX.
+
+<p>Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use pullString.
+
+<a name=pullHex></a>
+<p><dt><font color="red">pullHex</font>
+<dd>: String -&gt; (Natural,String)
+<p> <font color=#D00090>pullHex(s)</font> 
+skips leading white space in string s and then extracts a hexadecimal
+number from s.  It returns pair (n,r) where n is the number extracted
+and r is the rest of s, after the number.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use pullHex.
+
+<a name=pullWS></a>
+<p><dt><font color="red">pullWS</font>
+<dd>: String -&gt; (String,String)
+<p> <font color=#D00090>pullWS(s)</font> 
+is a pair (w,r) where w is the leading white space of
+string s and r is the rest.  So s = w ++ r.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use pullWS.
+
+<a name=skipWS></a>
+<p><dt><font color="red">skipWS</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>skipWS(s)</font> 
+is the result of removing all leading white space from
+string s.
+
+<a name=pullBalanced></a>
+<p><dt><font color="red">pullBalanced</font>
+<dd>: (Char,Char) -> String -&gt; (String,String)
+<p> <font color=#D00090>pullBalanced(lp,rp)(s)</font> 
+is a pair (b,r) where b is a prefix of s that is balanced with respect
+to left parenthesis lp and right parenthesis rp, and r is what
+follows b in s.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use pullBalanced.
+
+<a name=toLower></a>
+<p><dt><font color="red">toLower</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>toLower(s)</font> 
+is the result of converting all letters in s to 
+lower case.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use toLower.
+
+<a name=toUpper></a>
+<p><dt><font color="red">toUpper</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>toUpper(s)</font> 
+is the result of converting all letters in s to 
+upper case.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use toUpper.
+
+<a name=wrapLines></a>
+<p><dt><font color="red">wrapLines</font>
+<dd>: String -&gt; String
+<p> <font color=#D00090>wrapLines n s</font> 
+is the result of inserting line breaks into
+string s so that no line has more than n characters in it.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use wrapLines.
+
+<a name=wsExplode></a>
+<p><dt><font color="red">wsExplode</font>
+<dd>: String -&gt; [String]
+<p> <font color=#D00090>wsExplode(x)</font> 
+is a list of the white-space separated substrings
+of string x.
+
+<p>Example: <font color="#D00090">
+wsExplode(&quot; abc de fgh&quot;)</font> 
+= [&quot;abc&quot;, &quot;de&quot;, &quot;fgh&quot;].
+
+<p>Parts that are surrounded by quotes are kept together, and
+the quotes are removed.
+
+<p>Example: <font color="#D00090">
+wsExplode(&quot; \&quot;abc de\&quot; fgh&quot;)</font> 
+= [&quot;abc de&quot;, &quot;fgh&quot;].
+
+<p>Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use wsExplode.
+
+<a name=wsFlatten></a>
+<p><dt><font color="red">wsFlatten</font>
+<dd> <font color=#D00090>wsFlatten(x)</font>
+is t: [String] -&gt; String
+<p>he concatenation of the members of list x, but
+with a space between consecutive members.
+<p>Example: 
+<font color="#D00090">wsFlatten[&quot;abc&quot;, &quot;def&quot;, &quot;gh&quot;]</font> = &quot;abc def gh&quot;.
+Import <a href="ast/collect/string.ast">collect/string.ast</a>
+to use wsFlatten.
+
+</dl>
+
+<hr>
+<center>
+<a href="tostring.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stringlib.html">String Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="matrix.html">Next</a>
+</center>
+</body>
+</HTML>

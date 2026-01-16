@@ -1,0 +1,24 @@
+Package freeze
+
+%% Test freezing with unknowns.
+
+Import "logic/unify".
+Import "thread/semaphor".
+Import "misc/check".
+
+Execute
+  Var{logic} a.
+  Var{shared} x.
+  Mix
+    Unify(a, 2).
+    Assign x := freeze a.
+    Fail endThreadX.
+  with
+    Wait(() => not emptyBox?(x)).
+    Line[$ @x].
+    Check["2"].
+  %Mix
+%Execute
+
+%Package
+

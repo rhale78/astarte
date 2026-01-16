@@ -1,0 +1,25 @@
+Package alloc1
+
+%% Test allocation of binary data.
+
+Import "misc/check".
+
+Execute
+  Let a = "str".
+  Let b = tail(a).
+  
+  Let c = "a longer string".
+  Let d = tail(c).
+  Line[$a, " ", $b, " ", $c, " ", $d].
+  Check["\"str\" \"tr\" \"a longer string\" \" longer string\""].
+%Execute
+
+%% Allocation of multiple blocks.
+
+Execute
+  For ? from 0 _upto_ 1000 do
+    Let a = pack[10,20,30,40,5,15,25,35].
+  %For
+%Execute
+
+%Package

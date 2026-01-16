@@ -1,0 +1,74 @@
+Package init 
+
+%% Test Var exprs with initializers
+
+Import 
+  "misc/check";
+  "collect/boxes";
+  "collect/listfun";
+%Import
+
+Execute
+  Writeln["box"].
+  Var{shared}  a := 1.
+  Var{nonshared} p := 1.
+  Line[$ @a].
+  Check["1"].
+  Line[$ @p].
+  Check["1"].
+%Execute
+
+Execute
+  Writeln["all, one dimension"].
+  Var{shared} a(10)  all := 1.
+  Var{nonshared} p(10) all := 1.
+  For ?j from 0 _upto_ 9 do
+    Line[$ @(a#_j)].
+    Check["1"].
+    Line[$ @(p#_j)].
+    Check["1"].
+  %For
+%Execute
+
+Execute
+  Writeln["list, one dimension"].
+  Var{shared} a(10)  := 0 _upto_ 9.
+  Var{nonshared} p(10) := 0 _upto_ 9.
+  For ?j from 0 _upto_ 9 do
+    Line[$ @(a#_j)].
+    Check[$j].
+    Line[$ @(p#_j)].
+    Check[$j].
+  %For
+%Execute
+
+Execute
+  Writeln["all, two dimensions"].
+  Var{shared} a(5,5)  all := 1.
+  Var{nonshared} p(5,5) all := 1.
+  For ?i from 0 _upto_ 4 do
+    For ?j from 0 _upto_ 4 do
+      Line[$ @(a#_i#_j)].
+      Check["1"].
+      Line[$ @(p#_i#_j)].
+      Check["1"].
+    %For
+  %For
+%Execute
+
+Execute
+  Writeln["list, two dimensions"].
+  Let init = map (?x => insertLeft x (0 _upto_ 4)) (0 _upto_ 4).
+  Var{shared} a(5,5)  := init.
+  Var{nonshared} p(5,5) := init.
+  For ?i from 0 _upto_ 4 do
+    For ?j from 0 _upto_ 4 do
+      Line[$ @(a#_i#_j)].
+      Check[$(i,j)].
+      Line[$ @(p#_i#_j)].
+      Check[$(i,j)].
+    %For
+  %For
+%Execute
+
+%Package

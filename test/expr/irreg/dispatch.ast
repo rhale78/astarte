@@ -1,0 +1,40 @@
+Package dispatch 
+
+%% Test dispatching where function argument matters, but is not
+%% yet known.
+
+Let plus ?a ?b = a + b.
+
+Execute
+  Let a = {|2|}.
+  Let b = {|3|}.
+  Match {|?aa|} = a.
+  Let g = plus aa.
+  Match {|?bb|} = b.
+  Let r = g bb.
+  Writeln[$r].
+%Execute
+
+Let pair ?a ?b = (a,b).
+
+Execute
+  Let a = {|2|}.
+  Let b = {|3|}.
+  Match {|?aa|} = a.
+  
+  %% The following needs to look up pair, and does not yet know its
+  %% full type.  Type inference will have to default type type,
+  %% and will choose the type of b to be ().
+  
+  Let g = pair aa.
+  
+  %% The following will get a type mismatch at run time.
+  
+  Writeln["Should fail with exception speciesX"].
+  Match {|?bb|} = b.
+  Let r = g bb.
+  Writeln[$r].
+%Execute
+  
+
+%Package

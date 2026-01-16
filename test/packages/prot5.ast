@@ -1,0 +1,9 @@
+Package prot5 isKindOf prot1
+
+interface
+
+Import "prot1".
+
+Expect zz: Integer.
+
+%Package

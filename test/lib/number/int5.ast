@@ -1,0 +1,41 @@
+Package testint5
+
+%% Test comparison of integers
+
+Execute
+  If(100 == 100) 
+    else Writeln["Bad"].
+  %If
+  If(100 =/= 100) 
+    then Writeln["Bad"].
+  %If
+  If(100 < 200) 
+    else Writeln["Bad"].
+  %If
+  If(1000000000000000000 == 1000000000000000000) 
+    else Writeln["Bad"].
+  %If
+  If(1000000000000000000 <= 1000000000000000000) 
+    else Writeln["Bad"].
+  %If
+  If(1000000000000000000 < 1000000000000000000) 
+    then Writeln["Bad"].
+  %If
+  If(1000000000000000000 > 1000000000000000000) 
+    then Writeln["Bad"].
+  %If
+  If(1000000000000000000 >= 1000000000000000000) 
+    else Writeln["Bad"].
+  %If
+  If(1000000000000000000 < 1000000000000000001) 
+    else Writeln["Bad"].
+  %If
+  If(1000000000000000000 > 999999999999999999) 
+    else Writeln["Bad"].
+  %If
+  If(1000000000000000000 >= 999999999999999999) 
+    else Writeln["Bad"].
+  %If
+%Execute
+
+%Package

@@ -1,0 +1,362 @@
+%% File: matrix.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=========================================================
+Package 		Astarte_MatrixImp
+
+			Implements "matrix"
+===========================================================
+
+Import "collect/listfun".
+
+===========================================================
+%%			Matrix
+===========================================================
+%% Note: an empty matrix always has 0 rows, 0 columns and 
+%% rows = [].
+
+Extension
+  Species{transparent,noDollar} Matrix(`a) = makeMatrix
+    (nrows   ~> Natural,
+     ncols   ~> Natural,
+     rows    ~> [[`a]]
+    )
+  %Species
+%Extension
+
+===========================================================
+%%			$
+===========================================================
+
+Let $(makeMatrix(?,?,?rs)) = $rs.
+
+===========================================================
+%%			cleanRows
+===========================================================
+%% x is a list of lists.
+%% Return true just when all members or x have the same length.
+
+Define cleanRows ?x =
+  If nil? x then true else
+    Let n = length(head x).
+    Loop ?r = tail x
+      exitcase nil? r => true
+      exitcase length(head r) =/= n => false
+      loopcase else => continue tail r
+    %Loop
+  %If
+%Define
+
+===========================================================
+%%			matrix
+%%			emptyMatrix
+===========================================================
+
+Define matrix ?x =
+  {cleanRows x else sizeX}
+  Choose first
+    case nil? x _or_ nil?(head x) => makeMatrix(0,0,[])
+    else                          => makeMatrix(length x, length(head x), 
+    						pack(eagerMap pack x))
+  %Choose
+%Define
+
+Define emptyMatrix = matrix [].
+
+===========================================================
+%%			row
+%%			row_
+%%			column
+%%			column_
+===========================================================
+
+Let
+  index_ ?i ?a = a #_ i;
+  
+  row_ ?i (makeMatrix(?nr,?,?a)) = a#_i |
+    {i < nr else subscriptX};
+    
+  column_ ?j (makeMatrix(?,?nc,?a)) = eagerMap (index_ j) a |
+    {j < nc else subscriptX};
+    
+  row ?i ?m = 
+    If i == 0 
+      then fail subscriptX 
+      else row_ (i--1) m
+    %If;
+    
+  column ?j ?m = 
+    If j == 0 
+      then fail subscriptX 
+      else column_ (j--1) m 
+    %If
+%Let
+
+===========================================================
+%%			columns
+===========================================================
+
+Let columns ?a = rows(transpose a).
+
+========================================================
+ %%			_above_
+========================================================
+
+Let makeMatrix(?nra,?nca,?ra) _above_ makeMatrix(?nrb,?ncb,?rb) =
+  {ncb == 0 _or_ nca == 0 _or_ nca == ncb else sizeX}
+  Value makeMatrix(nra+nrb, max[nca,ncb], ra ++ rb).
+%Let
+
+========================================================
+%%			_atop_
+========================================================
+
+Let ?r _atop_ makeMatrix(?nr,?nc,?rs) =
+  If nc == 0 then
+    If nil? r 
+      then emptyMatrix
+      else makeMatrix(1, length r, [r])
+    %If
+  else
+    {length r == nc else sizeX}
+    Value makeMatrix(nr + 1, nc, r :: rs).
+  %If
+%Let
+
+========================================================
+%%			splitAtTop
+========================================================
+
+Let splitAtTop (makeMatrix(?nr,?nc,?rs)) =
+  If nr == 0
+    then fail emptyListX
+    else (head rs, makeMatrix(nr--1, nc, tail rs))
+  %If
+%Let
+
+========================================================
+%%			_beside_
+========================================================
+
+%% _bs_ is the _beside_ operation on raw lists.
+
+Operator _bs_ (_beside_).
+
+Define _bs_ by
+  case [] _bs_ [] = []
+  case (?ha :: ?ta) _bs_ (?hb :: ?tb) = (ha ++ hb) :: (ta _bs_ tb)
+  case ? _bs_ ? = fail sizeX
+%Define
+
+Define  (makeMatrix(?nra,?nca,?ra) _also_ ?a) 
+       _beside_ 
+        (makeMatrix(?nrb,?ncb,?rb) _also_ ?b) =
+  Choose first
+    case nra == 0 => b
+    case nrb == 0 => a
+    case nra =/= nrb => fail sizeX
+    else => makeMatrix(nra, nca + ncb, ra _bs_ rb)
+  %Choose
+%Define
+
+
+========================================================
+%%			_aside_
+========================================================
+
+%% _asd_ is the _aside_ operation on raw lists.
+
+Operator _asd_ (_aside_).
+
+Define _asd_ by
+  case [] _asd_ [] = []
+  case (?ha :: ?ta) _asd_ (?hb :: ?tb) = (ha::hb) :: (ta _asd_ tb)
+  case ? _asd_ ? = fail sizeX
+%Define
+
+Define ?c _aside_ makeMatrix(?nr,?nc,?rs) =
+  If nr == 0 then
+    If nil? c
+      then emptyMatrix
+      else makeMatrix(length c, 1, eagerMap list c)
+    %If
+  else
+    {length c == nr else sizeX}
+    Value makeMatrix(nr, nc + 1, c _asd_ rs).
+  %If
+%Define
+
+========================================================
+%%			splitAtLeft
+========================================================
+
+%% sleft is splitAtLeft on raw lists.
+
+Define sleft by
+  case sleft []       = ([],[])
+  case sleft (?h::?t) = Match (?c,?r) = sleft t.
+			Value (head h :: c, tail h :: r).
+%Define
+
+Pattern ?c _asd_ ?cs => 
+  Match (?c,?cs) = sleft(target).
+%Pattern
+
+Define splitAtLeft (makeMatrix(?nr,?nc,?rs)) =
+  If nc == 0
+    then fail emptyListX
+    else 
+      Match (?c,?cs) = sleft(rs).
+      Value (c, makeMatrix(nr, nc--1, cs)).
+  %If
+%Define
+
+========================================================
+%%			transpose
+========================================================
+
+%% transp is transpose on raw lists.
+
+Define transp by
+  case transp []            = []
+  case transp [[] & ?]      = []
+  case transp (?h _asd_ ?t) = h :: transp t
+%Define
+
+Define transpose (makeMatrix(?nr,?nc,?rs)) =
+  makeMatrix(nc,nr,transp rs)
+%Define
+
+========================================================
+%%			listDiagLR
+%%			diagLR
+%%			diagLR_
+========================================================
+
+Define listDiagLR ?k ?c ?rs =
+  Choose first
+  
+    case nil? rs => []
+    
+    do Match ?first_row_l :: ?rest_rs = rs.
+    
+    case k < 0 => listDiagLR (k+1) c rest_rs
+    
+    case k < c => (first_row_l #_ (natural k)) :: listDiagLR (k+1) c rest_rs
+    
+    else       => []
+  %Choose
+%Define
+=======================
+Let diagLR_ (?i,?j) (makeMatrix(?nr,?nc,?rs)) = 
+  {i < nr _and_ j < nc else subscriptX}
+  Value listDiagLR (integer j - integer i)  (integer nc) rs.
+%Let
+=======================
+Let diagLR (?i,?j) = diagLR_ (i--1, j--1) |
+  {i > 0 _and_ j > 0 else subscriptX}
+%Let
+
+========================================================
+%%			listDiagRL
+%%			diagRL
+%%			diagRL_
+========================================================
+
+Define listDiagRL ?k ?c ?rs =
+  Choose first
+    case nil? rs => []
+    
+    do Match ?first_row_l :: ?rest_rs = rs.
+    
+    case k >= c => listDiagRL (k-1) c rest_rs
+    
+    case k >= 0 => (first_row_l #_ (natural k)) :: listDiagRL (k-1) c rest_rs
+    
+    else        => []
+  %Choose
+%Define
+=======================
+Let diagRL_ (?i,?j) (makeMatrix(?nr,?nc,?rs)) = 
+  {i < nr _and_ j < nc else subscriptX}
+  Value listDiagRL (integer j + integer i)  (integer nc) rs.
+%Let
+=======================
+Let diagRL (?i,?j) = diagRL_ (i--1, j--1) |
+  {i > 0 _and_ j > 0 else subscriptX}
+%Let
+
+==================================================
+%%			#
+%%			#_
+==================================================
+
+Let 
+  makeMatrix(?nr,?nc,?rs) # (?n,?m)  = rs # n # m |
+    {n <= nr _and_ m <= nc else subscriptX};
+    
+  makeMatrix(?nr,?nc,?rs) #_ (?n,?m) = rs #_ n #_ m |
+    {n < nr _and_ m < nc else subscriptX}
+%Let
+
+==================================================
+%%			#=
+%%			#_=
+==================================================
+
+Let makeMatrix(?nr,?nc,?rs) #_= ((?n,?m),?v) =
+  Choose first
+    case n >= nr _or_ m >= nc => fail subscriptX
+    
+    else =>
+      makeMatrix(nr, nc, rs #_= (n, (rs #_ n) #_= (m,v)))
+      
+  %Choose
+%Let
+===================
+Define ?a #= ((?n,?m),?v) =
+  {n > 0 _and_ m > 0 else subscriptX}
+  Value a #_= ((n--1,m--1),v).
+%Define
+
+==================================================
+%%			##
+%%			submat
+==================================================
+
+Define sublst (?a,?b) ?x = x ## (a,b).
+=================
+Let submat (?nr,?nc,?rs) ((?i,?n), (?j,?m)) =
+  If i >= nr _or_ j >= nc _or_ n == 0 _or_ m == 0 
+    then []
+    else map (sublst (j,m)) (rs ## (i,n))
+  %If
+%Let
+=================
+Let (makeMatrix ?info) ## (((?,?n),(?,?m)) _also_ ?w) =
+  Let x = submat info w.
+  Value If nil? x then emptyMatrix else makeMatrix(n,m,x) %If.
+%Let
+
+==================================================
+%%			map
+==================================================
+
+Let map ?f (makeMatrix(?nr, ?nc, ?rs)) =
+  makeMatrix(nr, nc, map(map f) rs)
+%Let
+
+==================================================
+%%			^^
+%%			downcast
+==================================================
+
+Let{underride} ^^ = map(^^).
+Let{underride} downcast = map(downcast). 
+
+==================================================
+%Package
+

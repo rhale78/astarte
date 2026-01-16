@@ -1,0 +1,52 @@
+Package sublist 
+
+%% test sublist on lazy lists
+
+Define nats(?n) = (:n :: nats(n+1):).
+
+%% Try sublist on lazy lists
+
+Execute
+  Writeln["\nLines should be in matching pairs\n"].
+  Let l = nats(2).
+  Let a = l##(0,20).
+  Show @stdout!,l. Writeln[].
+  Writeln["[]++(lazy sublist:nats)\n"].
+  Let b = head(l).
+  Show @stdout!,l. Writeln[].
+  Writeln["[2]++(lazy sublist:nats)\n"].
+  Define c = l#_25.
+  Show @stdout!,l. Writeln[].
+  Writeln["[2]++(lazy sublist:nats)\n"].
+  Writeln[$a].
+  Writeln["[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]\n"].
+  Writeln[$b].
+  Writeln["2\n"].
+  Writeln[$c].
+  Writeln["27\n"].
+  Show @stdout!,l. Writeln[].
+  Writeln["[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]++(lazy sublist:nats)]\n"].
+%Execute
+
+%% Try sublist on explicit lists 
+
+Execute
+  Let l = nats(2).
+  Writeln[$(l#_200)].
+  Writeln["202\n"].
+  Let d = l##(1,1000).
+  Let e = head d.
+  Writeln[$e].
+  Writeln["3\n"].
+  Show @stdout!, d. Writeln[].
+  Writeln["[3,...]++(lazy prim ##)\n"].
+  Define f = d#_17.
+  Writeln[$f].
+  Writeln["20\n"].
+  Show @stdout!, d. Writeln[].
+  Writeln["[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,...]++(lazy prim ##)\n"].
+%Execute
+
+%Package
+
+  

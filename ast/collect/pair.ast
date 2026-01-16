@@ -1,0 +1,181 @@
+%% File pair.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=============================================================
+Package 		Astarte_Pair
+===============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package describes ordered pairs and operations for them.
+Most of the operations are standard, and are available in all
+packages.
+
+An ordered pair is written (a,b), where a is the left-hand member
+and b is the right-hand member.  If a has species A and b has species
+B, then (a,b) has species (A,B).  
+
+You may write (a,b,c) to abbreviate (a, (b,c)), and (a,b,c,d) to
+abbreviate (a, (b, (c,d))).  You can use any number of components,
+with pairing associating to the right.  In summary
+
+(a,b)		an ordered pair
+(a,b,c)		(a,(b,c))
+(a,b,c,d)	(a,(b,(c,d)))
+(a,b,c,d,e)	(a,(b,(c,(d,e))))
+...
+
+The following are standard operations on ordered pairs.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=====================================================================
+			Export
+=====================================================================
+
+Description
+
+ lazyLeft	: (`a,`b) -> `a
+
+		%" @{pair}
+		%"
+		%" lazyLeft(x,y) = x.  But lazyLeft does not evaluate
+		%" its argument until the value of lazyLeft(x,y) is
+		%" needed.
+		;
+
+ lazyRight	: (`a,`b) -> `b
+
+		%" @{pair}
+		%"
+		%" lazyRight(x,y) = y.  But lazyRight does not evaluate
+		%" its argument until its result is needed.
+		;
+
+ left		: (`a,`b) -> `a
+
+		%" @{pair}
+		%"
+		%" left(x,y) = x.
+		;
+
+ right		: (`a,`b) -> `b
+
+		%" @{pair}
+		%"
+		%" right(x,y) = y.
+		;
+
+%Description
+
+================================================================
+%% The following are implemented here, and are only available to
+%% packages that import this package.
+================================================================
+
+==============================
+Operator _pmap_(++); _tee_(++).
+
+==============================
+Abbrev {noExport}:
+  A = `a;
+  B = `b;
+  C = `c;
+  D = `d
+%Abbrev
+
+===============================
+Expect
+  _pmap_	: (A -> C, B -> D) -> ((A,B) -> (C,D))
+
+		%" @{pair map}
+		%"
+		%" (f _pmap_ g)(x,y) = (f x, g y).  For example, if
+		%"
+		%"    double(x) = 2*x,
+		%"    triple(x) = 3*x
+		%"
+		%" then 
+		%"
+		%"  (double _pmap_ triple)(4,5) = (8,15).  
+		%"
+		%" You can use several pmaps to handle ordered triples, etc.
+		%"
+		%"  (double _pmap_ double _pmap_ triple) (4,5,6) = (8,10,18).
+		%"
+		%" _pmap_ has the same precedence and associativity as
+		%" ++.  See lang/operator.ast.
+		;
+
+  _tee_		: (A -> B, A -> C) -> (A -> (B,C))
+
+		%" @{pair}
+		%"
+		%" (f _tee_ g)(x) = (f x, g x)."  For example, if
+		%"
+		%"    double(x) = 2*x,
+		%"    triple(x) = 3*x
+		%"
+		%" then 
+		%"
+		%"  (double _tee_ triple)(4) = (8,12).  
+		%"
+		%" You can use several tees to handle ordered triples, etc.
+		%"
+		%"  (double _tee_ double _tee_ triple) (4) = (8,8,12).
+		%"
+		%" _tee_ has the same precedence and associativity as
+		%" ++.  See lang/operator.ast.
+		;
+
+  xpose		: (A,B) -> (B,A)
+
+		%" @{pair transpose flip}
+		%"
+		%" xpose(x,y) = (y,x).
+		;
+
+  xposef        : ((A,B) -> C) -> (B,A) -> C
+
+		%" @{pair transpose flip}
+		%"
+		%" (xposef f)(a,b) = f(b,a).  For example,
+		%" 
+		%"   (xposef -)(a,b) = b - a.
+
+%Expect
+
+===============================================================
+			Implementation
+===============================================================
+
+====================================================================
+%% 		_pmap_
+====================================================================
+
+Let (?f _pmap_ ?g) (?x, ?y) = (f x, g y).
+
+====================================================================
+%% 		_tee_
+====================================================================
+
+Let (?f _tee_ ?g) ?x = (f x, g x).
+
+====================================================================
+%% 		xpose
+====================================================================
+
+Let xpose (?x,?y) = (y,x).
+
+====================================================================
+%%		 xposef
+====================================================================
+
+Let xposef ?f (?x,?y) = f (y, x).
+
+====================================================================
+%Package
+

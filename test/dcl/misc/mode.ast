@@ -1,0 +1,26 @@
+Package modes 
+
+%% Test modes on Define dcls, etc.
+
+Define
+  {default}: 
+     f1(?x) = x;
+     f2(?x) = x;
+  {override} 
+     f3(?x) = x;
+  {override}:
+    f4(?x) = x
+%Define
+
+Define
+  f5(?x) = x
+%Define
+
+
+Pattern
+  {tag ::}: listpair(?p) => Match ::(?p) = target.;
+           listpair2(?p) => Match ::(?p) = target.;
+%Pattern
+
+%Package
+

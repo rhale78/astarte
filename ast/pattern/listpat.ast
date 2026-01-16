@@ -1,0 +1,821 @@
+%% File listpat.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=======================================================================
+Package 		Astarte_Listpat
+
+			Interface
+=========================================================================
+
+=========================================================================
+%% This package provides some pattern functions for lists,
+%% notably ++.  It also provides patterns for extracting prefixes
+%% and suffixes from lists.
+=========================================================================
+
+Directory standard. 
+Import 
+  "collect/collect";
+  "collect/listfun";
+  "collect/search";
+  "thread/semaphor";
+%Import
+
+Operator _pulledBy_ ($$).
+
+=========================================================================
+Description
+  "Extract" 	%" Statement
+  		%"
+		%"  Extract [p1,...,pn] from v.
+		%"
+		%" successively matches p1, ..., pn against prefixes of
+		%" the content of box v, removing each prefix as it
+		%" is matched.
+		%"
+		%"----------------------------------------
+		%"
+		%" Statement
+		%"
+		%"  Extract [p1,...,pn] from v.  
+		%"
+		%" is equivalent to
+		%"
+		%"  Match extract[p1,...,pn] = v.
+		%"
+		%" which is in turn equivalent to
+		%"
+		%"  Match extractL[p1,...,pn] = v.
+		%"
+		%" See notes on extractL.
+		;
+		
+  "extract"	%" See notes on Extract and extractL.
+
+%Description
+
+=========================================================================
+
+Expect
+  appendSplit	: pot__produceStream ~>
+		  [`a] -> ([`a], [`a])
+
+		%" appendSplit(l) returns a stream of pairs (x,y), for
+		%" all (x,y) such that x++y = l.  The order is
+		%" increasing in the length of x.
+		%"
+		%" WARNING: appendSplit presumes that each pair (x,y)
+		%" is tested independently.  If appendSplit returns
+		%" pair (x,y), and that pair is rejected without
+		%" examining all of x or any of y, then no
+		%" further pairs are returned.  If this is
+		%" not desired, then use appendSplit! instead.
+		%"
+		%" See pattern function ++.
+		;
+
+  appendSplit!	: pot__produceStream ~>
+		  [`a] -> ([`a], [`a])
+
+		%" appendSplit!(l) returns a stream of pairs (x,y), for
+		%" all (x,y) such that x++y = l.  The order is
+		%" increasing in the length of x.  
+		%"
+		%" See appendSplit, and pattern function ++!.
+		;
+
+  mixAppendSplit: pot__produceStream ~>
+		  [`a] -> ([`a], [`a])
+
+		%" mixAppendSplit is similar to appendSplit, but mixes
+		%" its stream output.
+		%"
+		%" See pattern function ++//.
+		;
+		
+  pullN		: pot__listExhaustedX ~>
+		  Natural -> [`a] -> ([`a], [`a])
+
+		%" pullN n s = (x,r) where x consists of the first n
+		%" members of s, and r consists of the members
+		%" that follow those members.  If s does not have
+		%" n members, then pullN n s fails with exception
+		%" listExhaustedX.  
+		%"
+		%" For example, pullN 4 "abcdefghi" = ("abcd","efghi").
+		%"
+		%" See pattern function theN.
+		;
+		
+  pullUpToN	: Natural -> [`a] -> ([`a], [`a])
+  
+		%" pullN n s = (x,r) where x consists of the first n
+		%" members of s, and r consists of the members
+		%" that follow those members.  If s does not have
+		%" n members, then pullUpToN n s returns (x,[]).
+		%"
+		%" For example, pullUpToN 4 "abcdefghi" = ("abcd","efghi")
+		%" and pullUpToN 12 "abcdefghi" = ("abcdefghi","").
+		%"
+		%" See pattern function theUpToN.
+		;
+		
+  pulls		: ([`a] -> (`b, [`a])) -> [`a]   -> [`b]
+  
+		%" pulls p L produces a list of the values that
+		%" would be obtained by applying pull function p 
+		%" to list L repeatedly until L becomes empty.  
+		%" Function p should behave like one of the 
+		%" pull-functions above.  It should return a pair (v,r)
+		%" where v is a value that is pulled from the front 
+		%" of the list and r is the rest of the list.
+		%"
+		%" If p fails with exception listExhaustedX, then
+		%" pulls assumes that p is saying there is nothing
+		%" left in the list, and produces an empty list.
+		%"
+		%" For example, pulls pull "12 190 25 " = 
+		%" [12, 190, 25], when function pull has a type 
+		%" that gets a natural number.
+		%"
+		%" pulls is lazy.  It fails only at the
+		%" point where you try to evaluate the puller
+		%" on a bad input. For example, if pull returns a natural
+		%" number, then (pulls pull "12 190 abc")
+		%" produces a list whose first two members
+		%" are 12 and 190.
+		%" If you try to evaluate the third member,
+		%" the evaluation will fail with exception
+		%" conversionX.
+		%"
+		%" See also repeatPull.
+		;
+		  
+  repeatPull    : ([`a] -> (`b, [`a])) -> [`a] -> [(`b, [`a])]
+
+		%" repeatPull p L produces a list of the pairs that
+		%" would be obtained by applying pull function p to
+		%" L repeatedly until L becomes empty.  Function
+		%" p should  behave like one of the pull-functions above.
+		%"
+		%" When p fails with exception listExhaustedX, it
+		%" is presumed that p is saying there is nothing
+		%" left in the list.
+		%"
+		%" For example, repeatPull pull "12 190 25 " =
+		%" [(12, " 190 25"), (190, " 25"), (25, " ")],
+		%" when pull has a type that gets a natural number.
+		%"
+		%" To get just the pulled values, map left onto
+		%" this list, or use function pulls.  So
+		%" "12 190 25" | repeatPull pull | map(left)
+		%" produces list [12, 190, 25].
+		%"
+		%" RepeatPull is lazy.  It fails only at the
+		%" point where you try to evaluate the puller
+		%" on a bad input. For example,
+		%" repeatPull pull "12 190 abc"
+		%" produces a list whose first two members
+		%" are (12, " 190 abc") and (190, " abc").
+		%" If you try to evaluate the third member,
+		%" the evaluation will fail with exception
+		%" conversionX.
+		%"
+		%" See function pulls.
+		;
+		
+  ++/		: ([`a], [`a]) -> [`a]
+  
+  		%" As a function, ++/ is the same as ++.  It differs 
+		%" as a pattern function.
+		;
+  
+  ++//		: ([`a], [`a]) -> [`a]
+  
+  		%" As a function, ++// is the same as ++.  It differs 
+		%" as a pattern function.
+		;
+
+  ++!		: ([`a], [`a]) -> [`a]
+
+  		%" As a function, ++! is the same as ++.  It differs
+		%" as a pattern function.
+		;
+
+  {missing,pattern}:
+  
+  theN		:  Natural -> [`a] -> [`a]
+  
+  		%" #{pattern}
+		%"
+  		%" Pattern theN n ?x ++ rest matches ?x against the
+  		%" prefix consisting of the first n members of the
+  		%" target, and matches rest against the rest of the
+ 		%" target.  For example
+		%"
+		%"  Match theN 4 ?s ++ ?r = "abcdefg".
+		%"
+		%" binds s = "abcd" and r = "efg".  If there are fewer
+		%" than n members, then the match fails with exception
+		%" testX.
+		%"
+		%" When theN is used in a pattern without ++, 
+		%" the list must have exactly n members, or the
+		%" match fails.
+		;
+		
+  theUpToN	:  Natural -> [`a] -> [`a]
+  
+  		%" #{pattern}
+		%"
+  		%" Pattern theUpToN n ?x ++ rest matches ?x against the
+  		%" prefix consisting of the first n members of the
+  		%" target, and matches rest against the rest of the
+ 		%" target.  For example
+		%"
+		%"  Match theUpToN 4 ?s ++ ?r = "abcdefg".
+		%"
+		%" binds s = "abcd" and r = "efg".  If there are fewer
+		%" than n members, then this pattern matches the entire
+		%" target list.
+		%"
+		%" When theUpToN is used in a pattern without ++, 
+		%" the list must have no more than n members.
+		;
+		
+  _pulledBy_	: ([`a], [`a] -> ([`a], [`a])) -> [`a]
+  
+  		%" #{pattern}
+		%"
+    		%" Pattern ?p _pulledBy_ f ++ rest computes f(target),
+  		%" which must be a pair (u,v), matches p against u and
+  		%" rest against v.  You can use this to
+  		%" create custom patterns.  However, you might find
+  		%" it more convenient to define your own version of
+  		%" function pull, and to use pattern function $ to
+  		%" access it.
+		;
+
+  extract1 	: [`a] -> <:[`a]:>
+  
+		%" #{pattern} 
+		%"
+		%" Pattern Match
+		%"
+		%"   Match extract1(?x) = target.
+		%"
+		%" assumes that the target is a box that holds a list.  
+		%" It matches ?x ++ ?rest against the content of the
+		%" target box, and then sets the target box to hold rest.
+		%"
+		%" Note: Update of the target box is not protected
+		%" from concurrent updates.  It is your responsibility
+		%" to protect it, if necessary.  Alternatively,
+		%" consider using a lockable box.
+		;
+  
+  extract1 	: [`a] -> Lockable(<:[`a]:>)
+  
+		%" #{pattern} 
+		%"
+		%" Pattern Match
+		%"
+		%"   Match extract1(?x) = target.
+		%"
+		%" assumes that the target is a lockable box that holds 
+		%" a list. It matches ?x ++ ?rest against the content of
+		%" the target box, and then sets the target box to rest.
+		%" All transactions are done with the box locked.
+		;
+  
+  extractL 	: [[`a]] -> <:[`a]:>
+  
+		%" #{pattern}
+		%"
+  		%" Pattern match
+		%"
+		%"   Match extractL[?a,?b,?c] = target.
+		%"
+		%" is equivalent to
+		%"
+		%"   Match extract1(?a ++ ?b ++ ?c) = target.
+		%"
+		%" You can have any number of members of the list.
+		%" ================================================
+		%" Note that
+		%"
+		%"   Extract [?a,?b,?c] from target.
+		%"
+		%" is exactly the same as
+		%"
+		%"   Match extractL[?a,?b,?c] = target.
+		%" ================================================
+		%" Also, you can use reserved word extract (with a
+		%" lower case e) in place of extractL.
+		;
+		
+  extractL 	: [[`a]] -> Lockable(<:[`a]:>)
+  
+		%" #{pattern}
+		%"
+  		%" Pattern match
+		%"
+		%"   Match extractL[?a,?b,?c] = target.
+		%"
+		%" is equivalent to
+		%"
+		%"   Match extract1(?a ++ ?b ++ ?c) = target.
+		%"
+		%" You can have any number of members of the list.
+		%" ====================================================
+		%" See extractL: [[`a]] -> <:[`a]:> for additional notes.
+		;
+		
+  reassociate	: [`a] -> [`a]
+  
+  		%" #{pattern}
+		%"
+		%" Function reassociate is used in patterns to 
+		%" reassociate uses of ++ to the right.  For example,
+		%"
+		%"   Match reassociate((?a ++ ?b) ++ ?c) = t.
+		%"
+		%" is equivalent to writing
+		%"
+		%"   Match ?a ++ (?b ++ ?c) = t.
+		;
+		
+  span		: COLLECTION`?(EQ`a) -> [EQ`a] -> [EQ`a]
+
+  		%" #{pattern}
+		%"
+  		%" Pattern (span s p ++ q)  extracts a maximal 
+		%" prefix of the target that consists entirely of 
+		%" members of collection s, and matches pattern p 
+		%" against that prefix.  It then matches pattern q against
+		%" that part of the target that comes after that maximal
+		%" prefix.  For example,
+		%"
+		%"    Match span "ab" ?x ++ ?y = "aabacab".
+		%"
+		%" binds x = "aaba" and y = "cab".
+		%"
+		%" Note: Span is most efficient for searching strings
+		%" when the collection that tells what is being
+		%" searched for is a dense set.
+		%"
+		%" Pattern span s p is equivalent to span s p ++ [].
+		;
+
+  spanOthers	: COLLECTION`?(EQ`a) -> [EQ`a] -> [EQ`a]
+
+  		%" #{pattern}
+		%"
+      		%" Pattern spanOthers s p ++ q  extracts a maximal 
+		%" prefix of the target that consists entirely of 
+		%" nonmembers of collection s, and matches pattern p 
+		%" against that prefix.  It then matches pattern q against
+		%" that part of the target that comes after that maximal
+		%" prefix.  For example,
+		%"
+		%"    Match spanOthers "ab" ?x ++ ?y = "cdacbax".
+		%"
+		%" binds x = "cd" and y = "cbax".
+		%"
+		%" Note: SpanOthers is most efficient for searching strings
+		%" when the collection that tells what is being
+		%" searched for is a dense set.
+		%"
+		%" Pattern spanOthers s p is equivalent to 
+		%" spanOthers s p ++ [].
+		;
+		
+  lookingAt     : EQ`a -> [EQ`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAt c ++ ?rest succeeds if the
+		%" target is a nonempty list, and its head is c.
+		%" It binds rest to the target.
+		%"
+		%" (LookingAt does not consume any members of
+		%" the target list.)
+		;
+		
+  lookingAtSatisfying: (`a -> Boolean) -> [`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAtSatisfying f ++ ?rest succeeds
+		%" if the target is nonempty, and its head is some
+		%" value x such that f(x) is true.
+		%" It binds rest to the target.
+		%"
+		%" (LookingAtSatisfying does not consume any 
+		%" members of the target list.)
+		;
+		
+  lookingAtNilOrSatisfying: (`a -> Boolean) -> [`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAtNilOrSatisfying f ++ ?rest succeeds
+		%" if the target is empty, or it is nonempty and its 
+		%" head is some value x such that f(x) is true.
+		%" It binds rest to the target.
+		%"
+		%" (LookingAtNilOrSatisfying does not consume any 
+		%" members of the target list.)
+		;
+		
+  lookingAtMember: COLLECTION`?(EQ`a) -> [EQ`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAtMember c ++ ?rest succeeds if the
+		%" target is nonempty, and its head is a member
+		%" of collection c.  It binds rest to the target.
+		%"
+		%" (LookingAtMember does not consume any members of
+		%" the target list.)
+		;
+
+  lookingAtNonmember: COLLECTION`?(EQ`a) -> [EQ`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAtNonmember c ++ ?rest succeeds if the
+		%" target is nonempty, and its head is NOT a member
+		%" of collection c.  It binds rest to the target.
+		%"
+		%" (LookingAtNonmember does not consume any members of
+		%" the target list.)
+		;
+		
+  lookingAtNilOrMember: COLLECTION`?(EQ`a) -> [EQ`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAtNilOrMember c ++ ?rest succeeds if the
+		%" target is an empty list or the target is nonempty,
+		%" and its head is a member of collection c.  
+		%" It binds rest to the target.
+		%"
+		%" (LookingAtNilOrMember does not consume any members of
+		%" the target list.)
+		;
+
+  lookingAtNilOrNonmember: COLLECTION`?(EQ`a) -> [EQ`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAtNilOrNonmember c ++ ?rest succeeds if the
+		%" target is an empty list or the target is nonempty,
+		%" and its head is NOT a member of collection c.  
+		%" It binds rest to the target.
+		%"
+		%" (LookingAtNilOrNonmember does not consume any members of
+		%" the target list.)
+		;
+
+  lookingAtSublist: [EQ`a] -> [EQ`a]
+  
+  		%" #{pattern}
+		%"
+		%" Pattern lookingAtSublist(p) succeeds if list p
+		%" occurs in the target at this point.  It is
+		%" similar to just p, but in an extract, it does not
+		%" remove p from the content of the box.
+		;
+%Expect
+
+=========================================================================
+Description
+
+  ++		: ([`a], [`a]) -> [`a]
+  
+		%" #{pattern}
+		%"
+		%" Pattern Match
+		%"
+		%"   Match ?x ++ ?y = target.
+		%"
+		%" sets ?x and ?y so that x ++ y is the target list.
+		%" By default, a stream is produced with all possible 
+		%" ways of binding x and y.  For example, 
+		%"
+		%"    Match ?x ++ ?y = [a,b,c].
+		%"
+		%" will first set x = [] and y = [a,b,c].  If 
+		%" backtracked into, it will next set x = [a] and 
+		%" y = [b,c].  This will continue until the last 
+		%" solution is x = [a,b,c] and y = [].
+		%"
+		%" Note: handling of p ++ q is overridden for some 
+		%" specific kinds specific kinds of patterns p.  
+		%" To avoid those overrides, use pattern p ++/ q, 
+		%" which has no special rules with it.
+		%"
+		%" WARNING: pattern function ++ presumes that each 
+		%" pair that it returns is tested independently.  
+		%" If pair (x,y) is returned, and 
+		%" that pair is rejected without
+		%" examining all of x or any of y, then no
+		%" further pairs are returned.  For example,
+		%" if pattern 'nomatch' rejects without even
+		%" looking at its target, then
+		%"
+		%"   Match nomatch ++ "xyz" = "abxyz".
+		%"
+		%" only tries one pair ("", "abxyz").
+		%"
+		%" If this is not desired, then use ++! instead.
+		;
+		
+  ++!		%" #{pattern}
+  		%"
+  		%" ++! is the same as ++, but it returns all 
+		%" possible pairs, even if some are not
+		%" looked at.  See ++.
+		;
+		
+  ++/		%" #{pattern}
+  		%"
+  		%" ++/ is the same as ++ as a pattern function,
+		%" but it has no special rules.  It always
+		%" employs backtracking.  But see the warning
+		%" for pattern function ++, which applies
+		%" to ++/ as well.
+		;
+		
+  ++//		%" #{pattern}
+  		%"
+  		%" Pattern ?x ++// ?y is similar to ?x ++/ ?y, but 
+		%" produces a mixed stream.
+		;
+  
+  flatten	: [[`a]] -> [`a]
+  
+  		%" #{pattern}
+		%"
+		%"    Match flatten[a,b,c] = t.
+		%"
+		%" is the same as 
+		%"
+		%"    Match a ++ b ++ c = t.
+		%"
+		%" There can be any number of components of the list.
+		;
+		  
+%Description
+
+=========================================================================
+%% 			++
+=========================================================================
+
+Pattern ++ ?p => Match ?p = appendSplit(target)..
+
+=========================================================================
+%% 			++!
+=========================================================================
+
+Let ++! = ++.
+Pattern ++! ?p => Match ?p = appendSplit!(target)..
+
+=========================================================================
+%% 			++/
+=========================================================================
+
+Let ++/ = ++.
+Pattern ++/ ?p => Match ?p = appendSplit(target)..
+
+=========================================================================
+%% 			++//
+=========================================================================
+
+Let ++// = ++.
+Pattern ++// ?p => Match ?p = mixAppendSplit(target)..
+
+=========================================================================
+%% 			++
+%%		    (specializations)
+=========================================================================
+
+Pattern (?h::?t) ++ ?r =>
+  Match ?h::(?t ++ ?r) = target.
+%Pattern
+
+=========================================================================
+%% It is more efficient to use _lminus_ to extract a constant
+%% string from the left end of a list than to
+%% backtrack over all possibilities.  The solution is the same.
+=========================================================================
+
+Pattern
+   a ++ ?b => Match ?b = target _lminus_ a.
+%Pattern
+
+=========================================================================
+%% 			span, spanOthers
+=========================================================================
+
+Assume span, spanOthers: pattern.
+
+Pattern
+  span c ?x => 
+    Match (?x,[]) = pullSpan c target.;
+
+  span c ?x ++ ?rest_l => 
+    Match (?x,?rest_l) = pullSpan c target.;
+    
+  spanOthers c ?x => 
+    Match (?x,[]) = pullSpanOthers c target.;
+
+  spanOthers c ?x ++ ?rest_l => 
+    Match (?x,?rest_l) = pullSpanOthers c target.;
+
+%Pattern
+
+=========================================================================
+%% 			lookingAt
+%%			lookingAtSatisfying
+%%			lookingAtNilOrSatisfying
+=========================================================================
+
+Assume 
+  lookingAt, lookingAtSatisfying, lookingAtNilOrSatisfying: pattern
+%Assume
+
+Pattern
+  lookingAt c ++ ?rest =>
+    {not nil? target _and_ head(target) == c}
+    Match ?rest = target.;
+    
+  lookingAt c =>
+    Match [c] = target.;
+
+  lookingAtSatisfying f ++ ?rest =>
+    {not nil? target _and_ f(head(target))}
+    Match ?rest = target.;
+
+  lookingAtSatisfying f =>
+    Match [?x] = target.
+    {f(x)};
+
+  lookingAtNilOrSatisfying f ++ ?rest =>
+    {nil? target _or_ f(head(target))}
+    Match ?rest = target.;
+
+  lookingAtNilOrSatisfying f =>
+    {nil? target _or_ (nil?(tail target)) _and_ f(head(target))}
+
+%Pattern
+
+=========================================================================
+%% 			lookingAtMember
+%%			lookingAtNonmember
+%%			lookingAtNilOrMember
+%%			lookingAtNilOrNonmember
+=========================================================================
+
+Assume 
+  lookingAtMember, lookingAtNonmember,  
+  lookingAtNilOrMember, lookingAtNilOrNonmember: pattern
+%Assume
+
+Pattern
+  lookingAtMember c ++ ?rest =>
+    {not nil? target _and_ head(target) _in_ c}
+    Match ?rest = target.;
+
+  lookingAtMember c =>
+     Match [?x] = target.
+     {x _in_ c};
+  
+  lookingAtNonmember c ++ ?rest =>
+    {not nil? target _and_ not(head(target) _in_ c)}
+    Match ?rest = target.;
+
+  lookingAtNonMember c =>
+     Match [?x] = target.
+     {not(x _in_ c)};
+  
+  lookingAtNilOrMember c ++ ?rest =>
+    {nil? target _or_ head(target) _in_ c}
+    Match ?rest = target.;
+
+  lookingAtNilOrMember c =>
+     {nil? target _or_ (nil?(tail target) _and_ (head target _in_ c))};
+  
+  lookingAtNilOrNonmember c ++ ?rest =>
+    {nil? target _or_ not(head(target) _in_ c)}
+    Match ?rest = target.;
+
+  lookingAtNilOrNonMember c =>
+     {nil? target _or_ (nil?(tail target) _and_ not(head target _in_ c))};
+  
+%Pattern
+
+=========================================================================
+%%			lookingAtSublist
+=========================================================================
+
+Pattern
+  lookingAtSublist(p) ++ ?rest =>
+    {p _prefix?_ target}
+    Match ?rest = target.;
+  
+  lookingAtSublist(p) =>
+    {target == p}
+%Pattern
+
+=========================================================================
+%% 			theN
+%%			theUptoN
+=========================================================================
+
+Assume theN, theUptoN: pattern.
+
+Pattern
+  %%------ theN -----
+  
+  theN n ?x ++ ?rest => Match (?x,?rest) = pullN n target.;
+  
+  theN n ?x          => Match theN n ?x ++ [] = target.;
+  
+  %%------ theUpToN -----
+  
+  theUpToN n ?x ++ ?rest => Match (?x,?rest) = pullUpToN n target.;
+  
+  theUpToN n ?x          => Match theUpToN n ?x ++ [] = target.;
+  
+%Pattern
+
+=========================================================================
+%% 			_pulledBy_
+=========================================================================
+
+Assume _pulledBy_: pattern.
+
+Pattern
+
+  (?p _pulledBy_ f) ++ ?rest => Match (?p, ?rest) = f(target).; 
+
+%Pattern
+
+=========================================================================
+%%			reassociate
+%% 			extract1
+=========================================================================
+
+Assume extract1, reassociate : pattern.
+
+Pattern
+  reassociate(?x) => 
+  	Match ?x = target.;
+  
+  reassociate(?x) ++ ?rest => 
+  	Match ?x ++ ?rest = target.;
+  
+  reassociate(?h ++ ?t) ++ ?rest => 
+  	Match ?h ++ (reassociate(?t) ++ ?rest) = target.;
+	
+  extract1(?x) => 
+  	Match reassociate(?x) ++ ?rest = @target.
+  	Assign target := rest.;
+
+  extract1(?x) =>
+  	open SemProtect lockOf(target) over
+  	  Match reassociate(?x) ++ ?rest = @(lockedOf target).
+  	  Assign lockedOf target := rest.
+	%SemProtect
+%Pattern
+
+=========================================================================
+%% 			extractL
+%%			flatten
+=========================================================================
+
+Assume extractL: pattern.
+
+Pattern
+  flatten a           => {flatten a == target};
+
+  flatten [] ++ ?rest => Match ?rest = target.;
+
+  flatten(?h :: ?t)   => Match ?h ++ flatten(?t) = target.;
+
+  flatten(?h :: ?t) ++ ?rest => 
+     Match ?h ++ (flatten(?t) ++ ?rest) = target.;
+     
+  extractL ?x         => Match extract1(flatten ?x) = target.
+
+%Pattern
+
+=========================================================================
+
+%Package
+

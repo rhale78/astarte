@@ -1,0 +1,269 @@
+%% File: table.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_Table 
+
+			Interface
+===========================================================
+
+========================================================================
+%% This package describes abstract tables.  A table associates values
+%% with keys.
+%%
+%%   TABLE`a(K,V)    is a species of a table with keys of species K,
+%%                   and associated values of species V.
+%%
+%% To use tables, you probably want to import one of the concrete
+%% table packages, such as lintbl.ast or sparstbl.ast, rather than
+%% this package.
+========================================================================
+
+========================================================================
+Extension
+  Abstraction{transparent} TABLE(`k,`v)
+    %" TABLE is a collection of families of tables.
+    %" If T is a kind of table, then the members of
+    %" species T(K,V) are tables with keys of species
+    %" K and associated values of species V.
+  %Abstraction
+%Extension
+========================================================================
+Exception 
+  tableX  "A table lookup has failed to find an entry"
+%Exception
+========================================================================
+Operator 
+  _at_          (#); 
+  _defaultAt_   (#); 
+  _minusKey_    (-); 
+  _keyMember?_  (==); 
+  _in_          (==); 
+  +/            (+); 
+  +//           (+)
+%Operator
+========================================================================
+Abbrev {noExport}:
+  K     = EQ`a;
+  O     = ORDER`a;
+  V     = `b;
+  TblKV = {TABLE`a}(K,V);
+  TblOV = {TABLE`a}(O,V)
+%Abbrev
+=======================================
+Anticipate
+  emptyTable	: {TABLE`*a}(K,V)
+
+		%" emptyTable is an empty table.
+		;
+
+  emptyTable?	: TblKV -> Boolean
+
+		%" emptyTable?(t) is true if t is an empty table.
+		;
+
+  table		: [(K,V)] -> {TABLE`*a}(K,V)
+
+		%" table(l) is a table of the pairs in list l.  If two
+		%" members of l have the same key, the first such pair
+		%" is put in the table.
+		;
+
+  toList	: TblKV	-> [(K,V)]
+
+		%" toList(t) is a list of the ordered pairs contained in
+		%" table t, in increasing order by key if possible.
+		%" The left member of each ordered pair is the key,
+		%" and the right member is the associated value.
+		;
+
+  eagerToList	: TblKV	-> [(K,V)]
+
+		%" eagerToList(t) is a list of the ordered pairs
+		%" contained in table t, in increasing order by key
+		%" if possible.  The left member of each ordered
+		%" pair is the key, and the right member
+		%" is the associated value.  This function is eager.
+		;
+
+  size		: TblKV	-> Natural
+
+		%" size(t) is the number of entries in table t.
+		;
+
+  +/		: (TblKV, K, V) -> TblKV
+
+		%" (t +/ (k,v)) is the result of adding pair (k,v) to
+		%" table t, where k is the key and v is its
+		%" associated value. If there is already a pair
+		%" present with key k, it is kept, and the result
+		%" of (t +/ (k,v)) is t.
+		;
+
+  +//		: (TblKV, K, V) -> TblKV
+
+		%" (t +// (k,v)) is the result of adding pair (k,v) to
+		%" table t, where k is the key and v is its
+		%" associated value. If there is already a pair
+		%" present with key k, it is replaced.
+		;
+		
+  update	: (TblKV, (K, V), V->V) -> TblKV
+  
+  		%" update(t,(k,v),f) returns the result of inserting
+		%" pair (k,v) into table t, if key k is not present
+		%" in t.  If key k is already present in t, with 
+		%" associated value x, then the returned table
+		%" associates f(x) with key k.
+		;
+
+  _minusKey_	: (TblKV, K) -> TblKV
+
+		%" (t _minusKey_ k) is the result of deleting the pair
+		%" (k,v) in table t, if there is one.
+		;
+
+  _in_		: ((K,EQ`c), {TABLE`a}(K,EQ`c)) -> Boolean
+
+		%" ((k,v) _in_ t) is true if value v is associated with
+		%" key k in table t.
+		;
+
+  _keyMember?_	: (K, TblKV) -> Boolean
+
+		%" (k _keyMember?_ t) is true if table t has an entry
+		%" with key k.
+		;
+
+  memberWithKey	: pot__fail ~>
+		  (K, TblKV) -> (K,V)
+
+		%" memberWithKey(k,t) is the pair (k,v) that occurs in
+		%" table t.  It fails with exception tableX if table t
+		%" has no member with key k.
+		;
+
+  _at_		: pot__fail ~>
+		  (TblKV, K) -> V
+
+		%" (t _at_ k) is the value stored at key k in table t.
+		%" If there is no such value, then (t _at_ k) fails with
+		%" exception tableX.
+		;
+
+  _defaultAt_	: (TblKV, K, V)	-> V
+
+		%" (t _defaultAt_ (k,v)) is (t _at_ k) if table t has an
+		%" entry at key k, and is v otherwise.
+		;
+
+  min		: TblOV -> (O,V)
+  
+  		%" min(t) is the entry in table t with the smallest key.
+		%" It fails with exception tableX when t is an 
+		%" empty table.
+		;
+		
+  max		: TblOV -> (O,V)
+  
+  		%" max(t) is the entry in table t with the largest key.
+		%" It fails with exception tableX when t is an 
+		%" empty table.
+		;
+
+  extractMin	: TblOV -> ((O,V), TblOV)
+
+		%" extractMin(t) = ((k,v), t') where k is the smallest
+		%" key in table t, v is its associated value, and t'
+		%" is t _minusKey_ k.
+		%" It fails with exception tableX when t is an 
+		%" empty table.
+		;
+
+  extractMax	: TblOV -> ((O,V), TblOV)
+
+		%" extractMax(t) = ((k,v), t') where k is the largest
+		%" key in table t, v is its associated value, and t'
+		%" is t _minusKey_ k.
+		%" It fails with exception tableX when t is an 
+		%" empty table.
+		;
+
+  mapContent	: (V -> `c) -> TblKV -> TABLE`a(K, `c)
+
+		%" mapContent f t is the table that results by
+		%" replacing each content value x in t by f(x).
+		%"
+		%" For example, if t is the table
+		%"
+		%"     1    42
+		%"     3    19
+		%"     6    22
+		%"
+		%" Then (mapContent (__ + 1) t)  is the table
+		%"
+		%"     1    43
+		%"     3    20
+		%"     6    23
+		;
+%Anticipate
+
+Expect
+  fromList	: [(K,V)] -> TABLE`*a(K,V)
+
+		%" fromList is the same as table.
+		;
+
+  listTable	: [(K,V)] -> TABLE`*a(K,[V])
+
+		%" listTable [(1,"x"), (2, "y"), (1, "z"), (2, "a")] =
+		%" table [(1, ["x","z"]), (2, ["y", "a"])].
+		%"
+		%" In general, listTable builds a table where each
+		%" left-hand member of each pair is associated with
+		%" the list of all things that occur with it in pairs.
+		;
+
+  tableKeys	: TblKV -> [K]
+
+		%" tableKeys(t) is a list of the keys in table t,
+		%" in increasing order if possible.
+		;
+
+  tableVals	: TblKV	-> [V]
+
+		%" tableVals(t) is a list of the values associated with
+		%" keys in table t.  Each value occurs as many times
+		%" in the list as it occurs in the table as a value
+		%" associated with a key.
+		;
+
+  memoize	: TblKV -> (K -> V) -> K -> V
+
+		%" (memoize tbl f) is a function that behaves like f,
+		%" but enters each computed value into table tbl, and
+		%" gets results out of the table when they are present.
+		%" To set up a memoizing function f without precomputed
+		%" values, use (memoize emptyTable f).
+		;
+
+  {underride}:
+
+  table		: [(K,V)] -> {TABLE`*a}(K,V);
+
+  _defaultAt_	: (TblKV, K, V)	-> V;
+
+  mapContent	: (V -> `c) -> TblKV -> TABLE`a(K, `c);
+  
+  $		: TblKV -> String;
+
+  ^^		: TABLE`a(EQ`k, `v) -> TABLE`b(EQ`kk, `vv)
+		    constraint (TABLE`b(EQ`kk,`vv) >= TABLE`b(EQ`k,`v))
+%Expect
+
+========================================================================
+
+%Package

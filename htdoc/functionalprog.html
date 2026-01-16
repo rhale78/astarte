@@ -1,0 +1,539 @@
+<HTML>
+<head>
+<title>Astarte: functional programming</title>
+</head>
+<body>
+<center>
+<a href="threadlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="logicprog.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> Introduction to Functional Programming in Astarte</font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Functional programming</a>
+  <li><a href=#single>Functions with a single defining equation</a>
+  <li><a href=#multiple>Functions with more than one equation</a>
+  <li><a href=#pattern>Pattern matching</a>
+  <li><a href=#recursion>Recursion</a>
+  <li><a href=#higher>Higher order functions</a>
+  <li><a href=#curry>Curried functions</a>
+  <li><a href=#comp>List comprehensions</a>
+  <li><a href=#lazy>Making lazy functions</a>
+  <li><a href=#polymorphism>Polymorphism</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Functional programming</font></h2>
+Functional programming has the following characteristics.
+<ol>
+  <p><li> Data consists only of values that do not change.  There is
+  no concept of a variable that can be changed.  All data are
+  constants.  This
+  is close to the way mathematicans model things.  
+  It has the advantage
+  that it is not possible for a programmer to make the error of 
+  changing something in one part of a program that another part
+  of the program needs to remain constant.
+
+  <p><li> Computation is performed by functions that compute new values
+  from old.  The functions are written using equations.  The equations
+  can be checked mathematically for correctness.
+
+  <p><li> Functional programming is done at a conceptual level, with
+  most of the details of computation handled by the language implementation.
+  This tends to make programs short and simple.  Debugging time is
+  minimal.
+</ol>
+
+<p>This page describes basics of how to do functional
+programming in Astarte.  Ideally, before reading this, 
+you should be familiar
+with the most basic notions covered in the following sections.  You
+can read on and come back to these if necessary.
+<ul>
+<li><a href="syntax.html">M4. General lexical and syntactic issues</a>
+<li><a href="applyexpr.html">E5. Applying functions</a>
+<li><a href="tupleexpr.html">E6. Pairs, triples, etc.</a>
+<li><a href="listexpr.html">E7. Lists</a>
+<li><a href="naming.html">E9. Giving things names</a>
+<li><a href="patternmatch.html">E10. Pattern matching</a>
+<li><a href="funcexpr.html">E11. Defining functions</a>
+</ul>
+
+<a name=single></a>
+<hr>
+<h2><font color=mediumblue> Functions with a single defining equation </font></h2>
+
+If you have a function that can be described conveniently with a single
+equation, then just write that equation.  For example, the function
+sqr(x) = x<sup>2</sup> can be defined as
+<font color="#D00090">
+<b><pre>
+      Define sqr(?x) = x^2.
+</pre></b>
+</font>
+
+Notice that the parameter x must have a question mark in front of it
+in the heading (sqr(?x)) but not in the body (x^2).
+  
+<p>A function that takes the third member of a list can be written as
+<font color="#D00090">
+<b><pre>
+      Define third(?x) = head(tail(tail(x))).
+</pre></b>
+</font>
+
+<a name=multiple></a>
+<hr>
+<h2><font color=mediumblue> Functions with more than one equation </font></h2>
+
+You can write a function with several defining equations.  Each equation
+can have a proviso that tells under what circumstances it is true.  Here
+are some examples.
+
+<p> A function that takes the maximum of two values:
+<font color="#D00090">
+<b><pre>
+      Define max by
+        case max(?x,?y) = x      when x >= y
+        else max(?,?y)  = y
+      %Define
+</pre></b>
+</font>
+A parameter without a name (?) is one that you don't use.
+
+<p>Here is a function that returns the sign of a number.  (The sign of a positive
+number is 1, the sign of a negative number is -1 and the sign of 0 is 0.)
+<font color="#D00090">
+<b><pre>
+      Define sign by
+        case sign(?x) = 1       when x > 0
+        case sign(?x) = 0       when x == 0
+        else sign(?)  = -1
+      %Define
+</pre></b>
+</font>
+
+<a name=pattern></a>
+<hr>
+<h2><font color=mediumblue> Pattern matching </font></h2>
+
+A convenient way to break up a parameter is by pattern matching.
+The pattern match solves a simple equation.  For example, an alternative
+definition of the function that computes the third member of a list is
+<font color=#D00090>
+<b><pre>
+      Define third [?a, ?b, ?c & ?r] = c.
+</pre></b>
+</font>
+Expression [x,y,z & s] creates a list that begins [x,y,z,...], with
+suffix (the ...) given by list s.  When you compute third([1,2,3,4,5]),
+you must solve a simple equation
+<blockquote>
+    [a,b,c & r] = [1,2,3,4,5]
+</blockquote>
+The solution is clearly a = 1, b = 2, c = 3 and r = [4,5].  The definition
+of function third then says that the answer is c (=3).
+
+<p>In the pattern, the question marks decorate the things that are
+being solved for.  Sometimes, you need to solve for something but do
+not really care what it is.  You can use plain question mark for such
+things.  The definition of third can be written as follows.
+<font color=#D00090>
+<b><pre>
+      Define third [?, ?, ?c & ?] = c.
+</pre></b>
+</font>
+
+<a name=recursion></a>
+<hr>
+<h2><font color=mediumblue> Recursion </font></h2>
+
+You can use recursion in definitions.
+
+<p> Example: the factorial function.
+<font color="#D00090">
+<b><pre>
+      Define factorial by
+        case factorial (0)    = 1
+        case factorial (?n+1) = (n+1) * factorial(n)
+      %Define
+</pre></b>
+</font>
+
+Notice that pattern ?n+1 has been used.  To compute factorial(4)
+requires solving the equation n+1 = 4, yielding n = 3.
+
+<p>Example: a function that takes the sum of the members of a list.
+(So sum[2,3,4] = 9.)
+<font color="#D00090">
+<b><pre>
+      Define sum by
+        case sum []       = 0
+        case sum (?h::?t) = h + sum(t)
+      %Define
+</pre></b>
+</font>
+
+Example: a function that reverses a list. (So rev[2,3,4] = [4,3,2].)
+<font color="#D00090">
+<b><pre>
+       Define rev by
+         case rev []       = []
+         case rev (?h::?t) = rev(t) ++ [h]
+       %Define
+</pre></b>
+</font>
+
+<a name=higher></a>
+<hr>
+<h2><font color=mediumblue> Higher order functions </font></h2>
+
+A function can take functions as parameters.  A function that works on
+other functions is called a higher order function.
+
+<p>Here is a function that takes a
+function f and a list [a,b,c,d] and produces list [f(a), f(b), f(c), f(d)].
+It does a similar thing for arbitrary length lists.
+<font color="#D00090">
+<b><pre>
+      Define map by
+        case map(?f,[])      = []
+        case map(?f, ?h::?t) = f(h) :: map(f,t)
+      %Define
+</pre></b>
+</font>
+So, for example, suppose that function sqr is defined to square its parameter,
+as was done above.  Then map(sqr,[1,2,3,4,5]) = [1,4,9,16,25].
+
+<a name=curry></a>
+<hr>
+<h2><font color=mediumblue> Curried functions </font></h2>
+
+Not only can a function take other functions as parameters, but it
+can produce a function as its result.
+Imagine a function <i>add</i> such that add(x) is a function.  Specifically,
+(add(x))(y) = x + y.  That is, add(x) is a function that adds
+x to its parameter.
+
+<p> In Astarte, function application (juxtaposition) associates
+to the left.  If you write
+<b><pre> add x y</pre></b>
+you mean the same thing as
+<b><pre> (add x) y</pre></b>
+So add x y = x + y.  You can write a function to take its
+parameters in this way.  For example, you can write
+<font color="#D00090">
+<b><pre>
+    Define add ?x ?y = x + y.
+</pre></b>
+</font>
+It looks like function add takes two parameters, and it does.  But
+it takes them one at a time, and it is acceptable to give only one.
+For example, add(1) is a function that adds one to its parameter.
+To write a function called inc such that inc(x) = x + 1, you can
+write
+<font color="#D00090">
+<b><pre>
+    Let inc = add 1.
+</pre></b>
+</font>
+Notice that inc is a function, since add(1) is a function.
+
+<p>When a function is designed to take its parameters one at
+a time, it is called a <i>curried</i> function.  Curried functions
+have the advantage that they can be given partial information.
+
+<p>The
+map function written above is not curried.  There is a map function
+in the library that is curried.  A simple curried map function
+can be written as follows.
+<font color="#D00090">
+<b><pre>
+    Define map by
+      case map ?  []       = []
+      case map ?f (?h::?t) = f(h) :: map f t
+    %Define
+</pre></b>
+</font>
+The advantage of a curried map function is that you can fix the
+function f, without deciding on what the list will be.  For 
+example,
+<font color="#D00090">
+<b><pre>
+    Let incAll = map (add 1).
+</pre></b>
+</font>
+defines function incAll, where 
+incAll[a,b,c,d] = [a+1, b+1, c+1, d+1].
+
+<p>A useful higher order function is rfold.  It performs an accumulation.
+You give it an initial value and an operator.  Examples are
+<font color=#D00090>
+<blockquote>
+  rfold(0,+) [a,b,c,d] = a + b + c + d + 0<br>
+  rfold(1,*) [a,b,c,d] = a * b * c * d * 1
+</blockquote>
+</font>
+In general, you give a function of two arguments as the operation.  The
+operator associates to the right.  (Hence, the r in rfold.)  So
+<font color=#D00090>
+<blockquote>
+  rfold(i,f)[a,b,c] = f(a,f(b,f(c,i)))
+</blockquote>
+</font>
+Here is a definition of rfold.
+<font color="#D00090">
+<b><pre>
+    Define rfold by
+      case rfold(?i,?) []        = i
+      case rfold(?i,?f) (?h::?t) = f(h, rfold(i,f) t)
+    %Define
+</pre></b>
+</font>
+
+<a name=comp></a>
+<hr>
+<h2><font color=mediumblue> List comprehensions </font></h2>
+
+A list comprehension is a convenient way of describing a list.
+
+<p>Expression 
+<font color=#D00090>
+[:<font color=blue><i>e</i></font> | <font color=blue><i>generate</i></font>
+{<font color=blue><i>test</i></font>} :]
+</font>
+produces the list of all values of <i>e</i> that are obtained from
+values generated by the generate part and that pass the test
+of the test part.  For example, function prime? returns true just
+when its parameter is prime.  List comprehension
+<font color="#D00090">
+<b><pre>
+    [: x | Let x = each(1 _upto_ 20).  {prime?(n)} :]
+</pre></b>
+</font>
+produces list [2,3,5,7,11,13,17,19], the primes up to 20.
+The generate part typically selects members of a list using
+<i>each</i>.  The test is enclosed in braces.  It can be omitted
+if no filtering is to be done.
+
+<p>The expression that tells what to put in the list can be
+any kind of expression.  For example, to produce the list of
+squares of numbers from 1 to 10, you can write
+<font color="#D00090">
+<b><pre>
+    [: x^2 | Let x = each(1 _upto_ 10). :]
+</pre></b>
+</font>
+This produces list [1,4,9,16,25,36,49,64,81,100].
+
+<p> The map function was written above.  The idea is that
+map f&nbsp&nbsp[a,b,c] = [f(a), f(b), f(c)].  It is very easy to write
+map using a list comprehension.
+<font color="#D00090">
+<b><pre>
+    Define map ?f ?x = [: f(y) | Let y = each x. :].
+</pre></b>
+</font>
+Here is an implementation of the quicksort sorting algorithm
+using list comprehensions.
+<font color="#D00090">
+<b><pre>
+    Define quicksort by
+      case quicksort [] = []
+
+      case quicksort (?pivot :: ?t) =
+           quicksort [: x | Let x = each t. {x &lt;= pivot} :]
+        ++ [pivot]
+        ++ quicksort [: x | Let x = each t. {x &gt; pivot} :]
+    %Define
+</pre></b>
+</font>
+
+You can create a higher order version of quicksort that takes a
+comparison function as a parameter.  With this version, quicksort(&lt;) x
+sorts into ascending order, but quicksort(&gt;) x sorts into descending order.
+Here is such a higher-order function.
+<font color="#D00090">
+<b><pre>
+    Define quicksort by
+      case quicksort ? [] = []
+
+      case quicksort ?cmp (?pivot :: ?t) =
+           quicksort cmp [: x | Let x = each t. {cmp(x,pivot)} :]
+        ++ [pivot]
+        ++ quicksort cmp [: x | Let x = each t. {not cmp(x,pivot)} :]
+    %Define
+</pre></b>
+</font>
+
+Notice how useful it is that this is curried.  If you want to define
+a function called sort that sorts into ascending order, you only 
+need to write
+<font color=#D00090>
+<b><pre>
+    Define sort = quicksort(&lt;).
+</pre></b>
+</font>
+
+<a name=lazy></a>
+<hr>
+<h2><font color=mediumblue> Making lazy functions </font></h2>
+
+By default, functions are evaluated in an eager fashion.  
+This means that the parameter of a function is evaluated before
+starting to compute the function.
+For example,
+if you define sqr(x) to be x*x, then evaluating sqr(10 + 10) will 
+start by evaluating 10+10 = 20, and then will evaluate
+20*20 = 400.  
+
+<p>You can ask for evaluation to be delayed 
+until the value is needed.  One way to do that is to use form (:<i>e</i>:),
+which creates a deferred version of expression <i>e</i>.  So, you can
+write
+<font color="#D00090">
+<b><pre>
+    Define lazySqr(?x) = (:x*x:).
+</pre></b>
+</font>
+to create a function that does the same thing as function sqr, but that
+does not do the multiplication until the value is needed.  
+If you write lazySqr(lazySqr(10+10)), then 10+10 is still computed before 
+starting the inner lazySqr, but the multiplication 20*20 is deferred.
+Similarly, the outer lazySqr does not perform its multiplication.  Only
+when the result of this expression is needed is the evaluation performed.
+
+<p>This kind of 
+thing can be used to create lists that are infinitely long.  Definition
+<font color="#D00090">
+<b><pre>
+    Define nats(?n) = (:n :: nats(n+1):).
+</pre></b>
+</font>
+defines function nats so that nats(n) = [n,n+1,n+2,...].  The list that
+is produced is infinitely long, but only as much of the list as is
+ever looked at will be computed.
+
+<p>Another way to accomplish the same thing is to add phrase <i>await then</i>
+to a definition by cases.  So function nats can be defined as
+<font color="#D00090">
+<b><pre>
+    Define nats by 
+      Await then
+        case nats(?n) = n :: nats(n+1)
+      %Await
+    %Define
+</pre></b>
+</font>
+Here is a version of the map function that only evaluates as much
+of the result list as is needed.
+<font color="#D00090">
+<b><pre>
+    Define map by 
+      Await then
+        case map ?  []       = []
+        case map ?f (?h::?t) = f(h) :: map f t
+      %Await
+    %Define
+</pre></b>
+</font>
+Yet another approach to defining a lazy function is to use a list
+comprehension.  List comprehensions are implicitly lazy, and only 
+compute as much of their lists as is looked at.  So definition
+<font color="#D00090">
+<b><pre>
+    Define map ?f ?x = [: f(y) | Let y = each x. :].
+</pre></b>
+</font>
+also defines a lazy map function.
+
+<a name=polymorphism></a>
+<hr>
+<h2><font color=mediumblue> Polymorphism </font></h2>
+
+So far, we have ignored type information.  The compiler will infer
+type information in a most general way.  Consider the function
+<font color="#D00090">
+<b><pre>
+     Define idf(?x) = x.
+</pre></b>
+</font>
+This function is polymorphic.  It can take any kind of item, and produces
+the same kind of item.  Its polymorphic type is `a -&gt; `a.  Here, `a stands
+for any type at all, but it must be the same type at every occurrence.  The
+arrow -&gt; indicates a function.  So polymorphic type `a -&gt; `a indicates
+a function that takes any type of item and produces the same type
+of item as its result.
+
+<p>Here is some notation that is used for writing types.
+<dl>
+<dt> <font color="red">Natural</font>
+<dd> This is the type (or <i>species</i>) Natural.  
+You can use names for basic species.
+
+<p><dt> <font color="red"><i>A</i> -&gt; <i>B</i></font>
+<dd> This is the type of a function that takes a parameter of type
+<i>A</i> and produces a result of type <i>B</i>.  Type <i>A</i> is
+called the <i>domain</i> of the function type, and <i>B</i> is called
+the <i>codomain</i> of the function type.
+
+<p><dt> <font color="red">(<i>A</i>,<i>B</i>)</font>
+<dd> This is the type or ordered pairs where the first member has type
+<i>A</i> and the second member has type <i>B</i>.
+
+<p><dt> <font color="red">[<i>A</i>]</font>
+<dd> This is the type of lists whose members have type <i>A</i>.
+
+<p><dt> <font color="red">REAL`a</font>
+<dd> REAL is a <i>data abstraction</i>.  It can be thought of as a set 
+of species. Abstraction REAL
+contains species Natural, Integer, Rational and Real.  REAL`a is a
+variable that can be any of the members of REAL.  
+
+<p>Another example of a data abstraction is ORDER.  
+It contains all species that allow comparisons
+such as &lt; and &gt;.  A variable that stands for any species
+in ORDER might be ORDER`v.
+
+<p> What comes after the ` is any normal (not symbolic) identifier.  So
+you can have a type variable REAL`mynum.
+You can leave the abstraction off, as in `a, for a type variable 
+that can stand for any species at all.
+   
+</dl>
+
+Here are some functions that were defined above, 
+along with their polymorphic types.  (Note that factorial is
+not polymorphic.)
+<p>
+<table>
+  <tr bgcolor=lightgrey> <td> Function</td> <td> Type</td> 
+  <tr><td>factorial</td> <td bgcolor=pink>Natural -&gt; Natural</td>
+  <tr><td>sqr</td>       <td bgcolor=pink>REAL`a -&gt; REAL`a</td>
+  <tr><td>third</td>     <td bgcolor=pink>[`a] -&gt; `a</td>
+  <tr><td>max</td>       <td bgcolor=pink>(ORDER`a,ORDER`a) -&gt; ORDER`a</td>
+  <tr><td>sum</td>       <td bgcolor=pink>[REAL`a] -&gt; REAL`a</td>
+  <tr><td>rev</td>       <td bgcolor=pink>[`a] -&gt; [`a]</td>
+  <tr><td>add</td>       <td bgcolor=pink>REAL`a -&gt; (REAL`a -&gt; REAL`a)</td>
+  <tr><td>map</td>       <td bgcolor=pink>(`a -&gt; `b) -&gt; ([`a] -&gt; [`b])</td>
+      <td> &nbsp&nbsp&nbsp(this is for the curried definition)</td>
+  <tr><td>rfold</td>     <td bgcolor=pink>(`a, (`b,`a) -&gt; `a) -&gt; ([`b] -&gt; `a)</td>
+</table>
+
+<hr>
+<center>
+<a href="threadlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="logicprog.html">Next</a>
+</center>
+</body>
+</HTML>

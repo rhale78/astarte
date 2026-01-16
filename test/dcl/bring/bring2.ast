@@ -1,0 +1,19 @@
+Package bring2 
+
+%% Test Bring to enumerated type.
+
+Import "misc/check".
+
+Extension
+  Species Color = red | orange | yellow | green | blue | indigo | violet.
+%Extension
+
+Bring +:({Color}, {Color}) -> {Color}.
+
+Execute
+  Line[$(orange + yellow)].
+  Check["green"].
+%Execute
+
+%Package
+ 

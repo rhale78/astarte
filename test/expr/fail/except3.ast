@@ -1,0 +1,11 @@
+Package except3
+
+Import "except2".
+
+Execute
+  Let a = myX("test").
+  Match myX(?x) = a.
+  Writeln[$x].
+%Execute
+
+%Package

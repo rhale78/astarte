@@ -1,0 +1,118 @@
+Package forget
+
+%% Test function forget.
+
+Import "misc/check".
+
+====================================
+%% Basic use: success.
+
+Execute
+  Let n:Natural = forget(2:Natural).
+  Line[$n].
+  Check["2"].
+%Execute
+
+====================================
+%% Basic use: failure
+
+Advise "Should get complaints about species restriction failing.".
+
+Execute
+  Try
+      Let n:Natural = forget(2:Integer).
+    then
+      Writeln["Should have failed, but did not. n = ", $n].
+    else
+      Line[$exception].
+      Check["speciesX"].
+  %Try
+%Execute
+
+====================================
+%% Another failure.
+
+Execute
+  Try
+      Let a = forget(2).
+      Let b = forget("abc").
+      Ignore a == b.
+    then
+      Writeln["Should have failed, but did not"].
+    else
+      Line[$exception].
+      Check["speciesX"].
+  %Try    
+%Execute
+
+====================================
+%% An irregular function.
+
+Expect{irregular} f: (INTEGER`a, Boolean) -> `b.
+
+Define{irregular} f(?n,?b) =
+  If b then forget(n) else forget(integer n).
+%Define
+
+====================================
+%% Successful applications.
+
+Execute
+  Let x = (f:(Natural,Boolean) -> INTEGER`a)(2,true).
+  Line[$x].
+  Check["2"].
+
+  Let y = (f:(Natural,Boolean) -> INTEGER`b)(2,false).
+  Line[$y].
+  Check["2"].
+%Execute
+
+====================================
+%% Failed application.
+
+Execute
+  Try
+      Let x = (f:(Natural, Boolean) -> Natural)(2,false).
+    then
+      Writeln["Should have failed, but did not.  x = ", $x].
+    else
+      Line[$exception].
+      Check["speciesX"].
+  %Try      
+%Execute
+
+====================================
+%% Let a function equal forget.
+
+Let{irregular} g = forget.
+Let{irregular} h = g.
+
+====================================
+%% Successful runs.
+
+Execute
+  Let x:Natural = g(2:Natural).
+  Line[$x].
+  Check["2"].
+  
+  Let y:Natural = h(2:Natural).
+  Line[$y].
+  Check["2"].
+%Execute
+
+====================================
+%% Failed run.
+
+Execute
+  Try
+      Let x:Integer = g(2:Natural).
+    then
+      Writeln["Should have failed, but did not. x = ", $x].
+    else
+      Line[$exception].
+      Check["speciesX"].
+  %Try      
+%Execute
+
+
+%Package

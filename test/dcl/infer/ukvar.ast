@@ -1,0 +1,16 @@
+Package kvar
+
+%% Check handling of variables that only occur in lower bounds.
+
+Let pr = res |
+  Let res: REAL`a constraint (REAL`a >= REAL`b) = 3.
+  Let tst: `b = 4.
+  Writeln[$tst].
+%Let
+
+Execute
+  Writeln[$(pr: REAL)].
+%Execute
+
+%Package
+

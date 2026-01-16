@@ -1,0 +1,29 @@
+Package whenmat 
+
+%% Test when phrases with choose-matching constructs
+
+Import "misc/check".
+
+Execute
+  Let p = (0,1).
+  Choose first matching p
+    case ?r      => Writeln["BAD"].  when r == (1,1)
+    case (?a,?b) => ()               when a == 0 _and_ b == 1
+    else         => Writeln["BAD"].
+  %Choose
+%Execute
+
+Execute
+  Let p = (0,1).
+  Let z =
+    Loop ?pp = p first matching pp
+      exitcase ?x => 10 when x == (1,1)
+      loopcase (?x,?y) => continue (x+1,y) when x < 3
+      exitcase ?x => left x
+    %Loop
+  %Let
+  Line[$z].
+  Check["10"].
+%Execute
+
+%Package

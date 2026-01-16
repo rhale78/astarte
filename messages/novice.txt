@@ -1,0 +1,336 @@
+  0 \###Line %d, file %s:\  
+  1 \***Line %d, file %s:\  
+  2 The compiler ran out of memory. Giving up.
+  3 This file name is too long.
+  4 I cannot find file "%s".\  Either fix its spelling, or fix the import directory list.\  (For Unix, the import directory list is in variable AST_IMPORTS.)
+  5 You are trying to redefine directory name "%s".\  You are not allowed to redefine this directory name.
+  6 Pattern variable name "%s" is a reserved word.\  Please choose another name.
+  7 I am replacing identifier "%s" by "%s",\  because the first letter has the wrong case.
+  8 You cannot make a species or family variable from "%s",\  because it is not an abstraction.\  Did you misspell something?
+  9 A string constant ends at the end of the file.
+ 10 The line ends inside a string constant.\  Did you forget a quote?\  If you want a newline in a string constant, use long strings, using %%".
+ 11 Your program has an unknown character "%lc" (hex code %lX).\  I am ignoring it.
+ 12 I see a percent sign all by itself.  I am ignoring it.
+ 13 I see a quote sign where I don't expect one.  I am ignoring it.
+ 14 Species "%s" occurs in what I thought was a list of identifiers\  that name data items.  (This can happen when an undefined\  species identifier precedes this identifier.)
+ 15 I see "%s" in a context where it should not occur.
+ 16 There is text after the end of the package.
+ 17 Bad numeric character constant.
+ 18 A null character (code 0) is not permitted in a string constant.
+ 19 Package "%s" directly or indirectly tries to import itself.\  That is not allowed.
+ 20 Two files contain packages with name "%s".
+ 21 Identifier "%s" is already used to name data items.  You cannot\  also use it to name a species or data abstraction.
+ 22 There is a syntax error that stymies me.  Sorry.\  Sometimes this is caused by an identifier of the wrong kind,\  such as a species identifier where a data item is expected.\  It can also be caused by an unknown species identifier.
+ 23 I am confused.\  I am skipping ahead to the next declaration.\  The text will be shown, but I am ignoring it until\  I can recover and start reading again.
+ 24 I am assuming you meant "%s".
+ 25 There is a period that is not on same line as its  matching word\  "%s".  The matching word is on line %ld.\  Either you need to use an explicit end word instead of a period,\  or you have left out an end word, or you have an extra period.
+ 26 A period cannot end a package.
+ 27 This end word "%s" does not match what I am expecting.\  I am expecting "%%%s".
+ 28 Things don't look right.  I am inserting "%s",\  matching the begin on line %ld.
+ 29 Things don't look right.  I am inserting "%s",\  matching the begin on line %ld.
+ 30 Things don't look right.  I am inserting "%%%s",\  matching the begin on line %ld.\  Did you forget to end a procedure call, or to put parentheses around it?\  You must provide %%P to end a use of procedure P, even if you are just\  defining P, if P starts with an upper case letter.  Only use names\  that start with upper case letters for procedures -- functions that\  return ().
+ 31 I am ignoring "%s".  It does not seem to make sense.
+ 32 You have forgotten to put %%Package at the end of the package.
+ 33 The package ended before I saw "%s".
+ 34 Reserved word "%s" should begin with an upper case letter.\  Capitalized words are used to indicate words that have a matching end-marker.\  For example, Loop ... %%Loop.
+ 35 Reserved word "%s" should begin with a lower case letter.\  Capitalized words are used to indicate words that have a matching end-marker.\  For example, Loop ... %%Loop.
+ 36 This expression or declaration has a null body. 
+ 37 Do expr => expr can only occur with pattern matching.
+ 38 An else case must be the last case.
+ 39 This choose or loop expression has no cases.
+ 40 Modifier "mixed" is not permitted with "first" or "perhaps".
+ 41 "first", "one", "perhaps" or "all" expected.
+ 42 I was expecting a "continue" expression for this loop case.
+ 43 You should not have an expression after "continue",\  since this loop has no control expression.
+ 44 Mode "perhaps" is not allowed with a definition by cases.
+ 45 "%s" expected.
+ 46 "case" expected.
+ 47 There is a "when" phrase on a case that is not part of a pattern case.
+ 48 It appears that your function is a pattern variable such as ?x.\  I suspect that you are defining a binary operator that you have\  not declared.
+ 49 A "do" phrase is not permitted with "choose one" or "loop one"\  except as the first case.
+ 50 \  Synopsis:\  
+ 51 "do" ignored -- doing pattern matching.
+ 52 "exitcase" or "loopcase" not in a loop.
+ 53 I cannot do conditional compilation because I can't tell whether\  the condition is true or false.
+ 54 Identifier "%s" is not defined.  It appears that you\  are trying to do a recursive definition using Let.\  You need to change it to Define.
+ 55 Subcases are required for this kind of case in a loop.
+ 56 Subcases are not allowed after "exitcase" or "loopcase".
+ 57 A relet is not allowed in a team. 
+ 58 A relet declaration is not allowed.  Do you want to use {override}?
+ 59 I am processing an ahead relate declaration\  (%s & %s = %s)\  but the right-hand side does not exist.
+ 60 Open define is not allowed. 
+ 61 Number of parameters does not match in all cases.
+ 62 Bad let heading.  You might have failed to declare an operator.
+ 63 A declaration cannot both override and underride.
+ 64 Inapplicable or unknown mode "%s".  You have written\  something in braces that does not make sense for this kind of declaration.
+ 65 I was expecting a definition of "%s".  You might have\  forgotten to put parentheses around a pattern that uses\  a binary operator.
+ 66 A let has no = or 'by' phrase.  You might have left out the =\  sign, or placed an extra period that is being interpreted as the\  end of the let.
+ 67 Initializers are not allowed with unknowns or unknown arrays.
+ 68 "then pattern => action" is only allowed when you are defining a\  function.
+ 69 Only one description is allowed per declaration.
+ 70 A {copy} declaration must have only an identifier on each side of =.
+ 71 Cannot set an irregular function "%s" equal to a\  regular one, or vice versa.
+ 72 \  This error occurred inside the definition of "%s".\
+ 73 An irregular expectation of "%s" must be for a function.\  This is not a function.
+ 74 Identifier "%s" is already defined.  Please choose another identifier.
+ 75 Relet to a nonlocal identifier "%s".  You can only do a relet to an\  identifier that is originally defined in the same function or lazy expression.
+ 76 Definition of "%s" does not agree with expectation.\  The kinds don't match.
+ 77 Overloads is too large.
+ 78 You should not have assume option on overloading declaration.\  I don't know what to assume.
+ 79 Too many overloads for identifier "%s".  If you really want this many,\  use declaration Advise overloads n %%Advise,\ where n is the number that you want.
+ 80 I cannot combine irregular and regular expectations of "%s".
+ 81 Identifier "%s" cannot be defined here.\  Please use another name.
+ 82 Declaration of "%s" is lazy, but has role "%s".
+# No period for the following
+ 83 Role "%s" should have been declared for identifier
+ 84 Body of declaration of "%s" might produce a stream; it will be cut.
+ 85 Body of declaration of "%s" might fail.
+ 86 \  You are unwrapping something, and you can get this error because\  the unwrap can fail.  You might want to do an unsafe unwrap ?<<...>>?.\\
+ 87 Array dimension too large.
+ 88 Identifier "%s" is unknown, probably due to a previous error.
+ 89 Polymorphic definition not allowed for %s
+ 90 You cannot use <:#...#:> or <:%%...%%:> in a type.
+ 91 Bad use of abbreviation "%s".  I can't make sense of this.
+ 92 Bad member of data abstraction member list.
+ 93 I see a species "%s",\  but expect an expression.\  Did you leave out a colon?
+ 94 Species or other extension outside an extension declaration.\  Please use an extension declaration.
+ 95 I expected a family or community.
+ 96 I expected a species or unparameterized data abstraction.
+ 97 A declaration cannot be both private and protected.
+ 98 Right hand side must be F(T) or (T1,T2) or T1->T2\  where T, T1 and T2 are identifiers.
+ 99 A constructor name is not permitted in a relate declaration.
+100 I expected a species or family variable.
+101 A constructor id required for %ld-th entry in union list.
+102 %s is not a member of %s.
+103 I cannot define == for this species.  The representation species\  does not support an equality check.\  You need to use mode {noEqual} to suppress the automatic\  definition of ==.
+104 I cannot bring "%s" to this species. The representation(s) is not\  available or no type is marked or a union species is involved.
+105 I cannot bring several identifiers from one identifier.
+106 This is a duplicate definition for species or family %s.
+107 Cannot extend %s with species or family 
+108 Put bars between different things in an extension.
+109 Data abstraction "%s" is not extensible.  I can't add anything to it.
+110 There is a variable on the left-hand side of a function type in this\  declaration.  That is not allowed for a transparent family.
+111 There is a cycle in the data abstraction hierarchy: "%s" is less than itself.  You need to rethink how things are related to one another.
+112 Inadmissable assumption; bad species for a constant.
+113 In the definition of "%s":\  
+114 The intersection of "%s" and "%s" must be empty,\  because I assumed so earlier.  Now, you are trying to add something\  that is in both.
+115 I cannot install "%s" as a descendant of "%s".  Doing so would\  violate an assumption that I made at a prior extension.
+116 The parameter for descendant "%s" of "%s"\  is incorrect.
+117 %s is not a data abstraction.
+118 A species or family variable is bound to non-member of the domain of\  the variable.
+119 Cannot satisfy "with" clause: unification fails.
+120 A "with" clause is not allowed in a relate declaration.
+121 An unknown species or family variable has been encountered.\  Check the right hand side of your declaration for a variable that\  does not occur on the left hand side.
+122 No such species or abstraction "%s".
+123 Cannot perform bring; representation is wrong.
+124 Pattern match/expand subtitution too deep. I suspect a loop.\  Use command line option -pn to set depth limit to n.\  Here are the pattern functions, innermost first."
+125 Formal parameters must be new identifiers.
+126 Pattern function expectations for "%s" are inconsistent.
+127 Name "%s" occurs more than once on the left-hand side of a pattern\  translation rule.  That is not allowed.
+128 Pattern variable "%s" should not occur without ? in the body of\  this pattern declaration.
+129 Pattern variable "?%s" is not bound in the body.  You need to bind it.
+130 Pattern variables are not permitted here.
+131 "%s" is not a pattern function with the inferred species.
+132 No pattern match rule applies.  The context does not match any\  that are available.
+133 Bad pattern.  You have used some kind of expression that is not allowed\  in a pattern.
+134 "target" in bad context.  It is only allowed in a pattern declaration\  on the right-hand side of =>.
+135 A local identifier (%s) cannot be a pattern function.
+136 An unbound pattern variable "?%s" occurs on on right hand side\  of where.  I cannot do the test.
+137 Inconsistent pattern rule modes.
+138 Patterns are not exhaustive.  You might need more cases.
+139 "also" patterns conflict.
+140 Inconsistent tags for pattern.
+141 Unknown identifier "%s".
+142 Unknown identifier.
+143 Unknown identifier "%s" encountered during type inference.
+144 \  Is unary operator "%s" the cause?\  This just reminds you of the unary operator.\
+145 Irregular function "%s" cannot be used in this context.\  You can only apply an irregular function.
+146 Identifier "%s" is defined but not used.  This might be an error.\  To avoid this warning with pattern matching, try using an\  anonymous pattern variable "?".
+147 This definition or expectation of "%s" is not visible to packages\  that import this package.  Here is a species that has not been expected.\
+148 Cannot match species.  (Type mismatch)\\  I have inferred one species, but it seems now that another is required.\  Compare the two species.  If you can't see what is wrong, try making\  an assumption to tell the inference mechanism what you intended.\  Use Assume x:S %%Assume.\\  Note that a type mismatch can result from sending the wrong number\  of arguments to a function.  Check for that.\
+149 Local expectations overlap.  This can cause problems with species\  inference.  It can cause definitions to duplicate themselves,\  and so to overlap themselves.  Make your expectations to that\  they do not overlap.
+150 Type inference failed for some unknown reason.  Seek help.
+151 I cannot resolve overloads in execute declaration.  You need to tag some\  overloaded identifiers, or make an assumption about them.  If you don't\  know which ones, try placing Advise show one %%Advise before this\  execute declaration, and compiling again.
+152 Species or family variable %s`x needs to be bound.
+153 This declaration of "%s" does not match expectations\  that you have made in this package.  If you give expectations\  within this package, then I expect you to fulfill only those\  expectations, and not others.
+154 The representation species of this species is not a species at all.
+155 A species or abstraction identifier was expected.
+156 Species expression too complicated.  Simplify it.
+157 Type inference failed during pattern match substitution.  
+158 Role mismatch.  The roles that you have used do not match what was given\  with the definition.  Compare.  (Only one role error is reported per line.)\
+159 Cannot choose rule for pattern function "%s", need to know species.\  Try an assumption or tag.
+160 In the definition of "%s", I have not been able to determine\  the species of an intermediate result that needs to have a known\  species.  I am binding a variable, yielding the following.\  See if this is what you want.
+161 Species restriction has failed for identifier "%s".\  This means that some irregular function is being applied in\  such a way that it cannot possibly succeed.\  Species will surely mismatch at run time.
+162 The type of "%s" includes a missing species.
+163 I am trying to compare two values as part of a pattern match.\  Type inference failed apparently because the species does not\  support an equality check.
+164 Definition of "%s" includes a strongly missing species.  You might\  want to restrict the definition to avoid this, since you\  are defining something that should not be defined.
+165 Due to internal overloads, this declaration overlaps itself.\  Try a tag or assumption to avoid this.
+166 \  Some possible causes of an unknown identifier:\    Missing import;\    Using an identifier outside its scope;\    Failure to use an open if, etc.;\    Using an expression such as a+b after a let, where (a+b) should have\      been used;\    Leaving ? off of a pattern variable;\    A recursive definition using Let rather than Define;\    A prior error.\
+167 Expression too complicated.
+168 Too many local identifiers.
+169 Cannot generate code; unknown kind of expression!  Seek help.
+170 Code generator: bad constant kind %ld!  Seek help.
+171 Bad function primitive %ld!  Seek help.
+172 Bad special expression kind %ld! Seek help.
+173 Bad expression kind %ld!  Seek help.
+174 Cannot generate string declaration!  Seek help.
+175 Pattern match translation must split a non-pair.  You can't take the\  left and right parts of something that is not a pair.
+176 The meet must be a family or community.
+177   (The expression was marked with role 
+178 , possibly by a let or define)\
+179 A pattern variable is present during code generation.  You have used\  a pattern variable incorrectly.
+180 "%s" is not a binary operator.
+181 Inconsistent binary operator declarations have been given for "%s".
+182 You cannot define an open unary operator.
+183 Description of "%s" does not match prior description.
+184 A description cannot apply to more than one identifier. 
+185 Too many exception kinds.
+186 "Exception" in bad context.
+187 I need for you to have imported package "%s" to do this.\  You will probably get an error below.\  Please add declaration\     Import "%s".\  to your package.
+188 Unknown mode (in braces) for var expression or declaration.
+189 Right-hand side should be an identifier with expansions.  There are none.
+190 Right-hand side should be a pattern function.  It is not.
+191   ("%s" is reserved)\
+192   Use advisory show or cmd line option -s to see result of inference.\
+193 -----------------------------------------
+194 ------------ Results of show ------------\
+195 Unknown advisory "%s".
+196   (Identifier %s the cause?)\
+197 Performing equality test in pattern match.
+198 Package "%s" should have been imported in the interface, since it\  defines exported identifier "%s".
+199 \  The package heading appears to be bad.  A package should begin\\    Package name\\  where name is a name of the package.  The name must not\  be a reserved word.\
+200 Unknown context "%s".
+201 Violation of shouldNot "%s".
+202 Behavior "%s" in a stream.
+203 ShouldBe'%s role not satisfied.
+204 Lazy expression might produce a stream.  It will be cut.
+205 Lazy expression might fail.
+206      Available species for "%s":\
+207 A function cannot be a member of a data abstraction except ANY.
+208   Available species for "%s":\
+209 Species or family variable must be bound -- consider a tag
+210 \  Expression(line %d): 
+211   Previous role for "%s": 
+212 Cannot apply function to given argument.  The species do not match.\  This might occur because of a function applied to the wrong number\  of arguments.  Compare the species of the function with that of the argument.\  If you can't see what is wrong, try a tag or an assumption.\
+213   Function(line %d): 
+214   Argument(line %d): 
+215 Inconsistent intersections.\     Have: (%s & %s) = 
+216   Request: (%s & %s) = 
+217 Hierarchy is not associative:\       %s & (%s & %s) = %s\
+218 Definitions of "%s" conflict.\
+219 Defaulting species in definition of %s: You might not want this.
+220   Missing case: 
+221   Current species: 
+222 Now need:        
+223 Unbound variable: 
+224 \  Defined species: 
+225   Missing species: 
+226   Bad member: 
+227   File: %s\
+228 The imported package has no "interface" or "export" word.
+229 This expectation of "%s" overlaps an existing expectation,\  but neither subsumes it nor is subsumed by it.\  Previous definition was in package "%s", line %d.\  Previous species: 
+230   %s: 
+231   Possible species:\
+232    
+233 \  This declaration:\   %s: 
+234   Expectations made in this package:\
+235   
+236   (Expected "%%%s",
+237   (Expected "%s",
+238  matching left on line %d)\
+239  matching begin on line %d)\
+240 The intersection of two genera "%s" and "%s" cannot be a transparent\  family, community or product type.
+241   current species of %s:
+242   restricted species of %s:
+243 %s\
+244   previous label is %s\
+245   new label is %s\
+246   (expected a %s, see a %s)\
+247 \  You might have forgotten a ? on a pattern variable.\
+248 A holding phrase is required for a variable in a class.
+249 The joins of "%s" and "%s" have changed.\  This is not allowed.\  The previous join was "%s".\  The new join is "%s".\  (A join is the smallest thing that contains both.)
+250   For example %s: 
+251   Mismatching descriptions are in packages "%s" and "%s"\
+252   Species of %s: 
+253 : 
+254  (package %s)\
+255   %s (line %d): 
+256   Role 1: 
+257   Role 2: 
+258   Inferred %s: 
+259        (%s & %s) & %s = %s\
+260 \  This dcl species: 
+261 \  Overload possibilities:\  (line %d) identifier %s: 
+262 \\*** Unsatisfied expectations:\\
+263   (e.g. missing 
+264 This family's domain is smaller than expected.
+265 Expectations for "%s"\
+266   (package %s, line %d)\
+267 No expectations for "%s"\\
+268 \Expectations made in this package\
+269 \Results of type inference (after substitutions):\\
+270 \Assumptions that were used\\
+271 %4d %s: 
+272 \\### Missing expected species or family "%s"\
+273 Tags of role selection/modification parts are not the same.
+274 Parts being replaced in role modification overlap.
+275 \    previous species: 
+276     new species     : 
+277 I expected a species parameter.
+278 I did not expect a species parameter.
+279 The following line is not correctly indented.  This message will appear\  only once per declaration.
+280 An integer or real constant is too long.  If you really need such a\  long constant, compute it from smaller numbers.
+281 Error:\  
+282 Warning:\  
+283   Package "%s" (line %d) defines\   %s: 
+284 Unknown primitive import "%s".
+285 Context "%s" already exists.  If you want to extend it, use 'extension'.
+286 \  (Each parameter is described by the constructor that would build it.\  For example, :: indicates a nonempty list, and nil indicates an\  empty list.  ? indicates a parameter whose value does not matter.)\
+287 I cannot find file "%s" in directory or directories "%s".
+288 Identifier "%s" is already defined for "%s".
+289 "%s" is not allowed as an identifier.  Please choose another name.
+290 There are too many local identifiers.  This declaration is just too\  complex for me.
+291 Irregular expectations of "%s" do not generalize in the right way.\  If you generalize the domain, you must generalize the codomain.
+292   Package %s (line %d) has 
+293 There is no irregular expectation for restriction %s: 
+294 \  There are at least two rules that can be used here if the type of\  the pattern function is restricted, but I will not restrict myself.\  Look at the type shown. Consider using a tag to restrict the type\  yourself.\\
+295   Pattern function: 
+296 Identifier "%s" is defined inside a function expression and\  used in the argument of that function.  That is not allowed.\  I suspect that you have not put parentheses or Value...%%Value\  around the value of a long expression.
+297 Incompatible modes (in braces).
+298 \The following expressions had defaults done on their species.\(There was a unbound variable that needed to be bound, so I chose\a default species.)\\
+299 You have either given <... without a matching > or have a > without a\  matching <.
+300   Irregular function: 
+301 Box brackets are not of the same kind.  For example, <:...#:>.
+302 "%s" is not a class.
+303   Variable: 
+304 An inconsistent lower bound is given.
+305   (Embedding context starts on line %d.)\
+306 There is a possibly run-time species mismatch due to a constrained\  dynamically bound variable.
+307 An identifier is too long.  I am truncating it.
+308 A package name should not be symbolic.
+309 You are trying to extend data abstraction "%s" with\  "%s",  where both existed at the end of a prior extension.\  That is not allowed.
+310 The most recently entered construct "%s" begins on line %d.\
+311 Identifier "%s" shadows a globally defined identifier.\  Consider another name.\
+312 A catch mode cannot be used with If.\
+313 Duplicate catch modes.\
+314 A catch mode cannot be used with a stream.\
+315 A trap or untrap expression must have =>.
+316 \  At least one of these functions is irregular.  An irregular\  function is not allowed to have its domain the same as the domain\  of any other function by the same name.  So the functions are\  considered to conflict even though the codomains might be different.
+317 Mismatched braces.
+318    Mode: 
+319   Available forms\
+320 The meet is not of the correct kind (opaque or transparent).
+321 I cannot understand this relate declaration.
+322 The right hand side of this relate declaration does not make sense.\  It must be an abstraction or species identifier\  or a family/community member.  
+323 I cannot perform this bring because of an unsafe conversion.\  If you are sure this is safe, you can use mode {knownSafe}.
+324 You cannot bring to variable 
+325 You can only bring to a primary RANKED or ENUMERATED variable.
+326 Duplicate "from package" in mode.
+327 Inconsistent opaque/transparent modes for "%s".
+328 Inconsistent partial/nonpartial modes for "%s".
+329 A species expectation is not allowed in a class.
+330 An expectation in a class cannot give an alternate package name.
+331 Superclass "%s" does not exist.
+332 The representation type "%s" does not exist.
+333 Component "%s" has no type given for it.  A type is required.
+334 \  Identifier "%s" is defined in the following packages.\

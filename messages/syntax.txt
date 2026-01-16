@@ -1,0 +1,71 @@
+# The number of lines in this file is parseerr.c (NUM_SYNTAX_FORMS)
+    Abbrev Id = type %%Abbrev
+    Abstraction Name [isKindOf A,B,C] "description" %%Abstraction
+    Advisory adv [one|all] %%Advisory (where adv is one of the following\  showlocals\  show\  noshow\  warn [(nothing) | missingDefinition | defaults | notExhaustive\       | behavior | shadow | indent | unused]\  warn a,b,c (several of above)\  nowarn [(nothing) | missingDefinition | defaults | notExhaustive\       | behavior | shadow | indent | unused]\  tro\  notro [(nothing) | f,g,h]\  overloads 10  (any natural constant)\  "message for compiler to show when compiling"
+    AND 
+    Assume x,y,z: T %%Assume
+    Ask expr => fun expr expr ... %%Ask
+    Atomic expr %%Atomic
+    Await x,y,z then expr %%Await
+    IMPLEMENTATION
+    Bring id [from expr] %%Bring   ([...] indicates optional)
+    BUTIFFAIL
+    BY  
+    CASE
+    CATCHING
+    Choose [mode]\    case expr => expr\    ...\  %%Choose\  ([...] indicates optional)
+    Class [mode]\    Const c: T %%Const\    Var v holding T %%Var  %%%% or any var form\    Expect x: T %%Expect\  %%Class
+    Const c : T %%Const
+    CONSTRAINT
+    CONSTRUCTOR
+    Context id =>\    case id => expr\    case bring a,b,c\    ...\  %%Context                            (declaration)\  Context id expr => expr %%Context    (expression)
+    CONTINUE
+    Default Id => Type %%Default
+    Description id [:T] "description" %%Description  ([...] indicates optional)
+    Directory "dir1:dir2:..." %%Directory or Directory id %%Directory\    (id = standard for standard directory, id = none to restore default)
+    DO  
+    ELSE
+    Exception [trap] id "description" %%Exception ([...] indicates optional)
+    Execute expr %%Execute
+    Expect x,y,z: T "description" %%Expect\ or\  Expect species T %%Expect
+    EXPORT
+    Extension ... %%Extension
+    Extract pattern from box %%Extract
+    LCEXTRACT
+    For pat from expr do expr %%For
+    FROM
+    HOLDING
+    If expr [then expr] [else expr] %%If ([...] indicates optional)
+    IMPLEMENTS
+    IMPLIES
+    Import "file" %%Import\ or\  Import x,y,z from "file" %%Import
+    INTERFACE
+    ISKINDOF
+    Let expr = expr %%Let\  Let id [pat] by\    case id pat ... = expr [when expr]\    case id pat ... <-- expr [when expr]\    case ...\    [else id pat ... = expr]\    [then pat => expr]\  %%Let\  Let id by\    case id = expr when expr\    case  ...\    [else id = expr]\  %%Let\  ([...] indicates optional)
+    Loop pat = expr [mode]\    loopcase expr => expr continue expr\    exitcase expr => expr\    ...\  %%Loop
+    LOOPCASE
+    Match pat = expr %%Match
+    MATCHING
+    Missing x,y,z : T %%Missing
+    MIXED
+    Open [Ask | Atomic | CutHere | ... | Choose | If | Let | Loop\       | Match | Mix | Stream | Trap | Try | Unique | Procedure-id | (a,b,c)
+    Operator newop(oldop) %%Operator\    Operator newop %%Operator
+    OR
+    PACKAGE    
+    Pattern pat => expr %%Pattern
+    LCPATTERN
+    Relate T isKindOf G %%Relate\ or\  Relate A & B = C %%Relate
+    Species Id [isKindOf A,B,C] = T1 | T2 | ... %%Species\  or\    Species Id(A) [isKindOf A,B,C] = T1 | T2 | ... %%Species
+    Stream expr then expr then expr ... %%Stream
+    Subcases [mode] case case ... %%Subcases ([mode] is an optional mode)
+    TARGET
+    Team\    Define ... %%Define\    ...\  %%Team
+    THEN
+    Trap ex1,ex2,... => expr %%Trap\    Trap all => expr %%Trap
+    LCTRAP
+    Var id [holding T][:= expr] %%Var\  Var id(dim) [holding T][[all]:= expr] %%Var\  Var id(dim,dim...) [holding T] [[all] := expr] %%Var\  ([...] indicates optional)
+    WHICH
+    WHERE
+    WHEN
+    WITH
+    While expr do expr %%While

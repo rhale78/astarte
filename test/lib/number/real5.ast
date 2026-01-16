@@ -1,0 +1,62 @@
+Package Testreal5
+
+%% Test really big reals
+
+Import "math/math".
+
+Execute
+  Writeln["Each is exp of the previous\n"].
+  Let a = exp(~2.0).
+  Writeln[a $$ (50,40,10)].
+  Let b = exp(a).
+  Writeln[b $$ (50,40,10)].
+  Let c = exp(b).
+  Writeln[c $$ (50,40,10)].
+
+  Writeln["\nNow each line is the square of the preceding line\n"].
+  Let d = c * c.
+  Writeln[d $$ (50,40,10)].
+  Let e = d * d.
+  Writeln[e $$ (50,40,10)].
+  Let f = e * e.
+  Writeln[f $$ (50,40,10)].
+
+  Writeln["\nHere is exp(123456789123456789)\n"].
+  Let g = exp(~123456789123456789.0).
+  Writeln[g $$ (50,40,10)].
+  Let h = ln(g).
+  Writeln["\nHere is ln(exp(123456789123456789))\n"].
+  Writeln[h $$ (50,40,10)].
+
+  Let i = sqrt g.
+  Writeln["\nHere is sqrt(exp(123456789123456789))\n"].
+  Writeln[i $$ (50,40,10)].
+  Let j = i*i.
+  Writeln["\nHere is sqrt(exp(123456789123456789))^2\n"].
+  Writeln[j $$ (50,40,10)].
+
+%Execute
+
+Execute
+  Writeln["\nHigher precision (30)"].
+  Assign precision! := 30.
+  Writeln["\nHere is exp(123456789123456789)\n"].
+  Let g = exp(~123456789123456789.0).
+  Writeln[g $$ (50,40,10)].
+  Let h = ln(g).
+  Writeln["\nHere is ln(exp(123456789123456789))\n"].
+  Writeln[h $$ (50,40,10)].
+%Execute
+
+Execute
+  Writeln["\nHigher precision (60)"].
+  Assign precision! := 60.
+  Writeln["\nHere is exp(123456789123456789)\n"].
+  Let g = exp(~123456789123456789.0).
+  Writeln[g $$ (50,40,10)].
+  Let h = ln(g).
+  Writeln["\nHere is ln(exp(123456789123456789))\n"].
+  Writeln[h $$ (50,40,10)].
+%Execute
+
+%Package

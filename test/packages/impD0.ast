@@ -1,0 +1,19 @@
+Package impD0
+
+%% Test that no warning is made when an anticipation is met
+%% by an import in the body.
+
+Export
+
+Anticipate u,v: Natural.
+
+Implementation
+
+Import "impD1".
+
+Execute
+  Writeln[$v].
+  Writeln[$u].
+%Execute
+
+%Package

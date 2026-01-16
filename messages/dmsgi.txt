@@ -1,0 +1,357 @@
+# debug/debug.h/NUM_DEBUG_MSG_I holds number of lines
+  0 Allocating small real block, get_bf = %ld, phase = %d\
+  1 
+  2 Allocating entity block, get_bf = %ld, phase = %d\
+  3 ================\allocate_entity: n = %ld\
+  4    (size %d, next %p)\
+  5 Got from block %d, remaining space %ld in the chunk\Old block starts at %p, rest at %p\Returning address %p\================\
+  6 , kind %d, id %ld, try_id = %ld\
+  7 ===========\allocate_binary: n = %ld, pushed up to %ld\
+  8 Got from block %d, remaining space %ld, put in block %d\Old block starts at %p, rest at %p\Returning address %p\================\
+  9 Allocating binary block, get_bf = %ld, phase = %d\
+ 10 Allocating huge binary, size %ld\
+ 11 Binary wheres:\ i     size where      ptr\
+ 12 gc from alloc_file_entity_block\
+ 13 freeing stack %p\
+ 14 freeing state %p\
+ 15 freeing control %p\
+ 16 freeing continuation %p\
+ 17 freeing continuation %p\
+ 18 freeing activation %p (kind %d)\
+ 19 freeing environment %p\
+ 20 freeing trap vec %p\
+ 21 There are %ld avail entity/binary blocks\
+ 22 entity: tag = %d 
+ 23 global indirect ref to\
+ 24 indirect ref to %p\
+ 25 (sm real) val = %f\
+ 26 length = %ld\
+ 27 first box = %ld\
+ 28 members =\
+ 29 lazy prim %ld\
+ 30 CONTINUATION: (refc = %d, num_ent = %d, pc = %p, excs = )
+ 31 ACTIVATION: num_ent = %d, kind = %d, pc = %p, rc = %d, excs =
+ 32 Trap vector list:
+ 33 STATE (rc = %d, kind = %d, height = %d, addr = %p):\
+ 34 internal, key %ld contains 
+ 35 leaf: minb = %ld, maxb = %ld, contents(%p):\
+ 36 small leaf: %ld contains 
+ 37 STATE_LIST: NULL\
+ 38 local env frame (sz = %d, most_ent = %d, nle = %d, refc = %ld, link = %p)\
+ 39 global env frame (sz = %d, most_ent = %d, rc = %d)\
+ 40 Frame: ref cnt = %d\
+ 41  envsize:%d descrip:%d\
+ 42 bdy tag = %d 
+ 43 Marking binary chunk %p (size %ld)\
+ 44 free_chunk: %p (size %ld)\
+ 45   [key kind: %d, key name: %s, val tag: %d, val: %d]\
+ 46 \Global id table: (%d entries)\
+ 47           (mode= %d, kind= %d, packnum= %d, offset= %d)\
+ 48 \Type table: %d items\
+ 49 \Constant table: (%d constants)\
+ 50 \-------------Package %d-------------\
+ 51  %3d: %3d
+ 52 \Package lines\
+ 53 %s: from %p to %p\
+ 54 \Environment descriptors\
+ 55 ======================%d=======================:\
+ 56 -----%s@%d (%ld)\
+ 57 Current pc = %p\
+ 58 ----END SHOW----\
+ 59 \get_before_gc = %ld\
+ 60 There are %ld small real blocks\
+ 61 There are %ld free small reals\
+ 62 There are %ld used entity blocks\
+ 63 free_ents:\     i     howmany  where[i]\
+ 64 There are %ld used binary blocks\
+ 65 Used entity blocks = 
+ 66 Used binary blocks = 
+ 67 There are %ld file entity blocks\
+ 68 There are %ld free file entities\\
+ 69 =======================================\
+ 70 evaluate: starting at %p (failure = %d)\
+ 71 evaluate: returning, exception = %d\
+ 72 stack ref cnt = %d\
+ 73 apply: starting the following activation\
+ 74 Moving done coroutines to waiting list\
+ 75 \Resuming a coroutine\
+ 76 \Doing a coroutine switch\
+ 77 \Pause: timing out\
+ 78 \ ::: Failure, exception %d (inst %d)\
+ 79 <%s>:%d|%d: line %d package %s\
+ 80 Type_stack:\
+ 81 state (rc = %d): 
+ 82 Preserved states:\
+ 83 state (rc = %d): 
+ 84 state: NULL\
+ 85 control:\
+ 86 exceptions = <
+ 87 trap vector = (
+ 88 !!!!the_act is marked!\
+ 89 !!!!the_act.kind = %d\
+ 90 time = %ld\
+ 91 runtime shadow stack: 
+ 92 Waiting Coroutines: 
+ 93 Done Coroutines: 
+ 94 fail: exc = %d, trying control %p
+ 95 Timing out, control =\
+ 96 \deferred computation:\
+ 97 \stopped at:\
+ 98 Moving into control:\
+ 99 Make_timeout_lazy: tag = %d, control =\
+100 Evaluating lazy expr\
+101 Lazy_eval: failure = %d, result of lazy evaluation is\
+102 Evaluating lazy list\
+103 lazy_list_eval: returning 
+104 Global_eval: getting %ld(%s), type(hash %lx)\ 
+105 Did not find in poly table\
+106 Global_eval: found in poly table under type\ 
+107 Global_eval: starting at %p (package %d, offset %ld)\
+108 Global_eval: result for %s is 
+109 Global_eval: (hash %lx, addr %p) installing\ %s:
+110 Poly_lookup: rejecting type.\
+111 Global_eval Warning: type not in hash table for "%s"\
+112 Mono_lookup: table is null\
+113 Mono_lookup: found in mono table: 
+114 Mono_lookup: no entry for this type (hash %lx)\
+115 Type_instruction: 
+116 Force_ground:\  in: 
+117 GET_T_I: getting contents of type storage loc %d \
+118  empty type stack\
+119 About to execute the following type instructions\
+120 Type_stack_top = %p, type_open = %p\
+121 \\*************Beginning garbage collection********(%d)\\
+122 Clean up control:\
+123 Initial status:\
+124 \Beginning mark phase\
+125 Beginning mark of runtime shadow stack\
+126 \Beginning collect phase\
+127 \Beginning unmark phase\
+128 \*************Ending garbage collection********(%d)\
+129 Get_before_gc = %ld, free_bytes = %ld, used_bytes = %ld\\
+130 Marking entity at %p, tag %d, mark %d
+131 Marking parts of entity at %p, tag %d\
+132 Marking entity at %p, tag %d, mark %d\
+133 Mark_continuation: %p\
+134 Mark_env: %p\
+135 Mark_stack: %p\
+136 Marking states of a list\
+137 Marking states of rts_states\
+138 Mark_activation: %p is marked\
+139 Mark_activation: %p\
+140 Mark_activation: returning from %p\
+141 Mark_control: %p\
+142 Marking big int %p\
+143 Beginning mark_entp_array, n = %ld\
+144 Ending mark_entp_array\
+145 Beginning mark_bigints_list\
+146 Ending mark_bigints_list\
+147 Beginning mark_standard_ents\
+148 Ending mark_standard_ents\
+149 Beginning mark_constants\
+150 Ending mark_constants\
+151 Beginning mark_globals\
+152 \Collecting binaries:\
+153 Ending mark_globals\
+154 Unmark_activation: %p\
+155 Unmark_continuation: %p\
+156 Unmark_stack: %p\
+157 Unmark_env: %p\
+158 Unmark_control: %p\
+159 \Collecting entities:\
+160     marked: %p--
+161   unmarked: %p--
+162 \Finished collecting entities:\
+163 Free_piece: n = %d, r = %p, q = %p, free_ents[%d] = %p\
+164 \Finished collecting binaries:\
+165 Free_binary_piece: n = %d, r = %p, q = %p, free_chunks[%d] = %p\
+166 \Compacifying binaries:\
+167 \Collecting continuations\
+168 \Collecting controls\
+169 Have collected %ld controls, freed %ld\
+170 \Collecting small reals\
+171 Have encountered a marked entity, tag = %d\
+172 Mark_box_gc: box = %ld, marked_boxes = (
+173 Marking box %ld\
+174 Mark_box: state = %p\
+175 Marking state %p 
+176 mark = %d\
+177 Current marked boxes:(
+178 Seen_states = (
+179 Marking state node %p\
+180 Relocating boxes %ld-%ld to %ld-%ld\
+181 Unmarking state %p\
+182 Marking box contents in state %p(range %ld..%ld) of boxset (range %ld..%ld): (
+183 Marking box range (%ld..%ld) not in (
+184 Marking box range %ld to %ld in state %p\
+185 Marking contents %p of box %ld**\
+186 Marking contents %p of box %ld***\
+187 Marking contents %p of box %ld****\
+188 Have initialized standard objects\
+189 Initialization complete, getting standard package\
+190 Reading argument package\
+191 Astr: Trying %s\
+192 Initialization complete\
+193 \Do_executes: (re)starting activation\
+194 GET FROM %d: string `%s'\
+195 GET FROM %d: %d\
+196 GET FROM %d: int %ld\
+197 put_char: %d\
+198 put_int:  %ld\
+199 Env descriptor for id %s, offset %d at pc_offset %ld, [%d]\
+200 Patch: %p := %lx\
+201 Starting new env descriptor [%d]\
+202 --line %d\
+203 \***********************************\Reading package %s\
+204 Read_package: executing instruction %d\
+205 ctl =\
+206 no mix nodes\
+207 left_side =\
+208 no appropriate mix nodes\
+209 NULL result\
+210 Shift_up_control: 
+211 result =\
+212 Environment is null for global binding fetch\
+213 Had to copy environment, copy =\
+214 No global environment is present for type_env\
+215 Copying stack\
+216 Constant %s found in table at offset %ld, val = 
+217 Constant %s is new, put at offset %ld, val = 
+218 Type_tb: doing type 
+219 Get_env_info: 
+220 num_entries = %d pc_offset = %d binding list =\
+221 descr_num = %d\
+222 offset %d has name %s\
+223 Too many files.  Here is the file table. \
+224 fd = %d, delay = %d, stamp = %ld, rec =\
+225 NULL\
+226 name = %s\
+227   kind = %d pos = %ld index = %d\
+228 Get_filed: kind = %d, index = %d, fd = %d\
+229 Get_filed: trying to reread, kind = %d, index = %d, fd = %d\
+230 *****Doing seek to %ld\
+231 seek failed\
+232 Get_filed: fail - kind = %d, k = %d\
+233 Input_eval: 
+234 fent = %p\
+235 num_processes = %d, fent->index = %d\
+236 done, closing file %d, result = nil\
+237 input blocked\
+238 done, closing file %d\
+239 returning 
+240 Doing ptr jump on 
+241 Ptr jump result is 
+242 sublist start %d: i = %ld, n = %ld s = %d, l = \
+243 sublist loop %d: i = %ld, n = %ld, force = %d, time = %ld, failure = %d, l = (tag %d)\
+244 real tag = %d\
+245 sublist after eval %d: l = (tag %d) 
+246 Binary chunk, size %d, marked = %d, addr = %p\
+247 Moving binary chunk of size %d from %p to %p\
+248 sublist end %d: failure = %d, returning 
+249 pack: l = 
+250  len = 
+251 pack: n = %ld, only_bytes = %d\
+252 pack: result (tag %d)= 
+253 new_temp_str has failed to get a string of size %ld\
+254 doCmd: Could not get inpipe\
+255 doCmd: Could not get outpipe\
+256 %s: exec failed\
+257 \Inserting global id %s, index %ld, packnum %d, offset %ld, mode %lx\
+258 Have inserted definition for %s: 
+259 Current list of types for %s is\
+260 Setup_globals: n = %d\ *cc = %p, *cc[0]..*cc[4] = %d,%d,%d,%d,%d\
+261 Setup_globals: executing instruction %d(%p)\
+262 GET_GLOBAL_I [%d] %s: 
+263 ++%p: TYPE_ONLY_I [%d]\
+264 ++TYPE_ONLY_I [%d]\
+265 Exiting setup_globals\
+266 Input_eval: installing char '%c'\
+267 \Compacifying entities:\
+268 Moving %d entities from %p to %p\
+269 Moving cluster to second block\
+270 Moving cluster to first block\
+271 Getting a new avail block\
+272 Ending compactification\
+273 Avail blocks = 
+274 Relocating pointer from %p to %p, tag %d\
+275 Points to %p\
+276 Begin relocating stack\
+277 Begin relocating env\
+278 Moving entity from %p to %p\
+279 Relocating mono tables\
+280 Relocating rts_ents\
+281 Relocating rts_pents\
+282 Relocating constants\
+283 Relocating standard ents\
+284 Relocating internal state content, box %ld\
+285 Relocating small leaf state, box = %ld\
+286 Relocating a large leaf, states %ld-%ld\
+287 Box relocation of %ld is %ld\
+288 kind = %d, mode = %d\
+289 name = %s, pos = %d, val =\
+290 doCmd: searching path for %s\
+291 doCmd: trying file %s\
+292 doCmd: found command %s\
+293 docmd: have command 
+294 cmdman: done copying, closing %d\
+295 cmdman: no return from child\
+296 cmdman: child is done\
+297 cmdman(%d): copying %c to command\
+298 cmdman: write has blocked\
+299 cmdman: timing out, result =\
+300 compactifying boxset:\
+301 rebuild_states: rebuilding state\
+302 rebuild_states: result is\
+303 rebuild_states: marked boxes = 
+304 Performing rotation on state, before:\
+305 After a rotation:\
+306 Content of box %ld is 
+307 Performing assignment %ld := 
+308 \ Multref = %d\
+309 Result of assignment is\
+310 Init state\
+311 Collapsing state\
+312 Result of collapsing is\
+313 \Timed out to top level\ %d switches, %d repauses\ blocked = %d, block rounds = %d, deadlock rounds = %d\
+314 Top level: There are %ld threads.  Restarting.\\
+315 Top level: Sleeping.\
+316 \##############################\\Begin print_rts\\
+317 Definitions of %s overlap: new mode = %ld, old mode = %ld\
+318 Timing out\
+319 Embedding tries: 
+320 result: 
+321 Embedding marks: 
+322 push_branch_c: 
+323 done, control =\
+324 then_c: id = %ld, 
+325 then_c: deleting frame from bottom\
+326 then_c: no change to control\
+327 then_c: cancelling in-place\
+328 then_c: using copy_up_control_to_try, result =\
+329 then_c: using push_down_eaches, result =\
+330 chop_c: id = %ld 
+331 chop_c: result\
+332  out: 
+333 Poly table is empty.\
+334 Poly lookup: dummy entry.\
+335 Poly lookup: (package %s) trying type\ 
+336 Current type variable bindings:\
+337 Type storage:\
+338 Installing binding list from the_act:\
+339 Installing custom binding list:\
+340 Copying binding list back into the_act:\
+341 Copying binding list back into custom list:\
+342 Defaulting variable %p to 
+343 free_chunk: end\
+344 allocate_binary: returning %p\
+345 Used binary blocks = 
+346 Trying to read file %s.\
+347 Package %s has already been read.\
+348 Cannot read file %s.\
+349 Package %s: bad header.\
+350 Package %s: begin reading declarations.\
+351 Package %s: Done.\
+352 Package %s: Could not import %s, stopping.\
+353 Resuming package %s.\
+354 Resuming deferred package %s.\
+355 Deferring rest of package %s.\

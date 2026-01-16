@@ -1,0 +1,56 @@
+%% File: object.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 2000 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=================================================================
+Package 		Astarte_ObjectImp
+
+			implements "object"
+====================================================================
+
+Import "thread/semaphor".
+
+====================================================================
+%%			Object!
+====================================================================
+
+Extension
+  Species{noEqual,noDollar} Object! = makeObject! (Semaphore,Natural).
+%Extension
+
+====================================================================
+%%			object!
+====================================================================
+
+Var objectId! holding Natural := 0.
+
+Let object!() = 
+  Increment objectId!.
+  Value makeObject!(unblockedSemaphore(), @objectId!).
+%Let
+
+====================================================================
+%%			$
+====================================================================
+
+%% For others:
+
+Let{default} $(?x) = $(retract(x)).
+
+%% For Object!: 
+
+Let{override} $(makeObject!(?,?n)) =
+  "(object " ++ $n ++ ")"
+%Let
+
+====================================================================
+%%			==
+====================================================================
+
+Let{default} ?a == ?b  =  (retract(a):Object!) == retract(b).
+
+Let{override} makeObject!(?,?m) == makeObject!(?,?n)  =  m == n.
+
+%Package

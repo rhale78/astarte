@@ -1,0 +1,13 @@
+Package chooseErr2 
+
+%% Test run-time errors in Choose exprs
+
+Execute
+  Writeln["\nShould fail with exception noCaseEx\n"].
+  Choose first
+    case false => ()
+    case 1 > 2 => ()
+  %Choose
+%Execute
+
+%Package

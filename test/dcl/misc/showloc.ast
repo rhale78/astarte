@@ -1,0 +1,22 @@
+Package showloc
+
+%% Test showlocals advisory
+
+Advise showlocals all.
+
+Let test(?x) =
+  Let y = x + 4.
+  Let f(?z) = z.
+  Value f(y).
+%Let
+
+Execute
+  Let a = 3.
+  Let b = test(a).
+  Writeln[$a, " ", $b].
+%Execute
+
+%Package
+
+
+

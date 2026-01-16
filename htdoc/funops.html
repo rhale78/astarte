@@ -1,0 +1,154 @@
+<HTML>
+<head>
+<title>Astarte: Operations on Functions</title>
+</head>
+<body>
+<center>
+<a href="wrapnum.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="collectlib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L5. Operations on Functions </font></h1>
+</center>
+
+This page describes some fairly generic operations on functions.
+
+<dl>
+<p><dt><font color="red"> | </font>
+<dd> <font color=#D00090>x | f</font> = f(x). The bar is not a identifier,
+it is a special symbol, and can only be used as a binary operator.
+
+<a name=dblbar></a>
+<p><dt><font color="red"> || </font>
+<dd>: (`a -&gt; `b, `b -&gt; `c) -&gt; (`a -&gt; `c)
+<p> <font color=#D00090>(f || g)(x)</font> = g(f(x)).
+
+<a name=dblunderscore></a>
+<p><dt><font color="red"> __ </font>
+<dd>: ((`a,`b) -&gt; `c) -&gt; `b -&gt; `a -&gt; `c
+<p><font color=#D00090>(__ f x) y</font> = f(y,x).  
+This symbol is two consecutive underscores.
+This can be used with binary operators.  
+For example, 
+__ + 2 is a function that, when run on parameter x, produces
+x + 2.
+
+<a name=dblunderscoreinv></a>
+<p><dt><font color="red"> __/- </font>
+<dd>: (`a -&gt; `b -&gt; `c) -&gt; (`b,`a) -&gt; `c
+<p>__/- is the functional inverse of __.  It takes a function that
+takes its parameters one at a time, and converts it to a function that
+takes its parameters as an ordered pair.  However, it transposes the
+ordered pair.  That is, <font color=#D00090>(__/- f)(x,y)</font> = f y x.
+
+<a name=bar></a>
+<p><dt><font color="red"> _bar_ </font>
+<dd>: (`a, `a -&gt; `b) -&gt; `b
+<p> <font color=#D00090>x _bar_ f</font> = f(x). 
+Function _bar_ differs from | in that _bar_ is
+a genuine function.  | is part of the basic syntax of the language, and
+is not a function.
+
+<a name=constf></a>
+<p><dt><font color="red">constf</font>
+<dd>: `a -&gt; `b -&gt; `a
+<p> (constf&nbsp; k) is the function 
+whose value on every parameter is k.  That
+is, <font color=#D00090>(constf&nbsp; k)(x)</font> = k.
+
+<a name=curry></a>
+<p><dt><font color="red">curry</font>
+<dd>: ((`a,`b) -&gt; `c) -&gt; `a -&gt; `b -&gt; `c
+<p> If f is a function that takes an ordered pair as a parameter, then
+(curry f) is a function that takes its parameters one at a time.  So
+<font color=#D00090>(curry f) x y</font> = f(x,y).
+
+<a name=idf></a>
+<p><dt><font color="red"> idf </font>
+<dd>: `a -&gt; `a
+<p> idf is the identity function (<font color=#D00090>idf(x)</font> = x).  
+It is the identity
+for function composition, and so is useful with higher-order functions.
+
+<a name=is></a>
+<p><dt><font color="red"> _is_ </font>
+<dd>: (`a,`a -&gt; Boolean) -&gt; Boolean
+<p> <font color=#D00090>x _is_ f</font> is the same as f(x), 
+but it requires that f be a predicate.  
+That is, f must be a function whose codomain is Boolean.
+
+<a name=lazy></a>
+<p><dt><font color="red">lazy</font>
+<dd>: (`a -&gt; `b) -&gt; (`a -&gt; `b)
+<p> <font color=#D00090>(lazy f)</font> 
+is the same function as f, but it is lazy.  So
+evaluating (lazy f x) will not run f until its result is needed.
+
+<a name=pmap></a>
+<p><dt><font color="red">_pmap_</font>
+<dd>(`a -&gt; `b, `c -&gt; `d) -&gt; (`a,`c) -&gt; (`b,`d)
+<p><font color=#D00090>(f _pmap_ g)(x,y)</font> = (f x, g y). 
+<p>Example: <font color="#D00090">(left _pmap_ right)((2,3), (4,5)) = (2,5).
+</font>
+
+<a name=o></a>
+<p><dt><font color="red"> _o_ </font>
+<dd>:(`b -&gt; `c, `a -&gt; `b) -&gt; (`a -&gt; `c)
+<p> <font color=#D00090>(f _o_ g)(x)</font>  = f(g(x)).
+
+<a name="o3"></a>
+<p><dt><font color="red"> _o3_ </font>
+<dd>: (`c -&gt; `d, `b -&gt; `c, `a -&gt; `b) -&gt; `a -&gt; `d
+<p> <font color=#D00090>(f _o3_ (g,h) )(x)</font> = f(g(h(x))).
+
+<a name=shortApply></a>
+<p><dt><font color="red"> shortApply </font>
+<dd>: (`a -&gt; `b, `a) -&gt; `b) 
+<p><font color=#D00090>shortApply(f,a)</font> = f(a).  It attempts to evaluate
+f(a) immediately, but if computation of f(a) takes longer
+than a preset time limit, that computation is cut off,
+and it becomes lazy.
+
+<a name=succeedsf></a>
+<p><dt><font color="red"> succeedsf </font>
+<dd>: (`a -&gt; `b) -&gt; `a -&gt; Boolean
+<p> <font color=#D00090>(succeedsf f x)</font> is true if f(x) does not fail.
+
+<a name=tee></a>
+<p><dt><font color="red">_tee_</font>
+<dd>: (`a -&gt; `b, `a -&gt; `c) -&gt; (`b,`c)
+<p><font color=#D00090>(f _tee_ g)(x)</font> = (f x, g x). 
+<p>Example: If double(x) = 2*x and triple(x) = 3*x
+then <font color="#D00090">(double _tee_ triple)(8)</font> = (16,24).
+
+<a name=uncurry></a>
+<p><dt><font color="red">uncurry</font>
+<dd>: (`a -&gt; `b -&gt; `c) -&gt; (`a,`b) -&gt; `c
+<p> uncurry is the functional inverse of curry.  It takes a function
+that takes parameters one at a time, and converts it to a function
+that takes an ordered pair.  
+So <font color=#D00090>(uncurry f)(x,y)</font> = f x y.
+
+<p><dt><font color="red"> xposef </font>
+<dd>:((`a,`b) -&gt; `c) -&gt; ((`b,`a) -&gt; `c) 
+<p><font color=#D00090>(xposef&nbsp; f)(x,y)</font> = f(y,x).
+
+</dl>
+
+<hr>
+<center>
+<a href="wrapnum.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="collectlib.html">Next</a>
+</center>
+</body>
+</HTML>

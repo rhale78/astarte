@@ -1,0 +1,29 @@
+Package cat 
+
+%% Test handling of ++ pattern function
+
+Import "pattern/listpat".
+
+Execute
+  Writeln["\nShould print all possible 4 consecutive lists whose"].
+  Writeln["concatenation If [1,2,3,4,5].\n"].
+  Try
+    Match ?a ++ (?b ++ (?c ++ ?d)) = [1,2,3,4,5].
+    Writeln[$a, $b, $c, $d].
+    {false}
+  %Try
+%Execute
+
+Execute
+  Writeln["\nNow should print all such lists where the first must"].
+  Writeln["be [1] and the second must be [2,3].\n"].
+  Let a = [1].
+  Let b = [2,3].
+  Try
+    Match a ++ (b ++ (?c ++ ?d)) = [1,2,3,4,5].
+    Writeln[$a, $b, $c, $d].
+    {false}
+  %Try
+%Execute
+
+%Package

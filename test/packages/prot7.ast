@@ -1,0 +1,7 @@
+Package prot7
+
+Import "prot6".
+
+Let zz = prot + 1.
+
+%Package

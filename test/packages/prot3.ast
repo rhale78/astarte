@@ -1,0 +1,9 @@
+Package prot3
+
+Import "prot1".
+
+%% The following should lead to an error: prot is unknown.
+
+Let x = prot + 2.
+
+%Package

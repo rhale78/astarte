@@ -1,0 +1,108 @@
+Package testpack 
+
+Import "misc/check".
+
+Define pad(?s, ?n) = 
+  Let len = length s.
+  If len >= n
+    then s
+    else pack((dup (n--len) ' ') ++ s)
+  %If
+%Define
+
+Execute
+  Line[pad("x", 15)].
+  Check["              x"].
+  Line[pad(" 3.000E+00", 63)].
+  Check["                                                      3.000E+00"].
+  Line[pad("(x + x)", 64)].
+  Check["                                                         (x + x)"].
+%Execute
+
+Execute
+  Let a =
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi"
+  %Let
+  Relet a = a ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi" ++
+	"abc" ++ "def" ++ "ghi"
+  %Relet
+  Let pa = pack a.
+  Line[pa].
+  Check[a].
+  Line["Length is ", $length(pa), " (should be 189)"].
+  Check["Length is ", $length(a), " (should be 189)"].
+%Execute
+
+Execute
+  Let a = ['a','b','c'].
+  Let pa = pack a.
+  Let b = ['d','e','f'].
+  Let pb = pack b.
+  Let c = ['g','h','i'].
+  Let pc = pack c.
+  Let d =
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc ++
+       pa ++ pb ++ pc
+  %Let
+  Let pd = pack d.
+  Line[pd].
+  Check[d].
+  Line["Length is ", $length pd, " (should be 180)"].
+  Check["Length is ", $length d, " (should be 180)"].
+%Execute
+
+Execute
+  open Loop (?s,?n) = (nil,200) first
+    exitcase zero? n => ()
+    loopcase else    => continue ('a' :: s, n--1)
+  %Loop
+  Let a = pack s.
+  Line[a].
+  Check[s].
+  Line["Length is ", $length a, " (should be 200)"].
+  Check["Length is ", $length s, " (should be 200)"].
+  Let b = pack a.
+  Line[b].
+  Check[a].
+  Line["Length is ", $length b, " (should be 200)"].
+  Check["Length is ", $length a, " (should be 200)"].
+%Execute
+
+%Package

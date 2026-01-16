@@ -1,0 +1,48 @@
+Package class1
+
+Export
+
+%% Test classes.
+
+Import "object".
+Import "collect/boxes".
+
+Extension
+  Class Test
+    %" Test is a test class.
+    
+    Var x holding Natural.
+    Var y holding Integer := -1.
+    Const zz: Natural.
+    Const yy: Integer.
+  %Class
+%Extension
+
+Define Test constructor
+  test(?my zz, ?my yy) =
+    ()
+%Define
+
+Define Test constructor
+  test(?my yy, ?my zz, ?x_c) =
+    ()
+  then
+    Assign my x := x_c.
+%Define
+
+Extension
+  Class Test2 isKindOf Test
+    Var m holding Real.
+    Var arr(my zz) holding Real all := 1.0.
+  %Class
+%Extension
+
+Define Test2 constructor
+  test2(?my zz, ?yy_l) =
+    Let super = test(my zz,yy_l).
+  then
+    Assign my m := 54.
+%Define
+
+%Package
+

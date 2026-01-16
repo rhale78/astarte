@@ -1,0 +1,233 @@
+%% File: set.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================================
+Package 		Astarte_SET 
+
+			Interface
+====================================================================
+%% This package describes a community SET that is intended to hold
+%% particular implementations of sets.  If S is a member of SET,
+%% then S(T) is a species of set whose members have species T.  
+%% Implementations can be found in sparsset.ast, linset.ast and 
+%% denseset.ast.
+%%
+%% A set is a collection, so SET is beneath COLLECTION.
+====================================================================
+
+Directory standard.
+Import "collect/collect".
+
+===============================================
+
+Extension
+  Abstraction{transparent} SET(EQ`a)
+  	%" SET is a community that holds sets.  See
+  	%" particular kinds of sets, such as
+	%" LinSet, DenseSet and SparseSet.
+	%"
+	%" A SET is a kind of COLLECTION.  See COLLECTION.
+  %Abstraction
+  
+  Relate
+    SET     isKindOf COLLECTION;
+    SET(EQ) isKindOf EQ
+  %Relate
+%Extension
+
+====================================================================
+
+Abbrev {noExport}:
+  E     = EQ`a;
+  O     = ORDER`a;
+  SetO  = {SET`a}(O);
+  SetE  = {SET`a}(E);
+  SetWE = SET``a(E);
+  SetWO = SET``a(O);
+%Abbrev
+
+====================================================================
+%% The following must be provided by each implementation
+%% of sets.
+====================================================================
+
+Anticipate
+  emptySet	: SetE
+
+		%" emptySet is an empty set.
+		;
+
+  emptySet?	: SetE -> Boolean
+
+		%" emptySet?(s) is true just when s is an empty set.
+		;
+
+
+  +/      	: (SetE, E) -> SetE
+  
+  		%" s +/ x is the result of adding x to set s.
+		;
+		
+  -/     	: (SetE, E) -> SetE
+
+		%" (s -/ x) is the result of deleting x from set s.
+		;
+
+  extractMin	: SetO -> (O, SetO)
+
+		%" extractMin(s) = (x,s') where x is the smallest value
+		%" in s and s' is s -/ x.
+		%" It fails with exception emptyListX if s is empty.
+		;
+
+  extractMax	: SetO -> (O, SetO)
+
+		%" extractMax(s) = (x,s') where x is the largest value
+		%" in s and s' is s -/ x.
+		%" It fails with exception emptyListX if s is empty.
+		;
+
+%Anticipate
+
+====================================================================
+%% The following are provided here, but can be overridden
+%% for particular implementations.
+====================================================================
+
+Expect
+  {underride}:
+  
+    emptySet    : SetWE;
+
+    emptySet?	: SetWE -> Boolean;
+    
+    +/, -/	: (SetWE, E) -> SetWE;
+    
+    extractMin,
+     extractMax : SetWO -> (O, SetWO);
+     
+    set         : [E] -> SetE
+
+		%" set(l) is a set of the members of list l. Priority
+		%" is given to earlier members of l for selecting
+		%" non-key parts.
+		;
+
+    _subset?_  	: (SetE, SetE) -> Boolean
+
+		%" (s _subset?_ t) is true if set s is a subset of set t.
+		;
+
+    \/		: (SetE, SetE) -> SetE
+
+		%" (s \/ t) is the union of sets s and t.
+		;
+
+  _unionWithList_ : (SetE, [E]) -> SetE
+
+		%"(s _unionWithList_ l) is the same as s \/ (set l).
+		;
+		
+    /\		: (SetE, SetE) -> SetE
+
+		%" (s /\ t) is the intersection of sets s and t.
+		;
+
+  _intersectWithList_ : (SetE, [E]) -> SetE
+
+		%"(s _intersectWithList_ l) is the same as s /\ (set l).
+		;
+
+    -   	: (SetE, SetE) -> SetE
+
+		%" (s - t) is the difference of sets s and t.  That is,
+		%" it consist of all members of s that are not members
+		%" of t.
+		;
+
+    _minusList_  : (SetE, [E]) -> SetE
+
+		%"(s _minusList_ l) is the same as s - (set l).
+		;
+
+    $           : SetE	-> String;
+    
+%Expect
+
+=======================================================
+
+Operator
+  +/     	   (+);
+  -/     	   (-);
+  \/    	   (+);
+  /\		   (*);
+  _intersectWithList_(/\);
+  _minusList_	   (-);
+  _subset?_  	   (_in_);
+  _unionWithList_  (\/)
+%Operator
+
+====================================================================
+%% Some operations are inherited from COLLECTION.
+%%
+%% See collect.ast for descriptions of
+%%     size
+%%     toList
+%%     eagerToList
+%%     _in_
+====================================================================
+
+====================================================================
+%% 			emptyCollection 
+%%			emptyCollection?
+%%			fromList
+====================================================================
+
+Let {underride}:
+  emptyCollection   = emptySet;
+  emptyCollection?  = emptySet?;
+  fromList          = set
+%Let
+
+====================================================================
+%% Collections are defined over arbitrary species.  Sets can
+%% only be defined over species with equality.  These missing
+%% declarations cover the missing cases.
+====================================================================
+
+Abbrev {noExport}:
+  B     = `b;
+  ASet  = SET`a;
+  SetB  = ASet(B);
+%Abbrev
+
+Missing 
+  emptyCollection  : SetB;
+  emptyCollection? : SetB 		-> Boolean;
+  fromList         : [B]  		-> SetB;
+  toList,
+    eagerToList	   : SetB 		-> [B];
+  size             : SetB 		-> Natural;
+  $		   : SetB 		-> String;
+%Missing
+
+======================================================
+
+Assume{noExport} +/: (SET`a(EQ`b), EQ`b) -> SET`a(EQ`b).
+
+Pattern
+  ?s +/ ?x =>
+    Match (?x,?s) = extractMin(target).;
+
+  ?s +/ x =>
+    {x _in_ target}
+    Match ?s = target -/ x.
+%Pattern
+
+======================================================
+%Package
+
+

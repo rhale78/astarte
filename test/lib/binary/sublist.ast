@@ -1,0 +1,147 @@
+Package sublist
+
+%% Test taking sublists of various kinds of lists.
+
+Import "misc/check".
+
+%% Sublist: CSTR_TAG.
+
+Execute
+  Writeln["CSTR_TAG"].
+  Let a = "abcde".
+  Let b = a##(0,3).
+  Let c = a##(1,2).
+  Let d = a##(1,4).
+  Let e = a##(1,largenum).
+  Line[b, " ", c, " ", d, " ", e].
+  Check["abc bc bcde bcde"].
+%Execute
+
+%% Sublist: STRING_TAG.
+
+Execute
+  Writeln["STRING_TAG"].
+  Let a = "abcde".
+  Let b = tail a.
+  Let c = b##(0,2).
+  Let d = b##(1,3).
+  Let e = b##(1,largenum).
+  Line[c, " ", d, " ", e].
+  Check["bc cde cde"].
+%Execute
+
+%% Sublist: APPEND_TAG
+
+Execute
+  Writeln["APPEND_TAG"].
+  Let a = "abcde" ++ "fghij".
+  For ?i from 0 _upto_ 8 do
+    Line[$(a##(i,2))].
+    Check["\"", [char(rank 'a' + i)], [char(rank 'a' + i + 1)], "\""].
+  %For
+  Line[a##(1,largenum)].
+  Check["bcdefghij"].
+%Execute
+
+%% Sublist: ARRAY_TAG/STRING_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/STRING_TAG"].
+  Let a = "abcdefghijk".   %% "abc..." CSTR_TAG
+  Let b = tail a.          %% "bcd..." STRING_TAG
+  Let c = tail b.          %% "cde..." ARRAY_TAG/STRING_TAG
+  For ?i from 0 _upto_ 7 do
+    Line[$(c##(i,2))].
+    Check["\"", [char(rank 'c' + i)], [char(rank 'c' + i + 1)], "\""].
+  %For
+  Line[c##(1,largenum)].
+  Check["defghijk"].
+%Execute  
+
+%% Sublist: ARRAY_TAG/STRING_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/STRING_TAG (follower)"].
+  Let a = "abcde" ++ "fghijk".       %%   APPEND_TAG/CSTR_TAG
+  Let b = tail a.          %% "bcd..."   APPEND_TAG/STRING_TAG
+  Let c = tail b.	   %% "cde..."   ARRAY_TAG/STRING_TAG (follower)
+  For ?i from 0 _upto_ 7 do
+    Line[$(c##(i,2))].
+    Check["\"", [char(rank 'c' + i)], [char(rank 'c' + i + 1)], "\""].
+  %For
+  Line[c##(1,largenum)].
+  Check["defghijk"].
+%Execute  
+
+%% Sublist: ARRAY_TAG/PLACE_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG"].
+  Let a = array shared (8).
+  For ?i from 0 _upto_ 7 do Assign a#_i := i..
+  For ?i from 0 _upto_ 6 do
+    Line[$(eagerMap(@)(a##(i,2)))].
+    Check["[", $i, ",", $(i+1), "]"].
+  %For
+  Line[$(eagerMap(@)(a##(1,largenum)))].
+  Check["[1,2,3,4,5,6,7]"].
+%Execute
+
+%% Sublist: ARRAY_TAG/PLACE_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG (follower)"].
+  Let a = array shared (8) ++ array shared (3).
+  Let b = tail a.
+  For ?i from 0 _upto_ 9 do Assign b#_i := i..
+  For ?i from 0 _upto_ 8 do
+    Line[$(eagerMap(@)(b##(i,2)))].
+    Check["[", $i, ",", $(i+1), "]"].
+  %For
+  Line[$(eagerMap(@)(b##(1,largenum)))].
+  Check["[1,2,3,4,5,6,7,8,9]"].
+%Execute
+
+%% Sublist: ARRAY_TAG/BOX_TAG
+
+Execute
+  Writeln["ARRAY_TAG/BOX_TAG"].
+  Let a = array nonshared (8): [Box(Natural)].
+  For ?i from 0 _upto_ 7 do Assign a#_i := i..
+  For ?i from 0 _upto_ 6 do
+    Line[$(eagerMap(@)(a##(i,2)))].
+    Check["[", $i, ",", $(i+1), "]"].
+  %For
+  Line[$(eagerMap(@)(a##(1,largenum)))].
+  Check["[1,2,3,4,5,6,7]"].
+%Execute
+
+%% Sublist: ARRAY_TAG/INDIRECT_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG"].
+  Let a = pack[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000].
+  For ?i from 0 _upto_ 9 do
+    Line[$(a##(i,2))].
+    Check["[", $(i*1000), ",", $((i+1)*1000), "]"].
+  %For
+  Line[$(a##(1,largenum))].
+  Check["[1000,2000,3000,4000,5000,6000,7000,8000,9000,10000]"].
+%Execute
+
+
+%% Sublist: ARRAY_TAG/INDIRECT_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG(follower)"].
+  Let a = forceAll(pack[0, 0, 1000,2000,3000,4000,5000]) ++ [6000,7000].
+  Let b = tail a. 
+  For ?i from 0 _upto_ 6 do
+    Line[$(b##(i,2))].
+    Check["[", $(i*1000), ",", $((i+1)*1000), "]"].
+  %For
+  Line[$(b##(1,largenum))].
+  Check["[1000,2000,3000,4000,5000,6000,7000]"].
+%Execute
+
+%Package

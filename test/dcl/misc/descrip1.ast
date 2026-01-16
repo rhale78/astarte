@@ -1,0 +1,29 @@
+Package descrip1 
+
+%% Test description handling
+
+===============================================
+%% Entity id - back.  Should get complaint.
+
+Advise "Should complain that descriptions of test1 are inconsistent".
+
+Let test1 = 1.
+
+Description test1 "Test1 is one.".
+
+Description test1 "Test1 is two.".
+
+===============================================
+%% Entity id - back.  Should not get complaint.
+
+Let test2 = 1.
+
+Description test2 "#{one} test2 is one.".
+
+Description test2 "#{two} test2 is two.".
+
+Description test2 "test2 is three.".
+
+%Package
+
+

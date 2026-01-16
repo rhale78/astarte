@@ -1,0 +1,44 @@
+Package Testlist1 
+
+%% Test handling of append nodes.
+
+Import "misc/check".
+
+Define naiveReverse ?l =
+  If l == nil then nil else naiveReverse(tail(l)) ++ [head(l)].
+%Define
+
+Execute
+  Let a = [1,2,3,4,5,6,7,8,9,10,11,12].
+  Let b = naiveReverse(a).
+  Let c = tail(b).
+  Line[$c].
+  Check["[11,10,9,8,7,6,5,4,3,2,1]"].
+  Let d = [1,2,3,4,5,6,7,8,9,10,11,12, 13, 14, 15, 16, 17, 18, 19, 20].
+  Let e = naiveReverse(d).
+  Line["e = ", $e].
+  Check["e = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]"].
+  Let f = head(e).
+  Line["e = ", $e].
+  Check["e = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]"].
+  Let g = head(e).
+  Line["e = ", $e].
+  Check["e = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]"].
+  Let h = head(e).
+  Line["e = ", $e].
+  Check["e = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]"].
+  Let i = tail(e).
+  Line["e = ", $e].
+  Check["e = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]"].
+  Line[$f].
+  Check["20"].
+  Line[$g].
+  Check["20"].
+  Line[$h].
+  Check["20"].
+  Line[$i].
+  Check["[19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]"].
+  
+%Execute
+
+%Package

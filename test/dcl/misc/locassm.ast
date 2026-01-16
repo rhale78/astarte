@@ -1,0 +1,17 @@
+Package localassume 
+
+%% Test local assumes
+
+Execute
+  Writeln["Should print 0 twice"].
+  Assume x: Real.
+  Let x = 0.
+  Writeln[$x].
+%Execute
+
+Execute
+  Assume 0: Real.
+  Writeln[$(0)].
+%Execute
+
+%Package

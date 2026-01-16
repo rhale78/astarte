@@ -1,0 +1,28 @@
+Package test
+
+Execute
+  Let a = pack[1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000].
+  Let b = tail a.
+  Let c = tail b.
+  Let d = tail c.
+  Let e = tail d.
+  Let f = tail e.
+  Let g = tail f.
+  Let h = tail g.
+  Let i = tail h.
+  Let j = tail i.
+  Let k = tail j.
+  Writeln[$head(a), " ",
+          $head(b), " ",
+          $head(c), " ",
+          $head(d), " ",
+          $head(e), " ",
+          $head(f), " ",
+          $head(g), " ",
+          $head(h), " ",
+          $head(i), " ",
+          $head(j), " ", $k]
+  %Writeln
+%Execute
+
+%Package

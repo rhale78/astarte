@@ -1,0 +1,200 @@
+<HTML>
+<head>
+<title>Astarte: irregular functions</title>
+</head>
+<body>
+<center>
+<a href="secondary.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="constraint.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T21. Irregular Functions </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#natureunwrap> The nature of unwrapping</a>
+  <li> <a href=#typecheck> Run-time type checking</a>
+  <li> <a href=#restrictions> Restrictions on the use of irregular functions</a>
+  <li> <a href=#define> Defining irregular functions</a>
+  <li> <a href=#forget> Function <i>forget</i></a>
+</menu>
+
+<a name=natureunwrap></a>
+<hr>
+<h2><font color=mediumblue> The nature of unwrapping </font></h2>
+
+Suppose that w has species ANY.  Consider
+<font color=#D00090>
+<b><pre>
+    Match &lt;&lt; ?x &gt;&gt; = w.
+</pre></b>
+</font>
+The extrinsic species of x must be the same as the intrinsic
+species of w.  But the intrinsic species of w cannot be known
+at compile time; it is obtained at run time by inspecting the
+intrinsic tag of w.
+
+<p>Unwrapping requires the ability to determine species dynamically,
+at run time.  To support that, Astarte provides a class of functions
+called irregular functions.  An irregular function typically has
+type variables in its 
+<a href="specexpr.html#function">codomain</a>.  
+Those variables stand for species
+that will be determined at run time.
+
+<p>For example, there is a standard
+irregular function called unsafeUnwrap.  Suppose that x is
+an item of extrinsic species ANY and intrinsic species T.  
+Then unsafeUnwrap(x) has both extrinsic and intrinsic species T.  What
+unsafeUnwrap does is force the extrinsic species to be the same
+as the intrinsic species.  
+
+<p>Notice
+that the extrinsic species of the result returned by unsafeUnwrap depends 
+on its parameter.  If you write
+<font color=#D00090>
+<b><pre>
+      Let a = &lt&lt;2:Natural&gt&gt;:ANY.
+      Let b = &lt&lt;2:Real&gt&gt;:ANY.
+      Let c = unsafeUnwrap(a).
+      Let d = unsafeUnwrap(b).
+</pre></b>
+</font>
+then a and b both have extrinsic species ANY.
+But c has species Natural, and
+d has species Real.
+
+<a name=typecheck></a>
+<hr>
+<h2><font color=mediumblue> Run-time type checking </font></h2>
+
+Since the extrinsic species of expression unsafeUnwrap(x)
+depends on the value of x, it is not possible for the compiler
+to determine the extrinsic species at compile time.  Instead,
+that information is obtained at run time.  The run-time system
+not only obtains type information, but does type inference
+where required.
+
+<p>Suppose you write
+<font color=#D00090>
+<b><pre>
+      Let a = &lt&lt;2:Natural&gt&gt;:ANY.
+      Let b = &lt&lt;2:Real&gt&gt;:ANY.
+      Let c = unsafeUnwrap(a).
+      Let d = unsafeUnwrap(b).
+      Let e = If c == d then 0 else 1 %If.
+</pre></b>
+</font>
+The equality operator <tt>==</tt> requires its parameters to have the same
+(extrinsic) species.  Since the extrinsic species of c and d depends
+on the unknown intrinsic species of a and b, type inference 
+attaches the same type variable to c and d.
+When the program is run, however, c and d end up having
+different species.  That cannot be detected at compile time, since 
+the type information about c and d is obtained at run time.  What 
+happens is that the execution fails, with exception speciesX, to
+indicate a run-time species mismatch.
+
+<p>The mismatch occurs as soon as there is enough information to see
+that there is a mismatch.  When c is defined, its species is determined
+(at run time) to be Natural.  Since c and d have the same species, the
+species of d is also determined to be Natural.  When the line defining
+d is performed, there is a species mismatch, since Real is not
+the same as Natural.  Notice that the mismatch occurs before the test
+c <tt>==</tt> d is done, since type information due to the presence of that
+test is available earlier, and that information leads to the mismatch.
+
+<a name=restrictions></a>
+<hr>
+<h2><font color=mediumblue> Restrictions on the use of irregular functions</font></h2>
+
+Irregular functions are not first class items.  There are some quite
+severe restrictions on their use.  The restrictions are present to make
+the type system more manageable.
+
+<p> The only thing that you can do with an irregular function is 
+apply it.  You cannot pass it to a function, return it from a
+function or put it in a variable.
+
+<p> If you find that you want to treat an irregular function as
+a first class item, you should build a version of it that is regular,
+and relies on secondary species to achieve the effect of the irregular
+function.  Build a function that gift wraps its result, hiding the
+dynamically determined species inside the gift wrapping.
+For example, suppose that irrf is an irregular function.
+Define
+<font color=#D00090>
+<b><pre>
+   Define wirrf(?x) = &lt;&lt;irrf(x)&gt;&gt;:ANY.
+</pre></b>
+</font>
+Now use ordinary function wirrf as a first class item.  When you need
+to use it, unwrap the result, as in 
+<font color=#D00090>
+<b><pre>
+   Let z = unsafeUnwrap(wirrf(y)).
+</pre></b>
+</font>
+The same effect as this definition of z can be achieved using
+pattern matching, as described in <a href=stdconstraint.html#qltlt>T23</a>.
+<font color=#D00090>
+<b><pre>
+   Match ?&lt;&lt; ?z &gt;&gt;? = wirrf(y).
+</pre></b>
+</font>
+ 
+<a name=define></a>
+<hr>
+<h2><font color=mediumblue> Defining irregular functions </font></h2>
+
+To define an irregular function, use mode {irregular}.  
+For example,
+to define function myunwrap that behaves like unsafeUnwrap, you can write
+<font color=#D00090>
+<b><pre>
+      Define{irregular} myunwrap(?x) = unsafeUnwrap(x).
+</pre></b>
+</font>
+In the special case where you are defining one irregular function to
+be the same as another, you can do a direct definition, as in 
+<font color=#D00090>
+<b><pre>
+      Define{irregular} myunwrap = unsafeUnwrap.
+</pre></b>
+</font>
+
+<font color=brown>
+<a name=forget></a>
+<hr>
+<h2><font color=mediumblue> Function <i>forget</i> </font></h2>
+
+Standard irregular function forget has species `a -&gt; `b.  Its meaning
+is that forget(x) = x.  At run time, the (extrinsic) species of its result is
+bound to the (extrinsic) species of its parameter.  Forget does not
+remove any gift wrapping.
+
+<p> You can use forget to get the compiler to suppress type checking,
+when you find it necessary to do so.  Regardless of the type of x,
+the compiler presumes that it knows nothing about the extrinsic
+type of forget(x).  Instead, type checking will be done at run time.
+
+<p>Do not overuse forget.  In particular, use it only where you understand
+what you are doing, not as a way to avoid compile errors in cases
+where you do not understand what you are doing.
+</font>
+
+<hr>
+<center>
+<a href="secondary.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="constraint.html">Next</a>
+</center>
+</body>
+</HTML>

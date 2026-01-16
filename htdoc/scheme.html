@@ -1,0 +1,731 @@
+<HTML>
+<head>
+<title>Astarte to Scheme</title>
+</head>
+<body>
+<center>
+<a href="libimp.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bnf.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> Aspects of the Programming Language Scheme
+</font></h1>
+</center>
+
+<menu>
+  <li> <a href="#main">Scheme</a>
+  <li> <a href="#comments">Comments</a>
+  <li> <a href="#boolean">Boolean operations and conditionals</a>
+  <li> <a href="#lists">Lists</a>
+  <li> <a href="#characters">Characters</a>
+  <li> <a href="#strings">Strings</a>
+  <li> <a href="#symbols">Symbols</a>
+  <li> <a href="#numbers">Numbers</a>
+  <li> <a href="#functions">Functions</a>
+  <li> <a href="#naming">Defining functions and giving things names</a>
+  <li> <a href="#delay">Delayed evaluation</a>
+  <li> <a href="#sequence">Sequencing</a>
+  <li> <a href="#io">Input and output</a>
+  <li> <a href="#load">Loading Scheme files and keeping transcripts</a>
+  <li> <a href="#examples">Examples</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue> Scheme</font></h2>
+
+This page describes some aspects of Scheme, by relating them to
+similar aspects of Astarte.  It does not attempt to cover the entire
+Scheme language.  See 
+<a href="http://www-swiss.ai.mit.edu/~jaffer/r5rs_toc.html">
+&quot;The Revised(5) Report on the Algorithm Language Scheme,&quot;</a> 
+edited by William Clinger and Jonathan Rees, for a complete
+description of Scheme.
+
+<p>The line between data and programs is really quite fuzzy in Scheme.
+For example, data and programs are both lists.  When a list
+(a b c d) is evaluated, first a is evaluated, and its value must be a 
+function.  Then that function is applied to argument (b c d).
+You must be careful to distinguish an expression from a constant list,
+keeping in mind that the first member of an expression is a function
+that computes the result of the expression.
+
+<p> You might want to look at a couple of 
+<a href="scheme.html#examples">examples</a> before
+reading the details of Scheme.
+
+<p>The table shows an Astarte construct
+along with a corresponding Scheme construct, in the form
+<dl> 
+<p><dt><font color=purple>Scheme construct</font>
+<dd> <font color=brown>Corresponding Astarte construct.</font>
+</dl>
+In some cases, there is no corresponding Astarte construct, and an
+explanation is given instead.
+
+<a name="comments"></a>
+<hr>
+<h2><font color=mediumblue> Comments </font></h2>
+
+<dl> 
+<p><dt><font color=purple>; A comment</font>
+<dd> <font color=brown>%% A comment</font>
+</dl>
+
+<a name="boolean"></a>
+<hr>
+<h2><font color=mediumblue> Boolean operations and conditionals </font></h2>
+
+The boolean constants are #f and #t.  However, in most contexts, you can
+use any value at all for "true", with only #f counting as false.
+In some Scheme implementations, #f is the same thing as ().
+
+<dl>
+<p><dt><font color=purple> (boolean? x)</font>
+<dd> (boolean? x) returns #t just when x is either #t or #f.
+
+<p><dt><font color=purple> (not x)</font>
+<dd> <font color=brown>not x</font>
+
+<p> Since any object other than #f counts as true, (not (list 2 3)) has
+value #f.
+
+<p><dt><font color=purple> (and x y z ...)</font>
+<dd> <font color=brown>x _and_ y _and_ z _and_ ... </font>(almost)
+
+<p> Actually, (and x y z ...) evaluates its parameters x, y, ...
+from left to right.  It stops as soon as one of those expressions
+is found to have value #f, and returns #f.  If all evaluate to values
+that are different from #f, the last one is returned.
+
+<p><dt><font color=purple> (or x y z ...)</font>
+<dd> <font color=brown>x _or_ y _or_ z _or_ ...</font> (almost)
+
+<p> (or x y z ...) returns the first of its parameters whose value is not
+#f, or returns #f if all of them are #f.
+
+<p><dt><font color=purple> (equal? x y)</font>
+<dd> <font color=brown>x <tt>==</tt> y</font>
+
+<p>Equality testing is messy in Scheme.  You have a choice of three
+different equality testing predicates.  
+<ol>
+  <p><li>(eq? x y) returns #t if x and y are the same number or the 
+  same symbol or are internally represented by pointers to the 
+  same memory location.  For example,
+  (eq? (cons a b) (cons a b)) returns #f, 
+  since the two calls to cons 
+  put their results at different memory addresses.
+
+  <p><li>(eqv? x y) is similar to (eq? x y), but sometimes returns 
+  #t where (eq? x y) returns #f.  
+
+  <p><li> (equal? x y) is the best approximation to a true equality test.  
+  It deals with lists and strings by going into the structure, 
+  and recursively comparing the parts.
+</ol>
+
+<p><dt><font color=purple> (&gt; x y)</font>
+<dd> <font color=brown>x &gt; y</font>
+
+<p> Other tests include &lt;, &lt;= and &gt;=.
+
+<p><dt><font color=purple> (if a b c)</font>
+<dd> <font color=brown>If a then b else c %If</font>
+
+<p><dt><font color=purple> (cond (t1 v1) (t2 v2) ... (else vn))</font>
+<dd><font color=brown>
+<pre>Choose
+  case t1 =&gt; v1
+  case t2 =&gt; v2
+  ...
+  else =&gt; vn
+%Choose
+</pre> 
+</font>
+
+<p> Each condition t1, t2, ... is examined on the assumption that
+#f means false and anything else means true.
+
+</dl>
+
+<a name="lists"></a>
+<hr>
+<h2><font color=mediumblue> Lists </font></h2>
+
+<dl>
+<p><dt><font color=purple> ()</font>
+<dd> <font color=brown>[]</font>
+
+<p><dt><font color=purple> (null? x)</font>
+<dd> <font color=brown>nil?(x)</font>
+
+<p><dt><font color=purple> (pair? x)</font>
+<dd> <font color=brown>not nil?(x)</font>
+<p> This tells whether x is a nonempty list.
+
+<p><dt><font color=purple> (list? x)</font>
+<dd> This returns true if x is a list, which is either a pair or ().
+
+<p><dt><font color=purple> (list a b c)</font>
+<dd> <font color=brown>[a,b,c]</font>
+
+<p><dt><font color=purple> (cons h t)</font>
+<dd> <font color=brown>h::t  </font>
+
+<p><dt><font color=purple> h.t</font>
+<dd> <font color=brown>h::t  </font>
+<p><i>You must use caution with dot notation</i>.  
+'(2.3.()) evaluates to the list (2 3), because it is
+quoted.  But (2.3.()) <i>is</i> the list (2 3).  If you try to 
+evaluate it, you will be using 2 as a function, which will cause
+an error.  Use the cons function to do a :: operation in a program.
+
+Since Scheme is typeless, you can use dot notation and cons to put
+any two things into a pair.  For example, 14.20 (or, in a program,
+(cons 14 20)) is a pair containing 14 and 20.  The "tail" of this "list"
+is not a list.
+
+<p><dt><font color=purple> (car x)</font>
+<dd> <font color=brown>head(x)</font>
+
+<p><dt><font color=purple> (cdr x)</font>
+<dd> <font color=brown>tail(x)</font>
+
+<p> cdr is pronounced could-er.  The names cdr and car are derived
+from the assembly language of the computer on which Lisp was
+first implemented.
+
+<p><dt><font color=purple> (cadr x)</font>
+<dd> <font color=brown>head(tail(x))</font>
+
+<p><dt><font color=purple> (cdar x)</font>
+<dd> <font color=brown>tail(head(x)</font>
+
+<p><dt><font color=purple> (cddr x)</font>
+<dd> <font color=brown>tail(tail(x)).</font>
+
+<p> You can form names using up to four a's and d's.  For example,
+(caddr x) is defined to be (car (cdr (cdr x))).
+
+<p><dt><font color=purple> (length x)</font>
+<dd> <font color=brown>length(x)</font>
+
+<p><dt><font color=purple> (append x y z ...)</font>
+<dd> <font color=brown>x ++ y ++ z ++ ...</font>
+
+<p><dt><font color=purple> (reverse x)</font>
+<dd> <font color=brown>reverse(x)</font>
+
+<p><dt><font color=purple> (member x y)</font>
+<dd> <font color=brown>x _in_ y </font>(almost)
+
+<p>This returns the longest suffix of list y whose first member is x.
+For example (member a '(b c a d a f)) = (a d a f).  If x does not occur in
+list y, then member returns #f.
+
+<p>Typically, this is used as a predicate.  The conditional tests treat
+anything except #f as true.
+
+<p>In order to do a membership test, equality tests must be done. 
+There are three different ways to
+do equality tests, so there are three different membership testing
+functions.  Function member uses equal?.  A similar function memq uses
+eq?, and function memv uses eqv?.
+
+<p><dt><font color=purple> (list-tail x k)</font>
+<dd> <font color=brown>drop k x</font>
+
+<p><dt><font color=purple> (list-ref x k)</font>
+<dd> <font color=brown>x # k</font>
+
+<p><dt><font color=purple> (assoc x y)</font>
+<dd> <font color=brown>assoc x y </font>(almost)
+
+<p> List y must be a list of pairs, where each pair is in the form of a list
+of length 2.  (assoc x y) finds the first
+pair in the list whose car is x, and returns that pair.
+For example, 
+<pre>
+    (assoc 'a '((b c) (a d) (e f)))
+</pre>
+returns (a d).
+If no pair has car x, then it returns #f.
+
+Assoc must perform equality tests, so there are three versions.
+Function assoc uses equal? to do the equality tests, 
+assq uses eq? and assv uses eqv?.
+
+<p><dt><font color=purple> (map f x)</font>
+<dd> <font color=brown>map f x</font>
+
+<p> You can use any number of list parameters.  (map f x y) is
+roughly equivalent to the Astarte expression map f (x _zip_ y).
+
+<p><dt><font color=purple> (for-each f x)</font>
+<dd> <font color=brown>MapProc f, x.</font>
+
+<p> This applies f to each member of list x for its side-effects.
+Like map, for-each can take any number of list parameters.
+</dl>
+
+<a name="characters"></a>
+<hr>
+<h2><font color=mediumblue> Characters </font></h2>
+
+<dl>
+<p><dt><font color=purple>#\a</font>
+<dd> <font color=brown>'a'</font>
+
+<p><dt><font color=purple>#\space</font>
+<dd> <font color=brown>' '</font>
+
+<p><dt><font color=purple>#\newline</font>
+<dd> <font color=brown>'\n'</font>
+
+<p><dt><font color=purple> (char? x)</font>
+<dd> (char? x) returns #t if x is a character, and #f otherwise.
+
+<p><dt><font color=purple> (char-&gt;integer c)</font>
+<dd> <font color=brown>rank(c)</font>
+
+<p><dt><font color=purple> (integer-&gt;char n)</font>
+<dd> <font color=brown>char(n)</font>
+
+<p><dt><font color=purple> (char-=? x y)</font>
+<dd> <font color=brown>x <tt>==</tt> y</font>
+
+<p> There are other comparisons char-&lt;?, char-&gt;?, char-&lt;=? and
+char-&gt;=? for comparing characters by alphabetical order.
+
+<p><dt><font color=purple> (char-ci=? x y)</font>
+<dd> <font color=brown>toUpper(x) <tt>==</tt> toUpper(y)</font>
+
+<p> There are other comparisons char-ci<?, char-ci>?, char-ci<=? and
+char-ci>=? for comparing characters by alphabetical order, ignoring case.
+
+<p><dt><font color=purple> (char-alphabetic? x)</font>
+<dd> <font color=brown>letter?(x)</font>
+
+<p> There are other classification functions char-numeric?, char-whitespace?,
+char-upper-case? and char-lower-case?.
+
+<p><dt><font color=purple> (char-upcase x)</font>
+<dd> <font color=brown>toUpper(x)</font>
+
+<p><dt><font color=purple> (char-downcase x)</font>
+<dd> <font color=brown>toLower(x)</font>
+
+</dl> 
+
+<a name="strings"></a>
+<hr>
+<h2><font color=mediumblue> Strings </font></h2>
+
+In Astarte, a string is a special kind of list, whose members are
+characters.  In Scheme, a string is not a list at all, but is a
+different kind of data value.
+
+<dl>
+<p><dt><font color=purple>"abc"</font>
+<dd> <font color=brown>"abc"</font>
+
+<p><dt><font color=purple>(string? x)</font>
+<dd> (string? x) is #t if x is a string, and #f otherwise.
+
+<p><dt><font color=purple>(string-&gt;list x)</font>
+<dd> (string-&gt;list x) is a list of the characters in string x.
+
+<p><dt><font color=purple>(list-&gt;string x) </font>
+<dd> (list-&gt;string x) converts a list of characters into a string.
+
+<p><dt><font color=purple>(string c d e,...) </font>
+<dd> <font color=brown>[c,d,e,...]</font>
+
+<p><dt><font color=purple> (string-length x)</font>
+<dd> <font color=brown>length(x)</font>
+
+<p><dt><font color=purple> (string-ref x k)</font>
+<dd> <font color=brown>x # k</font>
+
+<p><dt><font color=purple> (string-append x y z ...)</font>
+<dd> <font color=brown>x ++ y ++ z ++ ...</font>
+
+<p><dt><font color=purple> (substring a b s)</font>
+<dd> <font color=brown>s ## (a, b--a)</font>
+
+<p><dt><font color=purple> (string-=? x y)</font>
+<dd> <font color=brown>x <tt>==</tt> y</font>
+
+<p> There are other comparisons string-&lt;?, string-&gt;?, 
+string-&lt;=? and string-&gt;=?.
+
+<p><dt><font color=purple> (string-ci=? x y)</font>
+<dd> <font color=brown>toUpper(x) <tt>==</tt> toUpper(y)</font>
+
+<p> There are other comparisons string-ci&lt;?, string-ci&gt;?, 
+string-ci&lt;=? and string-ci&gt;=? that ignore case.
+
+</dl>
+
+<a name="symbols"></a>
+<hr>
+<h2><font color=mediumblue> Symbols </font></h2>
+
+<dl>
+<p><dt><font color=purple>goat</font>
+<dd> <font color=brown>#"goat"  </font>
+<p>This is a <i> symbol </i>, and represents itself.
+Symbols are used for variable names, or anything else that needs a name.
+Keep in mind that the distinction between data and programs is weak in Scheme.
+So it is natural that a variable name would be a data object.
+
+
+<p><dt><font color=purple> (symbol? x)</font>
+<dd> (symbol? x) returns true if x is a symbol.
+
+<p><dt><font color=purple> (symbol-&gt;string x)</font>
+<dd> <font color=brown>symbolName(x)</font>
+
+<p><dt><font color=purple> (string-&gt;symbol x)</font>
+<dd> <font color=brown>#x </font>(the symbol whose name is x)
+
+</dl>
+
+<a name="numbers"></a>
+<hr>
+<h2><font color=mediumblue> Numbers </font></h2>
+
+Implementations are free to restrict the range of numbers, but are
+encouraged not to do so.
+
+<dl>
+<p><dt><font color=purple>35</font>
+<dd> <font color=brown>35</font>
+
+<p><dt><font color=purple> (number? x)</font>
+<dd> (number? x) is true if x is a number.  Other classification
+predicates are integer?, rational?, real? and complex?, although not
+all implementations provide all of these types of numbers.
+
+<p><dt><font color=purple> (odd? x)</font>
+<dd> <font color=brown>odd?(x)</font>
+
+<p><dt><font color=purple> (zero? x)</font>
+<dd> <font color=brown>zero?(x)</font>
+
+<p><dt><font color=purple> (positive? x)</font>
+<dd> <font color=brown>x > 0</font>
+
+<p><dt><font color=purple> (negative? x)</font>
+<dd> <font color=brown>x < 0</font>
+
+<p><dt><font color=purple> (+ a b c ...)</font>
+<dd> <font color=brown>a + b + c + ...</font>
+
+<p><dt><font color=purple> (- a)</font>
+<dd> <font color=brown>-a</font>
+
+<p><dt><font color=purple> (- a b)</font>
+<dd> <font color=brown>a - b</font>
+
+<p><dt><font color=purple> (* a b c ...)</font>
+<dd> <font color=brown>a * b * c * ...</font>
+
+<p><dt><font color=purple> (/ a)</font>
+<dd> <font color=brown>/a</font>
+
+<p><dt><font color=purple> (/ a b)</font>
+<dd> <font color=brown>a / b</font>
+
+<p><dt><font color=purple> (quotient a b)</font>
+<dd> <font color=brown>a _div_ b</font>
+
+<p><dt><font color=purple> (remainder a b)</font>
+<dd> <font color=brown>a _mod_ b</font>
+
+<p><dt><font color=purple> (abs x)</font>
+<dd> <font color=brown>abs(x)</font>
+
+<p><dt><font color=purple> (gcd a b)</font>
+<dd> <font color=brown>gcd(a,b)</font>
+
+<p><dt><font color=purple> (max a b c ...)</font>
+<dd> <font color=brown>max[a,b,c,...]</font>
+
+<p><dt><font color=purple> (min a b c ...)</font>
+<dd> <font color=brown>min[a,b,c,...]</font>
+
+<p><dt><font color=purple> (sqrt x)</font>
+<dd> <font color=brown>sqrt(x)</font>
+
+<p> Other math functions include exp, log (natural logarithm), sin, cos,
+tan, asin, acos and atan.
+
+<p><dt><font color=purple> (floor x)</font>
+<dd> <font color=brown>floor(x)</font>
+
+<p><dt><font color=purple> (ceiling x)</font>
+<dd> <font color=brown>ceiling(x)</font>
+
+<p><dt><font color=purple> (number-&gt;string x)</font>
+<dd> <font color=brown>$x</font>
+
+<p><dt><font color=purple> (string-&gt;number x)</font>
+<dd> This converts to a number of a type determined by the string.
+It returns #f is string does not look like a number.
+
+</dl>
+
+<a name="functions"></a>
+<hr>
+<h2><font color=mediumblue> Functions </font></h2>
+<dl>
+<p><dt><font color=purple> (procedure? f)</font>
+<dd> (procedure? f) returns #t if x is a function.
+
+<p><dt><font color=purple> (lambda (x) e)</font>
+<dd> <font color=brown>(?x =&gt; e)</font>
+
+<p><dt><font color=purple> (lambda (x y) e)</font>
+<dd> <font color=brown>((?x,?y) =&gt; e)</font>
+
+<p><dt><font color=purple> (apply f args)</font>
+<dd> <font color=brown>f args</font>
+
+<p> This form is used when args is a list of arguments.
+If args is list (a b c), then (apply f args) is the same as (f a b c).
+
+<p><dt><font color=purple> (call-with-current-continuation f)</font>
+<dd> This is used for Scheme's version of exception handling, but is
+more general than exception handling.  The parameter f must be a
+function of one argument.  call-with-current-continuation calls (f r)
+where r is a function that, when called as (r val), abandons the
+current computation and returns val from call-with-current-continuation.
+This is a way to cut off computation of f early, and get out of this
+part of the program. 
+
+<p>Function f is free to do anything at all with the function 
+r that is passed to it.
+
+</dl>
+
+<a name="naming"></a>
+<hr>
+<h2><font color=mediumblue> Defining functions and giving things names 
+</font></h2>
+
+<dl>
+<p><dt><font color=purple> (define x e)</font>
+<dd> <font color=brown>Let x = e.</font>
+
+<p><dt><font color=purple> (define (f x) e)</font>
+<dd> <font color=brown>Define f(?x) = e.</font>
+
+<p> This can be used for recursive or nonrecursive
+definitions, and with any number of parameters.  For example,
+(define (f a b) e) defines a function of two parameters.
+
+<p><dt><font color=purple> (let ((x e)) v)</font>
+<dd> <font color=brown>CloseScope Let x = e. (v) %CloseScope</font>
+
+<p>This construct allows you to do several bindings
+whose scope extends only over a single expression.  For example,
+(let ((x (+ 2 3)) (y 5)) (* x y)) produces value 25.  The bindings are
+done at the same time; you are not allowed to use one binding in the
+definition of the next one.
+
+<p><dt><font color=purple>(let* ((x a) (y b)) v)</font>
+<dd>This is similar to (let ((x a) (y b)) v), but you are
+allowed to use each definition in the next one.  For example, it would be
+allowed to write (let* ((x 2) (y (* x 3))) (+ x y))).
+
+<p><dt><font color=purple>(letrec ((x a) (y b)) v)</font>
+<dd> Neither let nor let* can be used for recursive definitions.  
+(letrec ((x a) (y b)) v) can be used for recursive, or even mutually recursive
+definitions.  So the definition of x can refer to y, and the definition
+of y can refer to x.
+
+<p><dt><font color=purple> (set! 'x e)</font>
+<dd> <font color=brown>Relet x = e.</font>
+
+<p> Note the quote.  It is the symbol x that you want to
+set to e, and you must quote x.  It you write (set x e), you will
+set the variable that is the value of variable x to e.  (Here, x
+would have a value that is a symbol, and that symbol is the variable
+that gets set.)
+
+</dl>
+
+<a name="delay"></a>
+<hr>
+<h2><font color=mediumblue> Delayed evaluation </font></h2>
+
+<dl>
+
+<p><dt><font color=purple> (delay e)</font>
+<dd> <font color=brown>(:e:)</font>
+
+<p>  This creates a lazy value, called a promise.
+Implementations are allowed, but not required,
+to do forces implicitly.  Typically, you must force all promises yourself.
+Expression (force d) forces promise d, and returns the result.
+
+</dl>
+
+<a name="sequence"></a>
+<hr>
+<h2><font color=mediumblue> Sequencing </font></h2>
+
+<p><dt><font color=purple> (begin a b c)</font>
+<dd> <font color=brown>a b c</font>
+
+<p> Here, a and b are performed, and the value of this
+expression is c.  You can have any number of items in the list.
+
+<a name="io"></a>
+<hr>
+<h2><font color=mediumblue> Input and output </font></h2>
+
+<dl>
+<p><dt><font color=purple> (call-with-input-file s f)</font>
+<dd> s is the name of a file that is to be opened for input,
+and f is a function with one parameter.  An input port p is tied 
+to file f, and (f p) is evaluated.
+The result returned from (f p) is also returned from call-with-input-file.
+The file is closed when (f p) returns.
+
+<p><dt><font color=purple> (call-with-output-file s f)</font>
+<dd> s is the name of a file that is to be opened for output, and 
+that should not currently exist.
+Parameter f is a function with one parameter.  
+An output port p is tied to file s, and (f p) is evaluated.
+The result returned from (f p) is also returned from call-with-output-file.
+The file is closed when (f p) returns.
+
+<p><dt><font color=purple> (input-port? x)</font>
+<dd> This returns true if x is an input port.
+
+<p><dt><font color=purple> (output-port? x)</font>
+<dd> This returns true if x is an output port.
+
+<p><dt><font color=purple> (current-input-port)</font>
+<dd> Returns the standard input port.
+
+<p><dt><font color=purple> (current-output-port)</font>
+<dd> Returns the standard output port.
+
+<p><dt><font color=purple> (read p)</font>
+<dd> Returns the next object read from port p, and consumes
+that object, so that the next read will get one after this one.  
+The input is presumed
+to hold an object written in the syntax of Scheme.
+
+<p> If an end-of-file is encountered before the end of the current
+object, an <i>end-of-file</i> object is returned.
+
+<p><dt><font color=purple> (read)</font>
+<dd> Same as (read (current-input-port)).
+
+<p><dt><font color=purple> (read-char p)</font>
+<dd> Returns the next character read from port p, and consumes it.  
+
+<p><dt><font color=purple> (read-char)</font>
+<dd> Same as (read-char (current-input-port)).
+
+<p><dt><font color=purple> (peek-char p)</font>
+<dd> Returns the next character read from port p, but does not consume it.  
+
+<p><dt><font color=purple> (peek-char)</font>
+<dd> Same as (peek-char (current-input-port)).
+
+<p><dt><font color=purple> (eof-object? x)</font>
+<dd> This returns true if x is an end-of-file object.
+
+<p><dt><font color=purple> (write x p)</font>
+<dd> Writes object x onto port p in Scheme syntax.
+
+<p><dt><font color=purple> (write x)</font>
+<dd> This is the same as (write x (current-output-port)).
+
+<p><dt><font color=purple> (display x p)</font>
+<dd> Writes object x onto port p.  If x is a character or a string, it
+is printed without quotes.
+
+<p><dt><font color=purple> (display x)</font>
+<dd> This is the same as (display x (current-output-port)).
+
+<p><dt><font color=purple> (newline p)</font>
+<dd> This prints a newline on port p.
+
+<p><dt><font color=purple> (newline)</font>
+<dd> This is the same as (newline (current-output-port)).
+
+<p><dt><font color=purple> (write-char c p)</font>
+<dd> Writes character c onto port p.  
+
+<p><dt><font color=purple> (write-char c)</font>
+<dd> This is the same as (write-char c (current-output-port)).
+
+</dl>
+
+<a name="load"></a>
+<hr>
+<h2><font color=mediumblue> Loading Scheme files and keeping transcripts 
+</font></h2>
+
+(load <i>filename</i>) loads the Scheme file called <i>filename</i>
+(which must be a string).  All of
+the definitions in that file are read.  If any of them are for functions
+that are already defined, then the new definitions replace the old ones.
+
+
+<p> (transcript-on <i>filename</i>) causes a transcript of your session
+to be written to file <i>filename</i>.  (transcript-off) turns off
+the transcript.
+
+<a name="examples"></a>
+<hr>
+<h2><font color=mediumblue> Examples </font></h2>
+
+Here is a definition of a function that concatenates two lists.
+It is similar to the standard function append, but allows only
+two parameters.
+<font color=red>
+<pre>
+    (define (cat x y)
+       (if (null? x) y
+          (cons (car x) (cat (cdr x) y))
+       )
+    )
+</pre>
+</font>
+
+<p>Here is a definition of the member function.  (member x y) returns
+the suffix of y that begins with the first occurrence of x in y, or
+returns the object #f if x does not occur in y.
+<font color=red>
+<pre>
+    (define (member x y) 
+      (cond
+         ((null? y)           #f)
+         ((equal? x (car y))  y)
+         (else                (member x (cdr y)))
+      )
+    )
+</pre>
+</font>
+
+<hr>
+<center>
+<a href="libimp.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="bnf.html">Next</a>
+</center>
+</body>
+</HTML>

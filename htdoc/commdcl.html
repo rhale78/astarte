@@ -1,0 +1,102 @@
+<HTML>
+<head>
+<title>Astarte: creating communities </title>
+</head>
+<body>
+<center>
+<a href="genusdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="abbrev.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T18. Creating and Defining New Parameterized Data Abstractions</font></h1>
+</center>
+
+<menu>
+  <li> <a href=#createcomm> Creating new communities</a>
+  <li> <a href=#addfamcomm> Adding a family to a community</a>
+  <li> <a href=#description> Providing descriptions</a>
+</menu>
+
+<a name=createcomm></a>
+<hr>
+<h2><font color=mediumblue> Creating new communities </font></h2>
+
+Each community is either transparent (holding only transparent
+families) or opaque (holding only opaque families).
+Declaration 
+<font color=#D00090>
+<b><pre>
+       Abstraction MyOpaqueCommunity(`a).
+</pre></b>
+</font>
+creates a new opaque community called MyOpaqueCommunity.  
+Initially, MyCommunity has nothing in it.  Declaration
+<font color=#D00090>
+<b><pre>
+       Abstraction{transparent} MyTransparentCommunity(`a).
+</pre></b>
+</font>
+creates a new, initially empty transparent community 
+called MyTransparentCommunity.  
+<b>Always use a name that starts with an upper case letter for a
+community.</b>
+
+<a name=addfamcomm></a>
+<hr>
+<h2><font color=mediumblue> Adding a family to a community </font></h2>
+
+Declaration
+<font color=#D00090>
+<b><pre>
+       Relate F isKindOf C.
+</pre></b>
+</font>
+adds family F or community to community C.  You can also add
+a community to another community when the it is created.  Declaration
+<font color=#D00090>
+<b><pre>
+       Abstraction QUEUE(`a) isKindOf SEQUENCE.
+</pre></b>
+</font>
+abbreviates
+<font color=#D00090>
+<b><pre>
+       Abstraction QUEUE(`a).
+       Relate QUEUE isKindOf SEQUENCE.
+</pre></b>
+</font>
+
+<a name=description></a>
+<hr>
+<h2><font color=mediumblue> Providing descriptions </font></h2>
+
+You can provide a description of a community in the declaration that
+defines it.  The description is a string constant,
+and is put after the name of the community.  
+For example
+<font color=#D00090>
+<b><pre>
+    Abstraction{transparent} SET(`a)
+      %" Community SET contains various forms of sets.
+    %Abstraction
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="genusdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="abbrev.html">Next</a>
+</center>
+
+</body>
+</HTML>

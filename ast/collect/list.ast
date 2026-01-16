@@ -1,0 +1,535 @@
+%% File: list.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package 		Astarte_List 
+===============================================================
+
+===============================================================
+%% This package describes family List, and operations on lists.
+%% See collect.ast for generalizations of lists.  
+%%
+%% The things described here are available to all packages.  There
+%% are other packages that provide some operations on lists.  They
+%% are
+%%
+%%  boxes.ast	Operations on lists of boxes.
+%%  twod.ast	Operations for two-dimensional lists.
+%%  genarray.ast	More general subscripting in lists.
+%%  listfun.ast	Assorted list utilities.
+%%  listpat.ast	Pattern matching in lists.
+%%  search.ast	Operations that search lists, or scan lists.
+%%  sort.ast	Sorting functions.
+%%  string.ast	Operations on lists of characters.
+==============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+=============================================================
+		BASICS OF LISTS
+=============================================================
+
+A list is a sequence of zero or more individuals of the same
+species.  You may write a list in square brackets, where the
+individuals are separated by commas.  For example, [1,25,4]
+is a list. There are two forms of list.
+
+  1. The empty list is called nil, and can be written [].
+
+  2. A nonempty list has a head (its first member) and a tail
+     (the list of all things that follow the first member).
+     For example, the head of [14,19,2] is 14, and the tail is
+     list [19,2].  The head of [6] is 6, and the tail is [].
+      
+The empty list does not have a head or a tail.
+
+To build a list, you can use the list constructor ::.  h :: t
+is the list whose head is h and whose tail is t.  :: associates
+to the right.  [1,2,3] abbreviates 1::2::3::nil.  You may
+use an & inside square brackets to indicate a suffix.
+[1,2,3 & t] abbreviates 1::2::3::t.  As a special case,
+[h & t] is another way to write h::t.
+
+=============================================================
+		EXAMPLES
+=============================================================
+
+Let a = ["abc", "def", "g"].
+Let b = head(a).			%% b = "abc".
+Let c = tail(a).			%% c = ["def", "g"].
+Let d = [].				%% d is an empty list.
+Let e = 1::[2,3].			%% e = [1,2,3].
+Let f = [1,2 & [3,4]].			%% f = [1,2,3,4].
+
+=============================================================
+		PATTERN MATCHING
+=============================================================
+
+You will find pattern matching (see pattern.ast) very useful
+for lists.  Useful patterns are
+
+Match nil = t.		This is the same as {nil?(t)}.
+
+Match a :: b = t.	This is the same as 
+			  Match a = head(t).
+			  Match b = tail(t).
+			but if t is an expression, then t is
+			only computed once.
+
+Note that [a & b] stands for a::b, so you may write
+
+Match [a & b] = t.
+
+for Match a::b = t.
+
+=============================================================
+		LIST COMPREHENSIONS
+=============================================================
+
+One way to create a list is to use a list comprehension.  There
+are many possible ways to create a list comprehension.  See
+stream.ast for more general approaches.  Here is a basic list
+comprehension.
+
+[: e | Let x = each l. {filter(x)} :]
+
+This expression takes each member x of l such that filter(x) is true,
+and for each such x includes the value of expression e (which usually
+depends on x) in the result list.
+
+For example,
+
+Let a = [1,2,3,4,5,6].
+Let b = [:x | Let x = each a. {x > 2}:]	       %% b = [3,4,5,6].
+Let c = [(x,x) | Let x = each a. {odd?(x)} :]  %% c = [(1,1), (3,3), (5,5)].
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=============================================================
+			Export
+=============================================================
+
+Description
+
+ List		%" List(T) is the species of lists whose members have
+		%" Species T.  List(T) can be abbreviated [T].
+                ;
+
+ ::		: (`a,[`a]) -> [`a]
+
+		%" h :: t is the list whose head is h and whose
+		%" tail is t.  For example, 2::[4,5] = [2,4,5].
+		%"
+		%" You can use :: in patterns.  For example,
+		%"
+		%"   Match ?h :: ?t = x.
+		%"
+		%" binds h to the head of x, and t to the tail of x.
+		;
+		
+ #		: ([`a], Natural) -> `a
+ 
+ 		%" x # n is the n-th member of list x, where counting
+		%" is from 1.  For example, x # 1 is the head of x.
+		%" x E n fails with exception subscriptX if there
+		%" is no n-th member of x. 
+		;
+
+ #_		: ([`a], Natural) -> `a
+
+		%" x #_ n is the n-th member of list x, where counting
+		%" starts at 0.  For example, x #_ 0 is the same
+		%" as head(x).  [2,5,3]#1 = 5.  x #_ n fails with exception
+		%" subscriptX if there is no n-th member of x. 
+		;
+
+ ##		: ([`a], (Natural, Natural)) -> [`a]
+
+		%" x ## (m,n) is the sublist of list x starting
+		%" at x#_m, and having length n.  That is,
+		%" x##(m,n) = take n (drop m x).  For example, 
+		%" [2,5,7,3,4]##(1,3) = [5,7,3].  
+		%"
+		%" If m is so large that x#_m does not exist, 
+		%" then x##(m,n) = nil.
+		%"
+		%" If n is too large, it is decreased so that
+		%" x##(m,n) is a suffix of x.  If n is very large
+		%" (the cutoff being larger than a few million)
+		%" then x##(m,n) is the suffix of x beginning at
+		%" x#_m.  You can use largenum for n to get a suffix.
+		%" See largenum. 
+		%"
+		%" Function ## is lazy.  For example, if list x is
+		%" a lazy list, and you compute x#(0,1000), then
+		%" ## will not evaluate list x out to the first
+		%" 1000 members unless all of those members are
+		%" needed by the computation that uses x##(0,1000).
+		%" If only the first 4 members of x##(0,1000) are
+		%" needed, then list x will not be forced beyond
+		%" its first four members.
+		;
+
+ ++		: ([`a], [`a]) -> [`a]
+
+		%" x ++ y is the concatenation of lists x and y.
+		%" For example, [1,6,3] ++ [5,2] = [1,6,3,5,2].
+		;
+
+ +/		: ([`a], `a) -> [`a]
+
+		%" (l +/ x) is the list obtained by adding
+		%" x to the end of list l.  For example,
+		%" ([2,5,3] +/ 4) = [2,5,3,4].
+                ;
+
+ %% The following "active" functions are only useful if you
+ %% are using unknowns.  See unknown.ast.
+
+ activeHead 	: [`a] -> `a
+
+		%" Function activeHead is similar to head, but has
+		%" a different behavior on unknowns. If the argument to
+		%" activeHead is an unbound, unprotected unknown,
+		%" then activeHead forces that unknown to be bound
+		%" to a nonempty list (whose head and tail are new
+		%" unbound unknowns) and returns the head.
+		;
+
+ activeLazyHead	: [`a] -> `a
+
+		%" Function activeLazyHead is similar to lazyHead, 
+		%" but has a different behavior on unknowns. If the
+		%" argument to activeLazyHead is an unbound, 
+		%" unprotected unknown, then activeLazyHead 
+		%" forces that unknown to be bound to a nonempty 
+		%" list (whose head and tail are new unbound unknowns)
+		%" and returns the head.  The test for an unbound
+		%" unknown is made when the result of activeLazyHead
+		%" is forced.
+		;
+
+ activeLazyTail	: [`a] -> [`a]
+
+		%" Function activeLazyTail is similar to lazyTail, 
+		%" but has a different behavior on unknowns. If the
+		%" argument to activeLazyTail is an unbound, 
+		%" unprotected unknown, then activeLazyTail 
+		%" forces that unknown to be bound to a nonempty 
+		%" list (whose head and tail are new unbound unknowns)
+		%" and returns the tail.  The test for an unbound
+		%" unknown is made when the result of activeLazyTail
+		%" is forced.
+		;
+
+ activeListToPair: [`a] -> (`a, [`a])
+
+		%" Function activeListToPair is similar to listToPair, 
+		%" but has a different behavior on unknowns. If the
+		%" argument to activeListToPair is an unbound, 
+		%" unprotected unknown, then activeListToPair 
+		%" forces that unknown to be bound to a nonempty 
+		%" list (whose head and tail are new unbound unknowns)
+		%" and returns the pair consisting of the head and tail
+		%" of that list.
+		;
+
+ activeNil?	: [`a] -> Boolean
+
+		%" Function activeNil? is similar to nil?, but has
+		%" a different behavior on unknowns. If the argument to
+		%" activeNil? is an unbound, unprotected unknown,
+		%" then activeNil? forces that unknown to be bound
+		%" to an empty list, and returns true.
+		;
+
+ activeTail	: [`a] -> [`a]
+
+		%" Function activeTail is similar to tail, but has
+		%" a different behavior on unknowns. If the argument to
+		%" activeTail is an unbound, unprotected unknown,
+		%" then activeTail forces that unknown to be bound
+		%" to a nonempty list (whose head and tail are new
+		%" unbound unknowns) and returns the tail.
+		;
+
+ allButLast	: [`a] -> [`a]
+
+		%" allButLast(l) is the list obtained from l by
+		%" deleting its last member.  For example, 
+		%" allButLast([2,6,7,3,4]) = [2,6,7,3]).  allButLast(l)
+		%" fails with exception emptyListX if l is empty.  
+                ;
+
+ _downto_	: (INTEGER`a, INTEGER`b) -> [INTEGER`b]
+
+		%" m _downto_ n is the list [m,m-1,...,n].
+		;
+
+ _downto_	: (ENUMERATED`a, ENUMERATED`a) -> [ENUMERATED`a]
+
+		%" m _downto_ n is the list [m,pred(m),...,n].
+                ;
+
+ dup		: Natural -> `a -> [`a]
+
+		%" dup n x is list [x,x,...,x], containing n copies of x.
+                ;
+
+ %% The following "each" functions use streams.  See stream.ast.
+
+ each		: [`a] -> `a
+
+		%" each(l) produces a stream of the members of l.
+		%" For example, each([1,2,3]) successively produces
+		%" 1, then 2, then 3.
+		;
+
+ eachMixed	: [`a] -> `a
+
+		%" eachMixed(l) produces the members of list l in
+		%" a mixed stream.  For example, eachMixed([1,2])
+		%" has the same effect as Mix 1 with 2 %Mix.
+                ;
+
+ _eagerCutBy_	: ([`a], `a -> Boolean) -> ([`a], [`a])
+
+		%" l _eagerCutBy_ f is a pair (x,y) where x++y = l,
+		%" no member z of x satisfies f(z) = true, and
+		%" f(head(y)) = true.  If no member of list l
+		%" satisfies predicate f, then l _eagerCutBy_ f = (l,nil).
+		%" For example, [1,3,5,3,6,9,2] _eagerCutBy_ (__ > 5)
+		%" = ([1,3,5,3], [6,9,2]).  See _cutBy_, in search.ast.
+                ;
+
+ eagerMap	: (`a -> `b) -> [`a] -> [`b]
+
+		%" eagerMap f [x,y,z] = [f(x), f(y), f(z)]. EagerMap
+		%" applies similarly to any length of list.  It is
+		%" eager, performing the computations immediately.
+		%" See map, in listfun.ast.
+                ;
+
+ eagerPack	: [`a] -> [`a]
+
+		%" eagerpack(x) = x, but with a packed representation.
+		%" This representation is more compact than the usual
+		%" one, and supports faster subscripting, length 
+		%" computations, etc.  eagerPack is eager.
+		;
+
+ {imported}
+ emptyListX	: ExceptionSpecies
+
+		%" Exception emptyListX occurs when a program
+		%" tries to take the head or tail of an empty list.
+		%" This exception is normally trapped.
+                ;
+
+ flatten	%" flatten[a,b,c] = a ++ b ++ c.  In general, flatten
+		%" concatenates list together.  Flatten is lazy.
+		;
+
+ fold		: (`a, (`a,`a) -> `a)  ->  [`a]  ->  `a
+
+		%" (fold (init,op) [a,b,c]) = a op b op c
+		%" where op must be associative, and init must be an
+		%" identity element for operator op.  Fold applies to 
+		%" any length list in a similar manner.  For example,
+		%" fold (0,+) [1,4,3,5] = 1 + 4 + 3 + 5 = 13.  See also
+		%" lfold, rfold.
+		;
+
+ forceList	: [`a] -> [`a]
+ 
+ 		%" forceList(x) = x, but the entire list x is evaluated.
+		%" The members of list x are not evaluated, only the list
+		%" structure is evaluated.
+		;
+
+ head		: [`a] -> `a
+
+		%" head(x) is the first member of list x.  It fails
+		%" with exception emptyListX if x is empty.
+                ;
+
+ infiniteDup	: `a -> [`a]
+
+		%" infiniteDup x is list [x,x,...], containing infinitely
+		%" many copies of x.
+		;
+		
+ largenum	: Natural
+
+		%" largenum is a large natural number.  It is
+		%" sufficiently large that x ## (n,largenum) 
+		%" produces a suffix of list x.
+                ;
+
+ last		: [`a] -> `a
+
+		%" last(l) is the last member of list l.  It fails
+		%" with exception emptyListX if l is empty.
+                ;
+
+ lazyHead	: [`a] -> `a
+
+		%" Similar to head, but does not evaluate its argument.
+                ;
+
+ lazyMap	: (`a -> `b) -> [`a] -> [`b]
+
+		%" (lazyMap f l) is similar to (map f l), but it is
+		%" lazy, computing only as much of its result as
+		%" is requested.
+		;
+		
+ lazyPack	: [`a] -> [`a]
+
+		%" lazyPack(x) = x, but with a packed representation.
+		%" This representation is more compact than the usual
+		%" one, and supports faster subscripting, length 
+		%" computations, etc.  lazyPack is lazy.
+		;
+
+ lazyTail	: [`a] -> [`a]
+
+		%" Similar to tail, but does not evaluate its argument.
+                ;
+
+ length		: [`a] -> Natural
+
+		%" length(x) is the length of list x.  This function
+		%" does not evaluate its argument until the result
+		%" of length is needed.
+		;
+
+ lfold		: (`b, (`b,`a) -> `b)  ->  [`a]  ->  `b
+
+		%" (lfold (init,op) [a,b,c]) = init op a op b op c op, 
+		%" where op associates to the left.  Lfold applies to 
+		%" any length list in a similar manner.  For example,
+		%" lfold (0,+) [1,4,3] = 0 + 1 + 4 + 3 = 8.  Note that
+		%" op need not syntactically be a binary operator.  It
+		%" must be a function of the indicated species.  See
+		%" also fold and rfold.
+		;
+
+ list		: `a -> [`a]
+
+		%" list(x) = [x].
+                ;
+
+ listToPair	: [`a] -> (`a,[`a])
+
+		%" listToPair(x) = (head(x), tail(x)).  It fails with
+		%" exception emptyListX if x is empty.
+                ;
+
+  _lminus_	: ([EQ`a], [EQ`a]) -> [EQ`a]
+
+		%" x _lminus_ y is the list z such that y++z = x.  If 
+		%" there is no such list, then x _lminus_ y fails with 
+		%" exception testX.
+		;
+
+ map		: (`a -> `b) -> [`a] -> [`b]
+
+		%" If l = [a,b,c], then (map f l) = [f(a), f(b), f(c)].
+		%" In general, (map f) applies f to each element of its
+		%" argument list.  Map is quasi-lazy: If l is lazy, then
+		%" (map f l) will not evaluate f or l until necesssary;
+		%" If l is explicit, then map will evaluate f, producing
+		%" the explicit result list.
+		;
+		
+ MapProc	: (`a -> ()) -> [`a] -> ()
+ 
+ 		%" MapProc (P) x %MapProc applies procedure P to
+		%" each member of list x, in order.
+		;
+ 
+ mapSuccesses	: (`a -> `b) -> [`a] -> [`b]
+  
+  		%" (mapSuccesses f l) is similar to (map f l), but 
+		%" failed evaluations of f are ignored.  So if 
+		%" f(a) and f(c) succeed, but f(b) fails, then
+		%" (mapSuccesses f [a,b,c]) = [f(a), f(c)].
+		%" mapSuccesses is quasi-lazy.
+		;
+
+ nil		: [`a]
+
+		%" nil is the empty list.
+		;
+
+ nil?		: [`a] -> Boolean
+
+		%" nil?(x) is true just when x is an empty list.
+		;
+
+ pack		: [`a] -> [`a]
+
+		%" pack(x) = x, but with a packed representation.  This
+		%" representation is more compact than the usual
+		%" one, and supports faster subscripting, length
+		%" computations etc.  pack forces full evaluation 
+		%" of its parameter when the parameter is a string, 
+		%" but otherwise does not force the members of the list.
+		;
+
+ reverse	: [`a] -> [`a]
+
+		%" reverse(l) is the reversal of list l.  For example,
+		%" reverse([1,6,5,2]) = [2,5,6,1].
+		;
+
+ rfold		: (`b, (`a,`b) -> `b)  ->  [`a]  ->  `b
+
+		%" (rfold (init,op) [a,b,c]) = a op b op c op init, where
+		%" op associates to the right.  Rfold applies to any
+		%" length list in a similar manner.  Rfold is lazy.  
+		%" See also lfold and fold.
+		;
+
+  _rminus_	: ([EQ`a], [EQ`a]) -> [EQ`a]
+
+		%" x _rminus_ y is the list z such that z++y = x.  If there
+		%" is no such list, then x _rminus_ y fails with exception
+		%" testX.
+		;
+
+ splitAtEnd	: [`a] -> ([`a], `a)
+
+		%" splitAtEnd(l) produces a pair (a,e) where
+		%" e is the last member of list l, and a is the
+		%" list obtained by deleting the last member of list
+		%" l.  It fails with exception emptyListX if
+		%" l is empty.
+		;
+
+ tail		: [`a] -> [`a]
+
+		%" tail(x) is the list obtained from x by deleting
+		%" its first member.  tail(x) fails with exception
+		%" emptyListX if x is empty.
+		;
+
+ _upto_		: (INTEGER`a, INTEGER`b) -> [INTEGER`a]
+
+		%" m _upto_ n is the list [m,m+1,...,n].
+		;
+
+ _upto_		: (ENUMERATED`a, ENUMERATED`a) -> [ENUMERATED`a]
+
+		%" m _upto_ n is the list [m,succ(m),...,n].
+		;
+
+%Description
+
+%Package
+

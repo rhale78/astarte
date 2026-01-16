@@ -1,0 +1,58 @@
+Package testOperator 
+
+%% Test operator declaration and use.
+
+Directory standard.  
+Import "misc/check"; "math/math".
+
+Operator myop(+); unop.
+
+Operator colonequal(:=).
+
+Let ?x myop ?y = x + y.
+
+Let unop ?x = -(x:REAL`a).
+
+Execute
+  Line[$(2 myop 3)].
+  Check["5"].
+  Line[$ unop -5].
+  Check["5"].
+  Line[$(unop 5 * unop 6)].
+  Check["30"].
+  Line[$(myop)(5,6)].
+  Check["11"].
+  Line[$(unop)(5)].
+  Check["-5"].
+%Execute
+
+%% Test Operator precedence, associativity
+
+Let ldollar ?x = [$x].
+Operator list.
+
+Execute
+  ((1,2) | + | ldollar | (Line))	%% |, | with bin
+  Check["3"].
+  (-1+2 |ldollar|(Line))		%% |/binary, binary/unary
+  Check["1"].
+  (2|-|ldollar|(Line))			%% | with unary
+  Check["-2"].
+  Let f(?x) = x+5.
+  (f(4) | sqrt | f |ldollar| (Line))	%% |/juxt
+  Check["8"].
+  ($ -f(3) | list |(Line))		%% juxt/unary
+  Check["-8"].
+  (f(3)+f(4)|ldollar|(Line))		%% just/binary
+  Check["17"].
+%Execute
+
+%% Test unusual precedence values
+
+Operator op1(-); op2(_where_); op3(_and_); op4(_or_); op5(_bar_); op6(::).
+
+
+%Package
+
+
+

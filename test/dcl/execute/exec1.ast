@@ -1,0 +1,11 @@
+Package execute1 
+
+%% Test Execute in Import
+
+Import "exec2".
+
+Execute
+  Writeln["Execute in execute1"].
+%Execute
+
+%Package

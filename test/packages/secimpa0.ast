@@ -1,0 +1,15 @@
+Package secimp0
+
+%% Test second imports of anticipations.  This is the top-level file.
+
+Import "secimpa1".
+Import "secimpa2".
+Import "secimpa5".
+
+Execute
+  Show(testS(2)).
+  Writeln[].
+  Writeln[$compare(testS(2), testS(3))].
+%Execute
+
+%Package

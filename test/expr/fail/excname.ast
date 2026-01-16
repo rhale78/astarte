@@ -1,0 +1,26 @@
+Package excname
+
+%% Test printing of defined exceptions.
+
+Import "misc/check".
+
+Exception ex1; ex2(String).
+
+Execute
+  Try
+    fail ex1
+  else
+    Line[$exception].
+    Check["excname.ex1"].
+  %Try
+
+  Try
+    fail(ex2 "test")
+  else
+    Line[$exception].
+    Check["excname.ex2(\"test\")"].
+  %Try
+%Execute
+
+%Package
+  

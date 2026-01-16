@@ -1,0 +1,34 @@
+Package show1 
+
+%% Test showing of lazy values.
+
+Define ga = 1.
+
+Let gb = 2.
+
+Team
+  Define gc = 3.
+  Define gd = 4.
+%Team
+
+Execute
+  Define a = 1.
+  Let b = (:2:).
+  Team
+    Define c = 3.
+    Define d = 4.
+  %Team
+
+  Show(@stdout!), ga. Writeln[].
+  Show(@stdout!), gb. Writeln[].
+  Show(@stdout!), gc. Writeln[].
+  Show(@stdout!), gd. Writeln[].
+
+  Show(@stdout!), a. Writeln[].
+  Show(@stdout!), b. Writeln[].
+  Show(@stdout!), c. Writeln[].
+  Show(@stdout!), d. Writeln[].
+%Execute
+
+%Package
+

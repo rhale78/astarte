@@ -1,0 +1,215 @@
+<HTML>
+<head>
+<title>Astarte: collection library</title>
+</head>
+<body>
+<center>
+<a href="funops.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="listlib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L6. Collections </font></h1>
+</center>
+
+The collection library allows you to manage lists, sets and
+tables.  Package <a href="ast/collect/collect.ast">collect/collect.ast</a>
+describes features of all collections.  Specific kinds of collections
+and operations on them are described in the following sections.
+<menu>
+<li>LC1. <a href="pairlib.html">Ordered pairs </a>
+<li>LC2. <a href="listlib.html">Lists</a>
+<li>LC3. <a href="listpattern.html">Pattern matching in lists</a>
+<li>LC4. <a href="stringlib.html">Strings and Characters</a>
+<li>LC5. <a href=tostring.html>Conversion to and from strings</a>
+<li>LC6. <a href=read.html>Reading from strings</a>
+<li>LC7. <a href="matrix.html">Matrices</a>
+<li>LC8. <a href="setlib.html">Sets</a>
+<li>LC9. <a href="tablelib.html">Tables</a>
+<li>LC10. <a href="array.html">Arrays and structures involving boxes</a>
+<li>LC11. <a href="bitvec.html">Bit vectors</a>
+<li>LC12. <a href="rlist.html">Random access lists</a>
+</menu>
+
+<a name=COLLECTION></a>
+<p>Additionally, there is a parameterized abstraction 
+<font color=red>COLLECTION</font>,
+containing various kinds of collections, including lists and sets.
+The following operations are defined for all collections.
+
+<dl>
+<a name=allSatisfy></a>
+<p><dt><font color=red>allSatisfy</font>
+<dd>: (`a -&gt; Boolean) -&gt; COLLECTION`c(`a) -&gt; Boolean
+<p><font color=#D00090>allSatisfy f c</font> 
+true if f(x) is true for every member x of collection c.
+
+<a name=bpartition></a>
+<p><dt><font color=red>bpartition</font>
+<dd>: (`a -&gt; Boolean) -&gt; COLLECTION`c(`a) -&gt; 
+(COLLECTION`c(`a), COLLECTION`c(`a))
+<p><font color=#D00090>bpartition f c</font> 
+is a pair (c1,c2) where c1 contains the members x of c that make
+f(x) true, and c2 contains the members x of c that make f(x) false.
+
+<a name=each></a>
+<p><dt><font color=red>each</font>
+<dd>: COLLECTION`c(`a) -&gt; `a
+<p><font color=#D00090>each(c)</font> 
+produces a stream of the members of collection c.
+For example, each[1,2,3] has the same effect as
+Stream 1 then 2 then 3 %Stream.
+
+<a name=eachMixed></a>
+<p><dt><font color=red>eachMixed</font>
+<dd>: COLLECTION`c(`a) -&gt; `a
+<p><font color=#D00090>eachMixed(c)</font> 
+produces a mixed (parallel) stream of the members of collection c.
+For example, eachMixed[1,2,3] has the same effect as
+Mix 1 then 2 then 3 %Mix.
+
+<a name=eagerToList></a>
+<p><dt><font color=red>eagerToList</font>
+<dd>: COLLECTION`c(`a) -&gt; [`a]
+<p><font color=#D00090>eagerToList(c)</font> 
+is a list of the members of collection c.  This function
+is eager.
+
+<a name=emptyCollection></a>
+<p><dt><font color=red>emptyCollection</font>
+<dd>: COLLECTION`c(`a)
+<p><font color=#D00090>emptyCollection</font> is an empty collection.
+
+<a name=emptyCollectionq></a>
+<p><dt><font color=red>emptyCollection?</font>
+<dd>: COLLECTION`c(`a) -&gt; Boolean
+<p><font color=#D00090>emptyCollection?(c)</font> 
+is true if c is an empty collection.
+
+<a name=filter></a>
+<p><dt><font color=red>filter</font>
+<dd>: (`a -&gt; Boolean) -&gt; COLLECTION`c(`a) -&gt; COLLECTION`c(`a)
+<p><font color=#D00090>filter f c</font> 
+is the collection of all members of x collection c
+such that f(x) is true.
+
+<a name=fold></a>
+<p><dt><font color=red>fold</font>
+<dd>: (`a, (`a,`a) -&gt; `a) -&gt; COLLECTION`c(`a) -&gt; `a
+<p><font color=#D00090>fold (init,op) c</font> 
+is the same as fold(init,op)(toList c).  See
+<a href=listlib.html#fold>fold for lists</a>.
+
+<a name=fromList></a>
+<p><dt><font color=red>fromList</font>
+<dd>: [`a] -&gt; COLLECTION`c(`a)
+<p><font color=#D00090>toList(x)</font> 
+is a collection (of a given kind) containing the members
+of list x.
+
+<a name=in></a>
+<p><dt><font color=red>_in_</font>
+<dd>: (EQ`a, COLLECTION`c(EQ`a)) -&gt; Boolean
+<p><font color=#D00090>x _in_ c</font> 
+is true if x is a member of collection c.
+
+<a name=map></a>
+<p><dt><font color=red>map</font>
+<dd>: (`a -&gt; `b) -&gt; (COLLECTION`c(`a) -&gt; COLLECTION`c(`b))
+<p><font color=#D00090>map f c</font> 
+is the collection that results from collection c by replacing
+each member x by f(x).  For example,
+<font color=#D00090>map (?x =&gt; x+x) [1,2,3]</font> = [2,4,6].
+
+<a name=MapProc></a>
+<p><dt><font color=red>MapProc</font>
+<dd>: (`a -&gt; ()) -&gt; COLLECTION`c(`a) -&gt; ()
+<p><font color=#D00090>MapProc f, c.</font> 
+applies function f to each member of collection c.
+
+<a name=mapSuccesses></a>
+<p><dt><font color=red>mapSuccesses</font>
+<dd>: (`a -&gt; `b) -&gt; (COLLECTION`c(`a) -&gt; COLLECTION`c(`b))
+<p><font color=#D00090>mapSuccesses f c</font> 
+is the same as map f c, but it skips over any members
+x where f(x) fails, keeping only those where f(x) succeeds.
+
+<a name=max></a>
+<p><dt><font color=red>max</font>
+<dd>: COLLECTION`c(ORDER`a) -&gt; ORDER`a
+<p><font color=#D00090>max(c)</font> 
+is the largest member of collection c.
+It fails with exception emptyListX on an empty collection.
+
+<a name=min></a>
+<p><dt><font color=red>min</font>
+<dd>: COLLECTION`c(ORDER`a) -&gt; ORDER`a
+<p><font color=#D00090>min(c)</font> 
+is the smallest member of collection c.
+It fails with exception emptyListX on an empty collection.
+
+<a name=partition></a>
+<p><dt><font color=red>partition</font>
+<dd>: [`a -&gt; Boolean] -&gt; COLLECTION`c(`a) -&gt; 
+[COLLECTION`c(`a)]
+<p><font color=#D00090>
+partition [f<sub>1</sub>, f<sub>2</sub>, ..., f<sub>n</sub>] c</font> 
+is a list [p<sub>1</sub>, p<sub>2</sub>, ..., p<sub>n+1</sub>] 
+where each p<sub>i</sub> is a collection, and
+p<sub>i</sub> contains the members x of c that make
+f<sub>1</sub>(x), ..., f<sub>i-1</sub>(x) all false, but makes
+f<sub>i</sub>(x) true.  The last collection, p<sub>n+1</sub>, consists
+of those members of c on which none of the functions
+f<sub>1</sub>, ..., f<sub>n</sub> returns true.
+
+<a name=select></a>
+<p><dt><font color=red>select</font>
+<dd>: (`a -&gt; Boolean) -&gt; COLLECTION`c(`a) -&gt; `a
+<p><font color=#D00090>select f c</font> 
+some member x of collection c such that f(x) is true.
+If no such member exists, select f c fails with exception testX.
+
+<a name=size></a>
+<p><dt><font color=red>size</font>
+<dd>: COLLECTION`c(`a) -&gt; Natural
+<p><font color=#D00090>size(c)</font> 
+is the number of members in collection c.
+
+<a name=sizeAtLeast></a>
+<p><dt><font color=red>sizeAtLeast</font>
+<dd>: Natural -&gt; COLLECTION`c(`a) -&gt; Boolean
+<p><font color=#D00090>sizeAtLeast n c</font> 
+is true if the size of c is at least n.
+
+<a name=someSatisfy></a>
+<p><dt><font color=red>someSatisfy</font>
+<dd>: (`a -&gt; Boolean) -&gt; COLLECTION`c(`a) -&gt; Boolean
+<p><font color=#D00090>someSatisfy f c</font> 
+true if there exists a member x of collection c such that
+f(x) is true.
+
+<a name=toList></a>
+<p><dt><font color=red>toList</font>
+<dd>: COLLECTION`c(`a) -&gt; [`a]
+<p><font color=#D00090>toList(c)</font> 
+is a list of the members of collection c.  This function
+might or might not be lazy.
+
+</dl>
+
+<hr>
+<center>
+<a href="funops.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="listlib.html">Next</a>
+</center>
+</body>
+</HTML>

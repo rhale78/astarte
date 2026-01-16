@@ -1,0 +1,9 @@
+Package priv3 export
+
+Expect{private} f: Natural -> Natural.
+
+implementation
+
+Let f(?x) = x.
+
+%Package

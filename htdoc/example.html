@@ -1,0 +1,96 @@
+<HTML>
+<head>
+<title>Astarte simple example</title>
+</head>
+<body>
+<center>
+<a href="overview.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="syntax.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue>An Example Package</font></h1>
+</center>
+
+<p>
+<b><pre>
+Package Example
+
+%% This package is a very simple example program.  It
+%% reads a number k from a user, and prints factorials
+%% of the numbers from 0 to k.
+
+============================================================
+%% We need utilities from the string package, so import it.
+
+Import "collect/string".
+
+============================================================
+%%		factorial function
+============================================================
+
+Define factorial by
+  case factorial(0)    = 1
+  case factorial(?n+1) = (n+1)*factorial(n)
+%Define
+
+============================================================
+%%		getN
+============================================================
+%% getN() asks the user for a number and returns that number.
+%%
+%% Remark: Write and Writeln take a list of strings and
+%% print those strings.  Writeln adds a newline, but Write
+%% does not.  
+%%
+%% Extract works a little bit like Write in reverse.
+%% It reads a list of things. stdin! is the name of the standard input.  
+%% (The exclamation point is part of the name.)  Operator $
+%% converts a value to a string.  In the Extract line, we are
+%% performing a pattern match.  Pattern matches run functions
+%% in reverse.  Running $ in reverse converts from a string to a number.
+%%
+%% The line Value n indicates that the value of getN() is n.
+============================================================
+
+Define getN() =
+  Assume n: Natural.
+  Writeln["I will write a table of factorials"].
+  Write["How high should the table go? "].
+  Extract[$(?n)] from stdin!.
+  Value n.
+%Define
+
+============================================================
+%% Demonstrate the factorial function.  We print a small
+%% table of factorials.
+%%
+%% Operator $$ performs formatted conversion to a string.
+%% For example, k $$ 3 is the value k as a string of 3 characters.
+============================================================
+
+Execute
+  Let n = getN().
+  Writeln["  k        factorial(k)"].
+  For ?k from 0 _upto_ n do
+    Writeln[k $$ 3, factorial(k) $$ 20]
+  %For
+  Writeln[].
+%Execute
+
+============================================================
+%Package
+</pre></b>
+
+<hr>
+<center>
+<a href="overview.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="syntax.html">Next</a>
+</center>
+</body>
+</HTML>

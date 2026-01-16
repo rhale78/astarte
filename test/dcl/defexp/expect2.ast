@@ -1,0 +1,26 @@
+Package expect2
+
+%% That a definition will not create an expectation
+%% when there are conflicting expectations.
+
+Directory standard.  Import "misc/check".
+
+Expect f: Natural.
+Expect f: Integer.
+
+Let f = 1.
+
+%% Should complain that this definition does not match expectations
+
+Let f = 2.0.
+
+Execute
+  Line[$(f: Natural)].
+  Check["1"].
+  Line[$(f: Integer)].
+  Check["1"].
+  Line[$(f: Rational)].
+  Check["2"].
+%Execute
+
+%Package

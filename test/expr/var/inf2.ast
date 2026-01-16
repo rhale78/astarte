@@ -1,0 +1,32 @@
+Package inf2
+
+%% Test initialized infinite arrays.
+
+Import "misc/check".
+Import "collect/boxes".
+
+Execute
+  Var{shared} a(*) all := 0.
+  For ?i from 0 _upto_ 20 do
+    Line[$ @(a#_i)].
+    Check["0"].
+  %For
+%Execute
+
+Execute
+  Var{shared} a(*) := 0 _upto_ 20.
+  For ?i from 0 _upto_ 20 do
+    Line[$ @(a#_i)].
+    Check[$i].
+  %For
+%Execute
+  
+Execute
+  Var{shared} a(*) := 0 _upto_ infinity.
+  For ?i from 0 _upto_ 50 do
+    Line[$ @(a#_i)].
+    Check[$i].
+  %For
+%Execute
+
+%Package

@@ -1,0 +1,93 @@
+Package testrole 
+
+%% Test roles in type definitions
+
+Directory standard.
+  Import "collect/listfun"; "misc/check".
+
+Extension
+  Species R = t~> (x ~> Integer,
+	            y ~> [Natural])
+  %Species
+%Extension
+
+Execute
+  Writeln["Begin first Execute"].
+  Let a = r(x ~> 1, y ~> [1,2,3]).
+  Let b = r(2, nil).
+  Match r(x ~> ?c, y ~> ?d) = a.
+  Line[c $$ 4] ++ (map (__ $$ 4) d).
+  Check["   1   1   2   3"].
+  Line[x(a) $$ 4, "  ", $(y(a))].
+  Check["   1  [1,2,3]"].
+  Line[x(b) $$ 4, "  ", $(y(b))].
+  Check["   2  []"].
+%Execute
+
+Extension
+  Species S = 
+    (aa ~> Natural,bb ~> Natural, cc ~> Natural,
+     dd ~> Integer, ee ~> Integer)
+  %Species
+%Extension
+
+Execute
+  Writeln["Begin second Execute"].
+  Let n = s(aa~> 1, bb~> 2, cc~> 3, dd~> -4, ee~> 5).
+  Line[$(aa n)].
+  Check["1"].
+  Line[$(bb n)].
+  Check["2"].
+  Line[$(cc n)].
+  Check["3"].
+  Line[$(dd n)].
+  Check["-4"].
+  Line[$(ee n)].
+  Check["5"].
+%Execute
+
+Extension
+  Species Z = 
+      z1(aaa~> Natural,
+         bbb~> Real)
+    | z2 ccc~> (ddd ~> Natural, eee ~> Integer, fff ~> Integer)
+  %Species
+%Extension
+
+Execute
+  Writeln["Begin third Execute"].
+  Let n = z1(1,2).
+  Let m = z2(1,2,3).
+  Line[$aaa n].
+  Check["1"].
+  Line[$bbb n].
+  Check["2"].
+  Line[$ccc m].
+  Check["(1,2,3)"].
+  Line[$ddd m].
+  Check["1"].
+  Line[$eee m].
+  Check["2"].
+  Line[$fff m].
+  Check["3"].
+  Try
+    Let test = aaa m.
+  then
+    Line["Bad"].
+    Writeln[$test].
+  else
+    Line["Good"].
+  %Try
+  Check["Good"].
+  Try
+    Let test2 = ccc n.
+  then
+    Line["Bad"].
+    Writeln[$test2].
+  else
+    Line["Good"].
+  %Try
+  Check["Good"].
+%Execute
+
+%Package

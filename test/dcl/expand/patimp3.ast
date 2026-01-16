@@ -1,0 +1,12 @@
+Package patimp3 export
+
+Import "patimp4".
+
+Let hh(?x) = gg(x).
+
+Let ii(?x) =
+  Match ff(?y) = x.
+  y
+%Let
+
+%Package

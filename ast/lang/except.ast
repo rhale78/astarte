@@ -1,0 +1,580 @@
+%% File: except.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%================================================================
+Package 	Astarte_Exception 
+==================================================================
+
+==================================================================
+%% This package describes species ExceptionSpecies and related
+%% individuals, as well as declarations and expressions that
+%% relate to failure and exception handling.  All of the things 
+%% described here are available to all packages. 
+==================================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+=======================================================================
+ 			OVERVIEW
+=======================================================================
+
+A computation can fail.  When it does, the failure has an associated
+exception, which is a member of species ExceptionSpecies.  The
+failure is handled in one of two ways.  If the exception is marked
+as calling for a *trap*, then the computation stops immediately, and
+the program is aborted.  If the exception is not marked as calling 
+for a trap, then failure is handled by backing up through calls 
+until a place is found where the failure is caught.  Computation 
+resumes there.
+
+=========================================================================
+			SPECIES AND INDIVIDUALS
+=========================================================================
+
+Here are species and individuals related to failure and exceptions.
+Expression and declaration forms are described after this part, below.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=========================================================================
+			Export
+=========================================================================
+
+Description
+
+ ExceptionSpecies	
+
+		%" ExceptionSpecies is the species of exceptions.
+		%" It is a member of genus EQ.
+		;
+
+ badInputX	: ExceptionSpecies
+
+		%" Exception badInputX occurs when a program gets
+		%" inadmissable input from the user or from a file.
+		%" This exception is not used by any of the standard
+		%" functions, but is available for application functions.
+		%" This exception is normally not trapped.
+		;
+
+ badInputX?	: ExceptionSpecies -> Boolean
+
+		%" badInputX?(x) is true just when x = badInputX.
+		;
+
+ bindUnknownX	: ExceptionSpecies
+
+		%" This exception occurs when an attempt to bind an 
+		%" unknown has failed. This exception is normally not 
+		%" trapped.
+                ;
+
+ bindUnknownX? : ExceptionSpecies -> Boolean
+
+		%" bindUnknownX?(x) is true just when x is bindUnknownX.
+		;
+
+ cannotSeekX	: ExceptionSpecies
+
+		%" Exception cannotSeekX occurs if a nonvolatile
+		%" file is found to be unseekable.  It can only occur
+		%" if you have opened an unseekable file in nonvolatile
+		%" mode, and might occur when attempting to view part
+		%" of that file.  This exception is normally trapped.
+                ;
+
+ cannotSeekX?	: ExceptionSpecies -> Boolean
+
+		%" cannotSeekX?(x) is true just when x = cannotSeekX.
+                ;
+
+ closedFileX	: ExceptionSpecies
+
+		%" Exception closedFileX occurs at an attempt to write
+		%" to a closed file.  This exception is normally 
+		%" not trapped.
+		;
+
+ closedFileX?	: ExceptionSpecies -> Boolean
+
+		%" closedFileX?(x) is true just when x is closedFileX.
+		;
+
+ closedPipeX	: ExceptionSpecies
+
+		%" Exception closedPipeX occurs at an attempt to write
+		%" to a closed pipe.  This exception is normally 
+		%" not trapped.
+		;
+
+ closedPipeX?	: ExceptionSpecies -> Boolean
+
+		%" closedPipeX?(x) is true just when x is closedPipeX.
+		;
+
+ conversionX	: ExceptionSpecies
+
+		%" Exception conversionX occurs when a conversion
+		%" fails.  This exception is normally not trapped.
+		;
+
+ conversionX?	: ExceptionSpecies -> Boolean
+
+		%" conversionX?(x) is true just when x = conversionX.
+                ;
+
+ domainX	: String -> ExceptionSpecies
+
+		%" Exception domainX(s) occurs when the parameter to
+		%" a function is not an admissible one.  String s
+		%" gives an explanation of the problem.  For example,
+		%" an attempt to divide by zero fails with exception
+		%" domainX("divide by zero").  This exception is
+		%" normally trapped.
+		;
+
+ domainX?	: ExceptionSpecies -> Boolean
+
+		%" domainX?(x) is true just when x has the form domainX(s).
+                ;
+
+ emptyBoxX	: ExceptionSpecies
+
+		%" Exception emptyBoxX occurs when a program
+		%" tries to take the content of an empty box.
+		%" This exception is normally trapped.
+                ;
+
+ emptyBoxX?	: ExceptionSpecies -> Boolean
+
+		%" emptyBoxX?(x) is true just when x = emptyBoxX.
+                ;
+
+ emptyListX	: ExceptionSpecies
+
+		%" Exception emptyListX occurs when a program
+		%" tries to take the head or tail of an empty list.
+		%" This exception is normally trapped.
+                ;
+
+ emptyListX?	: ExceptionSpecies -> Boolean
+
+		%" emptyListX?(x) is true just when x = emptyListX.
+                ;
+
+ endThreadX	: ExceptionSpecies
+ 
+ 		%" Exception endThreadX is an indication that a thread
+		%" terminated itself because it was done.  This
+		%" exception is normally not trapped.
+		;
+		
+ endThreadX?	: ExceptionSpecies -> Boolean
+ 
+ 		%" endThreadX?(x) is true just when x = endThreadX.
+		;
+ 
+ ensureX	: String -> ExceptionSpecies
+
+		%" ensureX(s) is an exception that is intended to occur
+		%" when a function has failed to set a condition that it
+		%" is supposed to ensure is set.  String s indicates
+		%" what was wrong.  This exception is not used by any
+		%" standard functions.  This exception is normally trapped.
+		;
+
+ ensureX?	: ExceptionSpecies -> Boolean
+
+		%" ensureX?(x) is true just when x has the form ensureX(s).
+                ;
+
+ fail		: ExceptionSpecies -> `a
+
+		%" fail(x) causes computation to fail with exception x.  It
+		%" can have any species, but will never produce a result.
+		;
+
+ Fail		: ExceptionSpecies -> ()
+
+		%" Fail(x) %Fail causes computation to fail with 
+		%" exception x.  
+		;
+
+ infiniteLoopX	: ExceptionSpecies
+
+		%" Exception infiniteLoopX occurs when an operation
+		%" discovers that it has been asked to do an infinite
+		%" computation.  Attempting to use a lazy object
+		%" while evaluating that same object will lead to
+		%" this exception.  This exception is normally trapped.
+                ;
+
+ infiniteLoopX?	: ExceptionSpecies -> Boolean
+
+		%" infiniteLoopX?(x) is true just when x = infiniteLoopX.
+                ;
+
+ interruptX	: ExceptionSpecies
+
+		%" Exception interruptX occurs when the interpreter is
+		%" interrupted.
+                ;
+
+ interruptX?	: ExceptionSpecies -> Boolean
+
+		%" interruptX?(x) is true just when x = interruptX.
+                ;
+
+ limitX		: ExceptionSpecies
+
+		%" Exception limitX occurs when a compiled-in limit
+		%" of the interpreter has been exceeded.  This exception
+		%" is normally trapped.
+                ;
+
+ limitX?	: ExceptionSpecies -> Boolean
+
+		%" limitX?(x) is true just when x = limitX.
+                ;
+
+ listExhaustedX	: ExceptionSpecies
+
+		%" Exception listExhaustedX occurs when an attempt
+		%" is made to extract a value from an empty string,
+		%" using a function such as pull.  This exception
+		%" is normally not trapped.
+                ;
+
+ listExhaustedX?: ExceptionSpecies -> Boolean
+
+		%" listExhaustedX?(x) is true just when 
+		%" x = listExhaustedX.
+                ;
+
+ memoryX	: ExceptionSpecies
+
+		%" Exception memoryX indicates that the system has
+		%" run out of memory.  This exception is normally
+		%" trapped, and you might not be able to recover from
+		%" it even by untrapping it.
+                ;
+
+ memoryX?	: ExceptionSpecies -> Boolean
+
+		%" memoryX?(x) is true just when x = memoryX.
+		;
+
+ noCaseX	: ExceptionSpecies
+
+		%" Exception noCaseX occurs when a Choose or Loop
+		%" construct has no successful guard, and no else case.
+		%" This exception is normally trapped.
+		;
+
+ noCaseX?	: ExceptionSpecies -> Boolean
+
+		%" noCaseX?(x) is true just when x = noCaseX.
+		;
+
+ noDefX		: String -> ExceptionSpecies
+
+		%" Exception noDefX("s:t") occurs when an attempt is
+		%" made to get the value of outer identifier s of species t,
+		%" when there is no such definition.  This exception is
+		%" normally trapped.
+		;
+
+ noDefX?	: ExceptionSpecies -> Boolean
+
+		%" noDefX?(x) is true just when xx has the form noDefX(s).
+		;
+
+ noFileX	: String -> ExceptionSpecies
+
+		%" Exception noFileX(s) occurs when an attempt is
+		%" made to read a nonexistent file s, or when a
+		%" file is expected, but s is a Directory.  This exception
+		%" is normally not trapped.
+		;
+
+ noFileX?	: ExceptionSpecies -> Boolean
+
+		%" noFileX?(x) is true just when x has the form noFileX(s).
+		;
+
+ requireX	: String -> ExceptionSpecies
+
+		%" requireX(s) is an exception that is intended to occur
+		%" when the parameter to a function is not admissible.
+		%" String s indicates what was wrong.  This exception is
+		%" not used by any standard functions.  This exception is
+		%" normally trapped.
+		;
+
+ requireX?	: ExceptionSpecies -> Boolean
+
+		%" requireX(x) is true just when x has the form requireX(s).
+		;
+
+ sizeX		: ExceptionSpecies
+
+		%" Exception sizeX occurs when there is a size
+		%" mismatch.  This exception is normally trapped.
+		;
+
+ sizeX?		: ExceptionSpecies -> Boolean
+
+		%" sizeX?(ex) is true when ex = sizeX.
+		;
+
+ speciesX	: ExceptionSpecies
+
+		%" Exception speciesX occurs when there is a run-time
+		%" species mismatch.  This exception is normally not 
+		%" trapped.
+		;
+
+ speciesX?	: ExceptionSpecies -> Boolean
+
+		%" speciesX?(x) is true just when x = speciesX.
+		;
+
+ subscriptX	: ExceptionSpecies
+ 
+ 		%" Exception subscriptX occurs when the index i in
+		%" a#i or a#_i is out of bounds.  
+		%" This exception is normally trapped.
+		;
+		
+ subscriptX?	: ExceptionSpecies -> Boolean
+ 
+ 		%" subscriptX?(x) is true just when x = subscriptX.
+		;
+ 
+ succeedsf	: (`a -> `b) -> (`a -> Boolean)
+
+		%" (succeedsf f)(x) is true if f(x) does not fail.
+		%" Be careful: succeedsf will not catch trapped
+		%" exceptions.
+		;
+
+ systemX	: ExceptionSpecies
+
+		%" Exception systemX occurs when function 'system'
+		%" fails.  This exception is normally trapped.
+		;
+
+ systemX?	: ExceptionSpecies -> Boolean
+
+		%" systemX?(ex) is true when ex = systemX.
+		;
+
+ terminateX	: ExceptionSpecies
+ 
+ 		%" When a thread is terminated by another thread,
+		%" it is forced to fail with exception terminateX.
+		%" This exception is normally not trapped.
+		;
+ 
+ terminateX?	: ExceptionSpecies -> Boolean
+ 
+ 		%" terminateX?(x) is true just when x = terminateX.
+		;
+
+ testX		: ExceptionSpecies
+
+		%" testX is an exception that normally happens during
+		%" computation, for example at failed pattern matches.
+		%" This exception is normally not trapped.
+		;
+
+ testX?		: ExceptionSpecies -> Boolean
+
+		%" testX?(x) is true just when x = testX.
+		;
+
+ tooManyFilesX	: ExceptionSpecies
+
+		%" Exception tooManyFilesX occurs when there are
+		%" too many open files.  This exception is normally
+		%" trapped.
+		;
+
+ tooManyFilesX?: ExceptionSpecies -> Boolean
+
+		%" tooManyFilesX?(x) is true just when x = tooManyFilesX.
+		;
+
+ willTrap	: ExceptionSpecies -> Boolean
+
+		%" willTrap(x) is true if exception x would be trapped if
+		%" fail(x) were executed now.
+		;
+
+ "{}"		%" {a else x} abbreviates If a then () else fail(x) %If.
+ 		%" {a} abbreviates If a then () else fail(testX) %If.
+		%"
+		%" For example, use {x == y} to test that x is equal
+		%" to y.  If you want the exception to be sizeX, you 
+		%" might write
+		%"
+		%"  {x == y else sizeX}
+		;
+		
+ "Exception"	
+
+%" =======================================================================
+%" 			DECLARING NEW EXCEPTIONS
+%" =======================================================================
+%" The following declarations can be used to create new exceptions.
+%" 
+%" =======================================================================
+%" Exception{mode} 		Declare new exception x, normally not
+%"   x "descr"			trapped.  The mode is the mode used
+%" %Exception			for defining x.  You can include a mode
+%"                                 with the versions below as well.
+%" 				
+%" 				"descr" is a string constant that is
+%" 				a message that will be printed when the
+%" 				exception is either trapped or uncaught.
+%" 				It can be omitted.
+%" 
+%" =======================================================================
+%" Exception 			Declare new exception x, normally trapped.
+%"   trap x "descr"		See previous form.  "descr" is optional.
+%" %Exception
+%" 
+%" =======================================================================
+%" Exception 			Declare a new collection of exceptions,
+%"   f T "descr"			where f(x) is an exception for each x
+%" %Exception			of species T.  These exceptions are normally
+%" 				not trapped.  Place the word 'trap' in
+%" 				front of f to have the exceptions normally
+%" 				trapped.
+%" 				
+%" 				"descr" is optional.  See the first form
+%" 				above.
+%" 
+%" =======================================================================
+%" EXAMPLES
+%" 	Exception myX.
+%" 	Exception trap newX(String).
+;
+
+ "Try"
+ 
+%" =========================================================================
+%" 			CATCHING FAILURE
+%" =========================================================================
+%" You can use a try-expression to catch failure.  
+%" 
+%" =========================================================================
+%" Try a then b else c %Try	Evaluate a, which must have species ().
+%" 				If evaluation of a succeeds, then evaluate
+%" 				b, and use its value as the value of this
+%" 				try-expression.  If evaluation of a 
+%" 				fails, then evaluate c, and use its value
+%" 				as the value of the try-expression.
+%" 
+%" 				Within c, you may use expression exception
+%" 				as the value of the exception that occurred
+%" 				while evaluating a. 
+%" 
+%" 				You may omit either the then-part or the
+%" 				else-part or both.
+%" 
+%" Note: If expresssion a fails with an exception that is trapped, then 
+%" the try-expression cannot catch the failure, since the program stops 
+%" immediately at a trap.  See untrap expressions, below, to prevent trapping.
+%" 
+%" Note: See choose expressions in choose.ast and stream expressions in
+%" stream.ast for other ways to catch failure.
+%" 
+%" =======================================================================
+%" EXAMPLES
+%" 
+%" The following prints "The exception was testX".
+%" 
+%" 	Try
+%" 	  {0 == 1}
+%" 	then
+%" 	  Writeln["Won't do this"].
+%" 	else
+%" 	  Writeln["The exception was ", $(exception)]
+%" 	%Try
+;
+
+ "Untrap"	" See Trap.";
+ 
+ "Trap"
+
+%" =========================================================================
+%" 			CONTROLLING TRAPPING
+%" =========================================================================
+%" The following expression forms are available.
+%" 
+%" Note: If trap and untrap expressions conflict, the most recently 
+%" entered expression has precedence.
+%" 
+%" 
+%" ========================================================================
+%" Trap a => b %Trap	Same as b, but with exception a trapped.  If a
+%" 			is an exception with a constructor, such as
+%" 			domainX("abc"), then all exceptions with the
+%" 			same constructor are trapped when executing b. 
+%" 
+%" 			Trap expressions are rarely used.  Typically, you
+%" 			use them only in debugging a program.
+%" 
+%" =========================================================================
+%" Trap a,b,c => d %Trap	Abbreviates
+%" 			  Trap a =>
+%" 			    Trap b =>
+%" 			      Trap c => d
+%" 			      %Trap
+%" 			    %Trap
+%" 			  %Trap
+%" 
+%" 			This generalizes to any number of exceptions.
+%" 
+%" =========================================================================
+%" Trap all => e %Trap	Same as e, but with all exceptions trapped.
+%" 
+%" =========================================================================
+%" Untrap a => b %Untrap	Same as b, but with exception a not trapped.
+%" 			If a is an exception with a constructor, such as
+%" 			domainX("abc"), then all exceptions with the
+%" 			same constructor are not trapped when executing b. 
+%" 
+%" =========================================================================
+%" Untrap a,b,c => d %Untrap  Abbreviates
+%" 			     Untrap a =>
+%" 			       Untrap b =>
+%" 			         Untrap c => d
+%" 			         %Untrap
+%" 			       %Untrap
+%" 			     %Untrap
+%" 
+%" 			This generalizes to any number of exceptions.
+%" 
+%" =========================================================================
+%" Untrap all => e %Untrap	 Same as e, but with all exceptions not trapped.
+%" 
+%" =======================================================================
+%" EXAMPLES
+%" 
+%"   Try
+%"     Untrap all =>
+%"       f(x)
+%"     %Untrap
+%"   else
+%"     Writeln["Unable to evaluate f(x)"].
+%"   %Try
+
+%Description
+
+%Package
+

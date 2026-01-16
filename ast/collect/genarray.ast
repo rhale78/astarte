@@ -1,0 +1,135 @@
+%% File: genarray.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%======================================================================
+Package 	Astarte_GeneralizedArrays 
+========================================================================
+
+========================================================================
+%% Implement generalized arrays, including circular arrays
+%% and arrays whose indices are from RANKED species.
+========================================================================
+
+=========================================================================
+				Export
+=========================================================================
+Directory standard.
+Import "math/modular".
+=========================================================================
+Extension
+  Expect{transparent} species CircularList(`a)
+	%" CircularList(T) is a species of circular lists
+	%" whose members have species T.  Operations provided are:
+	%"
+	%" circularList(l): Return a circular list whose members are
+	%"		    the same as those of list l.
+	%"
+	%" l#n:             l sub n, where n is a Modular, and must
+	%"		    have the length of l as modulus.
+  %Expect	
+
+  Species{transparent} EnumList(RANKED`b, `a) = [`a]
+	%" EnumList(S,T) is a species of lists that are
+	%" subscripted by enumerated species S.  Operations
+	%" provided are:
+	%"
+	%" enumList(l) : Return an EnumList whose members are the
+	%"		 same as those of list l.
+	%"
+	%" l#n:		 l sub n, where n is a member of an
+	%" 		 enumerated species.
+  %Species
+%Extension
+=========================================================================
+Description
+
+
+  enumList     	%" enumList(l) is a list that is subscripted by a ranked
+		%" species.  See family EnumList.
+%Description
+=========================================================================
+Expect
+  circularList  : [`a] -> CircularList(`a)
+
+		%" circularList(l) is a circular equivalent of list l.
+		%" It can be subscripted by a Modular.  See family 
+		%" CircularList.
+		;
+
+  #		: (CircularList(`a),      Modular)    -> `a
+
+		%" l # n is the n-th member of l, counting from 0.  n is
+		%" of species Modular, so the list is circular.
+		;
+
+  #		: (EnumList(RANKED`b,`a), RANKED`b)   -> `a
+
+		%" l#n is the rank(n)-th member of l, counting from 0.
+		;
+
+  ==		: (CircularList(EQ`a), CircularList(EQ`a)) -> Boolean;
+  
+  {underride}:
+  
+  ^^		: CircularList(`a) -> CircularList(`b)
+  		    constraint (`b >= `a);
+		    
+  downcast	: CircularList(`a) -> CircularList(`b)
+  		    constraint (`b <= `a);
+		    
+  ^^		: EnumList(RANKED`a, `b) -> EnumList(RANKED`c, `d)
+  	            constraint ((RANKED`c,`d) >= (RANKED`a,`b));
+		    
+  downcast	: EnumList(RANKED`a, `b) -> EnumList(RANKED`c, `d)
+  	            constraint ((RANKED`c,`d) <= (RANKED`a,`b));
+%Expect
+
+
+=========================================================================
+				Implementation
+=========================================================================
+
+Extension
+  Species{transparent} CircularList `a = basicCircularList (Natural, [`a]).
+%Extension
+
+=========================================================================
+%% 		circularList constructor
+=========================================================================
+
+Let circularList ?l = basicCircularList(length l, l).
+
+=========================================================================
+%% 			# for circular lists
+=========================================================================
+
+Let ?x # ?y = l#(remainder y) |
+  Match basicCircularList(?n, ?l) = x.
+  If n =/= modulus y then fail modulusX.
+%Let
+=========================================================================
+%% 			# for enum lists
+=========================================================================
+
+Let ?x # ?y = l#(rank y) |
+  Match enumList(?l) = x.
+%Let
+
+=========================================================================
+%% 			^^ for enum lists
+=========================================================================
+
+Let{underride} ^^(enumList(?l)) = enumList(^^(l)).
+
+=========================================================================
+%% 			^^ for circular lists
+=========================================================================
+
+Let{underride} ^^(basicCircularList(?n,?l)) = basicCircularList(n, ^^l).
+
+%Package
+  
+  

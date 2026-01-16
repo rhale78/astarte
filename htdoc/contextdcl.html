@@ -1,0 +1,351 @@
+<HTML>
+<head>
+<title>Astarte: creating and using contexts</title>
+</head>
+<body>
+<center>
+<a href="packagehier.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="classes.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D13. Creating and Using Contexts </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Contexts</a>
+  <li><a href=#create>Creating contexts</a>
+  <li><a href=#adding>Adding new cases to a context</a>
+  <li><a href=#inherit>Context inheritance</a>
+  <li><a href=#subst>Context substitution</a>
+  <li><a href=#procop>Procedures and operators in contexts</font>
+  <li><a href=#ask>Context in definitions</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue> Contexts</font> </h2>
+
+Suppose that you want to do several operations on a particular
+data structure called aDataStructure.  
+For example, the data structure might contain boxes
+called a, b and c, and you might want to alter the contents of those
+boxes.  You can write
+<font color=#D00090>
+<b><pre>
+    Assign a(aDataStructure) := <font color=black>...</font>
+    Assign b(aDataStructure) := <font color=black>...</font>
+    Assign c(aDataStructure) := <font color=black>...</font>
+</pre></b>
+</font>
+There is a provision to allow you to abbreviate this to
+<font color=#D00090>
+<b><pre>
+    Context C aDataStructure =&gt;
+      Assign my a := <font color=black>...</font>
+      Assign my b := <font color=black>...</font>
+      Assign my c := <font color=black>...</font>
+    %Context
+</pre></b>
+</font>
+where context C tells how the contextual information (a, b and c)
+is determined.
+
+<a name=create></a>
+<hr>
+<h2><font color=mediumblue> Creating contexts</font> </h2>
+
+To create a context called C, use a declaration of the form
+<font color=#D00090>
+<b><pre>
+    Context C 
+      case <font color=black>...</font>
+      case <font color=black>...</font>
+    %Context
+</pre></b>
+</font>
+<p>Each case defines a context and tells how its value is determined.
+<dl>
+<p><dt> <font color=red>case <i>x</i> =&gt; <i>e</i></font>
+<dd> Inside an expression of the form
+<font color=#D00090>
+<b><pre>
+   Context C <i>t</i> =&gt;
+     <font color=black>...</font>
+   %Context
+</pre></b>
+</font>
+replace <font color=#D00090>my <i>x</i></font> by expression
+<i>e</i>, with expression <i>target</i> replaced by <i>t</i>.
+For example, if context Grape is defined by
+<font color=#D00090>
+<b><pre>
+   Context Grape
+     case skin =&gt; getskin(target)
+     case pulp =&gt; extractPulp(target)
+   %Context
+</pre></b>
+</font>
+then expression
+<font color=#D00090>
+<b><pre>
+   Context Grape seedless =&gt;
+     my skin + my pulp
+   %Context
+</pre></b>
+</font>
+is an abbreviation for
+<font color=#D00090>
+<b><pre>
+   getskin(seedless) + extractPulp(seedless)
+</pre></b>
+</font>
+
+<a name=bring></a>
+<p><dt><font color=red>case bring <i>x</i>, <i>y</i></font>
+<dd> This is the same as
+<font color=#D00090>
+<b><pre>
+   case <i>x</i> =&gt; <i>x</i> target
+   case <i>y</i> =&gt; <i>y</i> target
+</pre></b>
+</font>
+you can define any number of cases in a single case of this form.
+</ol>
+
+<a name=adding></a>
+<hr>
+<h2><font color=mediumblue> Adding new cases to a context </font> </h2>
+
+You can add new cases to an existing context by putting the word
+<i>extension</i> before
+the name of the context.  For example,
+<font color=#D00090>
+<b><pre>
+   Context extension Grape
+     case bring stem
+   %Context
+</pre></b>
+</font>
+adds a new case to existing context Grape.
+
+<a name=inherit></a>
+<hr>
+<h2><font color=mediumblue> Context inheritance</font> </h2>
+
+You can copy all cases from another context into a context
+when the context is created.  Use
+<font color=#D00090>
+<b><pre>
+   Context Merlot isKindOf Grape
+     case <font color=black>...</font>
+   %Context
+</pre></b>
+</font>
+to put all cases that are part of context Grape into context
+Merlot.  Only those cases that are part of Grape at the time
+that point where Merlot is created are copied.  Subsequent additions
+to Grape will not be added to Merlot.
+
+<p>You can use more than one isKindOf phrase in the definition
+of a context.  For example,
+<font color=#D00090>
+<b><pre>
+   Context Merlot isKindOf Grape isKindOf Fruit
+     case <font color=black>...</font>
+   %Context
+</pre></b>
+</font>
+copies cases from Grape and Fruit into context Merlot.
+
+<p>You can add inherited contexts to an existing context.  Declaration
+<font color=#D00090>
+<b><pre>
+  Context extension Merlot isKindOf Wine.
+</pre></b>
+</font>
+adds all cases of context Wine to existing context Merlot.
+
+<p>Be careful not to do too much of this.  There can only be
+one case for each identifier in a context, except in the case
+where the translations are identical.
+
+<a name=subst></a>
+<hr>
+<h2><font color=mediumblue> Context substitution </font> </h2>
+
+Context substitution is done only for an identifier preceded by
+the reserved word <i>my</i> or by <i>my-</i> without any intervening
+space.
+
+<p>When you write an expression of the form
+<font color=#D00090>
+<b><pre>
+   Context C <i>t</i> =&gt;
+   <font color=black>...</font>
+   %Context
+</pre></b>
+</font>
+expression <i>t</i> is only computed once.  If it involves any
+computation, then its value is given a name, and that name is used
+inside the expression.  Also, each context value is only computed
+once, outside the expression.  Using the context Grape from above,
+expression
+<font color=#D00090>
+<b><pre>
+   Context Grape getGrape("cabernet") =&gt;
+     Let a = my skin + my skin.
+     Value my pulp + a.
+  %Context
+</pre></b>
+</font>
+is an abbreviation for
+<font color=#D00090>
+<b><pre>
+   (Let g = getGrape("cabernet").
+    Let s = getskin(g).
+    Let p = extractPulp(g).
+    Let a = s + s.
+    Value p + a.
+   )
+</pre></b>
+</font>
+where names g, s and p are chosen as new names that are not in use.
+You can also write
+<font color=#D00090>
+<b><pre>
+   Context Grape getGrape("cabernet") =&gt;
+     Let a = my-skin + my-skin.
+     Value my-pulp + a.
+  %Context
+</pre></b>
+</font>
+using the optional hyphenated form.
+
+<a name=procop></a>
+<hr>
+<h2><font color=mediumblue> Procedures and operators in contexts</font> </h2>
+
+A context case can define a procedure or operator name.  You use
+expression <font color=#D00090>My <i>P</i></font> as a procedure,
+and <font color=#D00090>my <i>op</i></font> as an operator of the same
+form as <i>op</i>.  The optional hyphenated form can also be used.
+If you hyphenate a symbolic identifier, the hyphen is not part of the
+identifier.  For example, the subtraction operator can be written
+<i> my -</i> or <i>my--</i>.
+
+<p>For example, suppose context Cherry is defined
+as follows.
+<font color=#D00090>
+<b><pre>
+   Context Cherry
+     case Print =&gt; printCherry(target)
+     case +     =&gt; addCherry(target)
+   %Context
+</pre></b>
+</font>
+Then expression
+<font color=#D00090>
+<b><pre>
+   Context Cherry ch =&gt;
+     My Print
+        z  my-+  n
+     %My Print
+   %Context
+</pre></b>
+</font>
+is an abbreviation for
+<font color=#D00090>
+<b><pre>
+   (Let t1 = printCherry(ch).
+    Let t2 = addCherry(ch).
+    (t1(t2(z,n))))
+</pre></b>
+</font>
+You can just as well write
+<font color=#D00090>
+<b><pre>
+   Context Cherry ch =&gt;
+     My Print
+        z  my +  n
+     %My Print
+   %Context
+</pre></b>
+</font>
+
+<a name=ask>
+<hr>
+<h2><font color=mediumblue> Context in definitions</font> </h2>
+
+A context can be any identifier, even one that is being used for
+other purposes.  Typically, a context is the name of a data abstraction
+or species.  
+
+<p>In the special case where context C is a data abstraction or
+species, you can write
+<font color=#D00090>
+<b><pre>
+  Define Ask C <i>a</i> =&gt; <i>b</i> %Ask =  <i>v</i> %Define
+</pre></b>
+</font>
+to abbreviate
+<font color=#D00090>
+<b><pre>
+  Define Ask (?this _also_ <i>a</i>) =&gt; <i>b</i> %Ask =  
+    Context C this =&gt;
+      <i>v</i>
+    %Context  
+  %Define
+</pre></b>
+</font>
+where identifier <i>this</i> is a newly chosen name that is not
+in use for anything else.  The same abbreviation can be used with
+Let.  
+
+<p>For example, if Grape is a species as
+well as a context, then
+<font color=#D00090>
+<b><pre>
+  Define Ask Grape ?g =&gt; peel(). =
+    Remove my skin.
+  %Define
+</pre></b>
+</font>
+abbreviates
+<font color=#D00090>
+<b><pre>
+  Define Ask (?this _also_ ?g) =&gt; peel(). =
+    Context Grape this =&gt;
+      Remove my skin.
+    %Context
+  %Define
+</pre></b>
+</font>
+Often, the contextual information is all you want about a parameter, as
+is the case for the peel operation.  (Identifier g is not used.)  In that
+case, use an anonymous pattern variable.  
+For example, write
+<font color=#D00090>
+<b><pre>
+  Define Ask Grape ? =&gt; peel(). =
+    Remove my skin.
+  %Define
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="packagehier.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="classes.html">Next</a>
+</center>
+</body>
+</HTML>

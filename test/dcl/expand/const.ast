@@ -1,0 +1,45 @@
+Package constpat 
+
+%% Test constant patterns
+
+Import "misc/check".
+
+%% Basic form
+
+Let uno?(?x) = x == 1.
+
+Pattern uno => {uno?(target)}.
+
+Execute
+  Let a = 1.
+  Match uno = a.
+  Line[$a].
+  Check["1"].
+%Execute
+
+
+%% Automatic constant pattern
+
+Extension 
+  Species Mytype = const1 | const2(Natural).
+%Extension
+
+Execute
+  Let a = const1.
+  Match const1 = a.
+  Line[$a].
+  Check["const1"].
+%Execute
+
+%% Copy of constant pattern
+
+Pattern const1' = const1.
+
+Execute
+  Let a = const1.
+  Match const1' = a.
+  Line[$a].
+  Check["const1"].
+%Execute
+
+%Package

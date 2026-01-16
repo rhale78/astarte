@@ -1,0 +1,161 @@
+<HTML>
+<head>
+<title>Astarte standard species</title>
+</head>
+<body>
+<center>
+<a href="types.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdfam.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T2. Standard Species </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#specnoimport> Species that do not require imports</a>
+  <li> <a href=#specimports> Species that require imports</a>
+</menu>
+
+<a name=specnoimport></a>
+<hr>
+<h2><font color=mediumblue> Species that do not require imports </font></h2>
+
+The following species are available to all packages.
+
+<dl>
+
+<a name=unit></a>
+<dt> <font color=red>()</font>
+<dd> Species () contains just one member, which is also called ().  This
+species is used in a variety of ways, such as the return type of
+a function that returns no useful information.  Value () is also
+used as a "do nothing" operation.
+
+<a name=ASpecies></a>
+<p><dt><a href=aspecies.html#ASpecies>ASpecies</a>
+<dd>Species can be made into values and treated like data.  A species as
+a value has species ASpecies.
+
+<a name=Boolean></a>
+<p><dt> <a href=boollib.html>Boolean</a>
+<dd> Species Boolean contains two values: 
+<i>false</i> and <i>true</i>.
+
+<a name=boxflavor></a>
+<p><dt> <font color=red>BoxFlavor</font>
+<dd> Species BoxFlavor contains two values: 
+<i>shared</i> and <i>nonshared</i>.
+It is used to indicate the flavor of a box.  Testers shared? and
+nonshared? are also available.
+
+<a name=Char></a>
+<p><dt> <a href=char.html>Char</a>
+<dd> Species Char contains characters such as 'a' and '-'.
+
+<a name=Comparison></a>
+<p><dt> <a href=boollib.html>Comparison</a>
+<dd> Species Comparison contains three values: 
+<i>equal</i>, <i>less</i> and <i>greater</i>.
+They are used for the result of function 
+<a href=boollib.html#compare>compare</a>.
+
+<a name=copyflavor></a>
+<p><dt> <font color=red>CopyFlavor</font>
+<dd> Species CopyFlavor contains three values: 
+<i>shared</i>, <i>nonshared</i>
+and <i>same</i>.
+It is used to indicate the flavor of a box when copying.  Testers shared?,
+nonshared? and same? are also available.
+
+<a name=ExceptionSpecies></a>
+<p><dt> <a href="failure.html#exceptions">ExceptionSpecies</a>
+<dd> Species ExceptionSpecies holds exceptions.  These are items
+that are associated with failures, and indicate the reason
+for failure.
+
+<a name=FileMode></a>
+<p><dt> <a href="iolib.html#modes">FileMode</a>
+<dd> Species FileMode contains values used in selecting the
+mode with which a system file is opened for reading or writing.
+
+<a name=Infinity></a>
+<p><dt> <font color=red>Infinity</font>
+<dd> Species Infinity contains two values: 
+<i>infinity</i> and <i>minusInfinity</i>.
+It is used for forming infinite lists.  You can use predicates
+infinity? and minusInfinity? to test for values.  
+For example,
+infinity?(infinity) = true, but infinity?(minusInfinity) = false.
+
+<a name=Integer></a>
+<p><dt> <a href=integer.html>Integer</a>
+<dd> Species Integer contains integers, including negative integers.
+
+<a name=Natural></a>
+<p><dt> <a href=natural.html>Natural</a>
+<dd> Species Natural contains nonnegative integers.
+
+<a name=Rational></a>
+<p><dt> <a href=rational.html>Rational</a>
+<dd> Species Rational contains rational numbers, stored as ratios
+of integers.
+
+<a name=Real></a>
+<p><dt> <a href=real.html>Real</a>
+<dd> Species Real contains real numbers, stored approximately.
+
+<a name=UnknownKey></a>
+<p><dt> <a href="unknowns.html#create">UnknownKey</a>
+<dd> Species UnknownKey is used for controlling access to unknowns.
+
+</dl>
+
+<a name=specimports></a>
+<hr>
+<h2><font color=mediumblue> Species that require imports </font></h2>
+
+The following species are available by importing the
+indicated library packages.
+
+<dl>
+<a name=Bitvec></a>
+<dt> <a href=bitvec.html>Bitvec</a>
+<dd> Species Bitvec holds infinite bit vectors.  
+Import <a href="ast/collect/bitvec.ast">collect/bitvec.ast</a>.
+
+<a name=Complex></a>
+<p><dt> <a href=complex.html>Complex</a>
+<dd> Species Complex holds complex numbers, stored as pairs
+of real numbers.
+Import <a href="ast/math/complex.ast">math/complex.ast</a>.
+
+<a name=Modular></a>
+<p><dt> <a href=modular.html>Modular</a>
+<dd> Species Modular holds numbers on which modular arithmetic
+is to be performed.
+Import <a href="ast/math/modular.ast">math/modular.ast</a>.
+
+<a name=Symbol></a>
+<p><dt> <a href=symbol.html>Symbol</a>
+<dd> A symbol is similar to a string, but equality comparisons
+are faster for symbols than for strings.
+Import <a href="ast/logic/symbol.ast">logic/symbol.ast</a>.
+
+</dl>
+
+<hr>
+<center>
+<a href="types.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdfam.html">Next</a>
+</center>
+</body>
+</HTML>
+

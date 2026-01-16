@@ -1,0 +1,300 @@
+<HTML>
+<head>
+<title>Astarte: packages</title>
+</head>
+<body>
+<center>
+<a href="bringdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="exportexample.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D11. Packages </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Packages</a>
+  <li><a href=#simple>Simple packages</a>
+  <li><a href=#export>Complete, importable packages</a>
+  <li><a href=#interface>Breaking up an importable package</a>
+  <li><a href=#import>Importing a package: basic imports</a>
+  <li><a href=#directory>Directories</a>
+  <li><a href=#characteristics>Characteristics of imports</a>
+  <li><a href=#partial>Partial imports</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Packages</font></h2>
+
+<p>Every file defines one package or one part of a package.  
+A package starts with the word <i>Package</i> and end with 
+<i>%Package</i>.  
+
+<p> There are three kinds of packages.
+<ol>
+<li> <a href="packages.html#simple">A package that is not 
+     imported by any other package</a>
+<li> <a href="packages.html#export">A package that is to be 
+     imported by another package, and that is
+     entirely self-contained in a single file.</a>
+<li> <a href="packages.html#interface">A package that is broken 
+     into two files, consisting of an interface
+     file and an implementation file.</a>
+</ol>
+
+To import a package, see <a href="packages.html#import">importing packages</a>.
+
+<a name="simple"></a>
+<hr>
+<h2><font color=mediumblue> Simple packages </font></h2>
+
+A simple package can import other packages, but cannot itself be imported
+by any other packages.  It has the form
+<font color="#D00090">
+<blockquote>
+     Package <font color=black><i>name</i></font><br>
+     &nbsp;&nbsp;<font color=black><i>declarations</i></font><br>
+     %Package
+</blockquote>
+</font>
+where <i>name</i> is the name of the package and <i>declarations</i>
+is a sequence of declarations.  See
+<a href="example.html">example package</a> for an 
+example.
+This package should be put into a file with extension .ast, such
+as <i>myfile.ast</i>.  Normally, the name of the package is the
+same as the name of the file, less its extension (.ast).
+
+<a name="export"></a>
+<hr>
+<h2><font color=mediumblue> Complete, importable packages </font></h2>
+
+A package that can be imported by another package can either be 
+complete in one file or broken into two files.  The form that is
+complete in one file looks like this.
+<font color="#D00090">
+<blockquote>
+  Package <font color=black><i>name</i></font><br>
+  &nbsp;&nbsp; export<br>
+  &nbsp;&nbsp; <font color=black><i>declarations</i></font><br>
+  &nbsp;&nbsp; implementation<br>
+  &nbsp;&nbsp; <font color=black><i>declarations</i></font><br>
+  %Package
+</blockquote>
+</font>
+This package should be put into a file with extension .ast.
+All declarations are allowed in each part, but typically the
+export part contains expect declarations and the implementation
+part contains definitions that meet the expectations.  
+See <a href="exportexample.html">example package</a> for an 
+example.
+
+<p>When declarations
+in the export part are read by another package (during an import)
+certain declarations are subject to special handling.  
+See <a href=expectdcl.html#import>expect declarations</a>.
+
+<p>It is admissible to leave out the word <i>implementation</i>, and to
+put the entire package in the export part.  That is not normally
+recommended, however.  Only put in the export part what you want
+to tell everybody else about.
+
+<a name="interface"></a>
+<hr>
+<h2><font color=mediumblue> Breaking up an importable package </font></h2>
+
+A package can be put into two files, one holding the interface 
+(or export part) and another holding the implementation.  The
+interface should be put into a file with extension .ast.  It has
+the following form.
+<font color="#D00090">
+<blockquote>
+  Package <font color=black><i>name</i></font><br>
+  &nbsp;&nbsp; interface<br>
+  &nbsp;&nbsp; <font color=black><i>declarations</i></font><br>
+  %Package
+</blockquote>
+</font>
+The implementation should be put into a file with the same base name
+as the interface, but with extension .asi.  
+For example, if the interface
+is in file <i>myfile.ast</i>, then the implementation should be in
+file <i>myfile.asi</i>.  The implementation has the form
+<font color="#D00090">
+<blockquote>
+  Package <font color=black><i>name</i></font><br>
+  &nbsp;&nbsp; implements &quot;<font color=black><i>filename</i></font>&quot;<br>
+  &nbsp;&nbsp; <font color=black><i>declarations</i></font><br>
+  %Package
+</blockquote>
+</font>
+where <i>filename</i> is the base name of the interface file (such as 
+<i>myfile</i>).
+See <a href="interfaceexample.html">example package</a> for an 
+example.
+
+<a name="import"></a>
+<hr>
+<h2><font color=mediumblue> Importing packages: basic imports </font></h2>
+
+To import a package, use an import declaration.  The basic form is
+<font color=#D00090>
+<blockquote>
+  Import &quot;<font color=black><i>filename</i></font>&quot;.
+</blockquote>
+</font>
+where <i>filename</i> is the path and base name of a file to import.  
+For example, 
+to import file <i>myfile.ast</i> in the current
+directory, use declaration
+<font color="#D00090">
+<b><pre>
+  Import &quot;myfile&quot;.
+</pre></b>
+</font>
+The quotes around the file name are required.  The import reads all
+declarations in the export or interface part of the package.  To import
+standard package collect/search.ast, you write
+<font color="#D00090">
+<b><pre>
+  Import &quot;collect/search&quot;.
+</pre></b>
+</font>
+
+<a name=directory></a>
+<hr>
+<h2><font color=mediumblue> Directories </font></h2>
+
+Normally, the compiler looks in the current directory and in the 
+standard library directory (in that order)
+for packages to import.  
+
+<a name="AST_IMPORTS"></a>
+<p>You can set environment variable AST_IMPORTS to a 
+list of directories to search.
+This overrides the default.  
+Use either colons or semicolons to separate
+the directories.  You probably want to include &quot;.&quot; in the list, since
+otherwise the current directory will not be searched.
+
+<p> The current directory is always defined to be the directory
+that holds the file where the import declaration occurs.
+
+<a name=directorydcl></a>
+<p>You can also use a directory declaration to choose directories.
+In the list of directories, you can use $ to stand for the directory
+where the standard library is stored.
+Declaration
+<font color=#D00090>
+<b><pre>
+     Directory &quot;.:./utils:$&quot;.
+</pre></b>
+</font>
+indicates that directories &quot;.&quot;, &quot;./utils&quot; and the standard library
+directory should be tried at each import, in that order.  Use colons
+or semicolons to separate the directories.
+
+<p> You can give names to directory strings.  Use
+<font color=#D00090>
+<b><pre>
+     Directory assortment1 = &quot;.:./special&quot;.
+</pre></b>
+</font>
+to define assortment1.  Then
+<font color=#D00090>
+<b><pre>
+     Directory assortment1.
+</pre></b>
+</font>
+causes the directory search string to become &quot;.:./special&quot;.
+Predefined names are standard = &quot;$&quot; and none = &quot;.:$&quot;.  So
+<font color=#D00090>
+<b><pre>
+     Directory standard.
+</pre></b>
+</font>
+means that subsequent imports must come from the standard
+library, until another directory declaration is given.
+
+<p>Directory declarations that set the current search list 
+only affect the current package.
+A directory declaration in an imported package is no longer in
+effect when the imported package is done, and the compiler returns
+to the current package.  Declarations that define names, such
+as assortment1 above, are imported.
+
+<a name=characteristics></a>
+<hr>
+<h2><font color=mediumblue> Characteristics of imports </font></h2>
+
+When a package is imported, only its export or interface part
+is read.
+Any imports that are done by the imported package (such as <i>myfile</i>)
+within its export or interface part are implicitly done also by the importing
+package.  Any imports done by the imported package's implementation are
+not visible to the importing package.
+
+<p> Visibility of declarations is strictly controlled.  
+For example,
+suppose that package <i>A</i> imports packages <i>B</i> and <i>C</i>,
+as follows.
+<font color=#D00090>
+<b><pre>
+  Package A
+    Import &quot;B&quot;.
+    Import &quot;C&quot;.
+    <font color=black>...</font>
+  %Package
+</pre></b>
+</font>
+When the export or interface part of package <i>C</i> is read, declarations
+that were made in package <i>B</i> (or declarations made in 
+<i>A</i> before importing
+<i>C</i>) are not visible to the declarations within package <i>C</i>, 
+and do not affect them.
+
+<p> A package can be imported more than once.  It does not interfere
+with itself.  Importing a package twice is equivalent to importing
+it once.
+
+<p> Cyclic imports (where a package imports itself directly or
+indirectly) are allowed as long as at least one of the imports
+is in the implementation part of a package.  It is not allowed to
+do cyclic imports where all imports are in the interface, or export,
+part.
+
+<a name=partial></a>
+<hr>
+<h2><font color=mediumblue> Partial imports </font></h2>
+
+You can select items to import by listing them after the word Import, and
+following them by the word <i>from</i>.
+For example, 
+to import only a, b and c from the package in file
+lib.ast, you write
+<font color=#D00090>
+<b><pre>
+   Import a,b,c from &quot;lib&quot;.
+</pre></b>
+</font>
+Only the names that you have mentioned will be imported.  This
+only applies to names of items (functions, numbers, etc.).  All species,
+genera, etc. are imported, even if you do not mention them.
+
+<hr>
+<center>
+<a href="bringdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="exportexample.html">Next</a>
+</center>
+</body>
+</HTML>

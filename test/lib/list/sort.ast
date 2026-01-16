@@ -1,0 +1,47 @@
+Package testSort 
+
+Directory standard.
+  Import "collect/listfun".
+  Import "collect/sort".
+  Import "collect/search".
+
+Execute
+  If sort (<) ([]:[Natural]) =/= [] 
+    then Write["bad sort of empty list\n"].
+  %If
+  Write["Should be matching pairs\n"].
+  Let l = sort (<) [5, 2, 7, 8, 1, 3, 6, 2, 9, 12, 8].
+  Let outlist = map (__ $$ 4) l.
+  Write outlist.
+  Write["\n"].
+  Write["   1   2   2   3   5   6   7   8   8   9  12\n"].
+%Execute
+
+Execute
+  Let z = locate (<=) (left) 4 ([]: [(Natural,())]).
+  Writeln[$z].
+  Write["0\n\n"].
+  Let a = locate (<=) (left) 4 [(1,1),(3,9),(4,16),(5,25)].
+  Writeln[$a].
+  Write["2\n\n"].
+  Let b = locate (<=) (left) 4 [(1,1),(2,9),(3,9),(4,16),(5,25)].
+  Writeln[$b].
+  Write["3\n\n"].
+  Let c = locate (<=) (left) 4 [(1,1),(2,9),(3,9),(5,25)].
+  Writeln[$c].
+  Write["3\n\n"].
+  Let d = locate (<=) (left) 4 [(1,1),(2,9),(3,9)].
+  Writeln[$d].
+  Write["3\n\n"].
+  Let e = locate (<=) (left) 4 [(5,25)].
+  Writeln[$e].
+  Write["0\n\n"].
+  Let f = locate (<=) (left) 4 [(0,0),(1,1),(2,9),(3,9),(4,16)].
+  Writeln[$f].
+  Write["4\n\n"].
+  Let g = locate (<=) (left) 4 [(4,16),(5,25),(6,36),(7,49),(8,64)].
+  Writeln[$g].
+  Write["0\n\n"].
+%Execute
+
+%Package

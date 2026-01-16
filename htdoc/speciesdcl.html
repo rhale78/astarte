@@ -1,0 +1,605 @@
+<HTML>
+<head>
+<title>Astarte: species definitions</title>
+</head>
+<body>
+<center>
+<a href="extensiondcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="famdcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T15. Defining New Species </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#general> General rules</a>
+  <li> <a href=#specconst> Species with a single constructor</a>
+  <li> <a href=#constructors> Species with multiple constructors</a>
+  <li> <a href=#optionsdecl> Options for species declarations</a>
+  <li> <a href=#symbol> Using operators and symbolic identifiers as constructors</a>
+  <li> <a href=#curry> Curried constructors</a>
+  <li> <a href=#enumerated> Enumerated species</a>
+  <li> <a href=#select> Defining selectors</a>
+  <li> <a href=#expect> Expecting species</a>
+  <li> <a href=#description> Providing descriptions</a>
+  <li> <a href=#iskindof> Adding species to abstractions</a>
+</menu>
+
+<a name=general></a>
+<hr>
+<h2><font color=mediumblue>General rules</font></h2>
+
+You can create a new species using a species declaration.  Each
+species declaration must be inside an 
+<a href="extensiondcl.html">extension</a>, of the form
+<font color=#D00090>
+<b><pre>
+      Extension
+        <font color=black>...</font>
+      %Exension
+</pre></b>
+</font>
+<b>Always use a name that starts with an upper case letter for a
+species.</b>
+
+<a name=specconst></a>
+<hr>
+<h2><font color=mediumblue> Species with a single constructor </font></h2>
+
+Declaration
+<font color=#D00090>
+<b><pre>
+      Species <font color=black><i>N</i></font> = <font color=black><i>c</i> <i>S</i></font>.
+</pre></b>
+</font>
+defines new species <i>N</i> to be represented by species <i>S</i>.  
+For example
+<font color="#D00090">
+<b><pre>
+      Extension
+        Species Distance = distance(Real).
+      %Extension
+</pre></b>
+</font>
+creates species Distance, and indicates that each member of species Distance
+corresponds with, or is represented by, a real number.  
+In general, declaration
+<font color=#D00090>
+<b><pre>
+      Species <font color=black><i>N</i></font> = <font color=black><i>c</i> <i>S</i></font>.
+</pre></b>
+</font>
+causes the following functions to be defined automatically.
+<ol>
+
+<p><li> <i>c</i>: <i>S</i> -&gt; <i>N</i>.  
+This is the <font color=blue><i>constructor</i></font>, for building a member
+of the new species from its representation.  
+
+<p><font color="mediumblue">In the distance example,
+you get a function called distance, of species Real -&gt; Distance. 
+So distance(5.0) is the distance that corresponds to real number 5.0.
+Think of it as 5.0 meters.</font>
+
+<p>You can use the constructor
+in patterns, as a way of finding out the representation of a value
+of species <i>N</i>.  
+
+<p><font color="mediumblue">
+In the distance example, 
+if you have defined <i>d</i> to be
+distance(3.5), then
+<font color=#D00090>
+<b><pre>
+      Match distance(?x) = d.
+</pre></b>
+</font>
+binds <i>x</i> to the real number 3.5.</font>
+
+<a name=destructor></a>
+<p><li> un<i>c</i>: <i>N</i> -&gt; <i>S</i>.  
+This is the inverse function of the constructor <i>c</i>, called the
+<font color=blue><i>destructor</i></font> function.
+
+<p><font color="mediumblue">In the distance example, 
+this function is called undistance.  For example,
+if <i>d</i> is distance(3.5), then undistance(<i>d</i>) is the real number
+3.5.</font>
+
+<a name="equal"></a>
+<p><li> <tt>==</tt>: (<i>N</i>,<i>N</i>) -&gt; Boolean.  
+Normally, a new species is automatically added to EQ, and a
+default definition of the equality operator <tt>==</tt> is created.
+This equality comparison considers two
+values to be equal if they have the same representation.  
+
+<p><font color="mediumblue">In the distance
+example, 
+two distances are considered equal if they are represented by the 
+same real number.</font>  
+
+<p>You can suppress adding the new species to EQ and the automatic 
+definition of <tt>==</tt> using option noEqual, as in
+<font color=#D00090>
+<b><pre>
+       Species{noEqual} <font color=black><i>N</i></font> = <font color=black><i>c</i> <i>S</i></font>.
+</pre></b>
+</font>
+
+<a name="dollar"></a>
+<p><li> $: <i>N</i> -&gt; String.  
+This definition of $ just adds the name of the
+constructor <i>c</i> to the result of applying $ to the representation of a
+value.
+  
+<p><font color="mediumblue">
+In the distance example, 
+if <i>d</i> is distance(2.6), then
+$(<i>d</i>) is string &quot;distance(2.6)&quot;. </font>
+
+<p>You can suppress automatic definition of $ by using 
+option noDollar, as in
+<font color=#D00090>
+<b><pre>
+       Species{noDollar} <font color=black><i>N</i></font> = <font color=black><i>c</i> <i>S</i></font>.
+</pre></b>
+</font>
+
+<p>To suppress both <tt>==</tt> and $, use both noEqual and noDollar, as in
+<font color=#D00090>
+<b><pre>
+       Species{noEqual,noDollar} <font color=black><i>N</i></font> = <font color=black><i>c</i> <i>S</i></font>.
+</pre></b>
+</font>
+
+<a name=autopull></a>
+<p><li> pull: String -&gt; (<i>N</i>, String). Function pull reads
+from a string that describes a member <i>x</i> of <i>N</i> from the front of
+a string, and returns (<i>x</i>,<i>r</i>), where <i>r</i> is what follows
+the description of <i>x</i> in the string.  
+
+<p><font color="mediumblue"> In the distance example,
+<font color=#D00090>
+pull(&quot;distance(2.6) and more&quot;)</font> = (distance(2.6), &quot; and more&quot;).
+
+<p>The forms that can be read by pull start with the name of a
+constructor and are followed by the representation value,
+possibly enclosed in parentheses.  If desired, the entire
+value can be enclosed in parentheses.  For example,
+<font color=#D00090>
+pull(&quot;(distance 4.0) and more&quot;)</font> = (distance(4.0), &quot; and more&quot;).
+</font>
+
+<p>This definition of pull allow you to use 
+<a href=listpattern.html#extract>Extract</a> to read a value from a box.
+For example,
+<font color=#D00090>
+<b><pre>
+    Assign b! := &quot;distance(64) and more string&quot;.
+    Extract [$(?d:Distance)] from b!.
+</pre></b>
+</font>
+binds d to distance(64) and leaves box b! holding &quot; and more string&quot;.
+
+Using either of the options noDollar or noEqual suppresses the 
+automatic definition of pull as well as the definition of $ or <tt>==</tt>.  
+To suppress only the definition of pull, but not of $ or <tt>==</tt>, 
+use option noPull.
+
+</ol>
+
+<a name=constructors></a>
+<hr>
+<h2><font color=mediumblue> Species with multiple constructors </font></h2>
+
+You can define a species with several constructors.  Such a species
+has different kinds of members, identified by the constructor used.
+Just separate the parts by bars.  For example,
+<font color="#D00090">
+<b><pre>
+      Extension
+        Species MyNewSpecies = con1(Real) | con2(Natural, Natural).
+      %Extension
+</pre></b>
+</font>
+defines species MyNewSpecies with two constructors, con1 and con2.
+Values constructed by different constructors are different values.  A few
+of the members of species MyNewSpecies are con1(3.2), con1(4.66),
+con2(3, 4) and con2(5, 1).
+
+<p> You can use the constructors in patterns.  
+For example, suppose that
+<i>m</i> is con1(2.4).  Then
+<font color="#D00090">
+<b><pre>
+      Match con1(?x) = m.
+</pre></b>
+</font>
+succeeds, and binds <i>x</i> to 2.4.  But
+<font color="#D00090">
+<b><pre>
+      Match con2(?x,?y) = m.
+</pre></b>
+</font>
+fails (with exception testX), 
+since <i>m</i> was not constructed using constructor con2.
+
+<p> Inverses of functions con1 and con2 are provided.  They are called
+uncon1 and uncon2.  
+For example, 
+<font color="#D00090">uncon1(con1(2.0))</font> = 2.0.  
+Expression <font color=#D00090>uncon2(con1(2.0))</font> fails with exception testX.
+
+<p> Testers con1? and con2? are also defined.  They are used to test
+which constructor was used to create a particular item.  
+For example, 
+<font color="#D00090">con1?(con1(2.5))</font> 
+is true, but <font color="#D00090">con1?(con2(4,6))</font> is false.
+
+<p> Functions <tt>==</tt>, $ and pull are 
+defined in a similar way as for species
+with a single constructor.
+
+<a name=optionsdecl></a>
+<hr>
+<h2><font color=mediumblue> Options for species declarations </font></h2>
+
+<ol>
+<li>You can omit the name of the constructor, if there is only 
+one constructor.  The constructor name defaults to the
+name of the species, with the first letter forced to lower case.
+So
+<font color="#D00090">
+<b><pre>
+      Extension
+        Species Distance = Real.
+      %Extension
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+      Extension
+        Species Distance = distance(Real).
+      %Extension
+</pre></b>
+</font>
+
+<p><li> You can omit the representation type.  It defaults to ().
+When the representation type is (), the constructor is not defined
+as a function, but instead is defined as a member of the new
+species.  For example,
+<font color="#D00090">
+<b><pre>
+      Extension
+        Species Color = red | blue | green.
+      %Extension
+</pre></b>
+</font>
+defines red: Color, blue: Color and green: Color.  The testers red?, 
+blue? and green? are defined as usual.
+
+<p><li> You can place a vertical bar in front of the first alternative 
+if desired.  For example, 
+the definition of species Color can be written
+<font color="#D00090">
+<b><pre>
+      Extension
+        Species Color = 
+          | red 
+          | blue 
+          | green
+        %Species
+      %Extension
+</pre></b>
+</font>
+
+<font color=brown>
+<p><li>You can include a <a href=modes.html>mode</a> in front of
+a constructor.  The mode is added to (and overrides where appropriate)
+mode information from the species declaration.  For example,
+<font color=#D00090>
+<b><pre>
+  Species Book = {private} book(String).
+</pre></b>
+</font>
+indicates that the constructor <i>book</i> should be marked private to the
+current package.  If you use a mode, you cannot omit the constructor.
+</font>
+
+</ol>
+
+<a name="symbol"></a>
+<hr>
+<h2><font color=mediumblue> Using operators and symbolic identifiers as constructors </font></h2>
+
+You can use binary operators as constructors.  
+For example, you
+might define a species Expression as follows.
+<font color="#D00090">
+<b><pre>
+      Extension
+        Species Expression =
+            Expression + Expression
+            Expression * Expression
+            - Expression
+        %Species
+      %Extension
+</pre></b>
+</font>
+You get three constructors, +:(Expression, Expression) -&gt; Expression,
+*: (Expression, Expression) -&gt; Expression 
+and -: Expression -&gt; Expression.
+
+<p>When you use a symbolic identifier as a constructor, the inverse of the
+constructor is given a name that is obtained from the constructor by
+adding /-.  
+For example, 
+you get +/-: Expression -&gt; (Expression, Expression).
+(In the special case of identifier ::, the constructor inverse is
+called &/-.)
+
+<a name=curry></a>
+<hr>
+<h2><font color=mediumblue> Curried constructors</font></h2>
+
+A constructor can have a curried form.  
+For example, declaration
+<font color=#D00090>
+<b><pre>
+     Species Golf = golf Natural Real
+</pre></b>
+</font>
+defines constructor golf to have species Natural -&gt; Real -&gt; Golf.
+
+<p> The destructor produces all parts of the representation as
+a single tuple.  For example, 
+ungolf(golf 2 4.5) = (2, 4.5).
+
+<p> The default $ and pull functions are defined so that, 
+For example, 
+$(golf 2 4.5) = &quot;golf(2)(4.5)&quot; and pull(&quot;golf 2 4.5 99&quot;) =
+(golf 2 4.5, &quot; 99&quot;).
+
+<a name="enumerated"></a>
+<hr>
+<h2><font color=mediumblue> Enumerated species </font></h2>
+
+If you define a species all of whose members are simply given by names,
+then you have defined an enumerated species.  
+An example is species
+TrafficLightColor defined as follows.
+<font color="#D00090">
+<b><pre>
+    Extension
+      Species TrafficLightColor = red | amber | green.
+    %Extension
+</pre></b>
+</font>
+When you define an enumerated species, that species is automatically added
+to genus ENUMERATED.  A few functions are also defined, illustrated here
+for species TrafficLightColor.
+<dl>
+
+<a name=rank></a>
+<p><dt> <font color=red>rank</font>
+<dd>: TrafficLightColor -&gt; Natural
+<p>The rank of a member of an
+enumerated species is its location in the definition list, where numbering
+is from 0.  So 
+<font color="#D00090">rank(red)</font> = 0, 
+<font color="#D00090">rank(amber)</font> = 1
+and <font color="#D00090">rank(green)</font> = 2
+
+<a name=unrank></a>
+<p><dt> <font color=red>unrank</font>
+<dd>: Natural -&gt; TrafficLightColor
+<p>This is the functional inverse 
+of rank.  So <font color="#D00090">unrank(0)</font> = red, 
+For example.
+
+<p><dt> <font color=red>trafficLightColor</font>
+<dd>: Natural -&gt; TrafficLightColor  
+<p>This is just another name for unrank.
+
+<a name=compare></a>
+<p><dt> <font color=red>compare</font>
+<dd>: (TrafficLightColor, TrafficLightColor) -&gt; Comparison
+<p>This compares two members, according to the rank ordering.  
+For example,
+<font color="#D00090">compare(red,green)</font> = less.  
+You also get comparisons &lt;, &gt;, &lt;= and &gt;= automatically from this.
+
+<a name=pred></a>
+<p><dt> <font color=red>pred</font>
+<dd> TrafficLightColor -&gt; TrafficLightColor
+<p>  pred(x) is the 
+predecessor of x.  For example, 
+<font color="#D00090">pred(green)</font> = amber.  
+Expression <font color=#D00090>pred(red)</font> 
+fails with exception domainX(&quot;predecessor of smallest&quot;).
+
+<a name=succ></a>
+<p><dt> <font color=red>succ</font>
+<dd>: TrafficLightColor -&gt; TrafficLightColor.  
+<p>succ(x) is the 
+successor if x.  For example, 
+<font color="#D00090">succ(amber)</font> = green.  
+Expression <font color=#D00090>succ(green)</font> fails with
+exception domainX(&quot;successor of largest&quot;)
+
+<a name=upto></a>
+<p><dt> <font color=red>_upto_</font>
+<dd>: (TrafficLightColor, TrafficLightColor) -&gt; [TrafficLightColor]
+<p>This produces a list of contiguous members, in ascending order.  
+For example, 
+<font color="#D00090">red _upto_ green</font> = [red, amber, green].
+
+<a name=downto></a>
+<p><dt> <font color=red>_downto_</font>
+<dd>: (TrafficLightColor, TrafficLightColor) -&gt; [TrafficLightColor]
+<p>This produces a list of contiguous members, in descending order.  
+For example, 
+<font color="#D00090">green _downto_ amber</font> = [green, amber].
+
+<a name=smallest></a>
+<p><dt> <font color=red>smallest</font>
+<dd>: TrafficLightColor
+<p>This is red, the smallest traffic light color.
+
+<a name=largest></a>
+<p><dt> <font color=red>largest</font>
+<dd>: TrafficLightColor
+<p>This is green, the largest traffic light color.
+
+</dl>
+
+All enumerated species are members of genus ENUMERATED and of genus
+RANKED.  Here is part of the standard genus hierarchy, with smaller things
+to the right.
+<b><pre>
+                                            ___ ()
+                                           /
+                                          /____ Boolean
+                                         /
+        ORDER ___ RANKED _____ ENUMERATED _____ Comparison
+                        \                \
+                         \                \____ Char
+                          \                \
+                           \                \___BoxFlavor
+                            \                \
+                             \                \_Infinity
+                              \
+                               \_______________ Natural
+</pre></b>
+The only way to add a new species to ENUMERATED or RANKED is to
+define an enumerated species.
+
+<a name="select"></a>
+<hr>
+<h2><font color=mediumblue> Defining selectors</font></h2>
+
+In a species declaration, you can define selectors that return
+parts of a value.  You do this by marking a component with 
+<i>s</i> ~&gt;.  For example,
+<font color=#D00090>
+<b><pre>
+   Species River = 
+      (name   ~&gt; String,
+       length ~&gt; Distance,
+       flow   ~&gt; Real
+      )
+   %Species
+</pre></b>
+</font>
+defines three extra functions for you: name, length and flow.  If you
+define r to be river(&quot;Nile&quot;, distance(1000), 10000) then
+name(r) = &quot;Nile&quot;, length(r) = distance(1000) and flow(r) = 10000.
+
+<p>You can defined selectors when there are multiple constructors.
+A selector that is applied to the wrong kind of object fails with
+exception testX.  For example, if you define
+<font color=#D00090>
+<b><pre>
+  Species A = a1(sel1~&gt; Natural) | a2(sel2~&gt; Integer, sel3~&gt; Real).
+</pre></b>
+</font>
+then sel1(a1(4)) = 4, but sel1(a2(6,5)) fails with exception testX, since
+selector sel1 can only select from a value that was 
+constructed by constructor a1.
+
+<font color=brown>
+<p>You can include a mode in front of a selector.  That mode augments
+(and replaces of appropriate) modes given with the species declaration.
+For example,
+<font color=#D00090>
+<b><pre>
+   Species River = 
+      ({protected} name   ~&gt; String,
+       {private}   length ~&gt; Distance,
+                   flow   ~&gt; Real
+      )
+   %Species
+</pre></b>
+</font>
+indicates that selector <i>name</i> is protected, <i>length</i> is private and
+<i>flow</i> is public.
+</font>
+
+<a name="expect"></a>
+<hr>
+<h2><font color=mediumblue> Expecting species </font></h2>
+
+You can make a promise that a species will be defined later.  You typically
+do this in the interface to a package to indicate that a species
+is defined, but to hide the details of its definition.  Declaration
+<font color=#D00090>
+<b><pre>
+  Extension
+     Expect species <font color=black><i>T</i></font>.
+  %Extension
+</pre></b>
+</font>
+
+promises that species <i>T</i> will be defined.  Use mode noEqual, as
+in 
+<font color=#D00090>
+<b><pre>
+  Extension
+     Expect{noEqual} species <font color=black><i>T</i></font>.
+  %Extension
+</pre></b>
+</font>
+if you do not intend to define equality for this species.
+
+<a name=description></a>
+<hr>
+<h2><font color=mediumblue> Providing descriptions </font></h2>
+
+You can provide a description of a species in a declaration that
+defines or expects the species. The description is a string constant,
+and is put at the end of the declaration.  Here are some 
+examples.
+<font color=#D00090>
+<b><pre>
+    Expect species Pelican
+      %&quot; Species pelican contains birds with large beaks.
+    %Expect
+
+    Species Pelican = Bird
+      %&quot; Species pelican contains birds with large beaks.
+    %Species
+</pre></b>
+</font>
+
+<a name=iskindof></a>
+<hr>
+<h2><font color=mediumblue> Adding species to abstractions </font></h2>
+
+When you create a species, you can add it to one or more abstractions.
+Just write <tt>isKindOf A,B,C</tt> after the name of the species
+to add it to abstractions A, B and C.  
+For example,
+<font color=#D00090>
+<b><pre>
+    Species Pelican isKindOf BIRD = SpecialBird.
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="extensiondcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="famdcl.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,397 @@
+<HTML>
+<head>
+<title>Astarte: naming</title>
+</head>
+<body>
+<center>
+<a href="identifiers.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="patternmatch.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E9. Giving Things Names </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main>Naming things</a>
+  <li> <a href=#bindingident> Forms for binding identifiers</a>
+  <li> <a href=#scope> Scope</a>
+  <li> <a href=#CloseScope> Closing the scope</a>
+  <li> <a href=#team> Mutual recursion</a>
+  <li> <a href=#by> Choosing values to name</a>
+  <li> <a href=#bring> Definition by inheritance</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue> Naming things </font></h2>
+
+You can give things names using <em>let</em>, <em>define</em>,
+<em>match</em> and <em>relet</em> statements.  
+A name can be used for the remainder of its scope.  See 
+<a href="#scope">scoping</a>, below.
+For example,
+<font color="#D00090">
+<b><pre>
+      Let x = 5.
+      (x+x)
+</pre></b>
+</font>
+is an expression whose value is 10.
+
+<a name=bindingident></a>
+<hr>
+<h2><font color=mediumblue> Forms for binding identifiers </font></h2>
+
+<dl>
+<a name=let></a>
+<dt><font color="red"> Let <em>i</em> = <em>e</em> %Let</font>
+<dd> This defines identifier <em>i</em> to be the value of 
+expression <em>e</em>. 
+Let statements are <i>eager</i>;
+<em>e</em> is evaluated immediately, and its value is given a name.
+
+<p>There are some important restrictions on let statements.
+<ol>
+<p><li>A let statement can only
+be used in a context where the identifier <em>i</em> being defined
+currently has no value; it cannot be used to change the meaning of a name.  
+
+<p><li>Let statements cannot be used to make recursive definitions.  Use
+define statements for that.
+</ol>
+
+<p>Example:
+<font color="#D00090">Let zebra = "stripes".</font>
+
+<a name=define></a>
+<p><dt><font color="red"> Define <em>i</em> = <em>e</em> %Define</font>
+<dd> This defines identifier <i>i</i> to be the value of 
+expression <i>e</i>. 
+<p>Define statements are <i>lazy</i> --
+the value of <i>e</i> will not be computed until the value 
+of <i>i</i> is used.
+
+<p>Like a let statement, a define statement
+can only be used in a context where
+the identifier <i>i</i> being defined has no value; 
+it cannot rebind a bound identifier.  
+
+<p>A define statement can be recursive.  That is, you can define 
+<i>i</i> in terms of itself.
+
+<p>Example:
+<font color="#D00090">Define ones = 1 :: ones.</font>
+
+<a name=relet></a>
+<P><dt><font color="red"> Relet i = e %Relet</font>
+<dd> This redefines identifier <i>i</i> to be the value 
+of expression <i>e</i>. It can only be used in a context
+where identifier <i>i</i> is already defined; it changes the binding.  
+Moreover, <i>i</i> must be a local identifier in
+the same innermost function or lazy expression where
+<i>i</i> is initially defined.
+
+<p>Relet statements are eager.  That is, the value being given a name 
+is evaluated immediately.
+<p>Example:
+<font color="#D00090">Relet zebra = "black-and-white".</font>
+
+<font color=brown>
+<P> The following is not allowed, since x is redefined in
+a lazy context other than the one in which it is initially defined.
+<b><font color="darkorange">
+<b><pre>
+       Let x = 2.
+       Define y =
+         Relet x = 3.       %% Not allowed.
+         (x + x)
+       %Define
+</pre></b></b>
+</font>
+</font>
+
+<P><dt><font color="red"> Match p = e %Match</font>
+<dd> This matches pattern p against the value of e.  See
+<a href="patternmatch.html">pattern matching</a>.  Match
+statements are normally eager.  They evaluate e before doing the match.
+<p>Example:
+ <font color="#D00090">Match (?x,?y) = p.</font>
+
+</dl>
+
+<a name="scope"></a>
+<hr>
+<h2><font color=mediumblue> Scope </font></h2>
+
+With some exceptions, discussed below,
+the scope of an identifier definition extends from the point
+where the identifier is defined to the end of the innermost 
+bracketed construct
+that contains the definition.  A bracketed construct is one that
+starts with a word W (such as Let) and ends with %W (such as %Let)
+or with a period or semicolon that stands for %W.  
+For example, in
+<font color=#D00090>
+<b><pre>
+        Let a =
+           Let b = 2.
+	   (b+b)
+        %Let
+</pre></b>
+</font>
+the scope of b is the interior of the Let a = ... statement.  So
+b cannot be used outside that statement.
+
+<font color=brown>
+<p>There are some exceptions to this scoping rule. 
+<ol>
+<li> <b>Ordered pairs.</b>
+Ordered pairs can be computed in any order.  If you write
+(<i>A</i>,<i>B</i>), where <i>A</i> and <i>B</i> are expressions,
+then either <i>A</i> or <i>B</i> might be evaluated first.
+Hence, neither can see bindings done by the other.
+
+Bindings done within an ordered pair expression are not visible
+outside the ordered pair, and bindings done in one component of the
+ordered pair are not visible in the other component.  
+For example,
+<font color=#D00090>
+<b><pre>
+      (Let a = b*b. (a*a), c)
+</pre></b>
+</font>
+is allowed, but the binding of a is not visible outside the ordered pair.
+
+<p><li><b>Function application.</b>
+In many programming languages, a function must be an identifier.
+For example, 
+you can write f(x), where f is an identifier.
+In Astarte, a function can be an arbitrarily complex expression.
+The order of evaluation of function applications is also not
+defined.  That is, if you write <i>a</i>(<i>b</i>) where <i>a</i> is
+an expression that computes a function and <i>b</i> is an expression
+that is the argument for that function, then either <i>a</i> or <i>b</i>
+can be computed first.  Bindings done in one part of expression 
+<i>a</i>(<i>b</i>) are not visible in the other part.  
+However, bindings done in the parts
+are visible outside the expression.  So
+<font color=darkorange>
+<b><pre>
+      ((Let x = 1. Writeln) ([$x]))
+</pre></b>
+</font>
+is not allowed, since it violates this scope rule, but
+<font color=#D00090>
+<b><pre>
+      ((Let x = 1. Writeln)(["Good"]))
+      Writeln[$x].
+</pre></b>
+</font>
+is allowed.
+
+<p><li><b>Failure.</b> In some situations, an identifier definition becomes
+unavailable due to a failure.  So in
+<font color=#D00090>
+<b><pre>
+       Try
+         Let a = f(x).
+         Let b = g(x).
+       then
+         <font color=black><em>... (a and b are available here.)</em></font>
+       else
+         <font color=black><em>... (neither a nor b is available here.)</em></font>
+       %Try
+</pre></b>
+</font>
+a and b are not available in the else part because, in order to
+get there, the part that computes a and b must have failed.
+
+<p><li><a name="open"></a>
+<b>Open Expressions.</b>
+You can place the
+word <em>open</em> in front of some constructs.  Doing so causes definitions
+made inside them to be visible outside.  It opens the scope.
+Modifier open is most useful for conditionals and loops.  
+For example,
+if you write
+<font color=#D00090>
+<b><pre>
+      If x == 0
+         then Let y = 0.
+         else Let y = 1/x.
+      %If
+</pre></b>
+</font>
+the value of y is not available outside the if expression.  But if
+you write
+<font color=#D00090>
+<b><pre>
+      open If x == 0
+         then Let y = 0.
+         else Let y = 1/x.
+      %If
+</pre></b>
+</font>
+then the value of y is available outside.  Only those identifiers that
+are bound on every possible branch can be used outside.
+
+<p>The following kinds of expressions support open.
+
+<center>
+<table>
+<tr>
+<td> &nbsp;</td> <td> <font color=brown>Ask</font> </td>       
+<td> &nbsp;</td> <td> <font color=brown>Let</font> </td>       
+<td> &nbsp;</td><td>  <font color=brown>Stream</font> </td>
+<tr>
+<td> &nbsp;</td> <td> <font color=brown>Atomic</font> </td>    
+<td> &nbsp;</td> <td> <font color=brown>Loop</font> </td>
+<td> &nbsp;</td><td> <font color=brown>Trap</font> </td>
+<tr>
+<td> &nbsp;</td> <td> <font color=brown>Choose</font> </td>    
+<td> &nbsp;</td><td> <font color=brown>Mix</font> </td>
+<td> &nbsp;</td><td> <font color=brown>Try</font> </td>
+<tr>
+<td> &nbsp;</td> <td> <font color=brown>CutHere</font> </td>
+<td> &nbsp;</td> <td> <font color=brown>Match</font> </td>	  
+<td> &nbsp;</td><td> <font color=brown>Untrap</font> </td>
+<tr>
+<td> &nbsp;</td> <td> <font color=brown>Define</font> </td>        
+<td> &nbsp;</td><td> <font color=brown>(procedure application)</font> </td>
+<td> &nbsp;</td><td> <font color=brown>Unique</font> </td>
+<tr>
+<td> &nbsp;</td> <td> <font color=brown>If</font> </td>   
+<td> &nbsp;</td><td> <font color=brown>Relet</font> </td>
+</table>
+</center>
+
+Additionally, you can place the word open in front of an ordered pair
+or tuple.  This makes the bindings done in the pair or tuple visible
+outside.  It also forces the tuple to be evaluated from left to right,
+so that bindings done in each component are visible in components
+to the right of it.
+</ol>
+
+<a name=CloseScope></a>
+<hr>
+<h2><font color=mediumblue> Closing the scope </font></h2>
+
+If you want to close the scope of a section of code, so that
+identifier bindings done in it are not visible outside, you can use
+function CloseScope.  
+CloseScope is just the identity function (CloseScope(x) = x), but
+since it is a procedure identifier, using it closes the scope.  So
+<font color=#D00090>
+<b><pre>
+       CloseScope
+         Let x = y*y.
+	 Writeln[$x].
+       %CloseScope
+</pre></b>
+</font>
+does not allow the definition of <i>x</i> to be seen outside.
+</font>
+
+<a name="team"></a>
+<hr>
+<h2><font color=mediumblue> Mutual recursion </font></h2>
+
+Define statements can be used to make recursive definitions
+of functions, but they do not allow mutual recursion, since 
+each identifier must be defined before it is used.
+To do mutual recursion, use a team.  It has the form
+<font color=#D00090>
+<b><pre>
+    Team
+       <font color=black><em>definitions</em></font>
+    %Team
+</pre></b>
+</font>
+where <em>definitions</em> is a sequence of definitions for
+the identifiers.  Each definition should be a define statement.
+For example, 
+here is a mutually recursive definition of
+two functions even and odd.  It uses 
+<a href="funcexpr.html">function definitions</a>.
+<font color="#D00090">
+<b><pre>
+       Team
+         Define even by
+           case even(0)    = true
+           case even(?n+1) = odd(n)
+         %Define
+
+         Define odd by
+           case odd(0)    = false
+           case odd(?n+1) = even(n)
+         %Define
+       %Team
+</pre></b>
+</font>
+
+<a name="by"></a>
+<hr>
+<h2><font color=mediumblue> Choosing values to name </font></h2>
+
+You can use a let or define statement of the form
+<font color=#D00090>
+<b><pre>
+      Let <font color=black><i>x</i></font> by <font color=black><em>choice-mode</em></font>
+        case <font color=black><i>x</i></font> = <font color=black><i>a1</i></font> when <font color=black><i>c1</i></font>
+        case <font color=black><i>x</i></font> = <font color=black><i>a2</i></font> when <font color=black><i>c2</i></font>
+        <font color=black>...</font>
+      %Let
+</pre></b>
+</font>
+to define an identifier (<i>x</i> in this case).  
+Each of <i>c1</i>, <i>c2</i>, etc. is a condition
+that must be true for the case to be chosen.
+The cases are tried
+according to the choice mode, which must be as in
+<a href="funcexpr.html#choicemode">defining functions by cases</a>.
+Optionally, the last case can begin with <em>else</em>, and
+have no when clause.
+For example, 
+if you want to set m to the smaller of u and v, you can
+write
+<font color="#D00090">
+<b><pre>
+      Let m by one
+        case m = u  when u &lt;= v
+        case m = v  when v &lt;= u
+      %Let
+</pre></b>
+</font>
+or
+<font color="#D00090">
+<b><pre>
+      Let m by one
+        case m = u when u &lt;= v
+        else m = v
+      %Let
+</pre></b>
+</font>
+
+<a name=bring></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Definition by inheritance </font></h2>
+
+You can define an identifier using a bring expression.  Bring expressions
+have the same form as <a href=bringdcl.html>bring declarations</a>.
+
+<hr>
+<center>
+<a href="identifiers.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="patternmatch.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,40 @@
+Package var1 
+
+%% Test Var expr and dcl for creating boxes (not arrays)
+
+Var v1,v2 holding Natural.
+
+Var v3 holding Natural := 2.
+
+Var v4,v5 holding Natural := 6.
+
+Var{nonshared} p1,p2 holding Natural.
+
+Var{nonshared} p3 holding Natural := 2.
+
+Var{nonshared} p4,p5 holding Natural := 6.
+
+Execute
+  If emptyBox?(v1) else Writeln["Bad1"]..
+  If emptyBox?(v2) else Writeln["Bad2"]..
+  If @v3 =/= 2  then Writeln["Bad3"]..
+  If @v4 =/= 6  then Writeln["Bad4"]..
+  If @v5 =/= 6  then Writeln["Bad5"]..
+ 
+  If emptyBox?(p1) else Writeln["Bad6"]..
+  If emptyBox?(p2) else Writeln["Bad7"]..
+  If @p3 =/= 2  then Writeln["Bad8"]..
+  If @p4 =/= 6  then Writeln["Bad9"]..
+  If @p5 =/= 6  then Writeln["Bad10"]..
+%Execute
+
+Execute
+  Var{shared} x1 := 3.
+  Var{nonshared} x2 := 4.
+
+  If @x1 =/= 3 then Writeln["Bad11"]..
+  If @x2 =/= 4 then Writeln["Bad12"]..
+%Execute
+
+%Package
+

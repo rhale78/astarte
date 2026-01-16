@@ -1,0 +1,20 @@
+Package testid 
+
+%% Test ids, tags.
+%% Also test an expectation with multiple contributions.
+
+Directory standard.  Import "misc/check".
+
+Expect x: INTEGER`a.
+Define x = 1: Natural.
+Define x = -5: Integer.
+
+Execute
+  Let a = 1.
+  Let (a!) = 1.
+  Let b = x: Natural.
+  Line[a $$ 5, (a!) $$ 5, b $$ 5, x:Integer $$ 5, "\n"].
+  Check["    1    1    1   -5\n"].  
+%Execute
+
+%Package

@@ -1,0 +1,515 @@
+/*****************************************************************
+ * File:    Compiler.doc
+ * Purpose: Describe the compiler
+ * Author:  Karl Abrahamson
+ ****************************************************************/
+
+
+           =============================================
+           High level description of Astarte translator.
+           =============================================
+
+  REMARKS
+  Terminology in the code is somewhat strange, since some of the code
+  was written before the terminology was modified.  
+  The word 'type' is sometimes used to mean a species.
+  The word 'class' is sometimes used to mean genus, community, 
+  species or family.  The word 'entity' is used for a data item.
+  The word 'place' is used for shared box, and 'box' for nonshared box.
+
+
+
+     =====================================================
+    			Anatomy
+     =====================================================
+
+The main program is in src/parser/compiler.c.  It processes command line
+arguments, initializes, and starts the parser.
+
+The parser is in src/parser/parser.y.  It reads the input through a 
+lexer that has three stages: preprocessing to handle imports; the
+main lexer (src/lexer/lexer.lex) and postprocessing that handles
+such things as pushbacks.  The parser forms data structures (parse trees)
+and passes them to a declaration handler.
+
+Declaration handlers are in directory src/dcls. Some declarations, such 
+as abbreviations and assumptions, are handled immediately by placing entries
+in tables.  Declarations that require type inference are handled by
+file src/dcls/dcl.c.  Simple declarations are typically handled by making
+table entries.  
+
+For declarations such as define-declarations, processing is done in 
+the following order.
+
+  (1) Identifiers are handled (src/ids/ids.c). Identifiers are
+      classified as local or global.  The parser creates a separate node
+      for each occurrence of an identifier; the identifier handler
+      replaces them by a single shared node.
+      Open if, try, etc. constructs are handled (src/ids/open.c).
+      Overloaded global identifiers are tagged as such.
+
+  (2) Main type inference is done (src/infer/infer.c).  That includes
+      type inference that can be done without knowing types of 
+      overloaded identifiers.
+
+  (3) Overloaded identifiers are handled (src/infer/defer.c).  All 
+      possibilities are tried.  There are two passes.  The first just
+      determines all possibilities, and checks whether any of them 
+      contribute to expectations.  The second pass makes table entries and
+      generates code.  Stage (4) below is done only on the second pass, and
+      stage (5) is done on both passes.  Stages 6 and beyond are only done
+      on the second pass.
+
+  (4) Roles are checked (src/error/newrole.c).
+
+  (5) Pattern match substitution is done, and type inference that results
+      from choice of translation rule are done (src/patmatch/translt.c).
+
+  (6) Scopes are assigned to local ids and to expressions that require
+      autonomous environments (await, function, lazy-list, define 
+      expressions). (src/ids/lateids.c)
+
+  (7) The declaration is issued.  Declaration processors are in
+      src/dcls/defdcls.c and src/dcls/somedcls.c.
+
+  (8) Code is generated (src/generate/genexec.c).  During code generation, 
+     defaults are handled (src/infer/defaults.c).
+
+If an error occurs during type inference, the most promising collection
+of bindings is returned to, and an error is reported there.
+
+A declaration processor makes entries in the tables.  The table manager is
+in src/tables and src/clstbl.  For declarations that require code 
+to be generated, the declaration processor calls the code generator 
+in src/generate/genexec.c.
+The code generator passes the byte-code through a primitive peephole
+optimizer in src/generate/improve.c, which gets rid of some of the 
+silly things that the main code generator does.
+
+
+     ======================================================
+     Directories and files for the compiler are as follows.
+     ======================================================
+
+***************************************************************************
+                            ARCHITECTURE AND CONFIGURATION
+***************************************************************************
+
+src/misc/config.h
+src/misc/files.h
+----------------
+  Local configuration.  Where are the directories?  config.h needs
+  to be edited to configure.
+
+src/misc/options.h
+-------------------
+  Top level option selector.  This file needs to be edited to 
+  configure the architecture.
+
+src/misc/debug.h
+src/misc/prod.h
+src/misc/tstconfig.h
+----------------
+  Compilation options.
+
+src/misc/16bitn.h
+src/misc/32bita.h
+src/misc/32bitn.h
+src/misc/32bita.h
+-----------------
+  Definitions according to word size and alignment requirements.
+
+src/misc/unixl.h
+src/misc/unixm.h
+src/misc/unixs.h
+src/misc/win16.h
+----------------
+  Operating system characteristics and more compilation options.
+
+***************************************************************************
+                            CONSTANTS, CONTROL
+***************************************************************************
+
+src/misc/complain.h
+-------------------
+  Options for controlling how the compiler complains about bad things.
+
+src/misc/limits.h
+-----------------
+  Compiled in limits that cannot be exceeded.
+
+src/misc/misc.h
+---------------
+  Included by every program.  Reads the misc header files, as well as
+  stdio.h.  Defines TRUE, FALSE.
+
+src/misc/perform.h
+----------------
+  Sizes of data structures and parameters that only affect performance.
+
+src/misc/types.h
+----------------
+  Types used in both the compiler and the interpreter.
+
+
+***************************************************************************
+                            UTILITIES
+***************************************************************************
+
+src/utils/filename.c
+src/utils/filename.h
+--------------------
+  Utilities for managing file and directory names.
+
+src/utils/hash*
+-------------------
+  These files implement hash tables, and are used mainly by the table manager.
+
+  hash.doc: Description
+  hash.h:   Prototypes
+  hash.c:   General functions
+  hash1.c:  Hash tables with just a key
+  hash2.c:  Hash tables with a key and a value.
+
+src/utils/lists*
+--------------------
+  These files implement linked lists.
+
+  lists.doc: 	Description
+  lists.h: 	Prototypes
+  lists.c: 	Implementation
+  listutil.c: 	Assorted utilities for lists, including
+		reverse, append, membership testing, delete, copy,
+		subscript, length, merge sorted lists, sort,
+		intersection, 
+
+src/utils/strops.c
+src/utils/t_strops.c
+src/utils/strops.h
+------------------------
+  These files implement misc string and character operations for
+  the compiler and the interpreter.
+	
+src/utils/rdwrt.c
+src/utils/rdwrt.h
+-------------------------
+  Input and output functions used for writing integers into files and
+  reading them back, and for placing and getting integers in byte
+  arrays.  Used during byte-code generation.
+
+src/alloc/*
+-----------
+  Storage allocation and freeing.
+
+  allocate.h: Prototypes for all files in directory alloc.
+  allocate.c: Basic (generic) storage allocation.
+  allocors.c: Allocators and freers for assorted types.
+  alocexpr.c: Allocators and freers for exprs (translator structures).
+  aloclist.c: Allocators and freers for lists.
+  alocrole.c: Allocators and freers for roles.
+  aloctype.c: Allocators and freers for types.
+  tempstr.c:  Allocation of temporary arrays of bytes.  
+
+***************************************************************************
+			DATA STRUCTURES                            
+***************************************************************************
+
+src/classes/*
+-------------
+  These files handle Astarte types, classes, etc. as data structures,
+  and also handle roles as data structures.
+
+  type.doc:    Description of type data structure.
+  classes.h:   Prototypes for all files in directory classes.
+  bring.c:     Processing types for brings.
+  type.c:      Build type nodes.
+  role.c:      Build role nodes, and role operations
+  copytype.c:  Copying type structures.
+  printty.c:   Print a type.
+  typeutil.c:  Misc utilities for types, including
+	       test for hermit type, powers of types, equality test,
+	       test for a variable in a class structure, reduction in
+	       size, replacement of vars, membership tests in lists.
+  t_tyutil.c:  Utilities used by translator, including
+	       test for hidden types, setting node fields, 
+	       finding a class that contains another, support
+	       for run-time variables.
+
+
+src/exprs/*
+------------
+  These files handle expressions as a data structure, build expressions
+  and examine/modify them.
+
+  expr.doc:     Description of expr data structure.
+  expr.h:       Prototypes for all files in directory exprs except prtexpr.c
+		and brngexpr.c.  (Why?  Who knows.)
+  expr.c:       Build expr nodes.
+  brngexpr.h:   Prototypes for brngexpr.c.
+  brngexpr.c:   Building expressions for bring declarations.
+  choose.c:     Building expressions for building conditionals.
+  context.c:    Building expressions for context expressions.
+  copyexpr.c:   Copy an expr.
+  exprutil.c:   Misc functions for exprs, including
+	        general scan_expr, application with NULL treated as (),
+	        converting a list to a product expression, test for hermit,
+	        skip_sames, inserting one expr at the end of another,
+	        setting fields, searching for certain ids, size of an expr,
+	        some dynamic storage management support, 
+	        marking pattern functions with PAT_FUN,
+  prtexpr.h: 	Prototypes for prtexpr.c
+  prtexpr.c: 	Print exprs.
+
+
+***************************************************************************
+			TABLE MANAGER                            
+***************************************************************************
+
+src/tables/*
+------------
+  Table manager.
+
+  tables.h:	  Prototypes.
+  assume.c:	  Assume tables.
+  contrib.c:	  Determinations about what should be put into global
+		  id table.
+  descrip.c:	  Description table, and managing descriptions.
+  fileinfo.c:	  Management of tables that are associated with files.
+		  (Here, the structures that keep track of the tables
+		  themselves are managed.  The individual tables, once
+		  found by this module, are managed by other modules.)
+  globtbl.c:      Table of global identifiers.  Here, we remember
+		  definitions and expectations.
+  idtbl.c:	  Top level interface for globtbl.c and loctbl.c.
+  loctbl.c:       Tables for local identifiers and local scopes.
+  missing.c:	  Tables of things declared missing.
+  primtbl.c:	  Functions for declaring primitives.
+  secimp.c:	  Managing second and subsequent imports of packages.
+  strtbl.c:	  String table.  (Only one copy of each string is stored.)
+  t_compl.c:	  Exhaustiveness tester for definitions.  
+  tableman.c:	  Other tables. (Context tables, advisory tables, ...)
+  visible.c:	  Management of visibility of definitions that are stored
+		  in globtbl.c.
+
+src/clstbl*
+-----------
+  Tables for managing information about types, data abstractions, etc.
+
+  abbrev.c:	  Abbreviations
+  abbrev.h:	  Prototypes.
+  classinf.c:	  Information about classes.
+  classtbl.c:	  Main table for maintaining information about the species
+		  and the abstraction hierarchy.
+  classtbl.h:	  Prototypes, etc.
+  cnstrlist.c:	  Keeping track of the lists of constructors for species.
+  cnstrlist.h:	  Prototypes.
+  dflttbl.c:	  Keeping track of defaults for abstractions.
+  dflttbl.h:	  Prototypes.
+  meettbl.c: 	  Table of meets for abstractions.
+  meettbl.h:	  Prototypes.
+  stdtytbl.c:	  Functions for creating standard species and abstractions.
+  stdtytbl.h:	  Prototypes.
+  vartbl.c:	  Table of variable names.
+  vartbl.h:	  Prototypes.
+
+***************************************************************************
+			LEXER AND PARSER                            
+***************************************************************************
+
+src/lexer/*
+-----------
+  Lexical Analyzer.  The input characters enter the front end of the lexer,
+  pass through the core, and come out through a back end.
+
+  lexical.h:	Prototypes for most files in lexer.  
+  modes.h:      Definitions of modes.
+  modes.c:	Handling of modes.
+  lexer.lex:	Lexer core.
+  lexerr.c:	Check for error conditions, and maintain shadow of
+		parser stack for that purpose.
+  preflex.c:    Initialization, front end and back end for lexer.
+  lexids.c:	Handling of identifiers for lexer.
+  lexsup.c: 	Misc functions for lexer.
+  lexvars.c:	Global variables for lexer.
+
+
+src/parser/*
+------------
+
+  The parser.  Here, a stream of tokens from the lexer is broken into 
+  declarations, and declarations are processed by calling the appropriate 
+  declaration processor.  Expressions and types are converted to data 
+  structures.
+
+  parser.h:	Prototypes.
+  parser.y:	Parser core.
+  asd.c:	Handling of descriptions for asthelp.
+  asd.h:	Prototypes.
+  compiler.c:	Main program for compiler.  Initialization is done here.
+  parseerr.c:	Error checking for parser.
+  parsutil.c:	Utility functions for the parser.
+  parsvars.c:	Global variables for the parser.
+  panic.c:      Handling of panic mode error recovery.
+  tokens.h:	Token codes.
+  tokmod.h:     Offsets for storing tokens, and extra tokens not used
+		in the parser.
+
+
+***************************************************************************
+			IDENTIFIER HANDLING
+***************************************************************************
+
+src/ids/*
+-----------------
+  Handling of identifiers and scoping.
+
+  ids.h: 	Prototypes.
+  ids.c: 	Identifier handling.
+  lateids.c:	More identifier handling (later in compilation process).
+  open.h:	Prototypes for open.c.
+  open.c:	Handling of open if, try exprs, etc.
+
+***************************************************************************
+			TYPE INFERENCE AND UNIFICATION
+***************************************************************************
+
+src/unify/*
+-----------
+  Unification and related functions for types.
+
+  complete.c:	Determining whether the union of a set of polymorphic
+		types completely covers a given polymorphic type.
+  constraint.c: Handling of constraints on polymorphic types.
+  constraint.h: Prototypes
+  overlap.c:	Handling of overlap calculations for polymorphic types.
+  unify.h:	Prototypes
+  unify.doc:	Discussion of unification.
+  unify.c:	Unification of polymorphic types.
+
+src/infer/*
+-----------
+  Type inference. Part of the declaration handling that is really the
+  responsibility of dcls/dcl.c is done in defer.c, because simulating
+  backtracking in C forces it.
+
+  infer.h:	Prototypes
+  infer.c:	Main type inference
+  defer.c:	Handle deferred unifications due to overloaded identifiers.
+  defaults.c:	Handle defaults for type and family variables.
+  t_unify.c:    Unification of an expr type, with possible deferral for
+		overloaded exprs.
+
+
+***************************************************************************
+			PATTERN MATCHING AND EXPANSION                         
+***************************************************************************
+
+src/patmatch/*
+------------------
+  Pattern matching.  These translations are done near the end of
+  type inference.
+
+  patmatch.h:		Prototypes
+  translt.c:		Pattern match translation
+  substit.c:		Perform substitution.
+  mode.c:		Compatibility checking
+  patutils.c:		Utility functions
+  pmcompl.c:		Exhaustiveness checking for choose-matching expressions
+
+***************************************************************************
+			DOING DECLARATIONS                            
+***************************************************************************
+
+src/dcls/*
+----------
+  Handling of declarations.  Here, the semantics of declarations is
+  processed.
+
+  dcls.h:	Prototypes.
+  dcl.c:	Define, let, patternfun, execute, team, description dcl
+		handling, top level. (manage id handling, type inference.)
+  dclclass.c:   Do species, family, genus and community dcls.  Also
+		handle class dcls.
+  dclcnstr.c:   Declare automatic functions for species and families.
+  dclutil.c:	General functions to support declarations.
+  defdcls.c:    Do define and let dcls.
+  deferdcl.c:	Handling of declarations that are given during extensions
+		that can only be processed at the end of the extension.
+  expnddcl.c:	Handling of expand declarations and pattern declarations.
+  report.c:	Manages reports of what has been declared, for putting into
+		the compiler listing.
+  somedcls.c:	Miscellaneous declarations.
+
+
+***************************************************************************
+			CODE GENERATION                            
+***************************************************************************
+
+src/generate/*
+--------------
+  Code generation
+
+  generate.h:	Prototypes.
+  generate.c:	Misc functions.
+  gendcl.c:	Generate miscellaneous declarations.
+  genexec.c:    Code generator for expressions.
+  genglob.c: 	Handle generation of global ids.
+  genstd.c:	Declare the standard functions, when doing the standard 
+		package.
+  gentype.c:	Generate code for type expressions.
+  improve.c:    Code improver -- back end of code generator.
+  prim.c:	Generate primitives.
+  prim.h:	Prototypes.
+  selmod.c:	Handling of role selectors and modifiers.
+  selmod.h:	Prototypes
+
+
+***************************************************************************
+			ERROR REPORTING
+***************************************************************************
+
+src/error/*
+------------
+  Error reporting and checking.
+
+  error.h:	Prototypes
+  error.c:	Error reporting.
+  newrole.c:	Handling of roles.
+
+
+***************************************************************************
+			MISCELLANEOUS                            
+***************************************************************************
+
+src/standard/*
+--------------
+  Declare standard objects, types, etc.
+
+  stdfuns.h:	Prototypes.
+  stdfuns.c: 	Define standard functions, objects.
+  stdids.c:	Names of standard functions, types, etc.
+  stdids.h:	Internal names for standard ids.
+  stdtypes.h:	Prototypes.
+  stdtypes.c:	Define standard species, families, abstractions.
+
+src/debug/*
+-----------
+  Support for debugging the compiler.
+
+disassemble.c
+--------------
+  This is a disassembler that can be used to read the byte code that
+  the compiler produces.  Write
+
+    disass pack.aso
+
+  to print a symbolic form of pack.aso on the standard output.
+
+  
+
+
+
+
+
+
+    

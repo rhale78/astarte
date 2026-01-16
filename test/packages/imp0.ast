@@ -1,0 +1,24 @@
+Package imp0 export
+
+%% Test multiple partial imports.
+
+Import x2 from "imp2".
+Import x2 from "imp2".
+
+Let xx = x2.
+
+Import x5 from "imp01".
+Import x6 from "imp01".
+
+Expect x7: Natural.
+
+Let yy = x5.
+Let zz = x6.
+Let ww = x7.
+
+implementation
+
+Import x7 from "imp01".
+Import x7 from "imp01".
+
+%Package

@@ -1,0 +1,142 @@
+%% File: sparsset.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================================
+Package 		Astarte_SparseSetImp 
+
+			Implements "sparsset"
+=======================================================================
+
+=======================================================================
+%% Sparse sets are implemented as binary search trees.  A binary
+%% search tree is either an empty tree (representing the empty
+%% set) or is a node containing a key, a left subtree and a
+%% right subtree.  The number of nodes in each tree is stored
+%% at its root for fast retrieval.
+=======================================================================
+
+Import "collect/srchtree".
+
+Extension
+  Species{transparent,noDollar}
+    SparseSet(ORDER`a) = makeSparseSet BinarySearchTree(ORDER`a)
+  %Species
+%Extension
+
+========================================================================
+Assume s,s': SparseSet(ORDER`a).
+========================================================================
+
+========================================================================
+%% 			GENERAL OPERATIONS
+========================================================================
+%% Note: Functions
+%%    map
+%%    filter
+%%    bpartition
+%%    someSatisfy
+%%    allSatisfy
+%%    select
+%%    fold
+%%    $
+%% will accept the defaults defined in collect.ast.
+%%
+%% Functions
+%%    set
+%%    fromList
+%%    _subset?_
+%%    \/
+%%    _unionWithList_
+%%    /\
+%%    _intersectWithList_
+%%    -
+%%    _minusList_
+%% will accept the defaults defined in set.ast.
+========================================================================
+
+Bring
+  emptySet	: {SparseSet}(ORDER`a) from emptyTree;
+  emptySet?	: {SparseSet}(ORDER`a) -> Boolean from emptyTree?;
+  toList,
+    eagerToList : {SparseSet}(ORDER`a) -> [ORDER`a];
+  size		: {SparseSet}(ORDER`a) -> Natural;
+  each,
+    eachMixed	: {SparseSet}(ORDER`a) -> ORDER`a;
+%Bring
+
+========================================================================
+%% 			sparseSet
+========================================================================
+
+Let sparseSet = set.
+
+========================================================================
+%% 			sizeAtLeast
+========================================================================
+
+Let sizeAtLeast ?n ?s = size(s) >= n.
+
+========================================================================
+%%			 _in_
+========================================================================
+
+Let ?x _in_ makeSparseSet(?t) = 
+  Untrap binarySearchTreeX =>
+    Try
+        Ignore member compare t x.
+      then true
+      else false
+    %Try
+  %Untrap
+%Let
+
+========================================================================
+%%			 +/
+========================================================================
+
+Let makeSparseSet(?t) +/ ?x =
+  makeSparseSet(insertIfNotPresent compare t x)
+%Let
+
+========================================================================
+%% 			-/
+========================================================================
+
+Let makeSparseSet(?t) -/ ?x =
+  makeSparseSet(delete compare t x)
+%Let
+
+========================================================================
+%% 			min
+%%			max
+%%			extractMin
+%%			extractMax
+========================================================================
+
+Let checkNonempty ?f ?t = f(t) |
+  {not emptyTree? t else emptyListX}
+%Let
+
+Bring 
+  min 	      : {SparseSet}(ORDER`a) -> ORDER`a 
+  		from checkNonempty min;
+  max 	      : {SparseSet}(ORDER`a) -> ORDER`a 
+  	 	from checkNonempty max;
+  extractMin  : {SparseSet}(ORDER`a) -> (ORDER`a, {SparseSet}(ORDER`a))
+   		from checkNonempty extractMin;
+  extractMax  : {SparseSet}(ORDER`a) -> (ORDER`a, {SparseSet}(ORDER`a))
+   		from checkNonempty extractMax;
+%Bring
+
+========================================================================
+%%			^^
+========================================================================
+
+Let{underride} ^^(?s) = sparseSet(^^(toList(s))).
+
+========================================================================
+
+%Package

@@ -1,0 +1,113 @@
+<HTML>
+<head>
+<title>Astarte: tuple functions</title>
+</head>
+<body>
+<center>
+<a href="collectlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="listlib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC1. Operations on pairs, triples, etc.</font></h1>
+</center>
+
+<menu>
+  <li> <a href=#convstrings> Conversion to and from strings</a>
+  <li> <a href=#miscpairs> Miscellaneous functions on pairs</a>
+</menu>
+
+<a name=convstrings></a>
+<a name="misc"></a>
+<h2><font color=mediumblue> Conversion to and from strings </font></h2>
+
+<dl>
+
+<a name=dollar></a>
+<p><dt><font color=red>$</font>
+<dd> $ converts a pair to a string by showing the pair in
+standard notation.  <font color=orange>For example</font>, $(1,2) = "(1,2)".
+
+<a name="pull"></a>
+<p><dt><font color=red> pull </font>
+<dd> <font color=#D00090>pull(s)</font> 
+extracts an ordered pair from the front of string s and
+returns an ordered pair (p,r) where p is the ordered pair that was
+extracted and r is the suffix
+of s that follows p in the string.
+<font color=orange>For example</font>,
+<font color=#D00090>pull(&quot;(2,\&quot;abc\&quot;) xyz&quot;)</font> = ((2,&quot;abc&quot;), &quot; xyz&quot;).
+Any initial white space is skipped over.
+
+<a name=extract></a>
+<p><dt><font color=red> Extract</font>
+<dd> A convenient way to get an ordered pair from a string is to put the
+string in a box and used <a href=read.html#dollar>Extract</a>.
+<font color=orange>For example</font>, if box b contains &quot;('a',99) abc&quot; then
+<font color=#D00090>
+<b><pre>
+  Extract [$(?p)] from b.
+</pre></b>
+</font>
+binds x to ('a', 99) and leaves box b holding &quot; abc&quot;.
+
+</dl>
+<a name=miscpairs></a>
+<a name="misc"></a>
+<h2><font color=mediumblue> Miscellaneous functions on pairs </font></h2>
+
+To use the functions marked with (collect/pair.ast), you will need
+to import package collect/pair.ast.
+<dl>
+
+<a name=compare></a>
+<p><dt><font color=red>compare, &lt;, &gt;, &lt;=, &gt= </font>
+<dd>Comparisons between ordered pairs are lexicographic, with the left-hand
+member of the pair having priority.  
+<font color=orange>For example</font>, (2,5) &lt; (3,4).
+
+<a name=pmap></a>
+<p><dt><font color="red">_pmap_</font>
+<dd><font color=#D00090>(f _pmap_ g)(x,y)</font> = (f x, g y). 
+<p><font color=orange>Example:</font> 
+<font color="#D00090">(left _pmap_ right)((2,3), (4,5)) = (2,5).
+</font>
+(<a href="ast/collect/pair.ast">collect/pair.ast</a>)
+
+<a name=tee></a>
+<p><dt><font color="red">_tee_</font>
+<dd><font color=#D00090>(f _tee_ g)(x)</font> = (f x, g x). 
+<p><font color=orange>Example:</font> 
+If double(x) = 2*x and triple(x) = 3*x
+then <font color="#D00090">(double _tee_ triple)(8)</font> = (16,24).
+(<a href="ast/collect/pair.ast">collect/pair.ast</a>)
+
+<a name=xpose></a>
+<p><dt><font color="red">xpose</font>
+<dd><font color=#D00090>xpose(x,y)</font> = (y,x).
+(<a href="ast/collect/pair.ast">collect/pair.ast</a>)
+
+<a name=xposef></a>
+<p><dt><font color="red">xposef</font>
+<dd><font color=#D00090>(xposef f)(a,b)</font> = f(b,a).
+<p><font color=orange>Example:</font> <font color="#D00090">
+(xposef -)(a,b) = b - a.</font>
+(<a href="ast/collect/pair.ast">collect/pair.ast</a>)
+
+</dl>
+
+<hr>
+<center>
+<a href="collectlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="listlib.html">Next</a>
+</center>
+</body>
+</HTML>
+

@@ -1,0 +1,22 @@
+Package loopelse
+
+%% Check else with loops.  Should get compile errors.
+
+Execute
+  Loop ?i = 0 first
+    exitcase i < 3 => Writeln["Ok"].
+    else =>
+      Subcases
+        exitcase i > 5 => Writeln["Not ok"].
+        loopcase else  => continue i+1
+      %Subcases
+  %Loop
+   
+  Loop ?i = 0 first
+    exitcase i < 3 => Writeln["Ok"].
+    else => Writeln["Not ok"].		%% compile error.
+  %Loop
+
+%Execute
+
+%Package

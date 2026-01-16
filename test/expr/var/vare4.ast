@@ -1,0 +1,256 @@
+Package vare4
+
+%% Test Var: multidimensional finite arrays, both uninitialized and 
+%% initialized.
+%% (Var expressions)
+
+Import "misc/check".
+Import "collect/boxes.ast".
+
+======================================================================
+%%				SHARED BOXES
+======================================================================
+
+
+Execute
+  Var{shared} as2u(2,3) holding Natural.
+  Var{shared} as2ia(2,3),as2ia'(2,3)  holding Natural all := 0.
+  Var{shared} as2i(2,3), as2i'(2,3)   holding Natural := [[1,2,3], [4,5,6]].
+  Var{shared} as2i2(2,3), as2i2'(2,3) holding Natural := [[1,2], [4,5]].
+  Var{shared} as2i3(2,3), as2i3'(2,3) holding Natural := [[1,2,3,4], [4,5,6,7]].
+  Var{shared} as2i4(2,3), as2i4'(2,3) holding Natural := [[1,2,3], [4,5,6],[7,8,9]].
+  Var{shared} as2i5(2,3), as2i5'(2,3) holding Natural := [[], [4,5,6]].
+  Var{shared} as2i6(2,3), as2i6'(2,3) holding Natural := [[1,2,3]].
+
+  Write["Shared: u"].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Assign as2u#_n#_m := 0.
+    %For
+  %For
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2u#_n#_m))].
+    %For
+  %For
+  Check["000000"].
+
+  Write[" ia"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2ia#_n#_m))].
+      Moreline[$(@(as2ia'#_n#_m))].
+    %For
+  %For
+  Check["000000000000"].
+
+  Write[" i"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2i#_n#_m))].
+      Moreline[$(@(as2i'#_n#_m))].
+    %For
+  %For
+  Check["112233445566"].
+
+  Write[" i2"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 1 do
+      Moreline[$(@(as2i2#_n#_m))].
+      Moreline[$(@(as2i2'#_n#_m))].
+    %For
+  %For
+  Check["11224455"].
+
+  Write[" i3"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2i3#_n#_m))].
+      Moreline[$(@(as2i3'#_n#_m))].
+    %For
+  %For
+  Check["112233445566"].
+
+  Write[" i4"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(as2i4#_n#_m))].
+      Moreline[$(@(as2i4'#_n#_m))].
+    %For
+  %For
+  Check["112233445566"].
+
+  Write[" i5"].
+  Line[].
+  For ?m from 0 _upto_ 2 do
+    Moreline[$(@(as2i5#_1#_m))].
+    Moreline[$(@(as2i5'#_1#_m))].
+  %For
+  Check["445566"].
+
+  For ?m from 0 _upto_ 2 do
+    If not(emptyBox?(as2i5#_0#_m)) then
+      Writeln["Box should be empty"].
+    %If
+  %For
+
+  Write[" i6"].
+  Line[].
+  For ?m from 0 _upto_ 2 do
+    Moreline[$(@(as2i6#_0#_m))].
+    Moreline[$(@(as2i6'#_0#_m))].
+  %For
+  Check["112233"].
+
+  For ?m from 0 _upto_ 2 do
+    If not(emptyBox?(as2i6#_1#_m)) then
+      Writeln["Box should be empty"].
+    %If
+  %For
+  
+  Writeln[].
+%Execute
+
+======================================================================
+%%				NONSHARED BOXES
+======================================================================
+
+Execute
+  Var{nonshared} an2u(2,3) holding Natural.
+  Var{nonshared} an2ia(2,3),an2ia'(2,3)  holding Natural all := 0.
+  Var{nonshared} an2i(2,3), an2i'(2,3)   holding Natural := [[1,2,3], [4,5,6]].
+  Var{nonshared} an2i2(2,3), an2i2'(2,3) holding Natural := [[1,2], [4,5]].
+  Var{nonshared} an2i3(2,3), an2i3'(2,3) holding Natural := [[1,2,3,4], [4,5,6,7]].
+  Var{nonshared} an2i4(2,3), an2i4'(2,3) holding Natural := [[1,2,3], [4,5,6],[7,8,9]].
+  Var{nonshared} an2i5(2,3), an2i5'(2,3) holding Natural := [[], [4,5,6]].
+  Var{nonshared} an2i6(2,3), an2i6'(2,3) holding Natural := [[1,2,3]].
+
+  Write["Nonshared: u"].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Assign an2u#_n#_m := 0.
+    %For
+  %For
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(an2u#_n#_m))].
+    %For
+  %For
+  Check["000000"].
+
+  Write[" ia"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(an2ia#_n#_m))].
+      Moreline[$(@(an2ia'#_n#_m))].
+    %For
+  %For
+  Check["000000000000"].
+
+  Write[" i"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(an2i#_n#_m))].
+      Moreline[$(@(an2i'#_n#_m))].
+    %For
+  %For
+  Check["112233445566"].
+
+  Write[" i2"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 1 do
+      Moreline[$(@(an2i2#_n#_m))].
+      Moreline[$(@(an2i2'#_n#_m))].
+    %For
+  %For
+  Check["11224455"].
+
+  Write[" i3"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(an2i3#_n#_m))].
+      Moreline[$(@(an2i3'#_n#_m))].
+    %For
+  %For
+  Check["112233445566"].
+
+  Write[" i4"].
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(@(an2i4#_n#_m))].
+      Moreline[$(@(an2i4'#_n#_m))].
+    %For
+  %For
+  Check["112233445566"].
+
+  Write[" i5"].
+  Line[].
+  For ?m from 0 _upto_ 2 do
+    Moreline[$(@(an2i5#_1#_m))].
+    Moreline[$(@(an2i5'#_1#_m))].
+  %For
+  Check["445566"].
+
+  For ?m from 0 _upto_ 2 do
+    If not(emptyBox?(an2i5#_0#_m)) then
+      Writeln["Box should be empty"].
+    %If
+  %For
+
+  Write[" i6"].
+  Line[].
+  For ?m from 0 _upto_ 2 do
+    Moreline[$(@(an2i6#_0#_m))].
+    Moreline[$(@(an2i6'#_0#_m))].
+  %For
+  Check["112233"].
+
+  For ?m from 0 _upto_ 2 do
+    If not(emptyBox?(an2i6#_1#_m)) then
+      Writeln["Box should be empty"].
+    %If
+  %For
+  
+  Writeln[].
+%Execute
+
+======================================================================
+%%				UNKNOWNS
+======================================================================
+
+Execute
+  Var{shared, unknown} asuu(2,3) holding Natural.
+  Var{nonshared, unknown} anuu(2,3) holding Natural.
+
+  Writeln["Unknowns"].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      BindUnknown asuu#_n#_m := 1.
+      BindUnknown anuu#_n#_m := 1.
+    %For
+  %For
+
+  Line[].
+  For ?n from 0 _upto_ 1 do
+    For ?m from 0 _upto_ 2 do
+      Moreline[$(asuu#_n#_m)].
+      Moreline[$(anuu#_n#_m)].
+    %For
+  %For
+  Check["111111111111"].
+%Execute
+
+%Package
+

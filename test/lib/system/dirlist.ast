@@ -1,0 +1,15 @@
+Package dirlist
+
+%% Test dirlist, getcwd
+
+Directory standard.
+Import "system/system".
+
+Execute
+  Let l = dirList(file ".").
+  Writeln[$l].
+  Let cwd = getCwd():String.
+  Writeln[$cwd].
+%Execute
+
+%Package

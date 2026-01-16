@@ -1,0 +1,13 @@
+Package impB0
+
+%% Test private imports as second imports, where the
+%% first import was not private.
+
+Import "impB1".
+Import{private} "impB1".
+
+Execute
+  Writeln[$v].
+%Execute
+
+%Package

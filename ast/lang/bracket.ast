@@ -1,0 +1,99 @@
+%% File: bracket.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%================================================================
+Package 	Astarte_Bracket
+
+		Export
+==================================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package describes bracketing by keywords.
+
+===================================================================
+		BEGIN AND END MARKERS
+===================================================================
+
+Several constructs begin with a word, such as Let, and end with the
+same word with a % sign in front of it, such as %Let.  %Let is a 
+single token, so there must be no space between % and Let.
+
+All constructs that have such bracketing should begin with a
+capitalized word.  You write
+
+	Let x = 2 %Let
+
+not
+
+	let x = 2 %let
+	
+Here are some more examples of bracketed constructs.
+
+	If x > 4 then 0 else 1 %If
+	
+	Expect f: `a -> `a %Expect
+	
+===================================================================
+			PERIODS
+===================================================================
+
+A period can stand for any end marker.  For example, you can write
+
+	Let x = 2.
+
+to stand for
+
+	Let x = 2 %Let
+
+where the period stands for %Let.  There is a restriction.  A period
+can only be used as an end marker if it occurs on the same line as
+the start of the construct that it ends.  So
+
+	Let x =
+	  2.
+
+is not allowed.
+
+===================================================================
+			SEMICOLONS
+===================================================================
+
+With all declarations and some expressions you can use a semicolon
+to end a construct and immediately begin another of the same kind.
+For example,
+
+	Let 
+	  x = 4;
+	  y = 7
+	%Let
+
+stands for
+
+	Let x = 4 %Let
+	Let y = 7 %Let
+
+with the semicolon standing for %Let Let.  To do several
+expectations, you typically use semicolons.
+
+	Expect
+	   round: REAL`a -> Integer;
+	   mulch: Branch -> Mulch
+	%Expect
+
+All constructs that admit a semicolon have an empty form that has
+no effect.  Thus, you can put a semicolon after the last part, as
+in 
+
+	Let 
+	  x = 4;
+	  y = 7;
+	%Let
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+%Package
+

@@ -1,0 +1,166 @@
+%% File: semaphor.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package 		Astarte_Semaphore 
+
+			Interface
+=================================================================
+
+=================================================================
+%% This package provides a generic Wait operation that waits for
+%% a function to evaluate to true.
+%%
+%% This package also implements fair binary semaphores.
+%% Semaphores are described in most texts on operating
+%% systems or concurrency.  A semaphore is typically used
+%% to ensure that a certain part of a program, called a
+%% critical section, is executed without interference
+%% by other threads.
+%%
+%% Basic operations are SemWait(s) to wait for semaphore s,
+%% and SemSignal(s) to release semaphore s.  You may also
+%% use form
+%%
+%%         SemProtect s over
+%%           <critical section>
+%%         %SemProtect
+%%
+%% which is roughly equivalent to
+%%
+%%         SemWait(s).
+%%         <critical section>
+%%         SemSignal(s).
+%%
+%% except that 
+%%
+%%    1. The value of the SemProtect expression is
+%%       the same as the value of the critical section.
+%%
+%%    2. If the critical section fails for any reason, including
+%%       forced termination from outside, then a SemSignal(s) is
+%%       done, and the exception is propagated outwards.
+%%
+%% Use unblockedSemaphore() to create a new, initially
+%% unblocked binary semaphore, and blockedSemaphore() to
+%% create a new, initially blocked, binary semaphore.
+%%
+%% This package also provides lockable data items, which have
+%% a semaphore attached to them for locking them.
+=================================================================
+
+=================================================
+Extension
+  Expect species Semaphore
+  	%" Semaphore is the species of a binary semaphore.
+	%" Operations are 
+	%"     unblockedSemaphore,         (creation)
+	%"     blockedSemaphore,           (creation)
+	%"     SemWait,                    (wait)
+	%"     SemSignal,                  (signal)
+	%"     SemProtect.                 (protect a critical section)
+  %Expect
+  
+  Species{transparent} Lockable(`a) = 
+    makeLockable (lockOf ~> Semaphore, lockedOf ~> `a)
+    
+    %" An object of species Lockable(T) holds an object of 
+    %" species T with an attached lock so that access to 
+    %" the object can be controlled.  Operations are
+    %"
+    %"   lockable(x)   : item x, with a lock attached to it
+    %"   lockOf(z)     : the lock of lockable item z.  (The lock
+    %"                   is a semaphore.)
+    %"   lockedOf      : the locked value.  
+    %"                   So lockedOf(lockable(x)) = x.
+  %Species
+%Extension
+=================================================
+Description
+  makeLockable	: (Semaphore, `a) -> Lockable(`a)
+  
+  		%" makeLockable(s,x) is a lockable version of x
+		%" that uses semaphore s to control its lock.
+		%" See function lockable, which creates a new
+		%" semaphore for you.
+%Description
+=================================================
+Expect
+   blockedSemaphore	: () -> Semaphore
+
+			%" blockedSemaphore() is a new semaphore
+			%" that is initially blocked.
+			;
+			
+   lockable		: `a -> Lockable(`a)
+   
+   			%" lockable(x) consists of x together with a 
+			%" new, initially unblocked semaphore.
+			;
+
+   SemSignal		: Semaphore -> ()
+
+			%" SemSignal(s) releases semaphore s.  It
+			%" should only be executed by a thread that
+			%" has acquired s, via SemWait.
+			;
+
+   SemWait		: Semaphore -> ()
+
+			%" SemWait(s) waits for semaphore s to
+			%" become available, and acquires it.
+			;
+
+   unblockedSemaphore 	: () -> Semaphore
+
+			%" unblockedSemaphore() is a new semaphore
+			%" that is initially not blocked.
+			;
+
+   Wait			: (() -> Boolean) -> ()
+
+			%" Wait(f). repeatedly pauses until f()
+			%" evaluates to true."
+			;
+			
+  {underride}:
+  
+  ^^			: Lockable(`a) -> Lockable(`b)
+  			   constraint (`b >= `a);
+
+%Expect
+===============================================================
+Let 
+  description 
+    %" printSemaphore is used to protect printing to stdout.
+  
+  printSemaphore = unblockedSemaphore()
+%Let
+===============================================================
+%% Use SemProtect to protect a critical section. The form is
+%%
+%%    SemProtect s over
+%%      <critical section>
+%%    %SemProtect
+
+Let over: (Semaphore, `a) -> (Semaphore, `a) = idf.
+Operator open over( := ).
+
+Expect{missing, strong} SemProtect: (Semaphore, `a) -> `a.
+
+Expand SemProtect ?s over ?criticalSection. =>
+  Atomic SemWait(s)..
+  open Try catchingTermination
+    open Let csval = criticalSection.
+    Atomic SemSignal(s)..
+  else
+    SemSignal(s).
+    Fail exception.
+  %Try
+  csval
+%Expand
+
+%Package

@@ -1,0 +1,27 @@
+Package testquicktry 
+
+%% Test quick try implementation
+
+Execute
+  Try
+    Mix
+      Try
+        Loop ?i = 0 first
+          exitcase i == 100 => ()
+          loopcase else => continue i+1
+        %Loop
+        {true}
+      then
+        Writeln["Good"].
+      else
+        Writeln["Bad"].
+      %Try
+    with
+      Writeln["Here we go"].
+    %Mix
+    {false}
+  %Try
+%Execute
+
+%Package
+

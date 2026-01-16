@@ -1,0 +1,29 @@
+Package do1 
+
+%% Check do phrases in define-by, Let-by, and Choose-matching.
+
+Import "misc/check".
+
+Let f by first
+  do f ?xx ?yy   => Line["Starting f, x = ", $xx, " y = ", $yy].
+  case f nil ?y = y
+  case f [? & ?] ?y = y + 1
+%Let
+
+Execute
+  Let a = f [1] 3.
+  Check["Starting f, x = [1] y = 3"].
+  Line[$a].
+  Check["4"].
+%Execute
+
+Execute
+  Choose first matching 2+3
+    do ?xx => Line[$xx].
+    do Check["5"].
+    case ?x => Line[$x].
+  %Choose
+  Check["5"].
+%Execute
+
+%Package

@@ -1,0 +1,21 @@
+Package srt
+
+Import "misc/check".
+	
+Define sort by 
+  case sort [] = []
+          
+  case sort (?pivot :: ?rest) =
+    sort [: x | Let x = each rest.  {x <= pivot} :]
+    ++ [pivot]
+    ++ sort [: x | Let x = each rest.  {x > pivot} :]
+%Define
+
+Execute
+  Line[$(sort "horse")].
+  Check["\"ehors\""].
+  Line[$(sort "zstesadsestawqyucbv")].
+  Check["\"aabcdeeqssssttuvwyz\""].
+%Execute
+
+%Package

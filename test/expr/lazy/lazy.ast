@@ -1,0 +1,88 @@
+Package testlazy 
+
+%% Test lazy evaluation
+
+Directory standard. Import "misc/check".
+
+Assume n: Natural.
+=======================================================
+Define f ?x = Await then x..
+=======================================================
+Execute 
+  Line[f 2 $$ 10].
+  Check[2 $$ 10].
+%Execute
+=======================================================
+Define g ?x ?y = Await x then y + y..
+=======================================================
+Execute
+  Let a = g 1 2.
+  Line[$a].
+  Check["4"].
+  Let b = g (:1:) 2.
+  Line[$b].
+  Check["4"].
+%Execute
+=======================================================
+Define nats ?n = n :: (:nats(n+1):).
+Define theNats = nats(0).
+=======================================================
+Execute
+  Define x = theNats.
+  Define y = tail x.
+  Define z = m + m | Define m = head y..
+  Line[z $$ 4].
+  Check["   2"].
+  Line[x#1 $$ 4].
+  Check["   0"].
+  Line[y#1 $$ 4].
+  Check["   1"].
+  Line[x#3 $$ 4].
+  Check["   2"].
+%Execute
+=======================================================
+%% hamming = [1,2,3,4,5,6,8,9,10,12,15,...]
+
+Define merge by first 
+  Await then
+    case merge [] ?a = a
+    case merge ?a [] = a
+    case merge ([?a & ?b] _also_ ?x) ([?c & ?d] _also_ ?y) = 
+      Choose first
+        case a == c => [a & merge b d]
+        case a < c  => [a & merge b y]
+        else        => [c & merge x d]
+      %Choose
+  %Await
+%Define	     
+=========================================================
+Team
+  Define 
+    hamming = [1 & merge twos (merge threes fives)];
+    twos    = [: 2 * x | Let x = each hamming. :];
+    threes  = [: 3 * x | Let x = each hamming. :];
+    fives   = [: 5 * x | Let x = each hamming. :];
+  %Define 
+%Team
+====================================================================
+Import "collect/string".
+Execute
+  Writeln["Should print the first 500 hamming numbers"].
+  Writeln[wrapLines 70 $(hamming##(0,500))].
+  %%  Line[$(hamming##(0,22))].
+  %%  Check["[1,2,3,4,5,6,8,9,10,12,15,16,18,20,24,25,27,30,32,36,40,45]"].
+%Execute
+====================================================================
+Execute
+  Line["1 2 3"].
+  Check[:Stream "1 " then "2 " then "3" %stream:].
+%Execute
+
+Execute
+  Let b = (:1, fail testX: ():).
+  Line[$left b].
+  Check["1"].
+%Execute
+
+%Package
+

@@ -1,0 +1,24 @@
+Package dflt
+
+%% Test defaulting of variables
+
+Import "misc/check".
+Import "math/math".
+
+Advise show all.
+
+Let f(?x) = x^2.
+
+Let g(?x) = x^~(2:``a).
+
+Execute
+  Let a = f(3).
+  Let b = g(3).
+  Line[$a, " ", $b].
+  Check["9 9"].
+%Execute
+
+
+%Package
+
+

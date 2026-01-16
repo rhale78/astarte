@@ -1,0 +1,21 @@
+Package irregularFun 
+
+Import "misc/check".
+
+Extension
+  Species T1 = irregular mm `a | nn Integer.
+%Extension
+
+Let{irregular} test = unmm.
+
+Execute
+  Let a = mm(2).
+  Let b = nn(3).
+  Let c = test(a).
+  Match mm(?av) = a.
+  Match nn(?bv) = b.
+  Line[$ av, " ", $ bv, " ", $ c].
+  Check["2 3 2"].
+%Execute
+
+%Package

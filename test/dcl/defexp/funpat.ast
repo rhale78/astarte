@@ -1,0 +1,8 @@
+Package funpat
+
+%% Test definition of undefined binary operator.  Should
+%% get a reasonbable error message.
+
+Let ?a _op_ ?b = a + b.
+
+%Package

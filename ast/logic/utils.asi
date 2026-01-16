@@ -1,0 +1,82 @@
+%% File: utils.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%========================================================================
+Package 		Astarte_LogicUtilsImp 
+
+			implements "utils"
+==========================================================================
+
+Import "logic/unify".
+Import "math/math".
+
+==========================================================================
+%% 			known?
+==========================================================================
+
+Let known?(?x) = not unknown? x.
+
+==========================================================================
+%% 			ground?
+==========================================================================
+
+Let ground?(?x) = not hasUnknowns? x.
+
+==========================================================================
+%% 			Append
+==========================================================================
+
+Define Append by all
+  case Append ?a        := ([],?a).          <-  ()
+  case Append [?h & ?r] := ([?h & ?t], ?b).  <-  Append r := (t,b).
+%Define
+
+==========================================================================
+%% 			Sum
+==========================================================================
+
+%% For rings
+
+Let Sum by first
+  case Sum ?a := (?b,?c).  <-  Unify(a, b + c).    
+  				when known?(b) _and_ known?(c)
+				 
+  case Sum ?a := (?b,?c).  <-  Unify(b, a - c).
+  				when known?(a) _and_ known?(c)
+				 
+  case Sum ?a := (?b,?c).  <-  Unify(c, a - b).    
+  				when known?(a) _and_ known?(b)
+%Let
+
+%% For Natural
+
+Let Sum: (Natural, Natural, Natural) -> () by first
+  case Sum ?a := (?b,?c).  <-  Unify(a, b + c).
+  				when known?(b) _and_ known?(c)
+				 
+  case Sum ?a := (?b,?c).  <-  {a >= c} 
+  				Unify(b, a -- c).
+  				when known?(a) _and_ known?(c)
+				 
+  case Sum ?a := (?b,?c).  <-  {a >= b} 
+  				Unify(c, a -- b).
+  				when known?(a) _and_ known?(b)
+%Let
+
+%% For other wrapped species
+
+Let{underride} Sum by first
+  case Sum ?a := (?b,?c).  <-  Unify(a, b+c).
+  				when known?(b) _and_ known?(c)
+				 
+  case Sum ?a := (?b,?c).  <-  Unify(+b, (+a) - (+c)).
+  				when known?(a) _and_ known?(c)
+				 
+  case Sum ?a := (?b,?c).  <-  Unify(+c, (+a) - (+b)).    
+  				when known?(a) _and_ known?(b)
+%Let
+
+%Package

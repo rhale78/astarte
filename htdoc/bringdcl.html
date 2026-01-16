@@ -1,0 +1,176 @@
+<HTML>
+<head>
+<title>Astarte: bring declarations</title>
+</head>
+<body>
+<center>
+<a href="exceptiondcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="packages.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D10. Bring Declarations and Expressions </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Bringing definitions to new species</a>
+  <li><a href=#several>Bringing several items</a>
+  <li><a href=#rename>Renaming</a>
+  <li><a href=#complex>More complex brings</a>
+  <li><a href=#efficiency>The efficiency of brings</a>
+  <li><a href=#allowed>Allowed conversions</a>
+  <li><a href=#mode>Modes for brings</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Bring definitions to new species</font></h2>
+
+You can define a new species New to have representation species Rep
+by
+<font color=#D00090>
+<b><pre>
+    Extension
+      Species New = Rep.
+    %Extension
+</pre></b>
+</font>
+When you do this, you only get a few basic operations for species
+New.  For example, if you write
+<font color=#D00090>
+<b><pre>
+    Extension
+      Species Distance = Real.
+    %Extension
+</pre></b>
+</font>
+you define a new species Distance whose values are represented by
+real numbers.  You get a constructor called distance and a
+destructor called undistance.  You do not automatically inherit
+the ability to add or multiply distance values.
+
+<a name=brace></a>
+<p>You can let your new species inherit some operations from
+the representation species using a bring declaration.  
+For example,
+to create a function +: (Distance, Distance) -&gt; Distance that adds
+two distances, you can write
+<font color=#D00090>
+<b><pre>
+    Bring +: ({Distance}, {Distance}) -&gt; {Distance}.
+</pre></b>
+</font>
+The new definition of + is defined in terms of the old one
+where each occurrence of a species in braces is replaced by the
+appropriate representation species.  Since the representation species
+of Distance is Real, + for distances is defined as the same
+as +:(Real, Real) -&gt; Real, where computation is performed on
+the representation.
+
+<p>The type is required in a bring declaration.  You cannot, for
+example, just write <font color=darkorange><tt>Bring + %Bring</tt></font>.
+
+<a name=several></a>
+<hr>
+<h2><font color=mediumblue> Bringing several items </font></h2>
+
+You can bring several items in one declaration or expression, as long as all
+have the same type.  
+For example, you can bring both addition and
+subtraction of distances as follows.
+<font color=#D00090>
+<b><pre>
+    Bring +,-: ({Distance}, {Distance}) -&gt; {Distance}.
+</pre></b>
+</font>
+
+<a name=rename></a>
+<hr>
+<h2><font color=mediumblue> Renaming </font></h2>
+
+Typically, you bring a function from another one of the same name.
+If you are defining just one item, you can change its name.  
+For example,
+suppose that you want to be able to add distances, but you want the
+addition function to be called distanceSum.  Then you can write
+<font color=#D00090>
+<b><pre>
+    Bring distanceSum: ({Distance}, {Distance}) -&gt; {Distance} from +.
+</pre></b>
+</font>
+where the from phrase tells the function that is being inherited,
+but the bring tells the name under which it will be inherited.
+
+<a name=complex></a>
+<hr>
+<h2><font color=mediumblue> More complex brings </font></h2>
+
+Bring declarations can switch between objects and their 
+representations in relatively complex ways.  
+For example,
+suppose that you have a list of real numbers and you want to 
+convert it into a list of distances.  You can write a conversion
+function for that.  In terms of the representations, the two lists
+are the same.  So the function that implements the conversion is
+the identity function.  You write
+<font color=#D00090>
+<b><pre>
+    Bring asDistances: [Real] -&gt; [{Distance}] from idf.
+</pre></b>
+</font>
+This says that function asDistances: [Real] -&gt; [Distance] is
+implemented, on representations, by idf: [Real] -&gt; [Real].
+
+<a name=efficiency></a>
+<hr>
+<h2><font color=mediumblue> The efficiency of brings </font></h2>
+
+A bring does not introduce any new computation.  
+For example,
+function asDistances is implemented exactly as idf.  The computation
+is simply done on the representations, and no additional type
+conversion functions are run.  This makes brings very efficient
+for some operations.
+
+<a name=allowed></a>
+<hr>
+<h2><font color=mediumblue> Allowed conversions </font></h2>
+
+We say that a conversion between species A and B is allowed if
+you can write {A} in a bring declaration, and expect {A} to be
+replaced by B in the type of the function that is inherited, or
+the other way around.
+<ol>
+<p><li> You can convert between a species and its representation
+species, as long as the species has just one constructor.
+You can do this in any context in a type.
+If there are two or more constructors, you cannot convert.
+
+<p><li> You can convert between a variable whose domain is RANKED or
+ENUMERATED and its representation, Natural, provided the 
+conversion occurs in a 
+<a href=typecontext.html>left context</a>.
+</ol>
+
+<a name=mode></a>
+<hr>
+<h2><font color=mediumblue> Modes for brings </font></h2>
+
+You can use the same modes for a bring declarations as for a
+<a href=letdcl.html#override>define declarations</a>.  For example,
+a bring can be a default, or can override a prior definition.
+
+<hr>
+<center>
+<a href="exceptiondcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="packages.html">Next</a>
+</center>
+</body>
+</HTML>

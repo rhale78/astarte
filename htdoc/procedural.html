@@ -1,0 +1,334 @@
+<HTML>
+<head>
+<title>Astarte: procedural programming</title>
+</head>
+<body>
+<center>
+<a href="logicprog.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="objectbase.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue>Introduction to Procedural Programming in Astarte</font></h1>
+</center>
+
+<menu>
+  <li><a href=#local>Locally imperative programming by name rebinding</a>
+  <li><a href=#procedure>Procedures</font></a>
+  <li><a href=#box>Boxes</font></a>
+  <li><a href=#localbox>Locally imperative programming using boxes</a>
+  <li><a href=#array>Arrays</a>
+  <li><a href=#global>Globally imperative programming</a>
+</menu>
+
+<hr>
+Procedural programming is a form of <i>imperative</i> programming,
+where a program computes by performing actions, and a program contains
+commands to perform those actions.
+
+<a name=local></a>
+<hr>
+<h2><font color=mediumblue>Locally imperative programming by name rebinding</font></h2>
+
+The simplest model of imperative programming is name rebinding.  
+As a program runs, it changes the values that names are bound to.
+
+<p>In Astarte, you can rebind a local name using Relet.  For example,
+here is an implementation of the factorial function.
+<font color=#D00090>
+<b><pre>
+  Define factorial ?n =
+    Let r = 1.
+    Let k = 0.
+    While k &lt; n do
+      Relet k = k + 1.
+      Relet r = r * k.
+    %While
+    Value r.
+  %Define
+</pre></b>
+</font>
+
+<a name=procedure></a>
+<hr>
+<h2><font color=mediumblue>Procedures</font></h2>
+
+A procedure is a function that produces value ().  In Astarte, a procedure
+is normally given a name that starts with an upper case letter.  According
+to the syntactic conventions, when a procedure P is applied, a matching
+end marker %P (or a period that stands for it) must 
+be provided at the end of the call.  That must be done regardless the
+context in which the procedure call occurs.  For example, here is a
+definition of a procedure that prints the factorials of the numbers from
+1 to n.
+<font color=#D00090>
+<b><pre>
+  Define PrintFactorials ?n. =
+    Let k = 1.
+    While k &lt;= n do
+      Writeln[$(factorial k)].
+      Relet k = k + 1.
+    %While
+  %Define
+</pre></b>
+</font>
+To print the factorials from 1 to 20, you write
+<font color=#D00090>
+<b><pre>
+  PrintFactorials 20.
+</pre></b>
+</font>
+
+<a name=box></a>
+<hr>
+<h2><font color=mediumblue>Boxes</font></h2>
+
+An alternative to rebinding names is to use data items that have
+characteristics that can be changed.  
+A <i>box</i> has a <i>content</i> that can be changed.
+The content of box <i>b</i> is written @<i>b</i>.
+
+<p>You can create a box and give it a name using a Var-expression.  Expression
+<font color=#D00090>
+<b><pre>
+  Var x.
+</pre></b>
+</font>
+creates a new box named x.  The species of this box will be determined
+by type inference.  Use Var x,y,z. to create three boxes.
+
+<p>It is conventionl in Astarte to choose a name for a box that
+ends on an exclamation point, so that you can be reminded that it
+is a box.
+
+<a name=localbox></a>
+<hr>
+<h2><font color=mediumblue>Locally imperative programming using boxes</font></h2>
+
+<p>Boxes are data items, and can be passed among functions and procedures just
+like other data items.  Suppose that b is a box, and you write
+P(b).  Do you intend to pass the box b itself to procedure P, or do
+you actually want to pass the content of box b to P?  The
+distinction is an important one.  If the box is passed, then
+procedure P has access to that box, and can change its content.  If
+only the content of the box is passed, then procedure P does not
+receive the box at all, and so cannot change its content.
+
+<p>Procedural programming languages make that determination from context.
+For example, in C++ the determination is made by the kind of parameter
+that is being passed.  If the parameter is a value parameter, then
+the content of the box is passed.  If the parameter is a reference
+parameter, then the box itself is passed.
+
+<p>Astarte does not make the determination of whether you mean a box or
+the content of the box.  That is up to you.  Expression f(b) always passes
+box b to f.  Expression f(@b) passes the content @b of box b to f.
+
+<p>The content of a box is changed by an <i>assignment</i> statement.
+The form is
+<font color=#D00090>
+<b><pre>
+  Assign b := v.
+</pre></b>
+</font>
+where v is the value to be put into the box.  Assign is a procedure in Astarte,
+and statement Assign b := v %Assign passes the ordered pair (b,v) to
+that procedure.  Like any other function or procedure, you must say
+exactly what should be passed to it.  If you want to put 2 into box b,
+then you must pass the pair (b,2).
+
+<p>Suppose that x and y are two boxes, and you want to copy the content
+of box y into box x.  Then you must pass pair (x,@y) to the Assign procedure.
+So you write
+<font color=#D00090>
+<b><pre>
+  Assign x := @y.
+</pre></b>
+</font>
+
+<p>Here is a definition of the factorial function using boxes to 
+handle the imperative aspects.
+<font color=#D00090>
+<b><pre>
+  Define factorial ?n =
+    Var r!,k!.
+    Assign r! := 1.
+    Assign k! := 0.
+    While @k! &lt; @n! do
+      Assign k! := @k! + 1.
+      Assign r! := @r! * @k!.
+    %While
+    Value @r!.
+  %Define
+</pre></b>
+</font>
+To use boxes, be sure that you put @ in front of them when you want
+their contents.
+
+<a name=array></a>
+<hr>
+<h2><font color=mediumblue>Arrays</font></h2>
+
+An array is, logically, a list of boxes.  Normally, an array is
+stored in consecutive memory locations, which allows rapid
+subscripting, but that only affects how efficiently the boxes
+are accessed.
+
+<p>You can create an array using a var expression.  For example,
+<font color=#D00090>
+<b><pre>
+  Var arr(n).
+</pre></b>
+</font>
+creates an array of size n.  The type of the boxes is determined
+by context.  arr#k is the k-th box in this array.  Keep in mind that
+arr#k is a box.  To get the content of that box, 
+use <font color=#D00090>@(arr#k)</font>.
+Alternatively, you can get the entire array contents, as a list,
+using <font color=#D00090>contents(arr)</font>.
+
+<p>Here is an example that performs an insertion sort on an array.
+<font color=#D00090>
+<b><pre>
+  Define 
+    description
+      %" Insert(arr,k) sorts arr(1..k) into ascending order, 
+      %" under the supposition that arr(1..k-1) is already sorted.
+      %" k must be positive.
+
+    Insert(?arr,?k). =
+      Let i = k--1.
+      While i &gt; 0 _and_ @(arr#i) &gt; @(arr#(i+1)) do
+         Swap(arr#i, arr#(i+1)).
+         Relet i = i -- 1.
+      %While
+  %Define 
+
+  Define
+    description
+      %" Sort(arr) sorts array arr into ascending order.
+
+    Sort ?arr. =
+      For ?i from 2 _upto_ length(arr) do
+        Insert(arr,i).
+      %For
+  %Define
+</pre></b>
+</font>
+
+<a name=global></a>
+<hr>
+<h2><font color=mediumblue>Globally imperative programming</font></h2>
+
+Boxes can be put into data structures.  An example of a data structure
+containing boxes is a hash table.  A hash table presumes that a <i>hash</i>
+function is available that tells where in an array to put an item.
+If the hash function is called hashfun, then 
+<font color=#D00090>hashfun(k) _mod_ 
+length(arr)</font> tells where in array arr key k will be stored.
+
+<p>A problem with hash tables is that two different keys can be
+stored at the same array index.  This is called a <i>collision</i>.  
+One solution is to store a list of items at each spot in the array.
+The list consists of pairs (k,v) consisting of a key and a value.
+
+<p>Here is a partial implentation of hash tables.  The support functions, such
+as removeKey, are by far easiest to write in a functional style, so 
+we do that.
+
+<font color=#D00090>
+<b><pre>
+  ===========================================================
+  Exception hashTableX
+    %" A lookup in a hash table has failed.
+  %Exception
+  ===========================================================
+  Define 
+    description
+      %" newHashTable(n) returns a new hash table of size n.
+
+    newHashTable(?n ) = arr |
+      Var arr(n).
+  %Define
+  ===========================================================
+  Define 
+    description
+      %" removeKey key lst returns the result of removing 
+      %" the first pair (k,v) from lst where k = key.
+
+    removeKey by first
+      case removeKey ? []                    = []
+      case removeKey ?key [(?key,?) & ?rest] = rest
+      case removeKey ?key [?pr & ?rest]      = [pr & removeKey key rest] 
+  %Define
+  ===========================================================
+  Define 
+    description
+      %" InsertIntoHashTable(arr,key,val,hashfun) modifies array
+      %" arr by removing any existing pair (key,val'), and then adding
+      %" pair (key,val).  
+      %"
+      %" Function hashfun is the hash function to use.
+
+    InsertIntoHashTable(?arr,?key,?val,?hashfun). =
+      Let index    = hashfun(key) _mod_ length(arr).
+      Let oldEntry = @(arr #_ index).
+      Let newEntry = (key,val) :: (removeKey key oldEntry)
+      Assign arr#_index := newEntry.
+  %Define
+  ===========================================================
+  Define 
+    description
+      %" RemoveFromHashTable(arr,key,hashfun) modifies array
+      %" arr by removing any existing pair (key,val)
+      %"
+      %" Function hashfun is the hash function to use.
+
+    RemoveFromHashTable(?arr,?key,?hashfun). =
+      Let index    = hashfun(key) _mod_ length(arr).
+      Let oldEntry = @(arr #_ index).
+      Let newEntry = removeKey key oldEntry
+      Assign arr#_index := newEntry.
+  %Define
+  ===========================================================
+  Define 
+    description
+      %" lookupInHashTable(arr, key, hashfun) returns the value
+      %" associated with key in hash table arr.  If there is
+      %" no such key, it fails with exception hashTableX.
+      %"
+      %" Function hashfun is the hash function to use.  
+
+    lookupInHashTable(?arr,?key,?hashfun) =
+      Try
+        Let index  = hashfun(key) _mod_ length(arr).
+        Let result = assoc key  @(arr #_ index).
+      then
+        Value result.
+      else
+        fail hashTableX
+      %Try
+  %Define
+  ===========================================================
+</pre></b>
+</font>
+
+Data structures that contain boxes, and whose operations work by
+modifying the contents of those boxes, are called <i>ephemeral</i>
+data structures.  Each time a modification is made, the former content
+of the data structure is lost.  Ephemeral data structures can be
+quite efficient, but they need to be used with care.
+Be careful not to destroy something that you need!
+
+<hr>
+<center>
+<a href="logicprog.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="objectbase.html">Next</a>
+</center>
+</body>
+</HTML>

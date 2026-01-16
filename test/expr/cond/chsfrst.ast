@@ -1,0 +1,87 @@
+Package choosefirst 
+
+%% Test Choose first, in open and closed forms
+
+Import "misc/check".
+
+%% Test Choose first expressions
+
+Execute
+  Line
+   [Choose first
+      case false => "bad"
+      do Let g = "good".
+      case 0 == 0 => g
+      else       => "bad"
+     %Choose]
+  %Line
+  Check["good"].
+%Execute
+
+Execute
+  Choose first
+    case 0 == 0 =>
+	Subcases
+	  case 1 == 2 => Line["bad"].
+	  case 1 == 1 => Line["good"].
+	%Subcases
+    case 0 == 0 => Line["bad"].
+  %Choose
+  Check["good"].
+%Execute
+
+%% Test open Choose first expressions
+
+Execute
+  open Choose first
+    case false    => Let a = 1.
+    case true => 
+      Subcases
+        case true => Let a = 2.
+	else      => Let a = 5.
+      %Subcases
+    else          => Let a = 3.
+  %Choose
+  If a =/= 2 then Writeln["bad"]. %if
+%Execute
+
+Execute
+  open Choose first
+    case false    => Let a = 1.
+    case true => 
+      Subcases
+        case true => Let a = 2.
+	else      => Let a = 5.
+      %Subcases
+  %Choose
+  If a =/= 2 then Writeln["bad"]. %if
+%Execute
+
+Execute
+  open Choose first
+    case false    => Let a = 1.
+    case true => 
+      Subcases
+        case true => Let a = 2.
+	else      => Let a = 5.
+      %Subcases
+    else          => fail testX
+  %Choose
+  If a =/= 2 then Writeln["bad"]. %if
+%Execute
+
+Execute
+  open Choose first
+    case false    => Let a = 1.
+    case true => 
+      Subcases perhaps
+        case true => Let a = 2.
+	else      => Let a = 5.
+      %Subcases
+    else          => {false}
+  %Choose
+  If a =/= 2 then Writeln["bad"]. %if
+%Execute
+
+%Package
+

@@ -1,0 +1,56 @@
+Package testenum 
+
+%% Test enumerated types.
+
+Import "misc/check".
+
+Extension
+  Species Enum = vala | valb | valc.
+%Extension
+
+Execute
+  %% $
+
+  Line[$vala, " ", $valb, " ", $valc].
+  Check["vala valb valc"].
+
+  %% rank
+
+  Line[$rank(vala), " ", $rank(valb), " ", $rank(valc)].
+  Check["0 1 2"].
+
+  %% enum
+
+  Line[$enum(0), " ", $enum(1), " ", $enum(2)].
+  Check["vala valb valc"].
+
+  %% unenum
+
+  Line[$unenum(vala), " ", $unenum(valb), " ", $unenum(valc)].
+  Check["0 1 2"].
+
+  %% testers
+
+  Line[$vala?(vala), " ", $vala?(valb)].
+  Check["true false"].
+
+  %% ==
+
+  Line[$(vala == vala), " ", $(vala == valb), " ", $(valb == valb)].
+  Check["true false true"].
+
+  %% compare
+
+  Line[$compare(valb,vala), " ", 
+	   $compare(valb, valb), " ", 
+	   $compare(valb,valc)]
+  %Line
+  Check["greater equal less"].
+  
+  %% largest, smallest
+  
+  Line[$(largest:Enum), " ", $(smallest:Enum)].
+  Check["valc vala"].
+%Execute
+
+%Package

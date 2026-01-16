@@ -1,0 +1,11 @@
+Package testExecute 
+
+%% Test Execute with semicolons
+
+Execute
+  Writeln["\n Should print 2 3 on separate lines\n"].;
+  Writeln["2"].;
+  Writeln["3"].;
+%Execute
+
+%Package

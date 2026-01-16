@@ -1,0 +1,78 @@
+<HTML>
+<head>
+<title>Astarte: expand declarations</title>
+</head>
+<body>
+<center>
+<a href="patternmatch2.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="advisedcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D16. Expand Declarations </font></h1>
+</center>
+
+<menu>
+  <li><a href=#expanddcl>Expand declarations</a>
+  <li><a href=#noExpand>Suppressing expansion</a>
+</menu>
+
+<a name=expanddcl></a>
+<hr>
+<h2><font color=mediumblue>Expand declarations</font></h2>
+
+Expand declarations are used to request inline expansions.
+Declaration
+<font color=#D00090>
+<b><pre>
+    Expand double(?x) =&gt; x + x.
+</pre></b>
+</font>
+indicates that the compiler should replace expression double(4) 
+by expression 4+4.
+
+<p> Rules for expand declarations are similar to rules for
+pattern declarations.  However, there is no target, and the
+expansion does not define the pattern identifiers that occur
+on the left-hand side of =&gt;.  
+
+<p> Expansions are only done when they do not restrict the polymorphism
+of a declaration.
+
+<a name=noExpand></a>
+<hr>
+<h2><font color=mediumblue> Suppressing expansion </font></h2>
+
+You can suppress expansion of a function by applying function 
+noExpand to it.  For example, 
+the following expansion is defined
+for function max.
+<font color=#D00090>
+<b><pre>
+      Expand max[?a,?b] =&gt; If a &gt; b then a else b %If.
+</pre></b>
+</font>
+To force the max function to be used, without being replaced by
+a conditional, you can write
+<font color=#D00090>
+<b><pre>
+      Let x = (noExpand max)[y,z].
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="patternmatch2.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="advisedcl.html">Next</a>
+</center>
+</body>
+</HTML>

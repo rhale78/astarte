@@ -1,0 +1,43 @@
+Package fail 
+
+%% Test fail in lazy settings.
+
+Import "misc/check".
+
+%% Deferred failure
+
+Execute
+  Define a = fail testX: [Natural].
+  Try
+    Ignore(nil? a).
+  then
+    Line["Bad"].
+  else
+    Line["Good, exception ", $exception].
+  %Try
+  Check["Good, exception testX"].
+  Try
+    Ignore(nil? a).
+  then
+    Line["Bad"].
+  else
+    Line["Good, exception ", $exception].
+  %Try
+  Check["Good, exception testX"].
+%Execute
+
+%% Lazy argument to fail
+
+Execute
+  Define a = (:testX:).
+  Try
+    fail a
+  then
+    Line["Bad"].
+  else
+    Line["Good, exception ", $exception].
+  %Try
+  Check["Good, exception testX"].
+%Execute
+
+%Package

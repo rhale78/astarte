@@ -1,0 +1,8 @@
+Package priv1
+
+Import "priv2".
+Import "priv2".
+
+Let x = f(2).
+
+%Package

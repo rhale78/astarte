@@ -1,0 +1,133 @@
+<HTML>
+<head>
+<title>Astarte: complex species</title>
+</head>
+<body>
+<center>
+<a href="stdfam.html">Prev</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href="polymorphism.html">Next</a>
+</center>
+</body>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T4. Complex Species </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main> Species Constructors</a>
+  <li> <a href=#examp> Examples</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Species Constructors</font></h2>
+
+You can produce complex species from simple species using the
+following constructs.
+
+<dl>
+<a name=parens></a>
+<dt> <font color=red>(...)</font>
+<dd> You can use parentheses as much as you like in a complex
+species to group things.
+
+<a name=product></a>
+<p><dt> <a href=tupleexpr.html>(<i>A</i>,<i>B</i>)</a>
+<dd> Species (<i>A</i>,<i>B</i>) contains ordered pairs (<i>x</i>,<i>y</i>) 
+where <i>x</i> has
+species <i>A</i> and <i>y</i> has species <i>B</i>.  
+For example, species (String, Natural)
+contains pairs (&quot;sheep&quot;, 2) and (&quot;goat&quot;, 4).  
+Species (<i>A</i>,<i>B</i>) is called
+a <i>cartesian product</i> species.  
+<b>The parentheses are required; you cannot write simply <i>A</i>,<i>B</i></b>.
+
+<p> Notation (<i>A</i>,<i>B</i>,<i>C</i>) 
+abbreviates (<i>A</i>,(<i>B</i>,<i>C</i>)), notation
+(<i>A</i>,<i>B</i>,<i>C</i>,<i>D</i>) 
+abbreviates (<i>A</i>,(<i>B</i>,(<i>C</i>,<i>D</i>))), etc.  
+So (true,2,&quot;six&quot;)
+has species (Boolean, Natural, String).
+
+<a name=function></a>
+<p><dt> <a href=funcexpr.html><i>A</i> -&gt; <i>B</i></a>
+<dd> Species <i>A</i> -&gt; <i>B</i> contains functions with 
+<font color=blue><i>domain</i></font> <i>A</i> and 
+<font color=blue><i>codomain</i></font> <i>B</i>.  
+That is, they take a parameter of species <i>A</i> and
+produce a result of species <i>B</i>.  Operator -&gt; associates to the
+right, so <i>A</i> -&gt; <i>B</i> -&gt; <i>C</i> 
+is understood to mean <i>A</i> -&gt; (<i>B</i> -&gt; <i>C</i>).
+
+<a name=fam></a>
+<p><dt> <font color=red><i>F</i> <i>T</i></font>
+<dd> If <i>F</i> is a parameterized species and <i>T</i> is a species, 
+then <i>F</i> <i>T</i> is a species.
+For example, 
+List(String) is a species.  One of the members
+of that species is list [&quot;one&quot;, &quot;two&quot;, &quot;three&quot;].
+This operation has higher precedence than -&gt;.  
+So <i>F</i> <i>A</i> -&gt; <i>B</i> is understood to mean
+(<i>F</i> <i>A</i>) -&gt; <i>B</i>.
+
+<a name=list></a>
+<p><dt> <font color=red>[<i>T</i>]</font>
+<dd> [<i>T</i>] abbreviates List(<i>T</i>).
+
+<a name=box></a>
+<p><dt> <font color=red>&lt;:<i>T</i>:&gt;</font>
+<dd> &lt;:<i>T</i>:&gt; abbreviates Box(<i>T</i>).
+
+<a name=string></a>
+<p><dt> <font color=red>String</font>
+<dd> String abbreviates [Char].
+</dl>
+
+<a name=examp></a>
+<hr>
+<h2><font color=mediumblue> Examples </font></h2>
+
+The type building constructs can be combined in arbitrary ways.
+Here are a few examples.
+<dl>
+<dt> <font color=red>(Natural, Natural) -&gt; Natural</font>
+<dd> is the species of the addition function that takes a pair of natural
+numbers and produces a natural number as its result.
+
+<p><dt> <font color=red>([String], Natural) -&gt; String</font>
+<dd> is the species of a function whose parameter must be an
+ordered pair consisting of a list of strings and a natural number,
+and that produces a string as its result.  An example of such a
+function is one that takes pair (x,n) and produces the n-th member
+of list x.
+
+<p><dt> <font color=red>[String] -&gt; (String, [String])</font>
+<dd> is the species of a function that takes a list of strings
+as a paramter and produces an ordered pair consisting of a string and
+a list of strings.
+
+<p><dt> <font color=red>[Natural -&gt; Natural]</font>
+<dd> is the species of a list of functions, each of which takes
+a natural number and produces a natural number.
+
+<p><dt> <font color=red>Natural -&gt; Natural -&gt; Natural</font>
+<dd> Keep in mind that -&gt; associates to the right.  So this species
+is read Natural -&gt; (Natural -&gt; Natural).  A function of this species
+takes a natural number as its parameter and produces, as its result,
+a function of species Natural -&gt; Natural.
+</dl>
+
+<hr>
+<center>
+<a href="stdfam.html">Prev</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp&nbsp&#8226;&nbsp;&nbsp;
+<a href="polymorphism.html">Next</a>
+</center>
+</body>
+</HTML>

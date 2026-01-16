@@ -1,0 +1,12 @@
+Package noimp
+
+%% What happens if there is only an interface file, and no
+%% implementation file?
+
+interface
+
+Expect test: Natural.
+
+Let test = 3.
+
+%Package

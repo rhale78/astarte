@@ -1,0 +1,50 @@
+Package teststring 
+
+%% test string ops in string.ast
+
+Directory standard.
+Import "collect/string"; "misc/check".
+
+%% skipWS, blank?
+
+Execute
+
+  Let a = " \t \n\n  abcde".
+  Let b = skipWS(a).
+  Line[$b, " ", $(blank? a), " ", $(blank? " \t\n\t "), 
+	   " ", $(blank? nil)]
+  %Line
+  Check["\"abcde\" false true true"].
+%Execute
+===========================================================
+%% wsExplode, parensAround
+
+Execute
+  Let a = wsExplode(" abc	de  fgh ").
+  Line[$a].
+  Check["[\"abc\",\"de\",\"fgh\"]"].
+  Line[$wsExplode "this is a sentence"].
+  Check["[\"this\",\"is\",\"a\",\"sentence\"]"].
+  Line[$wsExplode "/bin/ls"].
+  Check["[\"/bin/ls\"]"].
+  Line[$wsExplode nil].
+  Check["[]"].
+  Line[$ wsExplode "\"a b c\" de \"fg h\""].
+  Check["[\"a b c\",\"de\",\"fg h\"]"].
+  Line[$parensAround["this", "is", "a", "sentence"]].
+  Check["\"(this, is, a, sentence)\""].
+%Execute
+==========================================================
+%% pullParenList
+
+Execute
+  Let a = "(one,(two,three),zz (four,(five,six)),seven) and rest".
+  Match (?l,?rest) = pullParenList(a).
+  Line[$l, $rest].
+  Check["[\"one\",\"(two,three)\",\"zz (four,(five,six))\",\
+    \"seven\"]\" and rest\""]
+  %Check
+%Execute
+
+%Package
+

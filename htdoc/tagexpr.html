@@ -1,0 +1,92 @@
+<HTML>
+<head>
+<title>Astarte tags and assumptions</title>
+</head>
+<body>
+<center>
+<a href="unknowns.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="types.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E20. Tags and Assumptions </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main> Creating tags and assumptions</a>
+  <li> <a href=#example> Examples</a> 
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Creating tags and assumptions</font></h2>
+
+Although it is usually not necessary, you can indicate the (polymorphic)
+species of expressions explicitly if desired. This can be helpful
+in controlling how type inference is done, and in understanding
+type errors. 
+
+<dl>
+<a name=tag></a>
+<p><dt><font color="red"> e:T</font> 
+<dd> Writing :T after an expression tells the compiler that
+the expression has (polymorphic) type T, or some species that
+is included in T.  The tag operator (:) has low precedence, so a
+tag applies to a large expression.  
+<font color=BLACK>For example</font>, writing f x : T indicates that
+expression f x has type T.
+
+<a name=assume></a>
+<p><dt><font color="red"> Assume x,y,z:T %Assume</font> 
+<dd> You can include an assumption such as
+this as a declaration or in any scope.  
+It causes each subsequent occurrence of the listed identifiers
+to be tagged as indicated, and has the same scoping rules as a let-expression.
+See <a href=infer.html#assume>type inference</a> for more.
+</dl>
+
+<a name=example></a>
+<hr>
+<h2><font color=mediumblue> Examples </font></h2>
+
+The following examples use a global assumption and a local
+assumption.  They both implement the 
+<a href=listlib.html#selprop>assoc</a> function, but, through
+tags, have had their types limited to Natural -&gt; 
+[(Natural,String)] -&gt; String.
+<font color=#D00090>
+<b><pre>
+Assume x:Natural.
+
+Let assoc1 ?x ?l =
+  Assume r,l: [(Natural, String)].
+  Loop ?r = l first matching r
+    exitcase []             =&gt; fail testX
+    exitcase [(x,?y) & ?]   =&gt; y
+    loopcase else           =&gt; continue tail r
+  %Loop
+%Let
+
+Define assoc2 by first
+  do Assume x:Natural; y:String.
+  case  assoc2 ?  []              = fail testX
+  case  assoc2 ?x ((?x,?y) :: ?)  = y
+  case  assoc2 ?x (? :: ?t)       = assoc2 x t
+%Define
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="unknowns.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="types.html">Next</a>
+</center>
+</body>
+</HTML>

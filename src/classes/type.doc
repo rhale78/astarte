@@ -1,0 +1,603 @@
+/**********************************************************************
+ *    File:    classes/type.doc
+ *    Purpose: Description of TYPE nodes.
+ *    Author:  Karl Abrahamson
+ **********************************************************************/
+
+ ************************************************************************
+ *			DESCRIPTION OF TYPE NODES			*
+ ************************************************************************
+
+====================================================================
+Type nodes are used to describe types.  In places a null pointer is 
+also used to represent an anonymous type variable `?.  Such
+null variable should be used with care: you must never perform a
+unification that might bind such a variable, and then lose
+your reference on the type that contains the null without undoing
+the bindings done by the unification, or clearing the
+unification new_bindings list.  This is because the new_bindings
+list holds pointers to where the null variables were, and the 
+nodes holding those null pointers must not be deallocated.
+====================================================================
+
+Type TYPE is defined in misc/types.h as follows.
+
+typedef struct type {
+  LONG			ref_cnt;	/* Reference count for this cell */
+
+  TYPE_TAG_TYPE    	kind;		/* Tag of this type.		 */ 
+
+  SHORT 		TOFFSET;	/* Offset of this var in global	 */
+					/* env 				 */
+
+  USHORT		dfnum;		/* Needed for cycle traversal	*/
+  USHORT		lowlink;	/* Needed for cycle traversal	*/
+
+  unsigned	        hermit_f: 1,	/* Used to indicate a function	 */
+					/* type that is really the	 */
+					/* hermit_type. 		 */
+					/*				 */
+					/* Also used in a variable to    */
+					/* indicate a variable that      */
+					/* prefers to default to a	 */
+					/* secondary type.		 */
+
+			freeze: 1,	/* 1 if this node should not	 */
+					/* be freed.			 */
+
+  		        special: 1,	/* 1 for a type that is used only*/
+					/* in completeness checking 	 */
+
+			seen: 2,	/* Used in cycle checking. 	 */
+
+			standard: 1,	/* 1 if this is a standard id. 	 */
+
+			free: 1,	/* 1 if this type has free	 */
+					/* variables, where a variable	 */
+					/* that is bound at definition   */
+					/* time is not considered free,  */
+					/* but other unbound variables   */
+					/* are free, including currently */
+					/* bound runtime- bound variables*/
+
+  			norestrict: 1,  /* 0 normally, 1 for a variable	 */
+					/* that should not be restricted */
+					/* (C``a) 			 */
+
+           		copy: 1,	/* Copy is 1 iff this type 	 */
+				 	/* contains a variable or mark,	 */
+					/* 0 otherwise.  (It can be out  */
+				        /* of date and be 1 even though  */
+					/* there are no variables or	 */
+					/* marks.) 			 */
+
+ 			used: 1,	/* 1 if this variable is of any  */
+					/* interest in generating global */
+					/* id lookups. 			 */
+
+			prmark: 1,	/* Used to detect loops when	 */
+					/* printing			 */
+
+  			mark: 1,	/* Used during gargage collection*/
+
+ 			anon: 1,        /* 1 for an anonymous variable   */
+
+			seenTimes: 2;   /* Number of times this type	 */
+					/* occurs in a list of types --  */
+					/* used in gentype.c		 */
+
+  union {
+    LONG 	 thash;			/* Hash of this type.		 */
+    struct list* lower_bounds;		/* List of lower bounds for a	 */
+					/* variable.			 */
+  } hu;
+
+  struct class_table_cell* ctc;		/* cell in class_table.		 */
+
+  struct type*		ty1;		/* Component type or binding of  */
+					/* a type variable.              */
+  union{
+    LONG	 num;			/* Extra num parameter.		 */
+    struct type* ty2;			/* Second type parameter.	 */
+
+    char*	 str;			/* Second string parameter	 */
+
+    struct list* list;                  /* Variables that hold this var  */
+  }			u;
+} 
+TYPE;
+
+
+Macros are used to access some of the fields.  They are as follows.
+
+#define TY1		ty1
+#define TNUM		u.num
+#define TY2		u.ty2
+#define STR2		u.str
+#define TLIST		u.list
+#define LOWER_BOUNDS    hu.lower_bounds
+#define THASH           hu.thash
+#define PREFER_SECONDARY hermit_f
+
+The THASH field is used only in the interpreter, and holds a hash
+value for the type.  That makes it possible to store types in a
+hash table.  Types with nonzero hash value are not reference counted,
+and are never freed, since they are assumed to be in the hash table.
+
+The tags are as follows.
+
+typedef enum {
+  /*---------------------------------------------------------------*
+   * Structured type kinds must come first.  Do not reorder: these *
+   * must begin with FAM_MEM_T and end with PAIR_T.		   *
+   *---------------------------------------------------------------*/
+
+  FAM_MEM_T, 		/* FIRST_STRUCTURED_T */
+  FUNCTION_T, 
+  PAIR_T, 		/* LAST_STRUCTURED_T  */
+
+  /*--------------------------------------------------------*
+   * Next comes BAD_T, for types that do not mean anything. *
+   *--------------------------------------------------------*/
+
+  BAD_T, 
+
+  /*--------------------------------------------------------*
+   * Identifier codes must come next. Do not reorder these. *
+   *--------------------------------------------------------*/
+
+  TYPE_ID_T, 		  /* FIRST_TYPE_T, FIRST_PRIMARY_TYPE_T
+			     A primary species			   */
+  FAM_T,		  /* LAST_REAL_PRIMARY_TYPE_T
+			     A primary family			   */
+  FICTITIOUS_TYPE_T, 	  /* A fictitious member of a genus    	   */
+  FICTITIOUS_FAM_T,  	  /* LAST_PRIMARY_TYPE_T,
+			     A fictitious member of a community    */
+  WRAP_TYPE_T,		  /* FIRST_WRAP_TYPE_T 
+			     A wrapped (secondary) species	   */
+  WRAP_FAM_T,		  /* A wrapped family		 	   */
+  FICTITIOUS_WRAP_TYPE_T, /* A fictitious wrapped species.         */
+  FICTITIOUS_WRAP_FAM_T,  /* LAST_WRAP_TYPE_T, LAST_TYPE_T	   */
+			  /* A fictitious wrapped family.	   */
+
+  /*-------------------------*
+   * MARK_T  must come next. *
+   *-------------------------*/
+
+  MARK_T,		/* FIRST_BOUND_T */
+
+  /*-------------------------------------------------------------*
+   * The variables must be last, and must start with TYPE_VAR_T. *
+   * Do not reorder these.  The relative positions are used in   *
+   * vartbl.c.							 *
+   *-------------------------------------------------------------*/
+
+  TYPE_VAR_T, 		/* FIRST_VAR_T	       */
+  FAM_VAR_T,		/* LAST_ORDINARY_VAR_T */
+  PRIMARY_TYPE_VAR_T,	/* FIRST_PRIMARY_VAR_T */
+  PRIMARY_FAM_VAR_T,	/* LAST_PRIMARY_VAR_T  */
+  WRAP_TYPE_VAR_T,	/* FIRST_WRAP_VAR_T    */
+  WRAP_FAM_VAR_T 	
+} 
+TYPE_TAG_TYPE;
+
+Macros can be used to check the tags.  They are as follows.
+
+#define FIRST_STRUCTURED_T	FAM_MEM_T
+#define LAST_STRUCTURED_T	PAIR_T
+#define FIRST_TYPE_T		TYPE_ID_T
+#define FIRST_PRIMARY_TYPE_T	TYPE_ID_T
+#define LAST_PRIMARY_TYPE_T	FICTITIOUS_FAM_T
+#define FIRST_WRAP_TYPE_T	WRAP_TYPE_T
+#define LAST_TYPE_T		FICTITIOUS_WRAP_FAM_T
+#define LAST_WRAP_TYPE_T	FICTITIOUS_WRAP_FAM_T
+#define FIRST_BOUND_T		MARK_T
+#define FIRST_VAR_T		TYPE_VAR_T
+#define FIRST_ORDINARY_VAR_T	TYPE_VAR_T
+#define LAST_ORDINARY_VAR_T	FAM_VAR_T
+#define FIRST_PRIMARY_VAR_T	PRIMARY_TYPE_VAR_T
+#define LAST_PRIMARY_VAR_T	PRIMARY_FAM_VAR_T
+#define FIRST_WRAP_VAR_T	WRAP_TYPE_VAR_T
+
+/*------------------------------------------------------------*/
+
+#define IS_STRUCTURED_T(k)\
+  /* Is k a structured type kind ? */\
+  ((k) <= LAST_STRUCTURED_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_VAR_T(k)\
+  /* Is k a variable kind? */\
+  ((k) >= FIRST_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_WRAP_VAR_T(k)\
+  /* Is k a wrap variable kind? */\
+  ((k) >= FIRST_WRAP_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_PRIMARY_VAR_T(k)\
+  /* Is k a primary variable kind? */\
+  ((k) >= FIRST_PRIMARY_VAR_T && (k) <= LAST_PRIMARY_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_ORDINARY_VAR_T(k)\
+  /* Is k an ordinary variable kind? */\
+  ((k) >= FIRST_ORDINARY_VAR_T && (k) <= LAST_ORDINARY_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_ORDINARY_KNOWN_VAR_T(k)\
+  /* Is k an ordinary variable, given that k is known to be a variable? */\
+  ((k) <= LAST_ORDINARY_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_PRIMARY_OR_ORDINARY_VAR_T(k)\
+  /* Is k either a primary or ordinary variable? */\
+  ((k) >= FIRST_ORDINARY_VAR_T && (k) <= LAST_PRIMARY_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_NOT_WRAP_VAR_T(k)\
+  /* Is k not a wrap variable? */\
+  ((k) < FIRST_WRAP_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_TYPE_VAR_T(k)\
+  /* Is k a type variable (not a family variable)? */\
+  ((k) == TYPE_VAR_T || (k) == WRAP_TYPE_VAR_T || (k) == PRIMARY_TYPE_VAR_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_TYPE_T(k)\
+  /* Is k a kind of species or family? */\
+  ((k) >= FIRST_TYPE_T && (k) <= LAST_TYPE_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_WRAP_TYPE_T(k)\
+  /* Is k a kind of wrapped species or family? */\
+  ((k) >= FIRST_WRAP_TYPE_T && (k) <= LAST_WRAP_TYPE_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_PRIMARY_TYPE_T(k)\
+  /* Is k a kind of primary species or family? */\
+  ((k) >= FIRST_PRIMARY_TYPE_T && (k) <= LAST_PRIMARY_TYPE_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_KNOWN_WRAP_TYPE_T(k)\
+  /* Is k a kind of wrapped species or family? Here, it must be known\
+   * that k is some kind of species or family.  */\
+  ((k) >= FIRST_WRAP_TYPE_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_FICTITIOUS_T(k)\
+  /* Is k a fictitious kind of species or family? */\
+  ((k) == FICTITIOUS_TYPE_T      || (k) == FICTITIOUS_FAM_T ||\
+   (k) == FICTITIOUS_WRAP_TYPE_T || (k) == FICTITIOUS_WRAP_FAM_T)
+
+/*------------------------------------------------------------*/
+
+#define IS_VAR_OR_WRAP_TYPE_T(k)\
+  /* Is k a kind of variable, or a kind of wrapped species or family? */\
+  /* It is assumed that k cannot be MARK_T, so an efficient test can  */\
+  /* be done */\
+  ((k) >= FIRST_WRAP_TYPE_T)
+
+
+
+=====================================================================
+      Below are specifics of different kinds of TYPE nodes.
+=====================================================================
+
+NOTE: If these fields are changed it might be necessary to modify
+  copytype.c  (copying/ref counts)
+  aloctype.c  (ref counts)
+
+
+Kind		Field    Comment			
+---------      -------  --------------------------------
+=====================================================================
+ FUNCTION_T 		(S -> T)
+
+		hermit_f 0 if this is an ordinary function node.
+			 1 if this node can unify with species ()
+		ty1	S
+		TY2	T
+
+
+=====================================================================
+ PAIR_T	    		(T1,T2)
+
+		name	field label of T1, if any, for records
+		ty1	T1
+		TY2	T2
+
+
+=====================================================================
+ FAM_MEM_T  		F(T), where F is a family, or
+			C`x(T) where C is a community.
+
+		ty1  	T
+		TY2	F or C`x (a type node)
+
+
+=====================================================================
+ TYPE_ID_T  		A species identifier
+
+ See note at bottom about pseudo-types.
+
+		ctc	class_table_cell for this id.  
+
+		standard 1 if this is a standard species, 0 otherwise
+
+=====================================================================
+ WRAP_TYPE_T  		A species X, where X is a genus.
+
+		ctc	class_table_cell for X.
+
+
+=====================================================================
+ FICTITIOUS_TYPE_T  	A species that represents something that might
+			be added later to a given genus X.
+
+		ctc	class_table_cell for X.
+
+		TNUM	the number of this type, for printing.
+
+
+=====================================================================
+ FICTITIOUS_WRAP_TYPE_T A wrapped species for a genus G that might
+			be added later to a given genus X.
+
+		ctc	class_table_cell for X.
+
+		TNUM	the number of this type, for printing.
+
+
+=====================================================================
+ FAM_T			Family F
+
+ See note at bottom about pseudo-types.
+
+		ctc	class_table_cell for this id. 
+
+		standard 1 if this is a standard family, 0 otherwise
+
+=====================================================================
+ WRAP_FAM_T		Family C, where C is a community.
+
+		ctc	class_table_cell for C.
+
+=====================================================================
+ FICTITIOUS_FAM_T  	A family that represents something that might
+			be added later to a given community X.
+
+		ctc	class_table_cell for X.
+
+		TNUM	the number of this type, for printing.
+
+
+=====================================================================
+ FICTITIOUS_WRAP_FAM_T  A wrapped family for a community C that might
+			be added later to a given community X.
+
+		ctc	class_table_cell for X.
+
+		TNUM	the number of this family, for printing.
+
+
+=====================================================================
+ TYPE_VAR_T 		A type variable
+
+ See note at bottom about pseudo-types.
+
+		norestrict 0 normally, 1 for an unrestrictable
+			   variable (such as `~a).
+
+		ctc	class_table_cell for domain, or 
+			NULL for ANY.
+
+		ty1	Type that this variable is bound to
+			(NULL if none).
+
+		TOFFSET When a definition is made, variables in the
+			polymorphic type of the symbol being defined
+			are bound to particular values.  Their bindings
+			are stored in the global environment.  The
+			TOFFSET field of a variable holds one greater 
+			than the offset in the global environment where 
+			a variable's value can be found. It is 0 for
+			a variable that is not bound in the
+			global environment.
+
+		LOWER_BOUNDS
+			A list of the types to which this type is 
+			related.  There are three kinds of types
+			in this list, and they are distinguished
+			by the list tag.  They are as follows.
+			Suppose that variable X has type T in its
+			LOWER_BOUNDS list.
+			   list tag	meaning
+			   --------     -------
+			   TYPE_L	X >= T.
+
+			   TYPE1_L	X >>= T.
+
+			   TYPE2_L	T >= X
+
+			The TYPE2_L fields are only used when T is
+			a primary variable.
+
+			A type variable is allowed to have a lower
+			bound that is a family or family variable.  It
+			can also have a lower bound that is tagged as
+			a family but whose ctc entry is that for
+			PAIR@ or FUNCTION@.
+
+		dfnum
+		lowlink Used for doing a depth-first search to find
+			strongly connected components in the
+			lower bound graph.
+
+=====================================================================
+ PRIMARY_TYPE_VAR_T 	A type variable that ranges over
+			primary species.
+
+		norestrict 0 normally, 1 for an unrestrictable
+			   variable (such as `'~a).
+
+		ctc	class_table_cell for domain, or 
+			NULL for ANY.
+
+		ty1	Type that this variable is bound to
+			(NULL if none).
+
+		TOFFSET one greater then the offset in the global 
+			env where a global var's
+			value can be found.  See TYPE_VAR_T.
+
+		LOWER_BOUNDS
+			See the description of LOWER_BOUNDS for TYPE_VAR_T.
+
+
+		dfnum
+		lowlink Used for doing a depth-first search to find
+			strongly connected components in the
+			lower bound graph.
+
+=====================================================================
+ WRAP_TYPE_VAR_T 	A type variable G``a.
+
+		norestrict 0 normally, 1 for an unrestrictable
+			   variable (such as ``~a).
+
+		ctc	class_table_cell for G, or 
+			NULL for ANY.
+
+		ty1	Type that this variable is bound to
+			(NULL if none).
+
+		TOFFSET one greater then the offset in the global 
+			env where a global var's
+			value can be found.
+
+		LOWER_BOUNDS
+			See the description of LOWER_BOUNDS for TYPE_VAR_T.
+
+		dfnum
+		lowlink Used for doing a depth-first search to find
+			strongly connected components in the
+			lower bound graph.
+
+=====================================================================
+ FAM_VAR_T  		C`x, for a community C
+
+ See note at bottom about pseudo-types.
+
+		norestrict 0 normally, 1 for an unrestrictable
+			   variable (such as C`~a).
+
+		ctc	class_table_cell for C.
+
+		ty1	Var or family that this var is bound to
+			(NULL if none).
+
+		TOFFSET one greater then the offset in the global 
+			env where a global var's
+			value can be found.
+
+		LOWER_BOUNDS
+			See the description of LOWER_BOUNDS for TYPE_VAR_T.
+
+		dfnum
+		lowlink Used for doing a depth-first search to find
+			strongly connected components in the
+			lower bound graph.
+
+=====================================================================
+ PRIMARY_FAM_VAR_T  	C`'x, for a community C
+
+		norestrict 0 normally, 1 for an unrestrictable
+			   variable (such as C`'~a).
+
+		ctc	class_table_cell for C.
+
+		ty1	Var or family that this var is bound to
+			(NULL if none).
+
+		TOFFSET one greater then the offset in the global 
+			env where a global var's
+			value can be found.
+
+		LOWER_BOUNDS
+			See the description of LOWER_BOUNDS for TYPE_VAR_T.
+
+		dfnum
+		lowlink Used for doing a depth-first search to find
+			strongly connected components in the
+			lower bound graph.
+
+=====================================================================
+ WRAP_FAM_VAR_T  	C``x, for a community C
+
+		norestrict 0 normally, 1 for an unrestrictable
+			   variable (such as C``~a).
+
+		ctc	class_table_cell for C.
+
+		ty1	Var or family that this var is bound to
+			(NULL if none).
+
+		TOFFSET one greater then the offset in the global 
+			env where a global var's
+			value can be found.
+
+		LOWER_BOUNDS
+			See the description of LOWER_BOUNDS for TYPE_VAR_T.
+
+		dfnum
+		lowlink Used for doing a depth-first search to find
+			strongly connected components in the
+			lower bound graph.
+
+=====================================================================
+ MARK_T	  		{A} (a marked type)
+
+	  ty1		A
+ 	
+=====================================================================
+ BAD_T			An erroneous type.
+
+	  STR2		Name.  Used for meet{ahead} dcls.
+
+=====================================================================
+
+
+=====================================================================
+			PSEUDO-TYPES
+=====================================================================
+
+NOTE: Type nodes are also used by the pattern-match completeness
+checker.  A TYPE_ID_T or FAM_T or TYPE_VAR_T or FAM_VAR_T can have
+a ctc entry of NULL, a special entry of 1,  and a TOFFSET entry k.
+For a TYPE_VAR_T or FAM_VAR_T, k is the number of tags in a type
+or family.  For TYPE_ID_T or FAM_T, k is a particular tag.  See
+patmatch/pmcompl.c.
+
+
+=====================================================================
+
+NOTE: The TOFFSET field of non-variables is used for types stored
+in the default tables of the file_info frames.  A 0 TOFFSET indicates
+a non-dangerous default, while a value of 1 indicates a dangerous 
+default.

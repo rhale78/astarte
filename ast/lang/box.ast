@@ -1,0 +1,590 @@
+%% File: box.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_Box
+=============================================================
+
+=============================================================
+%% This package describes boxes.  A box is a variable, or a reference.
+%% The things describe in this package are availabe to all
+%% packages.
+=============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+=======================================================================
+		BOXES AND VAR DECLARATIONS/EXPRESSIONS
+=======================================================================
+
+A box is a "variable".  It has a content that can be changed.
+A box can be empty, in which case it has no content.
+
+The easiest way to create a box is to use a var-declarations or
+var-expression.
+
+=========================================================================
+Var x holding T %Var	Abbreviates Let x = emptyBox():<#T#> %Let.
+
+			Phrase "holding T" is optional.  It can occur
+			in all of the forms below, but is not shown
+			in all cases.
+			
+			For a declaration, you must use a holding
+			phrase or tag to give the species of the box, if
+			the species cannot be determined by other means.
+
+=========================================================================
+Var{nonshared} x %Var	Abbreviates Let x = emptyNonsharedBox().  Mode
+			{nonshared} can be used with any of the forms below.
+
+=========================================================================
+Var{shared} x %Var	Abbreviates Let x = emptySharedBox().  Mode
+			{shared} can be used with any of the forms below.
+
+=========================================================================
+Var x,y,z holding T %Var Abbreviates
+			   Var x holding T.
+			   Var y holding T.
+			   Var z holding T.
+			 Most forms below are shown with just one identifier
+			 being bound, but all can be used with several
+			 identifiers, separated by commas.  
+
+=========================================================================
+Var x holding T := e %Var  Abbreviates Let x = box(e):<#T#> %Let
+
+=========================================================================
+Var x,y,z holding T := e %Var	
+			Same effect as
+			  Let i = e.
+			  Var x holding T := i.
+			  Var y holding T := i.
+			  Var z holding T := i.
+			where i is a new identifier, not conflicting with
+			any others.
+
+=========================================================================
+Other forms of Var declaration/expression are discussed in 
+collect/boxes.ast.
+
+===================================================================
+		ATTACHING ACTIONS TO BOXES
+===================================================================
+
+You can associate an action or actions with a box, to be done
+when the box is given a new content.  See OnAssign, below.
+
+===================================================================
+		SHARED AND NOSHARED BOXES
+===================================================================
+
+The following discussion of shared and noshared boxes is relevant
+only if you are using multiple threads or backtracking. 
+
+There are two kinds of box: shared and nonshared.
+
+There is only one copy of each shared box, and that copy is shared
+by all threads.  If one thread changes the content of a shared
+box, then other threads will see that change.
+
+A nonshared box is copied each time a thread forks.  So when
+a new thread is created, it gets a copy of each nonshared box
+from its parent thread.  Subsequent changes to the content of a
+nonshared box cannot be seen by other threads.
+
+It is possible for a thread t to see a nonshared box b that was
+not available to thread t when it was created.  In such a
+circumstance, thread t gets a copy of box b, holding the
+initial content (the content when box b was created).  If 
+box b was initially empty, then thread t sees box b
+as empty.
+
+When a let or define *declaration* is evaluated, it is executed
+by a newly created thread.  That thread sees each nonshared
+box as having its initial content.  When a lazy expression is
+evaluated, it sees each nonshared box as having the content that
+it had when the lazy value was created.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+================================================================
+			Export
+================================================================
+
+Description
+
+ Box		%" Box(T) is the species of boxes whose contents
+		%" have species T.  You may use <:T:> as an 
+		%" abbreviation for Box(T).
+		;
+		
+ BoxFlavor	%" Species BoxFlavor contains two values, shared and
+ 		%" nonshared.  It is used to give the flavor of a box
+		%" A shared box has flavor shared, and a nonshared
+		%" box has flavor nonshared.
+		%"
+		%" The definition of BoxFlavor is
+		%"
+		%"  Species CopyFlavor = nonshared | shared.
+		;
+
+ CopyFlavor	%" Species CopyFlavor contains three values: shared,
+ 		%" nonshared and same.  It is used to choose the 
+		%" flavor of a box when a copy is made of a box.
+		%" (The copy is either shared, nonshared or the
+		%" same flavor as the box being copied.)
+		%"
+		%" The definition of CopyFlavor is
+		%"
+		%"  Species CopyFlavor = nonshared | shared | same.
+		;
+
+ "<:"		%" <::> is the same as emptyBox().
+ 		%"
+ 		%" <:e:> is the same as makebox(e).
+ 		%"
+		%" You can use the <: forms in patterns.  For
+		%" example, <::> only matches an empty box. 
+		%" <:p:> only matches a nonempty box, and matches
+		%" p against the contents of that box.
+		;
+		
+ "<:%"		%" <:%...%:> is similar to <:...:>, but forces creation
+ 		%" of a nonshared box.  See "<:".
+		;
+
+ "<:#"		%" <:#...#:> is similar to <:...:>, but forces creation
+ 		%" of a shared box.  See "<:".
+		;
+
+ @		: <:`a:> -> `a
+
+		%" @x is the content of box x.  It fails with exception
+		%" emptyBoxX if box x is empty.  See testAt, optAt and
+		%" defaultAt.  @ is a unary operator.
+		%"
+		%" Example:
+		%"
+		%"   Var x holding Natural.
+		%"   Assign x := 2.
+		%"   Let i = @x.
+		%"
+		%" binds i = 2.
+                ;
+
+ @!		: <:`a:> -> `a
+ 
+ 		%" #{pattern}
+		%"
+		%" Match @!(x) = t. is the same as Assign x := t.
+		%"
+		%" Use @! to put the results of pattern matches into
+		%" boxes.  For example,
+		%"
+		%"  Match @!(h!) :: ?t = l.
+		%"
+		%" puts the head of list l into box h!.
+		%"
+		%" WARNING: the order in which pattern matches are
+		%" done is undefined for ordered pairs.  So if
+		%" you write
+		%"
+		%"  Match (@!(x),@!(x)) = (2,3).
+		%"
+		%" it is not defined whether x holds 2 or 3 afterwards.
+		%" A similar warning holds for mixing @! and <:...:>
+		%" patterns, since altering the content of a box might
+		%" occur before or after getting the content.
+		;
+ 
+ {imported}
+ AddTo		: (<:REAL`a:>, REAL`a) -> ()
+
+		%" AddTo(b,x) %AddTo adds x to the content
+		%" of box b.  It fails with exception emptyBoxX
+		%" if b is empty.  AddTo is atomic, so it will not
+		%" be interrupted part way through its operation.
+		%"
+		%" Example:
+		%"
+		%"   Var x holding Natural := 4.
+		%"   AddTo(x,1).
+		%"   --- now x has content 5.
+                ;
+
+ Assign		: (<:`a:>, `a) -> ()
+
+		%" Assign (b,v) %Assign sets the content of box b to v.
+		%" Use Assign b := v. for readability.  (a := b abbreviates
+		%" (a,b).)
+		%"
+		%" If an action has been associated with box b that 
+		%" action is performed.  See OnAssign.
+		%"
+		%" Example:
+		%"
+		%"   Var x holding Natural.
+		%"   Assign x := 5.
+		;
+
+ Assign!	: (<:`a:>, `a) -> ()
+
+		%" Assign! b := v. is the same as Assign b := v., but
+		%" actions associated with box b are not done.  See
+		%" OnAssign.
+		;
+
+ AssignInit	: (<:`a:>, `a) -> ()
+
+		%" AssignInit b := v %AssignInit sets the initial
+		%" content of box b to v.  You probably do not want
+		%" to do this.  Use a var expression or function
+		%" 'box' instead.
+                ;
+
+ box		: BoxFlavor -> `a -> <:`a:>
+ 
+ 		%" (box flav x) produces a new box with initial
+		%" content x.
+		%"
+		%" If flav is shared, then the box is a shared box.
+		%" If flav is nonshared, then the box is a nonshared box.
+		;
+ 
+ boxFlavor	: Natural -> BoxFlavor
+ 
+ 		%" boxFlavor(0) is value nonshared, and 
+		%" boxFlavor(1) is value shared.
+		;
+ 
+ copyFlavor	: Natural -> CopyFlavor
+ 
+ 		%" copyFlavor(0) is value nonshared,
+		%" copyFlavor(1) is value shared and
+		%" copyFlavor(2) is same.
+		;
+ 
+ {imported}
+ Decrement	: <:INTEGER`a:> -> ()
+
+		%" Decrement b %Decrement subtracts 1 from the content
+		%" of box b.  It fails with exception emptyBoxX if
+		%" b is empty, and fails with exception
+		%" domainX("decrement of 0") if b has content
+		%" species Natural and contains 0. Decrement is atomic,
+		%" so it will not be interrupted part way through
+		%" the decrement.
+		%"
+		%" Example
+		%"
+		%"   Var x holding Natural := 8.
+		%"   Decrement(x).
+		%"   --- x now has content 7.
+                ;
+
+ defaultAt	: `a -> <:`a:> -> `a
+
+		%" (defaultAt d b) is @b if b is not empty, and is
+		%" d if b is empty.
+                ;
+
+ EmptyBox	: <:`a:> -> ()
+
+		%" EmptyBox(x) %EmptyBox makes box x empty.
+                ;
+
+ emptyBox	: () -> <:`a:>
+
+		%" emptyBox() is a new, empty shared box.  You may write
+		%" <::> to abbreviate emptyBox().
+		%"
+		%" emptyBox() is a pattern.  It matches any empty box,
+		%" but can match either a shared or a nonshared box.
+                ;
+
+ emptyBox?	: <:`a:> -> Boolean
+
+		%" emptyBox?(x) is true just when x is an empty box.
+		;
+
+ {imported}
+ emptyBoxX	: ExceptionSpecies
+
+		%" Exception emptyBoxX occurs when a program tries
+		%" to take the content of an empty box.  This exception
+		%" is normally trapped.
+                ;
+
+ emptyNonsharedBox: () -> <:`a:>
+
+		%" emptyNonsharedBox() is a new, empty nonshared box.
+		%"
+		%" emptyNonsharedBox() is a pattern.  It matches any 
+		%" empty nonshared box.
+		%"
+		%" You can write <:% %:> as an abbreviation for 
+		%" emptyNonsharedBox().
+                ;
+
+ emptySharedBox: () -> <:`a:>
+
+		%" emptySharedBox() is a new, empty shared box.
+		%"
+		%" emptySharedBox() is a pattern.  It matches any 
+		%" empty shared box.
+		%"
+		%" You can write <:# #:> as an abbreviation for 
+		%" emptySharedBox().
+                ;
+
+ _eq_		: (<:`a:>, <:`a:>) -> Boolean
+
+		%" a _eq_ b is true if a and b are the same box.  
+		%" See _neq_.
+                ;
+
+ flavor		: <:`a:> -> BoxFlavor
+ 
+ 		%" flavor(b) is the flavor (shared or nonshared)
+		%" of box b.
+		;
+ 
+ FreezeBoxRanks	: Boolean -> ()
+
+		%" The garbage collector normally moves boxes around
+		%" in order to compactify memory.
+		%"
+		%" FreezeBoxRanks(true). freezes boxes into their
+		%" current locations.  FreezeBoxRanks(false). allows
+		%" boxes to move.  See rankBox.  
+		%"
+		%" More precisely, there is a counter that is initially
+		%" zero. FreezeBoxRanks(true) just adds one
+		%" to the counter, and FreezeBoxRanks(false) subtracts
+		%" one from the counter, but refuses to make it negative.
+		%" If the counter is nonzero, then box ranks are frozen.
+		%" This makes it possible to have dynamically nested
+		%" expressions of the form
+		%"
+		%"    FreezeBoxRanks(true).
+		%"      ...
+		%"    FreezeBoxRanks(false).
+		%"
+		%" without different ones interfering with one another.
+		%"
+		%" WARNING: Keeping box locations frozen can seriously 
+		%" hinder the performance of the garbage collector,
+		%" since it cannot compactify.  Do not keep box locations
+		%" frozen for a long time.
+		;
+
+ {imported}
+ Increment	: <:INTEGER`a:> -> ()
+
+		%" Increment(b) %Increment adds 1 to the content
+		%" of box b.  It fails with exception emptyBoxX if
+		%" b is empty.  Increment is Atomic, so it will
+		%" not be interrupted part way through the increment.
+		%"
+		%" Example
+		%"
+		%"   Var x holding Natural := 8.
+		%"   Increment(x).
+		%"   --- x now has content 9.
+                ;
+
+ makebox	: `a -> <:`a:>
+
+		%" makebox(x) is a new shared box having initial content x.
+		%"
+		%"    Let v = makebox(i).
+		%"
+		%" is equivalent to
+		%"
+		%"    Var v := i.
+		%"
+		%" You may write <:x:> to abbreviate makebox(x), in
+		%" expressions and in patterns.
+		%"
+		%" If p is a pattern, then makebox(p) is a pattern.  It only
+		%" matches a nonempty box, failing with exception testX on
+		%" an empty box.  When matched against a nonempty box b, 
+		%" pattern box(p) causes pattern p to be matched against
+		%" the content of box b.  For example,
+		%"
+		%"  Match <:?x:> = b.
+		%"
+		%" binds x to the content of box b (or fails with
+		%" exception testX if b is empty).
+		%"
+		%" In a pattern, makebox(?x) will match either
+		%" a shared or nonshared box.
+                ;
+		
+ _neq_		: (<:`a:>, <:`a:>) -> Boolean
+
+		%" a _neq_ b is true if a and b are the different boxes.
+		%" See _eq_.
+                ;
+
+ nonshared	: BoxFlavor
+ 
+ 		%" nonshared is the flavor of a nonshared box.
+		;
+ 
+ nonshared	: CopyFlavor
+ 
+ 		%" Copy flavor nonshared indicates a desire for a 
+		%" nonshared box.
+		;
+		
+ nonsharedBox	: `a -> <:`a:>
+
+		%" nonsharedBox(x) is a new nonshared box having initial
+		%" content x.
+ 		%"
+		%" nonsharedBox(p) is a pattern, for p a pattern.  It
+		%" matches a nonempty nonshared box, and fails with
+		%" exception testX on an empty box.  See makebox.
+		%"
+		%" You can use <:% x %:> as an abbreviation for
+		%" nonsharedBox(x).
+		;
+
+ OnAssign	: (<:`a:>, (Optional(`a), Optional(`a)) -> ())  -> ()
+
+		%" OnAssign(b,f). attaches an action to box b.  The 
+		%" action is done when box b is assigned a value.
+		%"
+		%" Specifically, suppose that b currently contains value
+		%" u, and  Assign b := v %Assign is evaluated.  Then
+		%" f(value(u), value(v)) is evaluated after the
+		%" assignment was done.  If b was empty before the
+		%" assignment, then f(noValue, value(v)) is 
+		%" evaluated. 
+		%"
+		%" When EmptyBox(b) %EmptyBox is done, if b was not
+		%" already empty, then f(value(u), noValue) is
+		%" evaluated after making box b empty.  If b was already
+		%" empty, the action is not done.
+		%"
+		%" You can attach more than one action to a box.  Each
+		%" call to onAssign adds another function.  The functions
+		%" are evaluated in the order in which they were added.
+		;
+
+ OptAssign	: (<:`a:>, Optional(`a)) -> ()
+
+		%" OptAssign(b,v) %OptAssign assigns b := x if
+		%" v = value(x),  and makes box b empty if
+		%" v = noValue.
+		;
+
+ optAt		: <:`a:> -> Optional(`a)
+
+		%" optAt(b) is optional(@b) if b is not empty,
+		%" and is noValue if b is empty.
+		;
+
+ {imported}
+ precision!	: <:Natural:>
+
+		%" Arithmetic operations on species Real are carried
+		%" out to at least @precision! decimal digits of
+		%" precision.
+		;
+
+ {imported}
+ putCommasInNumbers! : <:Boolean:>
+
+		%" If @putCommasInNumbers! is true, then $ and $$ put
+		%" commas in numbers every three digits.  See $.
+		;
+
+ rankBox	: <:`a:> -> Natural
+
+		%" You can use rankBox(x) to get a number that
+		%" is associated with box x.  It is something like
+		%" asking for the address of a variable.  You
+		%" must be very careful with rankBox, however.
+		%" The garbage collector can move boxes, and when
+		%" it does, the result from rankBox can change.
+		%"
+		%" You may request that ranks be frozen, and that
+		%" the garbage collector not move boxes, using
+		%" FreezeBoxRanks(true) %FreezeBoxRanks.  Use
+		%" FreezeBoxRanks(false) %FreezeBoxRanks to
+		%" unfreeze boxes.  
+		%"
+		%" WARNING: If you keep box ranks frozen for a long time, 
+		%" you seriously hinder the garbage collector.
+		;
+
+
+ same		: CopyFlavor
+ 
+ 		%" Copy flavor same indicates a desire for a box
+		%" of the same flavor as the one being copied.
+		;
+		
+ shared		: BoxFlavor
+ 
+ 		%" shared is the flavor of a shared box.
+		;
+		
+ shared		: CopyFlavor
+ 
+ 		%" Copy flavor shared indicates a desire for a shared box.
+		;
+		
+ sharedBox	: `a -> <:`a:>
+
+		%" sharedBox(x) is a new shared box having initial
+		%" content x.
+ 		%"
+		%" sharedBox(p) is a pattern, for p a pattern.  It
+		%" matches a nonempty shared box, and fails with
+		%" exception testX on an empty box.  See box.
+		%"
+		%" You can use <:# x #:> as an abbreviation for
+		%" sharedBox(x).
+		;
+
+ Swap		: (<:`a:>, <:`a:>) -> ()
+
+		%" Swap(x,y) %Swap swaps the contents of boxes x and y.  If
+		%" either is empty, the other becomes empty.  This operation
+		%" is atomic.
+		%"
+		%" Example:
+		%"
+		%"   Var x,y holding Natural.
+		%"   Assign 
+		%"     x := 5;
+		%"     y := 7
+		%"   %Assign
+		%"  Swap(x,y).
+		%"  --- now x contains 7 and y contains 5.
+		;
+
+ testAt		: <:`a:> -> `a
+
+		%" testAt(x) is the content of box x.  It fails with
+		%" exception testX if x is empty.  See @.  The
+		%" difference between @ and testAt is the exception
+		%" that occurs on an empty box.  @ fails with 
+		%" exception emptyBoxX.
+		;
+		
+  "Var"		%" See lang/box.ast for a description of Var declarations
+  		%" and expressions for creating simple variables.
+		%" For creating arrays, see collect/boxes.ast.
+  		;
+
+%Description
+
+%Package

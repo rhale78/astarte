@@ -1,0 +1,12 @@
+Package fileexists
+
+%% Test fileExists? function
+
+Import "system/system".
+
+Execute
+  Writeln["fileExists?(/math0) = ", $ fileExists?("/math0")].
+  Writeln["fileExists?(/math0/gobble) = ", $ fileExists?("/math0/gobble")].
+%Execute
+
+%Package

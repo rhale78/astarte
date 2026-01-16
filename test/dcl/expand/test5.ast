@@ -1,0 +1,17 @@
+Package test5 export
+
+Pattern fff:`a -> `a = undefinedPatternFunction.
+
+Pattern fff(?x) =>
+  Match ?x = target + 1.
+%Pattern
+
+Execute
+  Match fff(?a) = 3.
+%Execute
+
+Execute
+  Match fff(?b) = [2].
+%Execute
+
+%Package

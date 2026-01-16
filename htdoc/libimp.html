@@ -1,0 +1,499 @@
+<HTML>
+<head>
+<title>Astarte library</title>
+</head>
+<body>
+<center>
+<a href="bugs.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="scheme.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> Library Implementation </font></h1>
+</center>
+
+The library consists of a combination of built-in and defined items.
+The built-in operations are described in packages in the 
+<i>lang</i> directory, and in a few other directories.
+The defined operations are defined by packages in other directories,
+with a few exceptions that are found in the <i>lang</i> directory.
+
+Packages that define items are typically broken into two parts, an 
+interface (with extension .ast) and an implementation (with extension .asi).
+See the interface for descriptions and type information.  See the
+implementation for the actual definition.
+
+<menu>
+  <hr>
+  <li><a href="ast/standard.ast"> standard.ast</a> These things are
+  imported by every package.
+
+  <p><li><a href="ast/standard.asi"> standard.asi</a> Some of the definitions
+  made here are simple and instructive to look at.  A few, however, make use 
+  of some items that only this package is allowed to use.  Do not try to 
+  make sense out of those.
+  <hr>
+
+  <!---- object------>
+  <h2><font color=mediumblue> Support for object-oriented programming 
+  </font></h2>
+
+  <li><a href="ast/object.ast"> object.ast</a> 
+  This package provides the top class Object for object-oriented
+  programming, and implements basic operations that all objects shared.
+
+  <p><li><a href="ast/object.asi"> object.asi</a>
+  Here are the implementations of the shared operations.
+  <hr>
+
+  <!---- collect------>
+  <h2><font color=mediumblue> Collections </font></h2>
+
+  <hr>
+  <li><a href="ast/collect/boxes.ast"> collect/boxes.ast</a> 
+  These operations
+  are used for creating and manipulating lists and products of boxes.
+
+  <p><li><a href="ast/collect/boxes.asi"> collect/boxes.asi</a> 
+  These are the definitions.
+  <hr>
+
+  <li><a href="ast/collect/bitvec.ast"> collect/bitvec.ast</a> 
+  This package
+  defines infinite bit vectors and operations on them.  Near the
+  beginning are descriptions of built-in functions, such as nbvAnd, that
+  you probably are not interested in.
+
+  <p><li><a href="ast/collect/bitvec.asi"> collect/bitvec.asi</a> 
+  The implementation
+  of infinite bit vectors is done via primitives that work on integers.  
+  This implementation package just packages the primitives for use
+  on species Bitvec.
+  <hr>
+
+   <li><a href="ast/collect/collect.ast"> collect/collect.ast</a> 
+  This package
+  describes an abstract concept of a collection.  Examples of collections
+  are lists and sets.
+
+  <p><li><a href="ast/collect/collect.asi"> collect/collect.asi</a> Most of the
+  operations on collections are virtual.  A few are defined here.
+  <hr>
+
+  <li><a href="ast/collect/denseset.ast"> collect/denseset.ast</a> 
+  This package implements sets as bit vectors.  
+  See <a href="ast/collect/set.ast">collect/set.ast</a>.
+
+  <p><li><a href="ast/collect/denseset.asi"> collect/denseset.asi</a> Here the
+  set operations are defined in terms of operations on bit vectors.
+  <hr>
+
+  <li><a href="ast/collect/findlist.ast"> collect/findlist.ast</a> 
+  This package
+  defines some functions that search lists for substrings.
+
+  <p><li><a href="ast/collect/findlist.asi"> collect/findlist.asi</a> 
+  The implementions
+  here use the Knuth/Morris/Pratt and Aho/Corasick algorithms for
+  searching lists.
+  <hr>
+
+  <li><a href="ast/collect/funarr.ast"> collect/funarr.ast</a> 
+  This package provides an efficient implementations of functional
+  arrays, which behave like arrays, but have persistent operations.
+
+  <p><li><a href="ast/collect/funarr.asi"> collect/funarr.asi</a> 
+  Here are the definitions.
+  <hr>
+
+  <li><a href="ast/collect/linset.ast"> collect/linset.ast</a> This package
+  implements sets as lists.
+
+  <p><li><a href="ast/collect/linset.asi"> collect/linset.asi</a> 
+  Here set operations using lists are defined.
+  See <a href="ast/collect/set.ast">collect/set.ast</a>.
+  <hr>
+
+  <li><a href="ast/collect/lintbl.ast"> collect/lintbl.ast</a> This package 
+  implements tables as lists.  
+  See <a href="ast/collect/table.ast">collect/table.ast</a>.
+  <hr>
+
+  <li><a href="ast/collect/list.ast"> collect/list.ast</a> 
+  This package describes built-in list operations.
+  <hr>
+
+  <li><a href="ast/collect/listfun.ast"> collect/listfun.ast</a> 
+  This package
+  provides a few general functions for working with lists.
+
+  <p><li><a href="ast/collect/listfun.asi"> collect/listfun.asi</a> 
+  Here are the implementations.  
+  The style is direct (one equation) rather than
+  a more elegant one with multiple equations.  This package was written
+  when the multiple equation style was not very efficiently implemented.
+  <hr>
+
+  <li><a href="ast/collect/pair.ast"> collect/pair.ast</a> 
+  This package provides
+  a few utilities for working with ordered pairs.
+  <hr>
+
+  <li><a href="ast/collect/search.ast"> collect/search.ast</a> This packages
+  provides operations that search lists, and closely related operations.
+
+  <p><li><a href="ast/collect/search.asi"> collect/search.asi</a> 
+  The implementations
+  here are mostly given in two styles: an elegant equational style 
+  (in a comment) and a more efficient style.
+  <hr>
+
+  <li><a href="ast/collect/set.ast"> collect/set.ast</a> This package
+  describes the abstract concept of a set.  Most of the operations
+  are virtual, but a few are defined here.
+
+  <p><li><a href="ast/collect/set.asi"> collect/set.asi</a> 
+  Here are implementations
+  of those set operations defined at the abstract level.
+  <hr>
+
+  <li><a href="ast/collect/sort.ast"> collect/sort.ast</a> 
+  This package provides
+  general functions for sorting lists.
+
+  <p><li><a href="ast/collect/sort.asi"> collect/sort.asi</a> 
+  The sort implementation uses mergesort.
+  <hr>
+
+  <li><a href="ast/collect/sparsset.ast"> collect/sparsset.ast</a> 
+  This package
+  implements sets as balanced binary search trees.
+  See <a href="ast/collect/set.ast">collect/set.ast</a>
+  and <a href="ast/collect/srchtree.ast">collect/srchtree.ast</a>.
+
+  <p><li><a href="ast/collect/sparsset.asi"> collect/sparsset.asi</a> 
+  Here is the implementation of binary search trees.
+  <hr>
+
+  <li><a href="ast/collect/sparstbl.ast"> collect/sparstbl.ast</a> 
+  This package implements tables as balanced binary search trees.  
+  See <a href="ast/collect/table.ast">collect/table.ast</a>.
+  <hr>
+
+  <li><a href="ast/collect/srchtree.ast"> collect/srchtree.ast</a> 
+  This packages provides binary search trees.
+
+  <p><li><a href="ast/collect/srchtree.asi"> collect/srchtree.asi</a> 
+  Here is the implementation of binary search trees.  The trees are
+  weight-balanced.
+  <hr>
+
+  <li><a href="ast/collect/string.ast"> collect/string.ast</a> This package
+  provides operations on strings.  It also provides some patterns
+  for doing pattern matching in strings.
+
+  <p><li><a href="ast/collect/string.asi"> collect/string.asi</a> Here is the 
+  implementation of the string operations.
+  <hr>
+
+  <li><a href="ast/collect/table.ast"> collect/table.ast</a> This package
+  defines an abstract concept of a table.  Most of the functions
+  are virtual, but a few are defined here.
+
+  <p><li><a href="ast/collect/table.asi"> collect/table.asi</a> 
+  Here the operations are defined that can be defined at the
+  abstract level.
+  <hr>
+  
+  <li><a href="ast/collect/matrix.ast"> collect/matrix.ast</a> 
+  These operations are useful for two-dimensional lists.
+
+  <p><li><a href="ast/collect/matrix.asi"> collect/matrix.asi</a> 
+  Here are the definitions.
+  <hr>
+
+  <!------- lang -------->
+  <h2><font color=mediumblue> Language description packages</font></h2>
+
+  <hr>
+  <li><a href="ast/lang/boolean.ast"> lang/boolean.ast</a> This package 
+  describes the built-in Boolean operations.
+  <hr>
+
+  <li><a href="ast/lang/box.ast"> lang/box.ast</a> This package describes
+  built-in box operations, as well as Var expressions.
+  <hr>
+
+  <li><a href="ast/lang/bracket.ast"> lang/bracket.ast</a> This package
+  discusses the syntax and bracketing.
+  <hr>
+
+  <li><a href="ast/lang/char.ast"> lang/char.ast</a> This package describes
+  built-in operations on characters, and implements a few
+  operations.
+
+  <p><li><a href="ast/lang/char.asi"> lang/char.asi</a> Here are the
+  implementations of the character operations that are not built-in.
+  <hr>
+
+  <li><a href="ast/lang/choose.ast"> lang/choose.ast</a> This package 
+  describes the choice constructs.
+  <hr>
+
+  <li><a href="ast/lang/compare.ast"> lang/compare.ast</a> This package
+  describes comparisons, such as equality and ordering comparisons.
+  <hr>
+
+  <li><a href="ast/lang/except.ast"> lang/except.ast</a> This package
+  describes exceptions and failure.
+  <hr>
+
+  <li><a href="ast/lang/expect.ast"> lang/expect.ast</a> This package
+  describes expectations and anticipations.
+  <hr>
+
+  <li><a href="ast/lang/function.ast"> lang/function.ast</a> This package
+  describes functions and built-in operations on functions.
+  <hr>
+
+  <li><a href="ast/lang/hermit.ast"> lang/hermit.ast</a> This package 
+  describes () and what it does.
+  <hr>
+
+  <li><a href="ast/lang/hierarch.ast"> lang/hierarch.ast</a> This package
+  shows the standard genus/species hierarchy.
+  <hr>
+
+  <li><a href="ast/lang/import.ast"> lang/import.ast</a> This package
+  describes imports.
+  <hr>
+
+  <li><a href="ast/lang/irreg.ast"> lang/irreg.ast</a> This package 
+  describes irregular functions and wrapped items.
+  <hr>
+
+  <li><a href="ast/lang/lazy.ast"> lang/lazy.ast</a> This package
+  describes delayed evaluation.
+  <hr>
+
+  <li><a href="ast/lang/let.ast"> lang/let.ast</a> This package describes
+  let and define expressions.
+  <hr>
+
+  <li><a href="ast/lang/loop.ast"> lang/loop.ast</a> This package
+  describes loop constructs.
+  <hr>
+
+  <li><a href="ast/lang/misc.ast"> lang/misc.ast</a> This package
+  describes some built-in concepts that do not seem to fit
+  anywhere else.
+  <hr>
+
+  <li><a href="ast/lang/operator.ast"> lang/operator.ast</a> This package
+  describes binary and unary operators, and has a precedence table.
+  <hr>
+
+  <li><a href="ast/lang/optional.ast"> lang/optional.ast</a> This package
+  describes values that have a special "noValue" item that indicates
+  no value is present.
+  <hr>
+
+  <li><a href="ast/lang/pattern.ast"> lang/pattern.ast</a> This package
+  describes pattern matching.
+  <hr>
+
+  <li><a href="ast/lang/rank.ast"> lang/rank.ast</a> This package 
+  describes ranked and enumerated species (which are similar to
+  natural numbers or finite ranges of natural numbers), and
+  operations on them.
+  <hr>
+
+  <li><a href="ast/lang/stream.ast"> lang/stream.ast</a> This package
+  describes facilities for backtracking and for multiple threads.
+  <hr>
+
+
+  <!------- logic------->
+  <h2><font color=mediumblue> Logic programming support </font></h2>
+
+  <hr>
+  <li><a href="ast/logic/symbol.ast"> logic/symbol.ast</a>
+  This package provides the concept of a symbol, or an atom.
+  <hr>
+
+  <li><a href="ast/logic/unify.ast"> logic/unify.ast</a> This
+  package implements unification.
+  <hr>
+
+  <li><a href="ast/logic/unknown.ast"> logic/unknown.ast</a>
+  This package describes the built-in concept of an unknown.
+
+  <hr>
+  <li><a href="ast/logic/utils.ast"> logic/utils.ast</a>
+  This package provides a few utilities that are useful for
+  logic programming.
+
+  <p><li><a href="ast/logic/utils.asi"> logic/utils.asi</a>
+  Here are the implementations of the utilities.
+  <hr>
+
+
+  <!-------- misc ------->
+  <h2><font color=mediumblue> Miscellaneous </font></h2>
+
+  <hr>
+  <li><a href="ast/misc/random.ast"> misc/random.ast</a> 
+  This package provides a pseudo-random number generator.
+
+  <p><li><a href="ast/misc/random.asi"> misc/random.asi</a> The pseudo-random
+  number generator is based on the difficulty of taking square roots
+  mod a product of two distinct primes.
+  <hr>
+
+  <li><a href="ast/misc/trace.ast"> misc/trace.ast</a>
+  This package provides a few functions that are useful in
+  tracing computations.
+  <hr>
+
+  <!-------- math --------->
+  <h2><font color=mediumblue> Numeric operations</font></h2>
+
+  <hr>
+  <li><a href="ast/mathcomplex.ast"> math/complex.ast</a> 
+  This package provides some operations on complex numbers.
+
+  <p><li><a href="ast/math/complex.asi"> math/complex.asi</a> Here is
+  the implementation.
+  <hr>
+
+  <li><a href="ast/math/math.ast"> math/math.ast</a>
+  This package provides a few mathematical functions, such as exp
+  and ln.
+ 
+  <p><li><a href="ast/math/math.asi"> math/math.asi</a> Here are
+  the implementations.
+  <hr>
+
+  <li><a href="ast/math/modular.ast"> math/modular.ast</a> 
+  This package provides some operations that use modular arithmetic.
+
+  <p><li><a href="ast/math/modular.asi"> math/modular.asi</a>
+  Here are the implementations.
+  <hr>
+
+  <li><a href="ast/math/number.ast"> math/number.ast</a> 
+  This package generalizes the standard numeric genera to allow
+  other numeric species, such as complex numbers.  It creates
+  several genera, and some virtual functions for them.
+
+  <p><li><a href="ast/math/number.asi"> math/number.asi</a> 
+  Here, a few general operations on numbers are defined.
+  <hr>
+
+  <li><a href="ast/math/prime.ast"> math/prime.ast</a> 
+  This package provides a test for primality and a factoring function.
+
+  <p><li><a href="ast/math/prime.asi"> math/prime.asi</a> The prime number
+  tester is Monte Carlo, and the factoring algorithm is Pollard's.
+  <hr>
+
+  <li><a href="ast/math/stdnum.ast"> math/stdnum.ast</a>
+  This package described built-in numeric operations.
+  <hr>
+
+  <!--------- pattern --------->
+  <h2><font color=mediumblue> Pattern matching support </font></h2>
+
+  <hr>
+  <li><a href="ast/pattern/listpat.ast"> pattern/listpat.ast</a> 
+  This package
+  defines list patterns that involve taking sublists or breaking
+  apart lists.  It also provides a few support operations for doing
+  the breakup of the lists.
+
+  <p><li><a href="ast/pattern/listpat.asi"> pattern/listpat.asi</a> Here are 
+  implementations of some of the support operations.
+  <hr>
+
+  <li><a href="ast/pattern/pattern.ast"> pattern/pattern.ast</a> Here
+  first class patterns are defined.
+
+  <p><li><a href="ast/pattern/pattern.asi">pattern/pattern.asi</a> Here
+  are implementations of helper functions for first class patterns.
+  <hr>
+
+  <li><a href="ast/pattern/stringp.ast"> pattern/stringp.ast</a> This package
+  provides first class patterns for pattern matching in strings.  
+
+  <p><li><a href="ast/pattern/stringp.asi"> pattern/stringp.asi</a>
+  Here is the implementation of the first class string patterns.
+  <hr>
+
+  <!--------- system --------->
+  <h2><font color=mediumblue> System operations </font></h2>
+
+  <hr>
+  <li><a href="ast/system/io.ast"> system/io.ast</a> 
+  This package describes built-in operations for input from files
+  and output to files.  A few new operations are defined here as well.
+  <hr>
+
+  <li><a href="ast/system/system.ast"> system/system.ast</a> 
+  This package describes some functions that interact with
+  the operating system, and creates some more pleasant interfaces
+  to some of the built-in functions.  It also creates the notion of
+  a file, and provides some operations on file names.
+
+  <p><li><a href="ast/system/system.asi"> system/system.asi</a> 
+  Here the operations are implemented.
+  <hr>
+
+  <!-------- thread --------->
+  <h2> <font color=mediumblue>
+  Creating threads and communicating among threads </font></h2>
+
+  <hr>
+  <li><a href="ast/thread/channel.ast"> thread/channel.ast</a> 
+  This package provides communication channels for communicating
+  between threads.
+
+  <p><li><a href="ast/thread/channel.asi"> thread/channel.asi</a> 
+  Here, the channel operations are implemented.
+  <hr>
+
+  <li><a href="ast/thread/semaphor.ast"> thread/semaphor.ast</a> 
+  This package provides semaphores for synchronizing threads.
+
+  <p><li><a href="ast/thread/semaphor.asi"> thread/semaphor.asi</a> 
+  Here, semaphores are implemented.
+  <hr>
+
+  <li><a href="ast/thread/sync.ast"> thread/sync.ast</a> 
+  This package provides an alternative synchronization
+  mechanism for threads.
+
+  <p><li><a href="ast/thread/sync.asi"> thread/sync.asi</a> 
+  Here is the implementation.
+  <hr>
+
+  <li><a href="ast/thread/thread.ast"> thread/thread.ast</a> 
+  This package provides support for creating and controling threads.
+
+  <p><li><a href="ast/thread/thread.asi"> thread/thread.asi</a> 
+  Here is the implementation.
+  <hr>
+
+</menu>
+
+<hr>
+<center>
+<a href="libimp.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="indx.html">Next</a>
+</center>
+</body>
+</HTML>

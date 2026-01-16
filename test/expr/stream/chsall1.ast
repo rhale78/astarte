@@ -1,0 +1,39 @@
+Package Testchoose
+
+%% Test Choose-all expressions 
+
+Execute
+  Writeln["\nShould print\n    5\n    7\ntwo times\n"].
+%Execute
+
+Execute
+  Try
+    Let x = 
+      Choose all
+        case 1 == 1 => 5
+        case 1 == 2 => 6
+        case 2 == 2 => 7
+      %Choose
+    %Let
+    Writeln[x $$ 5].
+    (fail testX)
+  %Try
+%Execute
+
+Execute
+  Try
+    Let x = 
+      Choose all
+        case do {1 == 1} => 5
+        case do 
+          Untrap domainX("") => {1 == 2 else domainX "failed"}. => 6
+        case 2 == 2 => 7
+      %Choose
+    %Let
+    Writeln[x $$ 5].
+    (fail testX)
+  %Try
+%Execute
+
+%Package
+

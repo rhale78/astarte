@@ -1,0 +1,244 @@
+<HTML>
+<head>
+<title>Astarte: complex numbers</title>
+</head>
+<body>
+<center>
+<a href="real.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="modular.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LN5. Complex numbers </font></h1>
+</center>
+
+Species Complex contains complex numbers, represented 
+approximately.  You must import 
+<a href="ast/math/complex.ast">math/complex.ast</a>
+to use complex numbers.
+
+<p>The precision of operations is controlled by the content
+of box precision!.  If precision! holds k, then built-in
+operations are carried out to at least k decimal digits
+of precision.
+
+<p>Operations on complex numbers are as follows.
+
+<a name="arithmetic"></a>
+<h2><font color=mediumblue> Basic arithmetic operations </font></h1>
+
+<dl>
+<p><dt><font color="red"> + </font>: (Complex, Complex) -&gt; Complex
+<dd> <font color=#D00090>x + y</font> is the sum of x and y.
+
+<a name=minus></a>
+<p><dt><font color="red"> - </font>: (Complex, Complex) -&gt; Complex
+<dd> <font color=#D00090>x - y</font> is the difference of x and y.
+
+<p><dt><font color="red"> - </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>-x</font> is the negation of x.
+
+<a name=star></a>
+<p><dt><font color="red"> * </font>: (Complex, Complex) -&gt; Complex
+<dd> <font color=#D00090>x * y</font> is the product of x and y.
+
+<a name=slash></a>
+<p><dt><font color="red"> / </font>: (Complex, Complex) -&gt; Complex
+<dd> <font color=#D00090>x / y</font> is the quotient of x and y.
+
+<p><dt><font color="red"> / </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>/z</font> is the reciprocal of z.
+
+<a name=hat></a>
+<p><dt><font color="red"> ^ </font>: (Complex, Natural) -&gt; Complex
+<dd> <font color=#D00090>z ^ n</font> 
+is z to the power n.  Here, z has species Complex and
+n has species Natural.
+
+<a name=hatslash></a>
+<p><dt><font color="red"> ^/ </font>: (Complex, Integer) -&gt; Complex
+<dd> <font color=#D00090>z ^/ i</font> 
+is x to the power i.  Here, z has species Complex and
+i has species Integer.
+
+<a name=hattilde></a>
+<p><dt><font color="red"> ^~ </font>: (Complex, Complex) -&gt; Complex
+<dd> <font color=#D00090>x ^~ y</font> 
+is x to the power y.  (More precisely it returns 
+the principal value of x to the power y.)
+
+</dl>
+
+<a name="tostring"></a>
+<h2><font color=mediumblue> Conversion to string </font></h2>
+<dl>
+<p><dt><font color="red"> $ </font>: Complex -&gt; String
+<dd> <font color=#D00090>$(z)</font> is a string that shows z.
+<p><font color=orange>Example:</font>
+ <font color="#D00090">$(complex(2.2,4.0))</font> = 
+"(2.2+i*4)"
+
+<p><dt><font color="red"> $' </font>: Complex -&gt; String
+<dd> <font color=#D00090>$'(x)</font> 
+is the decimal representation of x, with commas
+every three digits from the right.
+<p><font color=orange>Example:</font>
+ <font color="#D00090">$(complex(2.2,4.0))</font> = 
+"(2.2+i*4)"
+
+<a name=dollardollar></a>
+<p><dt><font color="red"> $$ </font>: (Complex, Natural) -&gt; String
+<dd> <font color=#D00090>z $$ k</font> 
+is a string that shows complex number z, but
+uses k characters for each of the real and imaginary parts.
+<p><font color=orange>Example:</font>
+ <font color="#D00090">complex(2.2,4.0) $$ 12</font> = 
+"( 2.2000E+000+ i* 4.0000E+000)"
+
+<p><dt><font color="red"> $$ </font>: (Complex, Natural, Natural) -&gt; String
+<dd> <font color=#D00090>z $$ (n,k)</font> 
+is the (approximate) decimal representation of z,
+using at least n total characters, with k characters to the right
+of the decimal place, for each of the real and imaginary parts.
+<p><font color=orange>Example:</font>
+<font color="#D00090">complex(2.2,4.0) $$ (8,2)</font> = 
+"(&nbsp;&nbsp;&nbsp;&nbsp; 2.20+ i*&nbsp;&nbsp;&nbsp;&nbsp; 4.00)"
+
+<p><dt><font color="red"> $$' </font>: (Complex, Natural, Natural) -&gt; String
+<dd> <font color=#D00090>x $$' (n,k)</font> 
+is similar to x $$ (n,k), but commas are placed every
+three digits on the left hand side of the decimal point.  The commas
+count in the total number of characters.
+
+<p><dt><font color="red"> $$ </font>: (Complex, Natural, Natural, Natural) -&gt; String
+<dd> <font color=#D00090>z $$ (n,k,e)</font> 
+is the (approximate) decimal representation of z,
+in exponential format,
+using at least n total characters, with k characters to the right
+of the decimal place, and using e characters for the exponent,
+for each of the real and imaginary parts.
+<p><font color=orange>Example:</font>
+ <font color="#D00090">14.1 $$ (12,2,3)</font> = 
+"(&nbsp;&nbsp;&nbsp; 2.20E+001+ i*&nbsp;&nbsp;&nbsp; 4.00E+000)" 
+
+</dl>
+
+<a name="math"></a>
+<h2><font color=mediumblue> Mathematical operations </font></h2>
+
+<dl>
+
+<a name=cos></a>
+<p><dt><font color="red"> cos </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>cos(z)</font> is the (approximate) cosine of z.
+
+<a name=exp></a>
+<p><dt><font color="red"> exp </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>exp(z)</font> is (approximately) e to the z.
+
+<a name=ln></a>
+<p><dt><font color="red"> ln </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>ln(z)</font> 
+is (approximately) the natural logarithm of z.
+
+<a name=log></a>
+<p><dt><font color="red"> log </font>: Complex -&gt; Complex -&gt; Complex
+<dd> <font color=#D00090>log b z</font> 
+is (approximately) the logarithm to base b of z.
+
+<a name=magnitude></a>
+<p><dt><font color="red"> magnitude </font>: Complex -&gt; Real
+<dd> <font color=#D00090>magnitude(z)</font> 
+is (approximately) the magnitude of z.
+
+<a name=sin></a>
+<p><dt><font color="red"> sin </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>sin(z)</font> is the (approximate) sine of z.
+
+<a name=sqrt></a>
+<p><dt><font color="red"> sqrt </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>sqrt(z)</font> 
+is (approximately) the square root of z.
+
+<a name=tan></a>
+<p><dt><font color="red"> tan </font>: Complex -&gt; Complex
+<dd> <font color=#D00090>tan(z)</font> is the (approximate) tangent of z.
+
+</dl>
+
+<a name="misc"></a>
+<h2><font color=mediumblue> Miscelleneous operations </font></h2>
+
+<dl>
+<p><dt><font color="red"> complex </font>: (Real, Real) -&gt; Complex
+<dd> <font color=#D00090>complex(r,s)</font> 
+is complex number with real part r and
+imaginary part s.  If x is of any of the standard numeric
+species or of species Complex, then complex(x) is the
+same number converted to species Complex.
+
+<a name=fromPolar></a>
+<p><dt><font color="red"> fromPolar </font>: (Real, Real) -&gt; Complex
+<dd> <font color=#D00090>fromPolar(r,theta)</font> is z where
+z = r*e^(i*theta).
+
+<a name=im></a>
+<p><dt><font color="red"> im </font>: Complex -&gt; Real
+<dd> <font color=#D00090>im(z)</font> is imaginary part of z.
+
+<a name=natconst></a>
+<p><dt><font color=red>natconst </font>: Natural -&gt; Complex
+<dd> This definition of natconst allows you to use constants such
+as 1 as complex numbers.
+
+<a name=ratconst></a>
+<p><dt><font color=red>ratconst </font>: Natural -&gt; Complex
+<dd> This definition of ratconst allows you to use constants such
+as 1.0 as complex numbers.
+
+<a name=re></a>
+<p><dt><font color="red"> re </font>: Complex -&gt; Real
+<dd> <font color=#D00090>re(z)</font> is real part of z.
+
+<a name=toPolar></a>
+<p><dt><font color="red"> toPolar </font>: Complex -&gt; (Real, Real)
+<dd> <font color=#D00090>toPolar(z)</font> 
+is (r,theta) where z = r*e^(i*theta).
+
+<a name=toSqPolar></a>
+<p><dt><font color="red"> toSqPolar </font>: Complex -&gt; (Real, Real)
+<dd> <font color=#D00090>toSqPolar(z)</font> 
+is (r,theta) where z = sqrt(r)*e^(i*theta).
+
+<a name=unit></a>
+<p><dt><font color=red>unit</font> : Complex
+<dd> <font color=#D00090>unit</font> = 1.  
+
+<a name=zero></a>
+<p><dt><font color=red>zero</font> : Complex
+<dd> <font color=#D00090>zero</font> = 0.  
+
+<a name=zeroq></a>
+<p><dt><font color="red"> zero? </font>: Complex -&gt; Boolean
+<dd> <font color=#D00090>zero?(x)</font> is true if x = 0.
+
+</dl>
+
+<hr>
+<center>
+<a href="real.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="modular.html">Next</a>
+</center>
+</body>
+</HTML>

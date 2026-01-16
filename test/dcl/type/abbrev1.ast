@@ -1,0 +1,9 @@
+Package testabbrev1 
+
+%% Test abbreviations that are made in standard.ast, but that should
+%% be hidden.  Should complain that A is unknown.
+
+Let x:A = 1.
+
+%Package
+

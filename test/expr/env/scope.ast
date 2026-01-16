@@ -1,0 +1,417 @@
+Package testscope 
+
+%% Test scoping rules -- should not compile.
+
+=================================================================
+%% Procedure application, []
+
+Execute
+  %% Should complain that a is not known.
+
+  Writeln
+    [Let a = "hello".
+    a]
+  %Writeln
+  Writeln[a].
+
+  %% Should complain about b.
+
+  open Writeln
+    [Let b = "hello".
+    b]
+  %Writeln
+  Writeln[b].
+%Execute
+
+=================================================================
+%% Let
+
+Execute
+  %% Should complain that a is not known.
+
+  Let x =
+    Let a = "hello".
+    Writeln[a].
+  %Let
+  Writeln[a].
+
+  %% Should not complain about b.
+
+  open Let y =
+    Let b = "hello".
+    Writeln[b].
+  %Let
+  Writeln[b].
+%Execute
+
+=================================================================
+%% Define
+
+Execute
+  %% Should complain that a is not known.
+
+  Define x =
+    Let a = "hello".
+    Writeln[a].
+  %Define
+  Writeln[a].
+
+  %% Should produce a syntax error
+
+  open Define y =
+    Let b = "hello".
+    Writeln[b].
+  %Define
+  Writeln[b].
+%Execute
+
+=================================================================
+%% Match
+
+Execute
+  %% Should complain that a is not known.
+
+  Match ?x =
+    Let a = "hello".
+    Writeln[a].
+  %Match
+  Writeln[a].
+
+  %% Should not complain about b.
+
+  open Match ?y =
+    Let b = "hello".
+    Writeln[b].
+  %Match
+  Writeln[b].
+%Execute
+
+=================================================================
+%% Atomic
+
+Execute
+  %% Should complain that a is not known.
+
+  Atomic
+    Let a = "hello".
+    Writeln[a].
+  %Atomic
+  Writeln[a].
+
+  %% Should not complain about b.
+
+  open Atomic
+    Let b = "hello".
+    Writeln[b].
+  %Atomic
+  Writeln[b].
+%Execute
+
+=================================================================
+%% Preserve
+
+%%Execute
+%%  %% Should complain that a is not known.
+%%
+%%  preserve all =>
+%%    Let a = "hello".
+%%    Writeln[a].
+%%  %preserve
+%%  Writeln[a].
+%%
+%%  %% Should not complain about b.
+%%
+%%  open preserve all =>
+%%    Let b = "hello".
+%%    Writeln[b].
+%%  %preserve
+%%  Writeln[b].
+%%
+%%  %% Should complain that c and w are not known.
+%%
+%%  Var z.
+%%  preserve Let w = z. w =>
+%%    Let c = "hello".
+%%    Writeln[c, $w].
+%%  %preserve
+%%  Writeln[c, $w].
+%%
+%%  %% Should not complain about d.
+%%
+%%  open preserve Let w = z. z =>
+%%    Let d = "hello".
+%%    Writeln[d, $w].
+%%  %preserve
+%%  Writeln[d, $w].
+%%%Execute
+
+=================================================================
+%% Cut
+
+Execute
+  %% Should complain that a is not known.
+
+  Cut
+    Let a = "hello".
+    Writeln[a].
+  %Cut
+  Writeln[a].
+
+  %% Should not complain about b.
+
+  open Cut
+    Let b = "hello".
+    Writeln[b].
+  %Cut
+  Writeln[b].
+%Execute
+
+=================================================================
+%% Trap
+
+Execute
+  %% Should complain that a is not known.
+
+  Trap testX =>
+    Let a = "hello".
+    Writeln[a].
+  %Trap
+  Writeln[a].
+
+  %% Should not complain about b.
+
+  open Trap testX =>
+    Let b = "hello".
+    Writeln[b].
+  %Trap
+  Writeln[b].
+
+  %% Should complain about ex.
+
+  Trap Let ex = testX. ex =>
+    Let a = "hello".
+    Writeln[a].
+  %Trap
+  Writeln[$ex].
+
+  %% Should not complain about ex.
+
+  open Trap Let ex = testX. ex =>
+    Let a = "hello".
+    Writeln[a].
+  %Trap
+  Writeln[$ex].
+%Execute
+
+=================================================================
+%% Untrap
+
+Execute
+  %% Should complain that a is not known.
+
+  Untrap testX =>
+    Let a = "hello".
+    Writeln[a].
+  %Untrap
+  Writeln[a].
+
+  %% Should not complain about b.
+
+  open Untrap testX =>
+    Let b = "hello".
+    Writeln[b].
+  %Untrap
+  Writeln[b].
+
+  %% Should complain about ex.
+
+  Untrap Let ex = testX. ex =>
+    Let a = "hello".
+    Writeln[a].
+  %Untrap
+  Writeln[$ex].
+
+  %% Should not complain about ex.
+
+  open Untrap Let ex = testX. ex =>
+    Let a = "hello".
+    Writeln[a].
+  %Untrap
+  Writeln[$ex].
+%Execute
+
+=================================================================
+%% If
+
+Execute
+  %% Should complain about a and b.
+
+  If Let a = true. a then
+    Let b = a.
+  else
+    Let b = not a.
+  %If
+  Writeln[$a, $b].
+
+  %% Should not complain about a and b.
+
+  open If Let a = true. a then
+    Let b = a.
+  else
+    Let b = not a.
+  %If
+  Writeln[$a, $b].
+%Execute
+
+=================================================================
+%% Try, {}
+
+Execute
+  %% Should complain about a and b.  Should complain about a in else part.
+
+  Try {Let a = true. a} then
+    Let b = a.
+  else
+    Let b = not a.
+  %Try
+  Writeln[$a, $b].
+
+  %% Should not complain about a and b.
+
+  open Try Let a = true. a then
+    Let b = a.
+  else
+    Let b = not a.
+  %Try
+  Writeln[$a, $b].
+%Execute
+
+=================================================================
+%% Stream
+
+Execute
+  %% Should complain about a.
+
+  Stream
+    Let a = true.
+  then
+    Let a = false.
+  %Stream
+  Writeln[$a].
+
+  %% Should not complain about b.
+
+  open Stream
+    Let a = true.
+  then
+    Let a = false.
+  %Stream
+  Writeln[$a].
+%Execute
+
+=================================================================
+%% Mix
+
+Execute
+  %% Should complain about a.
+
+  Mix
+    Let a = true.
+  with
+    Let a = false.
+  %Mix
+  Writeln[$a].
+
+  %% Should not complain about b.
+
+  open Mix
+    Let a = true.
+  with
+    Let a = false.
+  %Mix
+  Writeln[$a].
+%Execute
+
+%% Assign
+
+Execute
+  Var x,y holding Natural.
+  Assign x := 
+    Let z = 2.
+    z
+  %Assign
+
+  %% Should complain about z.
+
+  Writeln[$z].
+
+  open Assign y :=
+    Let w = 2.
+    w
+  %Assign
+
+  %% Should not complain about w.
+
+  Writeln[$w].
+%Execute
+
+%% For
+
+Execute
+  %% Should complain about x and y.
+
+  For ?x from 1 upto 5 do
+    Let y = 2.
+    Writeln[$y].
+  %For
+  Writeln[$x, $y].
+%Execute
+
+===========================================================
+%% Await, (:..:)
+
+Execute
+  %% Should complain about y and w.
+
+  Let x = Await then let y = 1. y..
+  Writeln[$x, $y].
+  Let z = (: let w = 1. w :).
+  Writeln[$w].
+%Execute
+
+%% Function
+
+Execute
+  open Let x = (?y => y).
+  Writeln[$y].
+%Execute
+
+===============================================================
+%% Ordered pairs
+
+Execute
+  %% Should complain about x in second line of pair.
+
+  Let a = 
+    (Let x = 1. x+1,
+     x)
+  %Let
+
+  %% Should complain about x.
+
+  Let b = x.
+
+  Let c = (let y = 1., let z = 2.).
+
+  %% Should complain about both y and z.
+
+  Let d = (y,z).
+
+%Execute
+
+%Package
+
+
+
+
+

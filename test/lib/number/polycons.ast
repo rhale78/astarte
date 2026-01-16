@@ -1,0 +1,26 @@
+Package Testpolyconst 
+
+%% Test polymorphism of natural and rational constants.
+
+Import "misc/check".
+
+Define uno = 1.
+
+Define two = uno + 1.0.
+
+Execute
+  Line[$uno].
+  Check["1"].
+  Line[$(uno: Integer)].
+  Check["1"].
+  Line[$(uno: Rational)].
+  Check["1"].
+  Line[(uno: Real) $$ (6,3)].
+  Check[" 1.000"].
+  Line[$two].
+  Check["2"].
+  Line[(~two) $$ (6,3)].  
+  Check[" 2.000"].
+%Execute
+
+%Package

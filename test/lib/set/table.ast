@@ -1,0 +1,73 @@
+Package TestTable 
+
+%% Test Package sparstbl.ast, operations:
+%%    emptyTable
+%%    emptyTable?
+%%    +/
+%%    _minusKey_
+%%    _keyMember?_
+%%    _at_         
+%%    extractMin 
+%%    extractMax 
+%%    toList     
+
+Directory standard.
+Import "collect/sparstbl"; "misc/check".
+Default TABLE => SparseTable.
+
+Operator _contains_(_in_).
+Let ?a _contains_ ?x = _keyMember?_(x, a).
+
+Define PrintTable(?extractor,?t). =
+  Var d.
+  Line["["].
+  Assign d := t.
+  Loop first 
+    loopcase not(emptyTable?(@d)) =>
+      Match ((?k,?v),?d') = extractor(@d).
+      Moreline["(", $k, ",", $v, ")"].
+      Assign d := d'.
+      If not(emptyTable?(@d)) then Moreline[","]..
+    exitcase else => ()
+  %Loop
+  Moreline["]"].
+%Define
+
+Execute
+  Let a = emptyTable +/ (1,"1").
+  Let b = a +/ (2,"2").
+  Let c = b +/ (3,"3").
+  Let d = c +/ (4,"4").
+  For ?i from 1 _upto_ 4 do
+    If not (d _contains_ i) then Write["**d does not contain ", $i, "!\n"]..
+  %For
+  If d _contains_ 0 then Write["**d contains 0!\n"]..
+  If d _contains_ 5 then Write["**d contains 5!\n"]..
+  PrintTable(extractMin,d).
+  Check["[(1,\"1\"),(2,\"2\"),(3,\"3\"),(4,\"4\")]"].
+  PrintTable(extractMax,d).
+  Check["[(4,\"4\"),(3,\"3\"),(2,\"2\"),(1,\"1\")]"].
+  Let e = d _minusKey_ 3.
+  PrintTable(extractMin,e).
+  Check["[(1,\"1\"),(2,\"2\"),(4,\"4\")]"].
+  Line[$(toList e)].
+  Check["[(1,\"1\"),(2,\"2\"),(4,\"4\")]"].
+
+  Line[(d _at_ 1) $$ 4, (d _at_ 2) $$ 4, (d _at_ 3) $$ 4, (d _at_ 4) $$ 4].
+  Check["   1   2   3   4"].
+  Line[(e _at_ 1) $$ 4, (e _at_ 2) $$ 4, (e _at_ 4) $$ 4].
+  Check["   1   2   4"].
+%Execute
+
+Execute
+  Var d.
+  Assign d := emptyTable.
+  For ?i from 5 _upto_ 8 do Assign d := @d +/ (i,i+1)..
+  For ?i from 17 _downto_ 10 do Assign d := @d +/ (i,i+1)..
+  Line[(@d _at_ 5) $$ 4, (@d _at_ 7) $$ 4, (@d _at_ 8) $$ 4, 
+       (@d _at_ 11) $$ 4, (@d _at_ 17) $$ 4]
+  %Line
+  Check["   6   8   9  12  18"].
+%Execute
+
+%Package

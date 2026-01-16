@@ -1,0 +1,582 @@
+<HTML>
+<head>
+<title>Astarte: causing and handling failure</title>
+</head>
+<body>
+<center>
+<a href="threads.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="streams.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E16. Causing and Handling Failure </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#failure> Failure</a>
+  <li> <a href=#exceptions> Exceptions</a>
+  <li> <a href=#standexcep> Standard exceptions</a>
+  <li> <a href=#tester> Testing and breaking apart exceptions</a>
+  <li> <a href=#cause> Causing failure</a>
+  <li> <a href=#catch> Catching failure</a>
+  <li> <a href=#misc> Miscellaneous operations</a>
+  <li> <a href=#multiple> Handling multiple threads</a>
+  <li> <a href=#trapping> Trapping and untrapping exceptions</a>
+</menu>
+
+<a name=failure></a>
+<hr>
+<h2><font color=mediumblue>Failure</font></h2>
+
+Failure can happen during computation for a variety of reasons.
+Division by zero, for example, 
+can cause failure.  A more
+benign reason might be that a particular branch of a computation
+has not lead to a solution, and so this branch should be abandoned.
+
+<P>Failure causes the current thread to stop.  The termination of
+this thread can trigger other threads to start, or can cause the 
+entire program to be stopped.
+
+<a name="exceptions"></a>
+<hr>
+<h2><font color=mediumblue> Exceptions </font></h2>
+
+<P> Whenever a failure happens, the failure has a value associated
+with it called an <em>exception</em>.  The exception gives some
+indication of why the failure occurred.  
+For example, if you try
+to take the head of an empty list, the head function will cause
+a failure, with exception emptyListX.  
+
+<p>An exception is a member of species ExceptionSpecies.  Standard
+exceptions include emptyListX (which occurs when you try to take
+the head or tail of an empty list) and testX (which occurs when
+a test fails, in cases where such failure is expected to occur
+in the normal course of computation).  Some exceptions are created
+by constructors with parameters, such as domainX("...").  
+For example,
+when you divide by 0, computation fails with exception
+domainX("divide by 0").
+
+<P>When a failure occurs, the exception is either trapped (causing computation
+to stop immediately) or is not trapped.  See trapping, below.
+
+<P>The following is a list of the standard exceptions, with indications
+of their meanings.  More detail can be found in
+<a href="ast/lang/except.ast">lang/except.ast</a>
+
+<a name=standexcep></a>
+<h3><font color=mediumblue>Standard exceptions </font></h3>
+<P><dl>
+<a name="badInputX"></a>
+<a name=badinputX></a>
+<p><dt> <font color=red>badInputX</font>     
+<dd> Input was of the wrong form. Normally
+not trapped.
+
+<a name=bindUnknownX></a>
+<p> <dt> <font color=red>bindUnknownX</font>  
+<dd> Failure to bind an unknown. Normally
+not trapped. 
+
+<a name=cannotSeekX></a>
+<p> <dt> <font color=red>cannotSeekX</font>   
+<dd> Attempt to seek on an unseekable file.
+ Normally not trapped. 
+
+<a name=closedFileX></a>
+<p> <dt> <font color=red>closedFileX</font>   
+<dd> Attempt to write to a closed file.
+ Normally not trapped. 
+
+<a name=closedPipeX></a>
+<p> <dt> <font color=red>closedPipeX</font>   
+<dd> Attempt to write to a closed pipe.
+Normally not trapped. 
+
+<a name=conversionX></a>
+<p> <dt> <font color=red>conversionX</font>   
+<dd> Impossible conversion.
+Normally not trapped. 
+
+<a name=domainX></a>
+<p> <dt> <font color=red>domainX(&quot;<i>explanation</i>&quot;)</font>  
+<dd> Value is not in the domain of a function.
+Normally trapped. 
+
+<a name=emptyBoxX></a>
+<p> <dt> <font color=red>emptyBoxX</font>      
+<dd> Attempt to take content of an empty box.
+Normally trapped. 
+
+<a name=emptyListX></a>
+<p> <dt> <font color=red>emptyListX</font>      
+<dd> Attempt to take head or tail of an empty 
+list. Normally trapped.
+
+<a name=endThreadX></a>
+<p> <dt> <font color=red>endThreadX</font>      
+<dd> A thread terminated itself.
+Normally not trapped.
+
+<p>This exception is not caught by most try expressions.  See
+<a href=#catchingTermination>catchingTermination</a>. 
+
+<a name=ensureX></a>
+<p> <dt> <font color=red>ensureX(&quot;<i>explanation</i>&quot;)</font>  
+<dd> A function failed to ensure a condition 
+that it should ensure is true.
+Normally trapped.
+
+<a name=infiniteLoopX></a>
+<p> <dt> <font color=red>infiniteLoopX</font>   
+<dd> A lazy expression tried to use its own 
+value. Normally trapped.
+
+<a name=interruptX></a>
+<p> <dt> <font color=red>interruptX</font>   
+<dd> The program was interrupted by the user.
+Normally trapped.
+
+<a name=limitX></a>
+<p> <dt> <font color=red>limitX</font>          
+<dd> A built-in limit has been exceeded. 
+Normally trapped.
+
+<a name=listExhaustedX></a>
+<p> <dt> <font color=red>listExhaustedX</font>          
+<dd> An attempt has been made to extract a value from
+a string that is empty, or contains only white space.  
+Normally trapped.
+
+<a name=memoryX></a>
+<p> <dt> <font color=red>memoryX</font>         
+<dd> The system has run out of memory. 
+Normally trapped.
+
+<a name=noCaseX></a>
+<p> <dt> <font color=red>noCaseX</font>         
+<dd> There was no applicable case in a 
+choose or loop expression.
+Normally trapped.
+
+<a name=noDefX></a>
+<p> <dt> <font color=red>noDefX(&quot;<i>reason</i>&quot;)</font>  
+<dd> No definition was found for an 
+identifier. Normally trapped.
+
+<a name=noFileX></a>
+<p> <dt> <font color=red>noFileX(&quot;<i>file</i>&quot;)</font>
+<dd> File could not be opened. 
+Normally not traped.
+
+<a name=requireX></a>
+<p> <dt> <font color=red>requireX(&quot;<i>explanation</i>&quot;)</font>  
+<dd> A precondition of a function was 
+violated. Normally trapped.
+
+<a name=sizeX></a>
+<p> <dt> <font color=red>sizeX</font>            
+<dd> Something was the wrong size. 
+Normally trapped.
+
+<a name=speciesX></a>
+<p> <dt> <font color=red>speciesX</font>         
+<dd> There was a run-time species mismatch.
+Normally not trapped. 
+
+<a name=subscriptX></a>
+<p> <dt> <font color=red>subscriptX</font>       
+<dd> Subscript out of bounds. 
+Normally trapped.
+
+<a name=systemX></a>
+<p> <dt> <font color=red>systemX</font>          
+<dd> A system function failed.
+Normally trapped. 
+
+<a name=terminateX></a>
+<p> <dt> <font color=red>terminateX</font> 	
+<dd> This thread was terminated by
+another thread.  Normally not
+trapped. 
+
+<p>This exception is not caught by most try expressions.  See
+<a href=#catchingTermination>catchingTermination</a>. 
+
+<a name=testX></a>
+<p> <dt> <font color=red>testX</font> 		
+<dd> A test failed. Normally not
+trapped.
+
+<a name=tooManyFilesX></a>
+<p> <dt> <font color=red>tooManyFilesX</font> 	
+<dd> There are too many open files. 
+Normally trapped.
+</dl>
+
+<a name=tester></a>
+<hr>
+<h2> <font color=mediumblue>Testing and breaking apart exceptions</font></h2>
+<P>You can test an exception to see whether it is of a given kind.
+Add a question mark to the end of the exception constructor.  
+For example, 
+emptyListX?(<em>e</em>) is true just when <em>e</em> 
+is emptyListX, and
+domainX?(<em>e</em>) is true just when <em>e</em> has kind domainX.
+
+<a name=destructor></a>
+<p>You can get the string associated with a domainX, ensureX, etc.
+value either by using pattern matching or by using the functional inverse
+of the constructor, which begins with &quot;un&quot;
+For example, 
+undomainX(domainX(s)) = s.  Other functions are
+unensureX, unnoDefX, unnoFileX and unrequireX.
+
+<a name="cause"></a>
+<hr>
+<h2><font color=mediumblue> Causing failure </font></h2>
+
+The library functions can fail under some circumstances.  
+For example,
+if you divide by zero, the division function causes the thread to
+fail.  You can force failure any time as follows.
+
+<dl>
+
+<p><dt><font color="red"> fail <em>e</em> </font>
+<dd> Library function fail takes an exception as an argument,
+and causes a failure with that exception.  Expression fail(<i>e</i>)
+can have any type; it never returns a value though, since it fails.
+<p>Example:
+<font color="#D00090">fail(emptyListX)</font>
+
+<p><dt><font color="red"> Fail <em>e</em> %Fail </font>
+<dd> Library function Fail is the same as fail, but
+its result type is ().
+<p>Example: 
+<font color="#D00090">Fail emptyListX .</font>
+
+<a name=braceelse></a>
+<p><dt><font color="red"> {<em>a</em> else <em>b</em>} </font>
+<dd> {<em>a</em> else <em>b</em>} has no effect if <em>a</em> 
+evaluates to true,
+but fails with exception <em>b</em> if <em>a</em> evaluates to false.  
+Expression <em>b</em> must evaluate to an exception.  
+<p>Example: 
+<font color="#D00090">{a == b else emptyListX}</font>
+
+<a name=brace></a>
+<p><dt><font color="red"> {<em>a</em>} </font>
+<dd> <font color=#D00090>{<i>a</i>}</font> abbreviates 
+<font color=#D00090>{<i>a</i> else testX}</font>.
+</dl>
+
+<a name="catch"></a>
+<hr>
+<h2><font color=mediumblue> Catching failure </font></h2>
+
+A program can recover from a failure by catching it.  The following 
+mechanisms are provided for catching failure.
+
+<dl>
+
+<a name=try></a>
+<p><dt><font color="red"> Try <em>a</em> then 
+<em>b</em> else <em>c</em> %Try</font>
+<dd> This expression catches a failure in expression <em>a</em>.
+It has the same value as <em>b</em> if 
+evaluation of <em>a</em> succeeds,
+and the same value as <em>c</em> if evaluation of <em>a</em> fails.  
+Expression <em>a</em> must have species ().  
+
+<p>A failure is caught by the most recently entered construct (such as
+a try) that can catch an failure.  For example,
+<font color=#D00090>
+<b><pre>
+   Try
+     Try
+       Fail testX.
+     then
+       Writeln["This won't be printed"].
+     else
+       Writeln["This will be printed"].
+     %Try
+   then
+     Writeln["This will be printed too"].
+   else
+     Writeln["This won't be printed"].
+   %Try
+</pre></b>
+</font>
+prints
+<b><pre>
+    This will be printed
+    This will be printed too
+</pre></b>
+since the inner try catches the failure.  The inner try does not need
+to be statically (in the program structure) inside the outer try.
+It must be dynamically inside it, merely entered more recently during
+computation.
+
+<a name=butiffail></a>
+<p><dt><font color="red"> <em>a</em> _butIfFail_ <em>b</em> </font>
+<dd> If evaluation of expression <em>a</em> succeeds, then
+<em>a</em> <font color=#D00090>_butIfFail_</font> <em>b</em>
+has the same value as <em>a</em>.  
+If evaluation of <em>a</em> fails, then
+<em>a</em> <font color=#D00090>_butIfFail_</font> <em>b</em> 
+has the same value as <em>b</em>.
+
+<font color=brown>
+<p><i>a</i>_butIfFail_<i>b</i> is translated to 
+<font color=#D00090>
+<b><pre>
+  Try catchingEachThread 
+      Let <font color=black><i>x</i></font> = <font color=black><i>a</i></font>. 
+    then <font color=black><i>x</i></font> 
+    else <font color=black><i>b</i></font> 
+  %Try
+</pre></b>
+</font>
+where <i>x</i> is a new identifier.
+</font>
+
+<a name=exceptionExpr></a>
+<p><dt><font color="red"> exception </font>
+<dd> Within the else-part of a try-expression, you can
+use expression <font color=#D00090>exception</font>.  
+Its value is the exception
+that was caused in the condition of the try-expression.
+
+<p>For example, 
+the following recovers from a failure of <i>e</i> having
+exception emptyListX, but just
+propagates any other exception outwards, continuing the failure.
+<font color=#D00090>
+<b><pre>
+  Try
+    <font color = black><i>e</i></font>
+  then
+    <font color=black>...</font>
+  else
+    If emptyListX?(exception) then
+      Writeln["Ok, let's just keep going"].
+    else
+      Fail exception
+    %If
+  %Try
+</pre></b>
+</font>
+
+<b>Note:</b> A choose-expression is translated into a collection of
+if-expressions and try-expresions.  
+You can use <font color=#D00090>exception</font> in a choose-expression
+in parts that follow a try-expression in the translation.
+A try-expression is used any time the choose-expression is checking
+for failure, including when pattern matching is used.  
+For example
+<font color=#D00090>
+<b><pre>
+     Choose first matching x
+       case [] =&gt; <font color=black>...</font>
+       do Writeln[$exception].
+       <font color=black>...</font>
+     %Choose
+</pre></b>
+</font>
+writes &quot;testX&quot' when the first case fails, 
+and then continues testing more
+cases.
+</dl>
+
+<a name="misc"></a>
+<hr>
+<h2><font color=mediumblue> Miscellaneous operations </font></h2>
+
+<dl>
+<p><dt><font color="red"> succeedsf </font>
+<dd>: (`a -> `b) -> `a -> Boolean
+<p> Expression <font color=#D00090>(succeedsf f x)</font> is true 
+if f(x) does not fail.
+
+<p><dt><font color="red"> willTrap  </font>
+<dd>: ExceptionSpecies -> Boolean
+<p> Expression <font color=#D00090>willTrap(e)</font> is true 
+if exception e will be trapped
+if it occurs in the current context.
+</dl>
+
+<font color=brown>
+<a name=multiple></a>
+<hr>
+<h2><font color=mediumblue>Handling multiple threads</font></h2>
+
+Try expression have options for controlling how they handle
+forking of threads.  Please read about 
+<a href=threads.html>threads</a> before reading this.
+
+<dl>
+<a name=catchingTermination></a>
+<p><dt><font color="red"> Try catchingTermination ... %Try </font>
+<dd>Normally, a try expression will not catch exceptions terminateX or
+endThreadX, since those exceptions are supposed to destroy a thread.
+Sometimes, you need to catch them, so that a thread can clean up
+when it is destroyed.  If you add modifier catchingTermination after
+Try, then endThreadX and terminateX will be caught.
+
+If a try catches termination, it should propagate the same exception
+outwards after handling it.  For example, a try expression might look
+like this.
+<font color=#D00090>
+<b><pre>
+    Try catchingTermination
+      <font color=black>...</font>
+    else
+      <font color=black><i>clean up</i></font>
+      Fail exception.
+    %Try
+</pre></b>
+</font>
+If, after catching termination, a thread continues running normally,
+then it can, conceivably, reach the end of a Unique expression, 
+possibly causing more than one thread to exit an expression that
+is only supposed to have one thread exit.
+
+<a name=catchingEachThread></a>
+<p><dt><font color="red"> Try catchingEachThread ... %Try </font>
+<dd>Consider a try-expression
+<font color=#D00090>
+<b><pre>
+   Try
+     <font color=black><i>a</i></font>
+   then
+     <font color=black><i>b</i></font>
+   else
+     <font color=black><i>c</i></font>
+   %Try
+</pre></b>
+</font>
+When a thread enters this try-expression, another thread is created
+to handle the failure, and is immediately suspended.  That thread will
+only be started when execution of <i>a</i> fails.  Let's call the waiting
+thread <i>W</i>.
+
+<p>Suppose that a single thread enters this try expression, 
+but that new threads are created inside <i>a</i>.  Call two of those
+threads <i>G</i> (for the good thread) and <i>B</i> (for the bad
+thread).  Suppose further that
+thread <i>G</i> succeeds, and makes it to the end if <i>a</i>,
+but thread <i>B</i> fails, and does not make it to the end if <i>a</i>.
+
+<p>There are two reasonable ways for the try-expression to run.
+<ol>
+  <p><li>Threads are often used for searching.  A thread spawns several
+  other threads to try different alternatives.  Typically, some of those
+  alternatives will not work out, and the corresponding threads will fail.
+  A thread is considered to have failed to compute an expression
+  only when none of the threads that it spawns succeeds.  
+
+  <p> With this view, the try-expression should only start up the 
+  waiting thread <i>W</i> when all of the threads spawned by the thread
+  that started <i>a</i> have failed.
+  Since thread <i>G</i> succeeds, the try expression will destroy
+  thread <i>W</i> without running it.
+
+  <p>This is the default rule for try-expressions.
+
+  <p><li>Threads can, alternatively, be thought of as separate agents,
+  each performing a separate task.  When thread <i>B</i> fails inside
+  expression <i>a</i>, the try expression should catch that failure.
+  This involves creating a copy of the waiting thread <i>W</i> and
+  running that thread.  (A copy must be made since, under this interpretation,
+  many different threads might fail, and perform expression <i>c</i>.)  
+
+  <p>This is the rule when option catchingEachThread is used.
+</ol>
+
+</dl>
+
+Options catchingEachThread and catchingTermination can be combined
+in either order after the word Try.
+</font>
+
+<a name="trapping"></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Trapping and untrapping exceptions </font></h2>
+
+When a failure occurs, one of two things happens.  If the exception
+that is associated with the failure is trapped, then the
+program aborts.  If the exception is not trapped, then
+the thread that failed is stopped.  Stopping this thread can
+make another thread become active.  That other thread can handle
+the failure.  
+For example, 
+a try-expression sets up a thread that
+handles an exception.
+
+You can control which exceptions are trapped when the exceptions
+are created (see <a href="exceptiondcl.html">exception declarations</a>), 
+or dynamically using trap and untrap expressions.
+<dl>
+<a name=untrap></a>
+<p><dt><font color="red"> Untrap <em>a</em> => <em>e</em> %Untrap </font>
+<dd> This evaluates expression <em>e</em> with trapping of exception 
+<em>a</em> turned off.  
+
+Some exceptions come in groups of the same kind.  
+For example,
+domainX("one") and domainX("two") are both exceptions of kind
+domainX.  If <em>a</em> is a member of such a group of exceptions, then
+trapping is suppressed for all exceptions in that group.
+<p>Example: 
+<font color="#D00090">
+<b><pre>
+    Untrap emptyListX =>
+      head(x)
+    %Untrap
+</pre></b>
+</font>
+
+<p><dt><font color="red"> Untrap <em>a</em>,<em>b</em> => <em>e</em> %Untrap </font>
+<dd> This abbreviates Untrap <em>a</em> => Untrap <em>b</em> => <em>e</em> 
+%Untrap %Untrap.
+You can have any number of exceptions to untrap.
+
+<p><dt><font color="red"> Untrap all => <em>e</em> %Untrap </font>
+<dd> This evaluates expression <em>e</em> with trapping of all exceptions
+turned off.  
+
+<a name=trap></a>
+<p><dt><font color="red"> Trap <em>a</em> => <em>e</em> %Trap</font>
+<dd> This is similar to untrap, but causes the exception to be trapped.
+The most recently entered trap or untrap expression has precedence.
+
+<p><dt><font color="red"> Trap <em>a</em>,<em>b</em> => <em>e</em> %Trap </font>
+<dd> This abbreviates Trap <em>a</em> => Trap <em>b</em> => <em>e</em> 
+%Trap %Trap.
+You can have any number of exceptions to trap.
+
+<p><dt><font color="red"> Trap all => <em>e</em> %Trap</font>
+<dd> This causes all exceptions to be trapped while evaluating <em>e</em>.
+
+</dl>
+</font>
+
+<hr>
+<center>
+<a href="threads.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="streams.html">Next</a>
+</center>
+</body>
+</HTML>
+

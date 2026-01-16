@@ -1,0 +1,20 @@
+Package stringmatch 
+
+Import "pattern/listpat"; "misc/check".
+
+Define find ?pat ?txt =
+  Try Match ? ++ pat ++ ? = txt.
+    then true
+    else false
+  %Try
+%Define
+
+Execute
+  Line[$(find "abc" "bbabacabcab")].
+  Check["true"].
+  Line[$(find "abc" "aaaabacabacc")].
+  Check["false"].
+%Execute
+
+%Package
+

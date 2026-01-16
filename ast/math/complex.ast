@@ -1,0 +1,80 @@
+%% File: complex.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_Complex 
+
+			Interface
+==============================================================
+
+==============================================================
+%% This package provides complex numbers, having species Complex.
+==============================================================
+
+Directory standard.
+Import "math/math".
+=========================================
+Extension
+
+  Species{noDollar} Complex = 
+    (re ~> Real,
+     im ~> Real)
+     
+    %" Complex is a species of complex numbers.
+  %Species
+
+  Relate Complex isKindOf APPROX.
+%Extension
+=========================================
+Expect
+  $             : Complex 		-> String;
+  $$            : (Complex, Natural) 	-> String;
+  $$            : (Complex, Natural, Natural) -> String;
+  $$            : (Complex, Natural, Natural, Natural) -> String;
+  unit		: Complex;
+  zero		: Complex;
+  magnitude     : Real			-> Real;
+  magnitude     : Complex		-> Real;
+  magnitude	: APPROX``x		-> Real;
+  re,im         : Complex 		-> Real;
+  ^~            : (Complex, Complex) 	-> Complex;
+  
+  _as_          : (NUMBER`a, Complex) 	-> Complex;
+  _as_		: (Complex, NUMBER`a)	-> NUMBER`a;
+  +             : NUMBER`a 		-> Complex;
+  natconst	: Natural 		-> Complex;
+  ratconst	: Rational 		-> Complex;
+  complex	: NUMBER`a 		-> Complex;
+  
+  toPolar	: Complex 		-> (Real, Real)
+
+		%" toPolar(z) is the pair (r,theta) where
+		%" z = r * e^{i*theta}.
+		;
+
+  toSqPolar	: Complex		-> (Real, Real)
+  
+  		%" toSqPolar(z) is the pair (s,theta) where
+		%" z = sqrt(r) * e^{i*theta}.
+		;
+		
+  fromPolar	: (Real, Real)		-> Complex
+  
+  		%" fromPolar is the functional inverse of
+		%" toPolar.
+		;
+		
+  {irregular,default,override}:
+  
+  compatify	: (Complex, NUMBER`a)   -> (Complex, Complex);
+  compatify	: (NUMBER`a, Complex)   -> (Complex, Complex);
+%Expect
+=========================================================
+%Package
+
+
+
+

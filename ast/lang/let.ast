@@ -1,0 +1,179 @@
+%% File: let.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==============================================================
+Package 		Astarte_Let
+================================================================
+
+================================================================
+%% This package describes let and define expressions and declarations.
+%% Let expressions and declarations are used to give names to things.
+================================================================
+
+================================================================
+			Export
+================================================================
+
+Description
+
+ "Define"	%" See "Let".
+		;
+
+ "Let"		%" Declaration or expression
+		%"
+		%"   Let id = val %Let
+		%"
+		%" makes identifier id name the value of expression val.
+		%" This declaration cannot be recursive.  To make a
+		%" recursive definition, use Define.  Declaration
+		%" or expression
+		%"
+		%"   Define id = val %Define
+		%"
+		%" is roughly the same as
+		%"
+		%"   Let id = (: val :) %Let
+		%"
+		%" but it allows the definition of id to be recursive.
+		%" See lazy.ast.  For mutual recursion, see "Team".
+		%"
+		%" There are extended forms of let and define for
+		%" defining functions.  See function.ast and choose.ast.
+		%"
+		%" For declarations (but not expression) there are some
+		%" important things to know about let and define.
+		%"
+		%" 1. Both let and define declarations are lazy.  The
+		%"    value will not be computed until it is needed.
+		%"
+		%" 2. Whether you use let or define affects how type
+		%"    inference is done. 
+		%"
+		%"      With let, every identifier, including the one
+		%"      being define, can be polymorphic, and takes
+		%"      on the species that were available before
+		%"      the current declaration.  So the identifier 
+		%"	being defined is treated like other identifiers.
+		%"
+		%"	With define, it is assumed that every occurrence
+		%"	of the identifier being defined has the same
+		%"	species as that identifier has in the definition.
+		%"
+		%" You usually use define for a recursive definition,
+		%" and let for a nonrecursive definition.
+		%"
+		%" ================================================
+		%" 	MODES FOR LET AND DEFINE DECLARATIONS
+		%" ================================================
+		%"
+		%" The following modes can be used with let and
+		%" define declarations.  (Modes cannot be used 
+		%" with expressions.)
+		%"
+		%"  default	Mode 'default' indicates that this
+		%"		definition can be overridden, either
+		%"		partially or fully, by subsequent
+		%"		definitions.  Only definitions that
+		%"		have mode 'override' can override
+		%"		this definition.
+		%"
+		%"  override	Mode 'override' indicates that this
+		%"		definition overrides another definition.
+		%"		The former definition must have had
+		%"		mode 'default'.
+		%"
+		%"  underride	Mode 'underride' indicats that this
+		%"		definition is overridden by any
+		%"		prior definitions of this identifier.
+		%"		The prior definitions do not need
+		%"		to have mode 'override'.  This mode
+		%"		implies mode 'default'.
+		%"
+		%"  assume	Declaration Let{assume} x = e %Let
+		%"		abbreviates
+		%"		   Let x = e %Let
+		%"		   Assume x:S %Assume
+		%"		where S is the polymorphic species
+		%"		of x determined by type inference.
+		%"
+		%"  noExport	Mode 'noExport' is used with mode 'assume',
+		%"		and is applied to the implicit assume-
+		%"		declaration.
+		%"
+		%"  copy	Declaration Let{copy} x = y %Let
+		%"		indicates that all current definitions
+		%"		of y should become definitions of x.
+		%"		Subsequent overrides of y have no 
+		%"		effect on the definition of x.  This
+		%"		is contrasted with declaration
+		%"		Let x = y %Let, where subsequent 
+		%"		overrides of y will affect the definition
+		%"		of x.  For example
+		%"
+		%"		  Let{default} m = 2.
+		%"		  Let n = m.
+		%"		  Let{copy} k = m.
+		%"		  Let{override} m = 3.
+		%"
+		%"		leaves m = 3, n = 3, k = 2.
+		%"
+		%"		If y is polymorphic, and only some of
+		%"		the definitions of y have been given
+		%"		when declaration Let{copy} x = y %Let
+		%"		is given, then x receives the *final* value
+		%"		of y for those species for which y is
+		%"		not yet defined.
+		%"
+		%"  private	See import.ast.
+		%"
+		%"  irregular	See irreg.ast.
+		%"
+		%" ================================================
+		%" 		EXTENSION OF LET AND DEFINE
+		%" ================================================
+		%"
+		%" Extended forms of let and define declarations
+		%" and expressions are described in function.ast and
+		%" choose.ast.
+		;
+
+ "Team"		%" Astarte requires that an identifier be defined or
+		%" expected before it is used.  This causes problems
+		%" for mutual recursion, where functions refer to one
+		%" another.  There are two ways to get mutual recursion.
+		%"
+		%" One approach is to use expect-declarations to expect
+		%" the identifiers before they are used.  This 
+		%" approach is recommended, since it is simple.  
+		%" When you need to create mutually recursive
+		%" local functions within a declaration, you do
+		%" not have recourse to expect-declarations, however.
+		%" For that situation, you need a team.
+		%"
+		%" Declaration or expression
+		%"
+		%"   Team
+		%"     Define id1 = val1 %Define
+		%"     ..
+		%"     Define idn = valn %Define
+		%"
+		%"   %Team
+		%" 
+		%" defines id1,...,idn.  The definitions can be mutually
+		%" recursive.  For example, id1 can be used in 
+		%" in expression valn.
+		%"
+		%" When a team is used as a declaration, type
+		%" inference is performed on the team as a whole.
+		%" Each of the defined identifier must have the same
+		%" species at each occurrence.  A team-declaration
+		%" can contain let- and define-declarations, 
+		%" description-declarations and advise-declarations.
+		;
+%Description
+
+%Package
+

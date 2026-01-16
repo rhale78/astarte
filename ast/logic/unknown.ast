@@ -1,0 +1,246 @@
+%% File: unknown.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%======================================================================
+Package 		Astarte_Unknown 
+========================================================================
+
+========================================================================
+%% This package describes unknowns, and operations on them.
+
+%% An unknown is a value that has not been computed yet.  It is
+%% in some ways similar to a lazy value, but it has no method
+%% attached to it for computing its value.  It gets its value
+%% during the course of computation by execution of unknown
+%% binding functions, such as BindUnknown.
+%%
+%% Once an unknown is bound, it cannot be rebound to another value.
+%% The binding is permanent.  When two unknowns are bound to one
+%% another, they are bound in such a way that subsequent binding
+%% of either one to some value will also bind the other to that
+%% value.  So if x and y are unknowns, if you bind x to y and then
+%% bind x to 3, you will find that y has become bound to 3 as well.
+%%
+%% A thread that tries to see the value of an unknown waits
+%% for the unknown to become bound by some other thread.  If
+%% such a binding never happens, the thread cannot make progress.
+%%
+%% There are two kinds of unknowns, protected and unprotected.  An
+%% unprotected unknown can be bound by any thread that can see it.
+%% A protected unknown can only be bound by a thread that has
+%% a write-key for that unknown.  The write-key is produced when
+%% the protected unknown is created, and it is up to the program
+%% to decide who should have access to that write-key.
+========================================================================
+
+========================================================================
+			Export
+========================================================================
+
+Description
+
+ UnknownKey	%" This is the species of a "write-key" produced by
+		%" protectedSharedUnknown and protectedNonsharedUnknown.
+		;
+
+ %% The following "active" functions are similar to passive
+ %% list functions, but bind unknowns where possible.  See 
+ %% collect/list.ast.
+
+ activeHead 	: [`a] -> `a
+
+		%" Function activeHead is similar to head, but has
+		%" a different behavior on unknowns. If the argument to
+		%" activeHead is an unbound, unprotected unknown,
+		%" then activeHead forces that unknown to be bound
+		%" to a nonempty list (whose head and tail are new
+		%" unbound unknowns) and returns the head.
+		;
+
+ activeLazyHead	: [`a] -> `a
+
+		%" Function activeLazyHead is similar to lazyHead, 
+		%" but has a different behavior on unknowns. If the
+		%" argument to activeLazyHead is an unbound, 
+		%" unprotected unknown, then activeLazyHead 
+		%" forces that unknown to be bound to a nonempty 
+		%" list (whose head and tail are new unbound unknowns)
+		%" and returns the head.  The test for an unbound
+		%" unknown is made when the result of activeLazyHead
+		%" is forced.
+		;
+
+ activeLazyTail	: [`a] -> [`a]
+
+		%" Function activeLazyTail is similar to lazyTail, 
+		%" but has a different behavior on unknowns. If the
+		%" argument to activeLazyTail is an unbound, 
+		%" unprotected unknown, then activeLazyTail 
+		%" forces that unknown to be bound to a nonempty 
+		%" list (whose head and tail are new unbound unknowns)
+		%" and returns the tail.  The test for an unbound
+		%" unknown is made when the result of activeLazyTail
+		%" is forced.
+		;
+
+ activeListToPair: [`a] -> (`a, [`a])
+
+		%" Function activeListToPair is similar to listToPair, 
+		%" but has a different behavior on unknowns. If the
+		%" argument to activeListToPair is an unbound, 
+		%" unprotected unknown, then activeListToPair 
+		%" forces that unknown to be bound to a nonempty 
+		%" list (whose head and tail are new unbound unknowns)
+		%" and returns the pair consisting of the head and tail
+		%" of that list.
+		;
+
+ activeNil?	: [`a] -> Boolean
+
+		%" Function activeNil? is similar to nil?, but has
+		%" a different behavior on unknowns. If the argument to
+		%" activeNil? is an unbound, unprotected unknown,
+		%" then activeNil? forces that unknown to be bound
+		%" to an empty list, and returns true.
+		;
+
+ activeTail	: [`a] -> [`a]
+
+		%" Function activeTail is similar to tail, but has
+		%" a different behavior on unknowns. If the argument to
+		%" activeTail is an unbound, unprotected unknown,
+		%" then activeTail forces that unknown to be bound
+		%" to a nonempty list (whose head and tail are new
+		%" unbound unknowns) and returns the tail.
+		;
+
+ BindProtectedUnknown: ((`a,UnknownKey), `a) -> ()
+
+		%" BindProtectedUnknown (x,k) := y. is similar to
+		%" BindUnknown(x,y)., but write-key k is used to
+		%" get permission to perform the binding.  See
+                %" protectedSharedUnknown, protectedNonsharedUnknown,
+                %" protectedUnknown?.
+                ;
+
+ BindUnknown	: (`a, `a) -> ()
+
+		%" BindUnknown x := y. binds unknown x to value y.
+		%" Once an unknown is bound, it cannot be rebound to
+		%" something else.  If x and y are both unknowns, then
+		%" they become bound to one another, so that binding
+		%" one of them implicitly binds the other.  Binding
+		%" an unknown to itself has no effect.  If x is not
+		%" an unknown, then BindUnknown x := y. fails with
+		%" exception bindUnknownX.  See sharedUnknown,
+                %" nonsharedUnknown, unknown?, unprotectedUnknown?,
+                %" sameUnknown?.
+                ;
+
+ {imported}
+ bindUnknownX	: ExceptionSpecies
+
+		%" This exception occurs when an attempt to bind an 
+		%" unknown has failed. This exception is normally not 
+		%" trapped.
+                ;
+
+ newUnknown	: BoxFlavor -> `a
+ 
+ 		%" (newUnknown flav) is a new unprotected unknown
+		%" of flavor flav (either shared or nonshared).
+		;
+ 
+ nonsharedUnknown: () -> `a
+
+		%" nonsharedUnknown() creates an unbound, unprotected 
+		%" unknown.  The unknown can be bound
+		%" later using BindUnknown or BlindlyBindUnknown.
+                %" Any attempt to evaluate the unknown before it is
+		%" bound will cause the current thread to wait forever,
+		%" since no other thread can bind the nonshared unknown.
+                %" Once an unknown is bound by a thread,
+                %" it cannot later be unbound or rebound.  See unknown?,
+                %" unprotectedUnknown?, sameUnknown?.
+                ;
+
+ protectedNonsharedUnknown: () -> (`a,UnknownKey)
+
+		%" Returns a pair (u,k), where u is a new nonshared 
+		%" protected unknown, and k is a "write-key" for u.  
+		%" See nonsharedUnknown.  You must use 
+		%" BindProtectedUnknown or BlindlyBindProtectedUnknown, 
+		%" with key k, to bind unknown u.
+		;
+
+ protectedSharedUnknown: () -> (`a,UnknownKey)
+
+		%" Returns a pair (u,k), where u is a new shared 
+		%" protected unknown and k is a "write-key" for u.
+		%" See sharedUnknown. You must use BindProtectedUnknown or
+                %" BlindlyBindProtectedUnknown, with key k, to
+		%" bind unknown u.
+		;
+
+ protectedUnknown? : `a -> Boolean
+
+		%" protectedUnknown?(x) is true is x is an unbound
+                %" protected unknown.
+                ;
+
+ sameUnknown?	: (`a,`a) -> Boolean
+
+		%" sameUnknown?(x,y) is true if x and y are both
+		%" unknowns, and are the same unknown, so that
+		%" binding one binds the other as well.
+                ;
+
+ sameUnknown??	: (`a,`b) -> Boolean
+
+		%" sameUnknown??(x,y) is true if x and y are both
+		%" unknowns, and are the same unknown, so that
+		%" binding one binds the other as well.
+		%"
+		%" This differs from sameUnknown? only in that the
+		%" parameters do not need to have the same species.
+                ;
+
+ sharedUnknown	: () -> `a
+
+		%" Creates a new unbound unprotected shared unknown.  See 
+		%" nonsharedUnknown.  Bindings to shared unknowns are 
+		%" visible to all threads.  An attempt to evaluate an
+		%" unbound shared unknown will cause the evaluating
+		%" thread to pause until some other thread binds
+		%" the unknown.
+                ;
+		
+ unknown	: () -> `a
+ 
+ 		%" As a function, unknown is the same as nonsharedUnknown.
+		%" in patterns, unknown() matches any unknown.
+		;
+
+ unknown?	: `a -> Boolean
+
+		%" unknown?(x) is true if x is an unbound unknown, so that
+		%" attempting to evaluate x would cause the current
+		%" thread to pause.  unknown?(x) returns true
+		%" regardless of whether x is protected or not.
+		%" See protectedUnknown?, unprotectedUnknown?,
+                %" sameUnknown?.
+                ;
+
+ unprotectedUnknown? : `a -> Boolean
+
+                %" unprotectedUnknown?(x) is true if x is an unbound
+                %" unprotected unknown, so that evaluation of x will
+                %" cause the current thread to pause.
+                ;
+%Description
+
+%Package
+

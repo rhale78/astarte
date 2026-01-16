@@ -1,0 +1,24 @@
+Package charrank
+
+%% Test rank, char function for chars
+
+Import "misc/check".
+
+Execute
+  Let a = rank('a').
+  Let aa = char(a).
+  Let b = rank('\{240}').
+  Let c = "a\{240}".
+  Let d = rank(head c). 
+  Let e = rank(head(tail(c))).
+  Line[$a, [aa]].
+  Check["97a"].
+  Line[$b].
+  Check["240"].
+  Line[$d].
+  Check["97"].
+  Line[$e].
+  Check["240"].
+%Execute
+
+%Package

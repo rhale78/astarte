@@ -1,0 +1,32 @@
+Package openchoose2
+
+%% Test open choose in the case where there is a closed 
+%% choose in the else part.
+
+Execute
+  Choose
+    do Let a = 1.
+    case 0 == 0 => ()
+    else        => ()
+  %Choose
+  Writeln[$a].
+%Execute
+
+Execute
+  Let x = 4.
+  Open Choose
+    case x == 2 => Let y = 2.
+    
+    case x == 4 => Let y = 3.
+    
+    else => 
+      Choose 
+        do Let y = 5.
+	case x == 8 => ()
+	else        => ()
+      %Choose
+  %Choose
+  Writeln[$y].
+%Execute
+
+%Package

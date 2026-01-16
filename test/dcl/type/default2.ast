@@ -1,0 +1,17 @@
+Package dflt2 
+
+%% Test default declarations
+
+Import "default3".
+
+Default ANY => Natural.
+Default INTEGER => Integer.
+
+Advise show.
+Execute
+  Ignore([]).
+  Ignore(1:REAL`a).
+  Ignore(2:INTEGER`a).
+%Execute
+
+%Package

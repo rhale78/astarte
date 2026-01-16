@@ -1,0 +1,15 @@
+Package tyexpdsc
+
+%% Test descriptions with expect-type dcls.
+
+Extension
+  Expect species Test 
+    "This is a test description."
+  %Expect
+%Extension
+
+Extension
+  Species Test = Natural.
+%Extension
+
+%Package

@@ -1,0 +1,13 @@
+Package cmdline 
+
+%% Test commandLine: returns the command line, starting with the
+%% name of the .aso file.
+
+Import "misc/check".
+
+Execute
+  Line[$(commandLine)].
+  Check["[\"cmdline\"]"].
+%Execute
+
+%Package

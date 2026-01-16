@@ -1,0 +1,22 @@
+Package exc2 
+
+%% Test domainX
+
+Import "misc/check".
+
+Execute
+  Try
+    Untrap domainX("") =>
+      Let x = 0.
+      Let y = /x.
+      Writeln[$y].
+    %Untrap
+  then
+    Writeln["Bad"].
+  else
+    Line[$exception].
+    Check["domainX(\"divide by zero\")"].
+  %Try
+%Execute
+
+%Package

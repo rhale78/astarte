@@ -1,0 +1,20 @@
+Package weq
+
+%% Test equality for types that are defined as wrapped.
+
+Extension
+  Species T1 = EQ.
+%Extension
+
+Execute
+  Let a = t1<<2:Natural>>.
+  Let b = t1<<3:Natural>>.
+  If a =/= a
+    then Writeln["Bad 1"].
+  %If
+  If a == b
+    then Writeln["Bad 2"].
+  %If
+%Execute
+
+%Package

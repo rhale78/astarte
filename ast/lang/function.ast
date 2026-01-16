@@ -1,0 +1,264 @@
+%% File: function.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%================================================================
+Package 	Astarte_Function 
+==================================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package describes functions and some support for using them.
+What is described here is available in all packages.
+
+==================================================================
+		CREATING FUNCTIONS
+==================================================================
+
+A function expression has the form (p => v), where p is a
+pattern and v is an expression.  When run on input x, this function
+matches pattern p against x, and then produces the value of
+expression v.
+
+Normally, you define a function using a Let or Define.  Use
+Define when the definition is recursive.  Although
+you may write a definition such as
+
+	Let f = (?x => x + x).
+
+it is more convenient to use a special form for defining functions.
+
+	Let f(?x) = x + x.
+
+abbreviates the above definition.  In general, 
+
+	Let f p = v.
+
+abbreviates
+
+	Let f = (p => v).
+
+You may define fuctions that produce functions as well.  Definition
+
+	Let f p q = v.
+
+for example abbreviates
+
+	Let f = (p => (q => v)).
+
+Often, you want to define a function by cases.  See choose.ast for
+how to do that.
+
+==================================================================
+		APPLYING FUNCTIONS
+==================================================================
+
+There are a few ways to apply a function to an argument.
+
+==================================================================
+f x			This is the result of applying function f
+			to value x.
+
+==================================================================
+f x y z			Juxtaposition associates to the left, so
+			f x y z is understood to mean (((f x) y) z).
+			Justaposition is convenient for using a
+			function that produces a function.  For 
+			example, if you define f by
+
+				Let f ?x ?y = x + y.
+
+			then you would apply f to 3 and 4 by
+
+				Let z = f 3 4.
+
+			Be careful to parenthesize parameters.
+			f (3+4) 5 produces 12, but f 3+4 5 does
+			not pass type checking.  Juxtaposition has
+			higher precedence than binary operators, so
+			f 3+4 5 is understood to mean (f 3) + (4 5),
+			which is nonsense.
+
+==================================================================
+x | f			x | f abbreviates f(x).  | has lower
+			precedence than juxtaposition, so 
+			x | f y  is understood to mean x | (f y).
+
+==================================================================
+x | f | g | h		| associates to the left, so x | f | g | h
+			is understood to mean ((x | f) | g) | h.
+			
+==================================================================
+Binary and unary operators provide another way to apply functions.
+They are described in operator.ast.
+
+==================================================================
+			PROCEDURES
+==================================================================
+
+An identifier that names a function, and that starts with an upper
+case letter, is called a "procedure identifier", and is treated in
+a special way.  To apply such an identifier P to argument a, you write
+
+	P a %P
+
+That is, application of P requires an end-marker %P.  An example is
+Writeln.  To apply Writeln to argument ["hello"], you write
+
+	Writeln ["hello"] %Writeln
+
+You may use a period as an end marker, and you may use semicolons.  See
+lang/bracket.ast.  So you might write
+
+	Writeln ["hello"].
+
+Sometimes, you want to use a procedure identifier in a situation where
+it is not being applied.  To do that, enclose it in parentheses.
+(Writeln) is the writeln function.  In general, a procedure identifier
+will be treated as a normal identifier if it is followed by any of the
+following tokens.
+
+	)
+	;
+	,
+	.
+	|
+	=
+	%...
+	by
+
+You can use abbreviation
+
+	P a, b, c %P
+
+for
+	((P) a b c)
+
+You can have any number of parts, separated by commas.
+
+Note the difference between 
+
+	P (a,b,c) %P, 
+
+which stands for
+
+	((P)(a,b,c)),
+
+and 
+
+	P a,b,c %P, 
+
+which stands for
+
+	((((P) a) b) c).
+
+==================================================================
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+==================================================================
+			Export
+==================================================================
+
+Description
+
+ "|"		%" (x | f) abbreviates f(x).  See lang/operator.ast
+ 		%" for precedence and associativity.
+		;
+
+ __		: ((`a,`b) -> `c) -> `b -> (`a -> `c)
+
+		%" __ f x is a function, where (__ f x)(y) = f(y,x).
+		%"
+		%" Any identifier that follows __ will not be taken
+		%" as a binary operator.  So, for example, 
+		%"
+		%"   (__ + 1)
+		%"
+		%" is the function that adds 1 to its argument, and 
+		%"
+		%"   (__ - 1)
+		%"
+		%" is the function that subtracts 1 from its argument.
+		%" See __/-, curry, uncurry.
+		;
+
+ __/-		: (`b -> `a -> `c) -> (`a,`b) -> `c
+
+		%" (__/- f)(x,y) = f(y,x).  See __, uncurry.
+		;
+
+ ||		: (`a -> `b, `b -> `c) -> (`a -> `c)
+
+		%" (f || g)(x) = g(f(x)).  See function oo.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ _bar_		: (`a, `a -> `b) -> `b
+
+		%" (x _bar_ f) = f(x).
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ constf		: `a -> `b -> `a
+
+		%" constf(k) is the function that always produces k.
+		%" That is,
+		%"           constf k x = k.
+                ;
+
+ curry		: ((`a,`b) -> `c) -> `a -> (`b -> `c)
+
+		%" (curry f x) is a function such that
+		%" (curry f x)(y) = f(x,y). 
+		%" See __, uncurry.
+                ;
+
+ idf		: `a -> `a
+
+		%" idf(x) = x.
+		;
+		
+ lazy		: (`a -> `b) -> (`a -> `b)
+ 
+ 		%" lazy(f) is the same function as f, but it
+		%" only computes its result on need.
+		;
+
+ _o_		: (`b -> `c, `a -> `b) -> (`a -> `c)
+
+		%" (f _o_ g)(x) = f(g(x)). See ||.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+		
+ _o3_		: (`c -> `d, `b -> `c, `a -> `b) -> (`a -> `d)
+ 
+ 		%" _o3_(f,g,h)(x) = f(g(h(x))).  See _o_.
+		;
+
+ shortApply	: (`a -> `b, `a) -> `b
+
+		%" shortApply(f,a) computes f(a), but does so with
+		%" a relatively short time limit, so that if the
+		%" computation takes long, it will become lazy.
+		;
+
+ succeedsf	: (`a -> `b) -> (`a -> Boolean)
+
+		%" (succeedsf f)(x) is true if f(x) does not fail.
+		%" Be careful: succeedsf will not catch trapped
+		%" exceptions.
+		;
+
+ uncurry	: (`a -> `b -> `c) -> (`a,`b) -> `c
+
+		%" (uncurry f)(x,y) = f x y.  See curry.
+		;
+
+%Description
+
+%Package

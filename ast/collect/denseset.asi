@@ -1,0 +1,162 @@
+%% File: denseset.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_DensesetImp 
+
+			Implements "denseset"
+============================================================
+
+============================================================
+
+Directory standard. 
+Import "collect/bitvec".
+
+===========================================================
+%%			DenseSet
+===========================================================
+
+Extension
+  Species{transparent,noDollar} DenseSet(RANKED`*a) = makeDenseSet Bitvec.
+%Extension
+
+===========================================================
+
+Abbrev
+  A    = {RANKED`*a};
+  SetA = {DenseSet}(A);
+%Abbrev
+
+===========================================================
+%%		emptySet
+%%		emptySet?
+===========================================================
+
+Bring {knownSafe}:
+  emptySet : SetA 	     from bvNull;
+  emptySet?: SetA -> Boolean from bvNull?
+%Bring
+
+===========================================================
+%%			extractMin
+%% 			extractMax
+===========================================================
+
+Bring {knownSafe}:
+  extractMin: SetA -> (A, SetA) from bvMin;
+  extractMax: SetA -> (A, SetA) from bvMax;
+%Bring
+
+===========================================================
+%%			set
+%% 			denseSet
+===========================================================
+
+
+Let denseSet ?l = 
+  Bring castAsNaturals: [{RANKED`*a}] -> [Natural] from idf.
+  Value makeDenseSet(bvSetBits(bvNull, castAsNaturals l, true)).
+%Let
+
+Let set = denseSet.
+
+===========================================================
+%%			toList
+===========================================================
+
+Let toList ?s = 
+  Await then
+    If emptySet? s
+      then nil
+      else [x & toList(s')] |
+        Match (?x,?s') = extractMin(s).
+    %If
+  %Await
+%Let
+
+===========================================================
+%% 			eagerToList
+===========================================================
+
+Let eagerToList ?s = 
+    If emptySet? s
+      then nil
+      else [x & eagerToList(s')] |
+        Match (?x,?s') = extractMin(s).
+    %If
+%Let
+
+===========================================================
+%% 			\/, /\
+===========================================================
+
+Bring {knownSafe}:
+  {override} \/	: (SetA, SetA) -> SetA 	from _bvOr_;
+  {override} /\	: (SetA, SetA) -> SetA 	from _bvAnd_;
+%Bring
+
+===========================================================
+%% 			+/
+===========================================================
+
+Let makeDenseSet(?v) +/ ?x =
+  makeDenseSet(bvSetBits(v, [rank x], true))
+%Let
+
+===========================================================
+%% 			-/
+===========================================================
+
+Let makeDenseSet(?v) -/ ?x =
+  makeDenseSet(bvSetBits(v, [rank x], false))
+%Let
+
+===========================================================
+%% 			_in_
+===========================================================
+
+Let{override} ?x _in_ makeDenseSet(?v) =
+  bvField(v, rank x, 1) =/= bvNull
+%Let
+
+===========================================================
+%% 			_subset?_
+===========================================================
+
+Let{override} makeDenseSet(?u) _subset?_ makeDenseSet(?v) =
+  bvNull? (u _bvAnd_ bvNot v)
+%Let
+
+===========================================================
+%% 			unionWithList
+===========================================================
+
+Let{override} ?s _unionWithList_ ?l = s \/ (set l).
+
+===========================================================
+%% 			_intersectWithList_
+===========================================================
+
+Let{override} ?s _intersectWithList_ ?l = s /\ (set l).
+
+===========================================================
+%% 			-
+===========================================================
+
+Let{override} makeDenseSet(?u) - makeDenseSet(?v) =
+  makeDenseSet(u _bvAnd_ bvNot v)
+%Let
+
+===========================================================
+%% 			_minusList_
+===========================================================
+
+Let{override} ?s _minusList_ ?l = s - (set l).
+
+===========================================================
+
+%Package
+

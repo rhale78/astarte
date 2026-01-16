@@ -1,0 +1,68 @@
+Package try2
+
+%% Test basic try-eaches to test control.
+%% Have only one thread here. 
+
+Let f1() =
+  fail testX
+%Let
+
+Let f2() =
+  Let x:Natural = f1().
+  Writeln[$x].
+%Let
+
+Execute
+  Writeln["Should print \"Good testX\" five times"].
+%Execute
+
+Execute
+  %% Simple try
+  
+  Try catchingEachThread
+    Let x = f2().
+  then
+    Writeln["Bad", $x].
+  else
+    Writeln["Good ", $exception].
+  %Try
+%Execute
+
+Execute
+  %% Embedded try, fail in inner.
+  
+  Try catchingEachThread
+    Try
+      Let y = f2().
+    then
+      Writeln["Bad", $y].
+    else
+      Writeln["Good ", $exception].
+    %Try
+  then
+    Writeln["Good testX"].
+  else
+    Writeln["Bad"].
+  %Try
+%Execute
+
+Execute
+  %% Embedded try, fail in outer
+  
+  Try catchingEachThread
+    Try
+      Writeln["Good testX"].
+    then
+      fail testX
+    else
+      Writeln["Bad"].
+    %Try
+  then
+    Writeln["Bad"].
+  else
+    Writeln["Good ", $exception].
+  %Try
+    
+%Execute
+
+%Package

@@ -1,0 +1,645 @@
+%% File: boxes.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=============================================================
+Package 		Astarte_BoxesImp 
+
+			Implements "boxes"
+===============================================================
+
+Import "listfun".
+
+===============================================================
+%% 			@#_
+%% 			@#
+===============================================================
+
+Let ?a @#_ ?i = @(a #_ i).
+Let ?a @# ?i = @(a # i).
+
+===============================================================
+%% 			unknownArray
+%% 			sharedUnknownArray
+%% 			nonsharedUnknownArray
+%% 			infiniteUnknownArray
+%% 			infiniteSharedUnknownArray
+%% 			infiniteNonsharedUnknownArray
+===============================================================
+
+Let makeUnknown ?p_flav ()	  = newUnknown p_flav.
+
+Let unknownArray ?p_flav          = varDup (makeUnknown p_flav) ().
+Let sharedUnknownArray		  = unknownArray shared.
+Let nonsharedUnknownArray	  = unknownArray nonshared.
+
+Let infiniteUnknownArray ?p_flav    = infVarDup (makeUnknown p_flav) () ().
+Let infiniteSharedUnknownArray()    = infiniteUnknownArray shared.
+Let infiniteNonsharedUnknownArray() = infiniteUnknownArray nonshared.
+
+===============================================================
+%%			arrayInit
+===============================================================
+
+Let arrayInit ?p_flav ?n ?x = a |
+
+    %%-----------------------
+    %% Build the array.
+    %%-----------------------
+    
+    Let a = array p_flav n.
+
+    %%-----------------------------
+    %% Initialize the boxes.
+    %%-----------------------------
+    
+    Loop (?l_a, ?l_x) = (a, x) first
+      exitcase nil? l_x => ()
+      exitcase nil? l_a => ()
+      loopcase else   => 
+        AssignInit head l_a := head l_x.
+        continue (tail l_a, tail l_x)
+    %Loop
+%Let
+
+===============================================================
+%%			array
+%%			arrayNoinit
+===============================================================
+
+Let array ?p_flav ?x = arrayInit p_flav (length x) x.
+
+Let arrayNoinit ?p_flav ?n () = array p_flav n.
+
+===============================================================
+%%			fullArray
+%%			fullSharedArray
+%%			fullNonsharedArray
+===============================================================
+
+Let fullArray ?p_flav ?p_init ?i = l_result |
+  Let l_result = array p_flav i.
+  FillInit!! l_result := p_init.
+%Let
+
+Let fullSharedArray    = fullArray shared.
+Let fullNonsharedArray = fullArray nonshared.
+
+===============================================================
+%%			infiniteArray
+%%			infiniteSharedArray
+%%			infiniteNonsharedArray
+===============================================================
+%% infiniteArrayHelp i flav x produces an infinite array
+%% initialized to list x.  (If x is finite, then only a
+%% prefix is initialized.)  The array is created in pieces, 
+%% where the first piece has size i.
+%%----------------------------------------------------------------
+
+Define infiniteArrayHelp ?i ?p_flav ?x =
+  If nil? x 
+    then infiniteArray p_flav 
+    else
+      Await then
+        (arrayInit p_flav i x) ++ 
+	(infiniteArrayHelp (i+i) p_flav (drop i x))
+      %Await
+  %If
+%Define
+
+Let infiniteArray          = infiniteArrayHelp 4.
+Let infiniteSharedArray    = infiniteArray shared.
+Let infiniteNonsharedArray = infiniteArray nonshared.
+
+===============================================================
+%% 			infiniteArrayInit
+%%			infiniteArrayNoinit
+===============================================================
+
+Let infiniteArrayInit   ?p_flav () ?x = infiniteArray p_flav x.
+Let infiniteArrayNoinit ?p_flav () () = infiniteArray p_flav.
+
+
+===============================================================
+%% 			varDup
+===============================================================
+
+Let varDup ?f ?n ?m =
+
+  %%----------------------------------------------------
+  %% Build the list backwards, calling f(n) repeatedly.
+  %%----------------------------------------------------
+  
+  Loop (?l_result, ?l_cnt) = ([], 0) first
+    exitcase l_cnt == m => l_result
+    loopcase else       => continue ([f(n) & l_result], l_cnt + 1)
+  %Loop
+  
+  %%-----------------------------------------------------
+  %% Now reverse to get the correct order, and then pack.
+  %%-----------------------------------------------------
+  
+  | reverse 
+  | pack
+%Let  
+
+===============================================================
+%%			infVarDup
+===============================================================
+%% infVarDup uses helper infdup(f,n,m) which creates an infinite
+%% list [f(n), f(n), ...] in chunks, starting with chunk size m.
+%% The chunks become successively larger as the list is built.
+%%----------------------------------------------------------------
+
+Define infdup(?f,?n,?m)   = (: varDup f n m ++ infdup(f,n,m+m) :).
+Let     infVarDup ?f ?n () = infdup(f,n,4).
+
+===============================================================
+%% 			varDupInit
+%%			varDupNoinit
+===============================================================
+
+Define varDupInitHelp(?f,?g,?n,?x) =
+  Choose
+    case n == 0 => []
+    case nil? x => varDup g () n
+    else        => f(head x) :: varDupInitHelp(f,g,n--1,tail x)
+  %Choose
+%Define
+
+Let varDupInit (?f,?g) ?n ?x = pack(varDupInitHelp (f,g,n,x)).
+
+Let varDupNoinit ?f ?n = fdup n f.
+
+===============================================================
+%% 			infVarDupInit
+%%			infVarDupNoinit
+===============================================================
+
+Define infdupinit(?f,?g,?x,?m) = 
+  (: varDupInit (f,g) m x ++ infdupinit(f, g, drop m x, m+m) :)
+%Define
+
+Let infVarDupInit (?f,?g) () ?x = infdupinit(f,g,x,4).
+
+Define infFdupHelp (?f,?m) = (fdup m f) ++ infFdupHelp(f,m+m).
+Let infFdup ?f = infFdupHelp (f,4).
+Let infVarDupNoinit ?f () = infFdup f.
+
+===============================================================
+%% 			fullInfiniteArray
+%% 			fullInfiniteSharedArray
+%% 			fullInfiniteNonsharedArray
+===============================================================
+%% fullInfiniteArray uses helper function 
+%% fullinfarray (p_flav,p_init,i) that
+%% creates an infinite array [<:p_init:>, <:p_init:>,...] in
+%% chunks, the first chunk having size i.  The chunks are
+%% progressively larger as the array is built.
+%%----------------------------------------------------------------
+
+Define fullinfarray (?p_flav, ?p_init, ?i) = 
+  (: fullArray p_flav p_init i ++ fullinfarray(p_flav, p_init, i+i) :)
+%Define
+
+Let fullInfiniteArray ?p_flav ?p_init () = 
+  fullinfarray (p_flav, p_init, 4)
+%Let
+
+Let fullInfiniteSharedArray    = fullInfiniteArray shared.
+Let fullInfiniteNonsharedArray = fullInfiniteArray nonshared.
+
+===============================================================
+%% 			nonemptyPrefix
+===============================================================
+
+Define nonemptyPrefix ?l =
+  Choose
+    case nil? l                => []
+    case not emptyBox?(head l) => (head l) :: nonemptyPrefix(tail l)
+    else                       => []
+  %Choose
+%Define
+
+%% The following is an eager version.
+%%
+%%Let nonemptyPrefix ?l =
+%%  Loop (?x,?n) = (l,0) first
+%%    exitcase nil? x => l
+%%    exitcase emptyBox?(head x) => l##(0,n)
+%%    loopcase else => continue (tail x, n+1)
+%%  %Loop
+%%%Let
+
+
+===============================================================
+%% Some of the following definitions are incomplete.  Suppress
+%% warnings about that.
+
+Advise nowarn missingDefinition all.
+
+===============================================================
+%% 			Put!!
+%%			PutInit!!
+%%			Put
+===============================================================
+
+%%------------------------------------
+%% Put!! and PutInit!! for boxes.
+%%------------------------------------
+
+Let (Put!!)     = (Assign).
+Let (PutInit!!) = (AssignInit).
+
+%%------------------------------------
+%% Put!! and PutInit!! for lists.
+%%------------------------------------
+
+Let Put!! ?a := ?l. =
+  Loop (?p, ?q) = (a,l) perhaps
+  
+    loopcase not nil? q  _and_  not nil? p =>
+      Put!! head p := head q.
+      continue (tail p, tail q)
+  %Loop
+%Let
+================
+Let PutInit!! ?a := ?l. =
+  Loop (?p, ?q) = (a,l) perhaps
+  
+    loopcase not nil? p _and_ not nil? q =>
+      PutInit!! head p := head q.
+      continue (tail p, tail q)
+  %Loop
+%Let
+
+%%----------------------------------------
+%% Put!! and PutInit!! for ordered pairs.
+%%----------------------------------------
+
+Let Put!! (?a,?b) := (?c,?d). =
+  Put!!(a,c).
+  Put!!(b,d).
+%Let
+============
+Let PutInit!! (?a,?b) := (?c,?d). =
+  PutInit!!(a,c).
+  PutInit!!(b,d).
+%Let
+
+%%-------------------------------------------------------
+%% Put for all types that were expected.  
+%%-------------------------------------------------------
+
+Let (Put) = (Put!!).
+
+===============================================================
+%% 			OptPut!!
+%%			OptPut
+===============================================================
+
+%%--------------------------
+%% OptPut!! for boxes.
+%%--------------------------
+
+Let OptPut!! by
+  case OptPut!!(?b, noValue).   = EmptyBox b.
+  case OptPut!!(?b, value(?x)). = Assign b := x.
+%Let
+
+%%--------------------------
+%% OptPut!! for lists.
+%%--------------------------
+
+Let OptPut!! ?a := ?l. =
+  Loop (?p, ?q) = (a,l) perhaps
+
+    loopcase not nil? q  _and_  not nil? p =>
+      OptPut!! head p := head q.
+      continue (tail p, tail q)
+  %Loop
+%Let
+
+%%----------------------------
+%% OptPut!! for ordered pairs.
+%%----------------------------
+
+Let OptPut!! (?a,?b) := (?c,?d). =
+  OptPut!!(a,c).
+  OptPut!!(b,d).
+%Let
+
+%%-----------------------------------------
+%% OptPut for all types that were expected.
+%%-----------------------------------------
+
+Let (OptPut) = (OptPut!!).
+
+===============================================================
+%% 			Fill!!
+%%			FillInit!!
+%%%			Fill!
+===============================================================
+
+%%-------------------------------------
+%% Fill!! and FillInit!! for boxes.
+%%-------------------------------------
+
+Let (Fill!!)     = (Assign).
+Let (FillInit!!) = (AssignInit).
+
+%%-------------------------------------
+%% Fill!! and FillInit!! for lists.
+%%-------------------------------------
+
+Let Fill!! ?a := ?x. =
+  Loop ?p = a perhaps
+    loopcase not nil? p =>
+      Fill!! head p := x.
+      continue tail p
+  %Loop
+%Let
+=============
+Let FillInit!! ?a := ?x. =
+  Loop ?p = a perhaps
+    loopcase not nil? p =>
+      FillInit!! head p := x.
+      continue tail p
+  %Loop
+%Let
+
+%%---------------------------------------
+%% Fill for all types that were expected.
+%%---------------------------------------
+
+Let (Fill) = (Fill!!).
+
+===============================================================
+%% 			contents!!
+%%			contents
+===============================================================
+
+%%--------------------------
+%% contents!! for boxes.
+%%--------------------------
+
+Let contents!! ?b = << @b >>.
+
+%%--------------------------
+%% contents!! for lists.
+%%--------------------------
+
+Let contents!! ?a = <<unwrappingEagerMap contents!! a>>.
+
+%%------------------------------
+%% contents!! for ordered pairs.
+%%------------------------------
+
+Let contents!!(?a,?b) = 
+  <<(unsafeUnwrap(contents!! a), unsafeUnwrap(contents!! b))>>
+%Let
+
+%%-------------------------------------------
+%% contents for all types that were expected.
+%%-------------------------------------------
+
+Let contents ?x = unsafeUnwrap(contents!! x).
+
+===============================================================
+%% 			optContents!!
+%%			optContents
+===============================================================
+
+%%--------------------------
+%% optContents!! for boxes.
+%%--------------------------
+
+Let optContents!! (?b:<:`a:>) = 
+  If emptyBox? b 
+    then <<noValue:Optional(`a)>>
+    else <<value(@b)>>
+  %If
+%Let
+
+%%--------------------------
+%% optContents!! for lists.
+%%--------------------------
+
+Let optContents!! ?a = <<unwrappingEagerMap optContents!! a>>.
+
+%%---------------------------------
+%% optContents!! for ordered pairs.
+%%---------------------------------
+
+Let optContents!!(?a,?b) = 
+  <<(unsafeUnwrap(optContents!! a), unsafeUnwrap(optContents!! b))>>
+%Let
+
+%%----------------------------------------------
+%% optContents for all types that were expected.
+%%----------------------------------------------
+
+Let optContents ?x = unsafeUnwrap(optContents!! x).
+
+===============================================================
+%% 			Copy
+%% 			Move
+===============================================================
+
+%%-------------------
+%% Copy.
+%%-------------------
+
+Let Copy ?a := ?b. =
+  OptPut!! a := unsafeUnwrap(optContents!! b).
+%Let
+
+%%------------------------
+%% Move for boxes.
+%%------------------------
+
+Let 
+  species (<:`a:>, <:`a:>) -> ()
+  
+  Move ?b := ?c. = 
+    Try Let l_atc = testAt c.
+      then Assign b := l_atc.
+      else EmptyBox b.
+    %Try
+%Let
+
+%%------------------------
+%% Move for pairs.
+%%------------------------
+
+Let 
+  species ((BOXES`a,BOXES`b), (BOXES`a,BOXES`b)) -> ()
+  
+  Move (?a,?b) := (?c,?d). =
+    Move a := c.
+    Move b := d.
+%Let
+
+%%------------------------
+%% Move for lists.
+%%------------------------
+
+Let 
+  species ([BOXES`a], [BOXES`a]) -> ()
+
+  Move (?a,?l). =
+    Loop (?p, ?q) = (a, l) perhaps
+      loopcase not nil? p _and_ not nil? q =>
+        Copy head p := head q.
+        continue (tail p, tail q)
+    %Loop
+%Let
+
+%%----------------------------
+%% Move for BOXES``a.
+%%----------------------------
+
+Let{underride} 
+
+  species (BOXES``a, BOXES``a) -> ()
+
+  Move(?<<?a>>?, ?<<?b>>?). = Move(a, b).
+%Let
+
+===============================================================
+%% 			copy
+===============================================================
+
+%%--------------------
+%% copy for boxes.
+%%--------------------
+
+Let{override} copy ?p_flav ?b =
+  Let l_flav by
+    case l_flav = flavor(b) when rank(p_flav) == 2
+    else l_flav = boxFlavor(rank(p_flav))
+  %Let
+  Try Let l_atb = testAt b. 
+    then box l_flav l_atb
+    else new l_flav
+  %Try
+%Let
+
+%%----------------------------
+%% copy for ordered pairs.
+%%----------------------------
+
+Let{override} copy ?p_flav (?a,?b) = (copy p_flav a, copy p_flav b).
+
+%%--------------------
+%% copy for lists.
+%%--------------------
+
+Let{override} copy ?p_flav ?a = 
+  Loop (?p,?r) = (a,[]) first matching p
+    exitcase []        => []
+    loopcase [?h & ?t] => continue (t, [copy p_flav h & r])
+  %Loop
+  | reverse 
+  | pack
+%Let   
+
+===============================================================
+%% 			new
+===============================================================
+
+%%-------------------
+%% For pairs.
+%%-------------------
+
+Let{default} new ?p_flav    = (new p_flav, new p_flav).
+
+%%------------------------------------------------------------
+%% For NEW.  We don't know what kind of box to build, so build
+%% one of type <:():>.
+%%------------------------------------------------------------
+
+Let (new ?p_flav):NEW    = <<new p_flav: <:():>>>.
+
+%%-------------------------------------------------------
+%% The following definitions are not required, but they
+%% speed up 'new' sometimes.
+%%-------------------------------------------------------
+
+Let{default,override} new ?p_flav = (<::>, new p_flav).
+Let{default,override} new ?p_flav = (<::>, <::>, new p_flav).
+Let{override}         new ?p_flav = (<::>, <::>, <::>, new p_flav).
+
+
+===============================================================
+%% 			$ for arrays
+===============================================================
+
+%%-------------------------------------------------------
+%% arrayPreRange(a) returns (r,m,n,k) where 
+%% a = [box m, box (m+1), ..., box n & r], and
+%% boxes m, ..., n all have flavor k.  
+%%
+%% a must be a nonempty list.
+%%-------------------------------------------------------
+
+Define arrayPreRange(?a) =
+  Choose first matching a
+    case nil => fail emptyListX
+
+    case [?h & ?t] =>
+      Subcases
+        do Let hr = rankBox(h).
+	   Let hk = flavor(h).
+	   
+        case lazy?(t) _or_ nil? t => (t,hr,hr,hk)
+
+	case rankBox(head(t)) == hr + 1 _and_ flavor(head(t)) == hk => 
+	    Match (?rt, ?, ?nt, ?hkt) = arrayPreRange(t).
+	    If hk == hkt
+	      then (rt, hr, nt, hk)
+	      else (tail t, hr, hr+1, hk)
+	    %If
+
+	else => (t,hr,hr,hk)
+      %Subcases
+  %Choose
+%Define
+
+%%------------------------------------------------------------------
+%% showBoxes(m,n,k) is a string that describes box range m..n, where
+%% boxes m..n are of flavor k. 
+%% For example, showBoxes(2,4,true) = "(shared 2..4)".
+%%------------------------------------------------------------------
+
+Let showBoxes(?m, ?n, ?k) =
+  pack
+    If m == n 
+      then $k ++ " " ++ $n
+      else $k ++ "s " ++ $m ++ ".." ++ $n
+    %If
+%Let
+
+%%------------------------------------------------------------------
+
+Let{override} $(?l) =
+  lazyDollar(l) _butIfFail_
+  ("[" ++
+    Loop (?l_result, ?l_rest, ?l_sep) = ("", l, "") first
+      exitcase do Let s = lazyDollar(l_rest). => l_result ++ "]++" ++ s
+      exitcase nil? l_rest => l_result
+      loopcase else =>
+	 Match (?l_r, ?l_mnk) = arrayPreRange(l_rest).
+         continue (l_result ++ l_sep ++ showBoxes(l_mnk), l_r, ",")
+    %Loop
+  ++ "]")
+%Let
+
+===============================================================
+	  
+%Package
+
+
+

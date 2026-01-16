@@ -1,0 +1,9 @@
+Package patimp4 export
+
+Let gg(?x) = x + 4.
+
+Pattern ff(?x) => 
+  Match ?x = target + 4.
+%Pattern
+
+%Package

@@ -1,0 +1,11 @@
+Package context3
+
+%% Test errors in context declarations.
+
+%% ------------- Augment a nonexistent context ---------------
+
+Context extension C1
+  case bring g
+%Context
+
+%Package

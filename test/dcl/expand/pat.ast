@@ -1,0 +1,112 @@
+Package Testpat
+
+%% Test pattern matching with pattern declarations.
+
+Import "misc/check".
+
+%% Pair parameter
+
+Assume p1: pattern.
+
+Pattern p1(?a, ?b) => 
+  Match ?a = left target.
+  Match ?b = right target.
+%Pattern
+
+%% Curried
+
+Pattern p2 ?a ?b => 
+  Match ?a = left target.
+  Match ?b = right target.
+%Pattern
+
+%% Overloaded, mixed curried, pair
+
+Pattern p3 ?a (b,?c) =>
+  Match ?a = left target.
+  Match ?c = b + right target.
+%Pattern
+
+%% Copy
+
+Pattern p4 = p2.
+
+%% With functions
+
+Pattern p5(idf(?x)) => Match ?x = target..
+
+Pattern 
+  p6 ?x (?y ++ ?z, ?u) => 
+    Match (?x,?y,?u) = target.
+    Match ?z = [2].;
+  p6 (idf ?x) (idf ?y) => 
+    Match (?x,?y) = target.
+%Pattern
+
+Execute
+  %% pair/pair Match
+
+  Match p1(?a, ?b) = (1,2).
+  Line[a $$ 10, b $$ 10, ""].
+  Check["         1         2"].
+
+  %% pair/nonpair Match
+
+%%  Let aa = (1,2).
+%%  Match p1(aa) = (1,2).
+%Execute
+
+Execute
+  Match p2 ?c ?d = (3,4).
+  Line[c $$ 10, d $$ 10, ""].
+  Check["         3         4"].
+
+  Match p2(p1(?e, ?f)) ?g = ((5,6),7).
+  Line[e $$ 10, f $$ 10, g $$ 10, ""].
+  Check["         5         6         7"].
+%Execute
+
+Execute
+  Match p2 3 ?h = (3,6).
+  Line[h $$ 10, ""].
+  Check["         6"].
+%Execute
+
+Execute
+  Match p4 ?k ?l = (3,4).
+  Line[k $$ 10, l $$ 10, ""].
+  Check["         3         4"].
+
+  Match p4(p1(?m, ?n)) ?p = ((5,6),7).
+  Line[m $$ 10, n $$ 10, p $$ 10, ""].
+  Check["         5         6         7"].
+
+  Match p4 3 ?q = (3,6).
+  Line[q $$ 10, ""].
+  Check["         6"].
+%Execute
+
+Execute
+  Match p3 ?i (10,?j) = (4,5).
+  Line[i $$ 10, j $$ 10, ""].
+  Check["         4        15"].
+
+  Match (pattern p3) 5 (6,8) = (5, 2).
+%Execute
+
+Execute
+  Match p5(idf(?x)) = 2.
+  Line[$x].
+  Check["2"].
+%Execute
+
+Execute
+  Match p6 (idf 1) (idf ?r) = (1,[4],3).
+  Line[$r].
+  Check["([4],3)"].
+  Match p6 ?s (?a++ ?b,?u) = (1,[1,5],3).
+  Line[s$$4, $a, u$$4, $b].
+  Check["   1[1,5]   3[2]"].
+%Execute
+
+%Package

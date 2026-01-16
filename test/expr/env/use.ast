@@ -1,0 +1,13 @@
+Package testuse 
+
+%% Test detection of used but not defined and defined but not used ids.
+
+Execute
+  %% Should complain that k is not defined
+  %% Should complain that a is defined but not used.
+
+  Let a = k.
+%Execute
+
+%Package
+

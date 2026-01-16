@@ -1,0 +1,141 @@
+%% File: sparsset.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================================
+Package 		Astarte_SparseSet
+
+			Interface
+====================================================================
+
+====================================================================
+%% This package implements sets as binary search trees.  Such sets
+%% can be over any species for which order tests are defined.  See
+%% set.ast for a description of sets.
+%%
+%%   SparseSet(T) is a species for sets whose members have species T,
+%%                where T is an ordered species.
+====================================================================
+
+Import "collect/set".
+
+========================================================================
+%% Sets are special cases of collections, so we need to implement
+%% the operations anticipated in set.ast and collect.ast.
+%% The following suppresses expectations being generated from
+%% anticipations in set.ast and collect.ast, since the sets 
+%% defined here are only over ordered species.  The anticipations 
+%% in set.ast indicate that any species with equality would do, and so
+%% are too general.  The anticipations in collect.ast indicate that
+%% any species at all would do, and so they are also too general.
+====================================================================
+
+Extension
+  Expect{transparent} species SparseSet(ORDER`a)
+     %" SparseSet(T) is a species of sets whose members have
+     %" species T, and that is represented as a binary
+     %" search tree.
+  %Expect
+  
+  Relate{noExpect} 	SparseSet isKindOf SET.
+%Extension
+
+========================================================================
+
+Abbrev 
+
+  {noExport}:
+  
+  A   = ORDER`a;
+  B   = ORDER`b;
+  SetA = SparseSet(A);
+  
+  {}:
+  
+  Set = SparseSet;
+%Abbrev
+
+========================================================================
+%% Since sparse sets are restricted to ordered species, hide the
+%% default constructor.
+====================================================================
+
+Missing{hide} set, fromList: [`a] -> SparseSet(`a).
+
+========================================================================
+
+Expect
+  set, fromList : [A]			-> SetA;
+  sparseSet	: [A]			-> SetA;
+  emptySet	: SetA;
+  emptySet?	: SetA			-> Boolean;
+  size          : SetA 			-> Natural;
+  sizeAtLeast	: Natural -> SetA	-> Boolean;
+  _in_		: (A, SetA)		-> Boolean;
+  toList,
+    eagerToList	: SetA			-> [A];
+  +/, -/      	: (SetA, A)		-> SetA;
+  extractMin,
+    extractMax	: SetA      		-> (A, SetA);
+  ==            : (SparseSet ORDER`a, SparseSet ORDER`a) -> Boolean;
+
+  {underride}:
+  
+  ^^		: SparseSet(A) -> SparseSet(B)
+  		   constraint (B >= A);
+		   
+  downcast	: SparseSet(A) -> SparseSet(B)
+  		   constraint (B <= A);
+
+  {override}:
+
+  min,max,
+   each,eachMixed: SetA -> A;
+
+%Expect
+
+========================================================================
+%% These missing declarations cover the fact that SparseSet is only
+%% defined over ORDER, not over EQ, which is the SET default.
+====================================================================
+
+Abbrev {noExport}:
+  A = EQ`a;
+  B = `b;
+  SetA = SparseSet(A);
+  SetB = SparseSet(B);
+%Abbrev
+
+==========================
+
+Missing {imported}:
+
+  %% Set constructor
+
+  set, fromList	    : [B] -> SetB;
+
+  %% Anticipations from collect.ast
+
+  emptyCollection   : SetB;
+  emptyCollection?  : SetB 	   -> Boolean;
+  toList,
+    eagerToList	    : SetB	   -> [B];
+  size     	    : SetB	   -> Natural;
+  sizeAtLeast	    : Natural -> SetB -> Boolean;
+
+  %% Anticipations from set.ast
+
+  emptySet	: SetA;
+  emptySet?	: SetA			-> Boolean;
+  _in_		: (A, SetA)		-> Boolean;
+  +/, -/      	: (SetA, A)		-> SetA;
+  extractMin,
+  extractMax	: SetA      		-> (A, SetA);
+  $	        : SetB			-> String;
+  ==            : (SetA, SetA)		-> Boolean
+%Missing
+========================================================================
+
+%Package

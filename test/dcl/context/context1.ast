@@ -1,0 +1,58 @@
+Package context1
+
+%% Test context declarations and expressions.
+
+Import "misc/check".
+
+%% ------------- Basic ---------------
+
+Context C1
+  case f => f(target)
+  case bring g,h
+%Context
+
+Let f(?x) = 2*x.
+Let g ?x ?y = x + y.
+
+Execute
+  Let x = 5.
+  Context C1 (x + 1) =>
+    Let a = my f.
+    Let b = my g 3.
+  %Context
+  Line[$a, " ", $b].
+  Check["12 9"].
+%Execute
+
+%% ------------- Augment ---------------
+
+Let i ?x ?y = x * y.
+
+Context extension C1
+  case bring i
+%Context
+
+Execute
+  Context C1 2 =>
+    Writeln[$(my i 5)].
+  %Context
+%Execute
+
+%% ------------ Inherit -------------
+
+Let q ?x ?y = x -- y.
+
+Context C2 isKindOf C1
+  case bring q
+%Context
+
+Execute
+  Context C2 3 =>
+    Writeln[$my q 3].
+    Writeln[$my g 4].
+  %Context
+%Execute
+
+%Package
+
+    

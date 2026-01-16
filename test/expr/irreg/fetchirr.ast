@@ -1,0 +1,15 @@
+Package fetchirr
+
+%% Test fetching of irregular functions.
+
+Let{irregular} f1({|?x|}) = x.
+
+Let f1(?x:Natural) = x.
+
+Execute
+  Let a = {|2:Natural|}.
+  Let b = f1(a).
+  Writeln[$b].
+%Execute
+
+%Package

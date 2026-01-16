@@ -1,0 +1,178 @@
+%% File: loop.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_Loop 
+==============================================================
+
+==============================================================
+%% This package describes loops.
+==============================================================
+
+==============================================================
+			Export
+==============================================================
+
+Description
+
+ "For"		%" Expression
+		%"
+		%"   For p from x do s %For
+		%"
+		%" requires that s have species (), x be an expression
+		%" whose value is a list, and p be a pattern.  Each
+		%" member of x is tried, in the order in which they
+		%" occur in x.  For each member m of list x, pattern p 
+		%" is matched against target m, and then expression
+		%" s is evaluated.  If the pattern match fails, then
+		%" m is skipped.
+		;
+
+ "Loop"		%" Expression
+		%"
+		%"  Loop <pat> = <ival> <mode>
+		%"    <case>
+		%"    ...
+		%"    <case>
+		%" %Loop
+		%" 
+		%" performs a loop.  Each time around the loop, there
+		%" is a loop control value.  The initial value of the
+		%" loop control value <ival>.  When the loop starts
+		%" an iteration, pattern <pat> is matched against the
+		%" current loop control value.  Then the cases are
+		%" tried, in a way determined by <mode>.  <mode> can
+		%" be any of the modes that are suitable for choose-
+		%" expressions, including matching modes, such as
+		%" 'first matching y'.  See choose.ast.  One or more
+		%" successful cases are selected, according to <mode>.
+		%"
+		%" Cases have the following forms.
+		%"
+		%"   exitcase g => v
+		%"	-- If g is true, then this case is
+		%"	-- successful.  When this case is selected,
+		%"	-- the loop terminates, and v is the value of the
+		%"	-- loop expression.  If g does identifier bindings,
+		%"	-- then those bindings are available in v, but
+		%"	-- not in other cases.
+		%"
+		%"   exitcase do g => v
+		%"	-- In this form, g must have species ().  If 
+		%"	-- evaluation of g succeeds, then this case 
+		%"	-- succeeds.  If evaluation of g fails, then 
+		%"	-- this case fails.  When this case is selected,
+		%"	-- the loop terminates, and v is the value of the
+		%"	-- loop expression.  If g does 
+		%"	-- identifier bindings, then those bindings
+		%"	-- are available in v, but not in other cases.
+		%"
+		%"   exitcase g1
+		%"   exitcase g2 => v
+		%"	-- Abbreviates
+		%"	--    exitcase g1 => v
+		%"	--    exitcase g2 => v
+		%"	-- You can have any number of guards for a
+		%"	-- given value.  Just omit => after all but the
+		%"	-- last one.
+		%"
+		%"   exitcase else => v
+		%"	-- This case can only be the last case.  It 
+		%"	-- always succeeds.  If this case is chosen, then
+		%"	-- the value of v is the value of the loop
+		%"	-- expression.
+		%"
+		%"   loopcase g => s continue c
+		%"	-- If g is true, then this case is
+		%"	-- successful.  When this case is selected,
+		%"	-- the loop continues for another iteration.
+		%"	-- First, s is evaluated.  s must have species (),
+		%"	-- and can be omitted.  s defaults to ().
+		%"	-- Bindings done in s are available in c.
+		%"	--
+		%"	-- After evaluating s, the value of c becomes the
+		%"	-- next loop control value, and the loop starts
+		%"	-- starts another iteration.
+		%"
+		%"   loopcase do g => s continue c
+		%"	-- This is similar to the preceding case, but
+		%"	-- it succeeds if g succeeds.  g must have species
+		%"	-- ().
+		%"
+		%"   loopcase g1
+		%"   loopcase g2 => s continue c
+		%"	-- Abbreviates
+		%"	--    loopcase g1 => s continue c
+		%"	--    loopcase g2 => s continue c
+		%"	-- You can have any number of guards for a
+		%"	-- given value.  Just omit => after all but the
+		%"	-- last one.
+		%"
+		%"   loopcase else => s continue c
+		%"	-- This case can only be the last case.  It 
+		%"	-- always succeeds.  If this case is chosen, then
+		%"	-- loop continues for another iterations, with
+		%"	-- c being the next loop control value.
+		%"
+		%"   do s
+		%"	-- This case causes s to be evaluated.  It 
+		%"	-- does not indicate a value of the loop-
+		%"	-- expression, but instead indicates an action
+		%"	-- to be performed before checking further cases.
+		%"	-- s must have species ().  Bindings done in
+		%"	-- s are available in all subsequent cases.
+		%"
+		%"  do p => s
+		%"	-- This case is only available when using pattern
+		%"	-- matching.  It causes pattern p to be matched 
+		%"	-- against the target, and then for s to be
+		%"	-- evaluated.  Bindings done by pattern p and
+		%"	-- those done by s are available to all
+		%"	-- subsequent cases.
+		%"
+		%" case g =>
+		%"   Subcases
+		%"     <case>
+		%"     ...
+		%"     <case>
+		%"   %Subcases
+		%"	-- This case succeeds if g is true.  You may also
+		%"	-- use a form that starts case do g => to test
+		%"	-- whether g succeeds.  Each <case> is another
+		%"	-- loop case (an exitcase or loopcase or another
+		%"	-- case with subcases).  When g is true, those cases
+		%"	-- are tried.
+		%"	--
+		%"	-- The word Subcases can be followed by a mode,
+		%"	-- including possibly a pattern matching mode.
+		%"	-- If no mode is given, then the mode is the
+		%"	-- same as the mode of the embedding loop or
+		%"	-- subcases, but does not have a 'matching' component.
+		%"
+		%" You may omit the pattern and initial value from the
+		%" loop heading.  In that case, the loop has no control
+		%" value.  Each loop case must have the word 'continue', but
+		%" there should be no expression following 'continue'.
+		;
+		
+  "While"	%" Expression
+  		%"
+		%"   While a do b %While
+		%"
+		%" performs statement b repeatedly until condition a
+		%" is found to be false.  Expression a must have species
+		%" Boolean, and b must have species ().
+		%" This while loop is equivalent to the following loop.
+		%"
+		%"   Loop
+		%"     loopcase a    => b
+		%"                      continue
+		%"     exitcase else => ()
+		%"   %Loop
+		;
+%Description
+
+%Package

@@ -1,0 +1,75 @@
+Package basicpatmatch 
+
+%% Test basic pattern matching
+
+Import "misc/check".
+
+%% Pattern Var
+
+Execute
+  Match ?x = 2.
+  Line[$x].
+  Check["2"].
+%Execute
+
+%% Pair -- expanded
+
+Execute
+  Match (?x,?y) = (2,3).
+  Line[$(x,y)].
+  Check["(2,3)"].
+%Execute
+
+%% Pair -- not expanded
+
+Execute
+  Let a = (2,3).
+  Match (?x,?y) = a.
+  Line[$(x,y)].
+  Check["(2,3)"].
+%Execute
+
+%% :: (for lists)
+
+Execute
+  Let a = [2,3].
+  Match [?x & ?y] = a.
+  Line[$(x,y)].
+  Check["(2,[3])"].
+  Let b = [1,2,3,4,5].
+  Match [1,?u,?v & ?w] = b.
+  Line[$u," ",$v," ",$w].
+  Check["2 3 [4,5]"].
+%Execute
+
+%% _where_
+
+Execute
+  Try Match ?a _where_ a > 1 = 2.
+    then Line["Good"].
+    else Line["Bad"].
+  %Try
+  Check["Good"].
+
+  Try Match ?a _where_ a < 1 = 2.
+    then Line["Bad"].
+    else Line["Good"].
+  %Try
+  Check["Good"].
+%Execute
+
+%% _also_
+
+Execute
+  Try Match ?a _also_ ?b = 2.
+    then 
+      If a == 2 _and_ b == 2 
+	then Line["Good"]. 
+	else Line["Bad"].
+      %If
+    else Line["Bad"].
+  %Try
+  Check["Good"].
+%Execute
+
+%Package

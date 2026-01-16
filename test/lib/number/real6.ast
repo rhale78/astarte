@@ -1,0 +1,77 @@
+Package test 
+
+Execute
+  Assign precision! := 200.
+  Writeln["About to do division"].
+  Let half = ~(1/2).
+  Writeln["Division done"].
+  Writeln["half = ", half $$ 205, "\n"].
+
+%%  Writeln["About to do division"].
+%%  Let oneTenth = ~1/~10.
+%%  Writeln["Division done"].
+%%  Writeln["oneTenth = ", oneTenth $$ 205, "\n"].
+%%
+%%  Writeln["About to do addition"].
+%%  Let twoTenths = oneTenth + oneTenth.
+%%  Writeln["Addition done"].
+%%  Writeln["twoTenths = ", twoTenths $$ 205, "\n"].
+%%
+%%  Writeln["About to do multiplication"].
+%%  Let oneTenth2 = twoTenths * half.
+%%  Writeln["Multiplication done"].
+%%  Writeln["oneTenth2 = ", oneTenth2 $$ 205, "\n"].
+%%
+%%  Writeln["About to do addition"].
+%%  Let threeTenths = oneTenth + twoTenths.
+%%  Writeln["Addition done"].
+%%  Writeln["threeTenths = ", threeTenths $$ 205, "\n"].
+%%
+%%  Writeln["About to do division"].
+%%  Let three = threeTenths / oneTenth.
+%%  Writeln["Division done"].
+%%  Writeln["three = ", three $$ 205, "\n"].
+
+  Writeln["About to do ~"].
+  Let a = ~2.
+  Writeln["~ done"].
+  Writeln["a = ", a $$ 205, "\n"].
+  Loop (?z,?i) = (~1.414, 0) first
+    until i == 10 => ()
+    while else =>
+      Writeln["About to compute z*z"].
+      Let zsq = z*z.
+      Writeln["Done"].
+
+      Writeln["z^2 = ", zsq $$ 205, "\n"].
+
+      Writeln["About to compute a/z"].
+      Let b = a/z.
+      Writeln["Done"].
+
+      Writeln["half = ", half $$ 205, "\n"].
+      Writeln["a = ", a $$ 205, "\n"].
+      Writeln["b = ", b $$ 205, "\n"].
+
+      Writeln["About to compute z+b"].
+      Let c = z+b.
+      Writeln["Done"].
+
+      Writeln["c = ", c $$ 205, "\n"].
+
+      Writeln["About to compute c*half"].
+      Let d = c*half.
+      Writeln["Done"].
+
+      Writeln["d = ", d $$ 205, "\n"].
+      continue(d,i+1)
+  %Loop
+%Execute
+
+
+%%Execute
+%%  Assign precision! := 200.
+%%  Writeln["sqrt(2)^2 = ", (sqrt 2)^2 $$ 205].
+%%%Execute
+
+%Package

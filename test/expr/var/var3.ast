@@ -1,0 +1,29 @@
+Package var3 
+
+%% Test Var dcl/expr for two dimensional arrays
+
+Import "collect/boxes".
+
+Var a1(5,6) holding Natural.
+
+Var a2(5,6) holding Natural all := 0.
+
+Var a3(3,4) holding Natural := [[1,2,3,4], [5,6,7,8], [9,10,11,12]].
+
+Execute
+  For ?i from 0 _upto_ 4 do
+    For ?j from 0 _upto_ 5 do
+      If emptyBox?(a1#_i#_j) else Writeln["Bad"]..
+      If @(a2#_i#_j) =/= 0 then Writeln["Bad"]..
+    %For
+  %For
+
+  For ?i from 0 _upto_ 2 do
+    For ?j from 0 _upto_ 3 do
+      If @(a3#_i#_j) =/= 4*i+j+1 then Writeln["Bad"]..
+    %For
+  %For
+%Execute
+
+%Package
+

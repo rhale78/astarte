@@ -1,0 +1,7 @@
+Package varname
+
+%% Test variable names.
+
+Let f(?x:(ANY`a, `a, REAL`a)) = x.
+
+%Package

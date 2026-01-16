@@ -1,0 +1,13 @@
+Package infdup
+
+%% Test infiniteDup
+
+Import "misc/check".
+
+Execute
+  Let a = infiniteDup 4.
+  Line[$(a##(0,5))].
+  Check["[4,4,4,4,4]"].
+%Execute
+
+%Package

@@ -1,0 +1,23 @@
+Package assm
+
+%% Try assumptions
+
+Assume x:Natural.
+
+Let assoc1 ?x ?l =
+  Assume r,l: [(Natural, String)].
+  Loop ?r = l first matching r
+    exitcase []             => fail testX
+    exitcase [(x,?y) & ?]   => y
+    loopcase else           => continue tail r
+  %Loop
+%Let
+
+Define assoc2 by first
+  do Assume x:Natural; y:String.
+  case  assoc2 ?  []              = fail testX
+  case  assoc2 ?x ((?x,?y) :: ?)  = y
+  case  assoc2 ?x (? :: ?t)       = assoc2 x t
+%Define
+
+%Package

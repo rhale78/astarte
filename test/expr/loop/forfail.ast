@@ -1,0 +1,12 @@
+Package forfail
+
+%% Test for loop with a failed pattern match.
+
+Execute
+  Writeln["Should print 6, 7, 8 on separate lines"].
+  For (?x _where_ x > 5) from [6,2,5,7,8,1] do
+    Writeln[$x].
+  %For
+%Execute
+
+%Package

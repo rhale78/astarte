@@ -1,0 +1,8 @@
+Package test
+
+Execute
+  Writeln[$(8.0:Real)].
+%Execute
+
+%Package
+

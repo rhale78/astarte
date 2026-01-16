@@ -1,0 +1,262 @@
+%% File funarr.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_FunarrImp
+
+			Implements "funarr"
+==============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+A functional array is represented by a tree (type FunArrBody(`a)
+together with a number indicating the size of the array.  
+
+It is easiest to understand if indexing is from 1.  The values 
+associated with given indices are stored at nodes of the tree
+as follows.  
+
+                               1
+			      / \ 
+			   0 /   \ 1
+			    /     \
+			   2       3
+			0 / \ 1  0/ \ 1
+			 /   \   /   \
+			4     6 5     7
+                        .     . .     .			
+                        .     . .     .			
+                        .     . .     .			
+
+where the index stored at a given node is found. in binary,
+by starting with a 1 and reading the labels on the tree 
+edges upwards toward the root.  For example, scanning upwards
+from the node labeled 6 yields 10.  So the index stored at that
+node is 110, or 6.
+
+A node is found by reading the bits of the index from right to
+left until the result is 1.
+
+The indices themselves are not stored in the tree.  Each node
+holds the value in the array at that index.  So a functional
+array that is equivalent to list [12,35,9] would look like this
+as a tree.
+
+                          12
+			 /  \
+		       35    9
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Extension
+  Species{transparent,noEqual}:
+    FunArrBody(`a) = 
+      | nothing
+      | node(`a, even ~> FunArrBody(`a), odd ~> FunArrBody(`a));
+      
+    FunArr(`a) = 
+      (Natural, FunArrBody(`a))
+  %Species
+%Extension
+
+==============================================================
+%%			emptyFunArr
+%%			emptyCollection
+==============================================================
+
+Let emptyFunArr = funArr(0, nothing).
+
+Let{override} emptyCollection = emptyFunArr.
+
+==============================================================
+%%			nil?
+%%			emptyCollection?
+==============================================================
+
+Let nil?(funArr(?sz,?)) = zero? sz.
+
+Let emptyCollection?    = nil?.
+
+==============================================================
+%%			size
+==============================================================
+
+Let size(funArr(?sz,?)) = sz.
+Let length = size.
+
+==============================================================
+%%			#_
+%%			#
+==============================================================
+
+Let funArr(?sz, ?bdy) # ?n =
+  If sz < n _or_ zero? n then fail subscriptX
+  else
+    Loop (?a, ?m) = (bdy, n) first matching a
+      case node(?data, even ~> ?ev, odd ~> ?od) =>
+        Subcases
+          exitcase m == 1  => data
+          loopcase odd? m  => continue (od, m _div_ 2)
+	  loopcase else    => continue (ev, m _div_ 2)
+        %Subcases
+
+      exitcase nothing  => fail subscriptX  %% Should not happen
+    %Loop
+  %If
+%Let
+
+=======
+Let ?a #_ ?n = a # (n+1).
+
+==============================================================
+%%			#=
+%%			#_=
+==============================================================
+
+Define replaceHelp(?n, ?v, node(?data, even ~> ?ev, odd ~> ?od)) =
+  Choose first
+    case n == 1 => node(v, ev, od)
+    case odd? n => node(data, ev, replaceHelp(n _div_ 2, v, od))
+    else        => node(data, replaceHelp(n _div_ 2, v, ev), od)
+  %Choose
+%Define
+
+Let funArr(?sz,?bdy) #= (?n,?v) = 
+  If sz < n _or_ zero? n 
+    then fail subscriptX
+    else funArr(sz, replaceHelp(n, v, bdy))
+  %If
+%Let
+
+Let ?a #_= (?n,?v)  =  a #= (n+1,v).
+
+==============================================================
+%%			+/
+==============================================================
+
+Define expandArrayHelp (?n, ?b, ?x) =
+  Choose first 
+    case n == 1 => 
+      node(x, nothing, nothing)
+
+    do Match node(?data, even ~> ?ev, odd ~> ?od) = b.
+
+    case odd? n => 
+      node(data, ev, expandArrayHelp(n _div_ 2, od, x))
+      
+    else =>
+      node(data, expandArrayHelp(n _div_ 2, ev, x), od)
+  %Choose
+%Define
+
+============
+
+Let funArr(?sz,?bdy) +/ ?x = 
+  funArr(sz+1, expandArrayHelp (sz+1, bdy, x))
+%Let
+
+==============================================================
+%%			allButLast
+==============================================================
+
+Define allButLastHelp(?n, ?bdy) =
+  Choose first 
+    case n == 1 => nothing
+
+    do Match node(?data, even ~> ?ev, odd ~> ?od) = bdy.
+
+    case odd? n => 
+      node(data, ev, allButLastHelp(n _div_ 2, od))
+      
+    else =>
+      node(data, allButLastHelp(n _div_ 2, ev), od)
+  %Choose
+%Define
+
+Let allButLast(funArr(?sz,?bdy)) =
+  If zero? sz
+    then fail emptyListX
+    else funArr(sz--1, allButLastHelp(sz, bdy))
+  %If
+%Let
+
+==============================================================
+%%			toFunArr
+%%			fromList
+==============================================================
+
+Let toFunArr = lfold (emptyFunArr, +/).
+  
+Let fromList = toFunArr.
+
+==============================================================
+%%			toList
+==============================================================
+
+Define shuffle by
+  Await then
+    case shuffle([?a & ?r], [?b & ?s]) = [a, b & shuffle(r,s)]
+  
+    case shuffle(?x, []) = x
+  
+    case shuffle([], ?x) = x
+  %Await
+%Define
+
+Define toListHelp by
+  case toListHelp(node(?data,?ev,?od)) = 
+    data :: (:shuffle(toListHelp(ev), toListHelp(od)):)
+    
+  case toListHelp(nothing) = []
+%Define
+
+Let toList(funArr(?,?bdy)) = toListHelp(bdy).
+
+Let eagerToList(?a) = forceList(toList(a)).
+
+============================================================
+%%			==
+============================================================
+
+Define eqHelp by
+  case eqHelp(node(?d1,?ev1,?od1), node(?d2,?ev2,?od2)) =
+    d1 == d2 _and_ eqHelp(ev1,ev2) _and_ eqHelp(od1,od2)
+  
+  case eqHelp(nothing,nothing) = true
+  
+  case eqHelp(?) = false
+%Define
+
+Let funArr(?sz1,?a) == funArr(?sz2,?b) =
+  sz1 == sz2 _and_ eqHelp(a,b)
+%Let
+
+============================================================
+%%			map
+============================================================
+
+Define mapTree by
+  Await then
+    case mapTree ?f (node(?data,?ev,?od)) = 
+      node(f(data), mapTree f ev, mapTree f od)
+      
+    case mapTree ? nothing = nothing
+  %Await
+%Define
+
+Let{override} map ?f (funArr(?sz,?bdy)) = funArr(sz, mapTree f bdy).
+
+============================================================
+%%			^^
+============================================================
+
+Expect ^^: FunArrBody(`a) -> FunArrBody(`b) constraint (`b >= `a).
+
+Let{underride}:
+  ^^(?fb)              = (mapTree ^^) fb;
+  ^^(funArr(?sz,?bdy)) = funArr(sz, ^^(bdy))
+%Let
+
+============================================================
+%Package

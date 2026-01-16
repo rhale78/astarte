@@ -1,0 +1,19 @@
+Package atomicspread
+
+%% Test atomicity spreading.  This file is intended to be
+%% compiled, and the compiled code checked.  Running it will
+%% not tell anything.
+
+Execute
+  open Atomic
+    Let a = 2.
+  %Atomic
+  Try
+    Writeln[$a].
+    Atomic
+      Writeln["good"].
+    %Atomic
+  %Try
+%Execute
+
+%Package

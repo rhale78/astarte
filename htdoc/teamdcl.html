@@ -1,0 +1,74 @@
+<HTML>
+<head>
+<title>Astarte: team declarations</title>
+</head>
+<body>
+<center>
+<a href="letdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="exceptiondcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D8. Team Declarations </font></h1>
+</center>
+
+Normally, definitions can only be used after they are made.
+There are two ways to get around that restriction.  One is to
+use expectations.  The other is to use a team.
+
+<p> A team is a collection of definitions that can use
+one another.  For example, 
+the following definition of the
+factorial function can be made.  Notice that factorial uses
+factorialHelp, even though factorialHelp occurs after factorial in
+the team.
+<font color=#D00090>
+<b><pre>
+    Team
+      Define factorial(?n) = factorialHelp(n,1).
+
+      Define factorialHelp by
+        case factorialHelp(0,?r) = r
+        case factorialHelp(?n+1,?r) = factorialHelp(n,r*(n+1))
+      %Define
+    %Team
+</pre></b>
+</font>
+Teams are typically used for mutually recursive definitions.
+
+<p>When a team is compiled, type inference is performed on the
+team as a whole.  If a team is large, then type inference will
+consume a great deal of memory.  It is not a good idea, therefore,
+just to put all definitions of a large package in a team.  Use
+expectations instead to handle a large collection of mutually
+recursive functions.
+
+<p> The following kinds of declarations can be put inside a team.
+<ol>
+<p><li> Define declarations.
+<p><li> Let declarations.  When inside a team, a let declaration is
+handled exactly as if it were a define declaration.
+<p><li> Description declarations.
+<p><li> Advise declarations.
+</ol>
+Regardless of the order of the declarations, the order of processing is
+<ol>
+<li> All advisories are done, in the order written.
+<li> All definitions are made.
+<li> All descriptions are done.
+</ol>
+
+<hr>
+<center>
+<a href="letdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="exceptiondcl.html">Next</a>
+</center>
+</body>
+</HTML>

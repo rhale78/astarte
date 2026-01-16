@@ -1,0 +1,19 @@
+Package loopall
+
+%% Test Loop all
+
+Execute
+  Writeln["Should print even numbers from 0 to 20.\n"].
+  Try 
+    Let x = 
+      Loop ?i = 0 all
+        exitcase not odd?(i) => i
+        loopcase i < 20     => continue i+1
+      %Loop
+    %Let
+    Writeln[x $$ 5].
+    (fail testX)
+  %Try
+%Execute
+
+%Package

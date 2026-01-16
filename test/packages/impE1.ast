@@ -1,0 +1,15 @@
+Package impE1
+
+%% Part of impE0 test.
+
+Export
+
+Expect v: Natural.
+
+Expect v: Natural.
+
+Implementation
+
+Let v = 2.
+
+%Package

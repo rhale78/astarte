@@ -1,0 +1,22 @@
+Package findlast
+
+%% Test findlastMember function of search.ast.
+
+Import "misc/check".
+Import "collect/search".
+
+Execute
+  Line[$(findLastMember("ab", true) "zcarbac")].
+  Check["(5,\"ac\")"].
+  
+  Line[$(findLastMember("ab", false) "zcarbac")].
+  Check["(6,\"c\")"].
+  
+  Line[$(maybeFindLastMember("ab", true) "chore")].
+  Check["(5,\"\")"].
+
+  Line[$(maybeFindLastMember("a", false) "aaaa")].
+  Check["(4,\"\")"].
+%Execute
+
+%Package

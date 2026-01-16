@@ -1,0 +1,137 @@
+%% File: hierarch.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package         Astarte_Hierarchy 
+
+                Export
+=================================================================
+
+=================================================================
+%% This package describes the standard genus/community hieararchy.
+=================================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+The following diagram shows the standard genera and commmunities
+(all upper case) and their relationships to one another, 
+and to standard species and families.  Larger genera are to 
+the left.  Meets should be obvious.
+
+The special thing PAIR refers to cartesian products (ordered 
+pairs).  Since PAIR is in genus ORDER, species (S,T) is in
+genus ORDER for all species S and T where S and T are also
+in genus ORDER. Ordering on pairs and lists is lexicographic.
+For example, [2,3,6] < [2,4,5] and (2,3,6) < (2,4,5).
+
+Genera and communities marked with a * are not extensible.  
+Genus ANY includes all species -- it is implicitly extended any 
+time a new species or genus is added.  Genera RANKED and ENUMERATED 
+are extended any time an enumerated species is created.  
+You cannot extend them directly.
+
+Communities OPAQUE and TRANSPARENT cannot be extended directly.
+They are extended any time a new family or community is created.
+Communities and families that are part of OPAQUE are opaque.  Those
+that are part of TRANSPARENT are transparent.
+
+============================================================
+
+                UnknownKey
+               /
+              /\
+             /  ExceptionSpecies
+            /                                  ___Real
+           /                                  /
+          /                         ___RFIELD*
+         /                         /          \___Rational
+        /                 ___RRING*           /
+       /                 /         \__RATRING*
+      /           __REAL*          /          \___Integer
+     /           /       \RATIONAL*           /
+    /           /                  \__INTEGER*
+   /           /                              \___Natural
+ANY--EQ---ORDER                _______________/
+   \   \       \              /            
+    \   \       \_______RANKED                
+     \   \       \            \              
+      \   \       \            \            ______Comparison
+       |   |       |            \          /
+       |   |       |             ENUMERATED-------FileMode
+       |   |       |                       \
+       |   |       |                        \_____()
+       |   |       |                         \
+       |   |       |\                         \___Char
+       |   |       | \                         \
+       |   |       |  PAIR                      \_Boolean
+       |   |       |                             \
+       |   |       |                              Infinity
+       |   |       |
+       |   |        \________________          
+       |    \                        TRANSPARENT_ORDER
+       |\    \_________             /                 \
+       | \             TRANPARENT_EQ                    List
+       |  \           /             \
+       |   TRANSPARENT*              Optional
+       |          
+       |          
+       |  EQ    ORDER
+       |   |         \_______
+       |    \                OPAQUE_ORDER
+        \    \_____         /             
+         \         OPAQUE_EQ
+          \       /
+           OPAQUE*         SharedBox
+                  \       /
+                   \__ BOX*
+                    \    \
+                     \    NonsharedBox
+                      \
+                       \   
+                        Outfile
+			
+============================================================
+You can find information on genera and species in the following packages.
+
+()		lang/hermit.ast
+Boolean		lang/boolean.ast
+Char		lang/char.ast
+Comparison	lang/compare.ast
+ExceptionSpecies lang/except.ast
+FileMode	system/io.ast
+Integer		math/stdnum.ast
+Natural		math/stdnum.ast
+Rational	math/stdnum.ast
+Real		math/stdnum.ast
+UnknownKey      logic/unknown.ast
+
+ANY		lang/misc.ast
+ENUMERATED	lang/rank.ast
+EQ		lang/compare.ast
+INTEGER		math/stdnum.ast
+ORDER		lang/compare.ast
+RANKED		lang/rank.ast
+RATIONAL	math/stdnum.ast
+RATRING		math/stdnum.ast
+RFIELD		math/stdnum.ast
+RRING		math/stdnum.ast
+REAL		math/stdnum.ast
+
+============================================================
+You can find information on the standard families and communities as follows.
+
+List		collect/list.ast
+NonsharedBox	lang/box.ast
+Optional	lang/optional.ast
+Outfile		system/io.ast
+SharedBox	lang/box.ast
+
+BOX		lang/box.ast
+
+============================================================
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+%Package

@@ -1,0 +1,44 @@
+<HTML>
+<head>
+<title>Astarte: threads</title>
+</head>
+<body>
+<center>
+<a href="lazyexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="failure.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E15. Threads </font></h1>
+</center>
+
+A <i>thread</i> is a separate flow of control.  It is similar to
+a process.  You can imagine that more than one processor is running
+a program simultaneously.
+
+<p>Astarte allows a program to run more than one thread at a time.
+Mechanisms are provided for creating threads
+(<a href=streams.html>E17</a>, <a href=threadlib.html>L15</a>),
+for terminating a thread (<a href=failure.html>E16</a>, 
+<a href=threadlib.html>L15</a>) and for controlling and
+managing threads (<a href=threadlib.html>L15</a>).
+
+<p>The basic thread creation mechanism performs a <i>fork</i>.
+Where one thread enters an expression, two or more threads can
+come out.  It is important to keep that in mind in reading some parts of the
+next two chapters of this manual.
+
+<hr>
+<center>
+<a href="lazyexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="failure.html">Next</a>
+</center>
+</body>
+</HTML>

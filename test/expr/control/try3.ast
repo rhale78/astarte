@@ -1,0 +1,34 @@
+Package try3
+
+%% Test ordinary tries with multiple threads.
+
+%% The following lets one thread out of the inner try before another
+%% thread created within the try fails.  The thread that exits
+%% the inner try fails, allowing the other thread to run and fail.
+%% This second failure should be caught by the outer try.
+%%
+
+Execute
+  Writeln["Should print OK just once."].
+  Try
+    Try
+      Let x =
+        Mix
+          Let n = 0.
+          For ? from 1 _upto_ 100 do Relet n = n + 1..
+	  n
+        with
+          0
+        %Mix
+      %Let
+      {x == 0}
+    else
+      Writeln["Should not print this"].
+    %Try
+    {false}
+  else
+    Writeln["OK"].
+  %Try
+%Execute
+
+%Package

@@ -1,0 +1,7 @@
+Package prot1 export
+
+Let{protected} prot = 2.
+
+%Package
+
+

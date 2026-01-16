@@ -1,0 +1,50 @@
+Package testfunction 
+
+%% Test function expressions and curried function defn.
+
+Define f =
+  ((?x, ?y) => (x,y, z) |
+    Let z = x + y.
+  )
+%Define
+
+Define g =
+  (?x =>
+    (?y =>
+      (x,y, z) |
+        Let z = x + y.
+    ))
+%Define
+
+Define h (?x,?y) = (x, y, z) | Define z = x + y..
+
+Define i ?x ?y = (x, y, z) | Define z = x + y..
+
+Define j ?x ?y ?z = (x,y,z).
+
+Execute
+  Writeln["\nLines should be in matching pairs\n"].
+
+  Let a = f(1,2).
+  Write[left a $$ 5, left(right a) $$ 5, right(right a) $$ 5, "\n"].
+  Write["    1    2    3\n\n"].
+
+  Let b = g 1 2.
+  Write[left b $$ 5, left(right b) $$ 5, right(right b) $$ 5, "\n"].
+  Write["    1    2    3\n\n"].
+
+  Let c = h(1,2).
+  Write[left c $$ 5, left(right c) $$ 5, right(right c) $$ 5, "\n"].
+  Write["    1    2    3\n\n"].
+
+  Let d = i 1 2.
+  Write[left d $$ 5, left(right d) $$ 5, right(right d) $$ 5, "\n"].
+  Write["    1    2    3\n\n"].
+
+  Let e = j 1 2 3.
+  Write[left e $$ 5, left(right e) $$ 5, right(right e) $$ 5, "\n"].
+  Write["    1    2    3\n\n"].
+%Execute
+
+%Package
+

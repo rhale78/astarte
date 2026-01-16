@@ -1,0 +1,92 @@
+Package testexp 
+
+%% Test functions abs, sqrt, exp, ln, sin, cos, invtan, pi, ^~ for reals.
+
+Import "math/math".
+
+Assume n: Natural.
+
+Define DoTest(?n). =
+  Write["abs(0.0)    = ", abs(~0) $$ n, "\n"].
+  Write["abs(1.0)    = ", abs(~1) $$ n, "\n"].
+  Write["abs(10^100) = ", abs(~1.0e100) $$ n, "\n"].
+  Write["abs(-10^100)= ", abs(- ~1.0e100) $$ n, "\n"].
+
+  Write["sin(pi)    = ", sin(pi()) $$ n, "\n"].
+
+  Write["sqrt(0.0)  = ", sqrt(~0) $$ n, "\n"].
+  Write["sqrt(1.0)  = ", sqrt(~1) $$ n, "\n"].
+  Write["sqrt(2.0)  = ", sqrt(~2) $$ n, "\n"].
+  Write["sqrt(4.0)  = ", sqrt(~4) $$ n, "\n"].
+  Write["sqrt(2)^2  = ", sqrt(~2)^2 $$ n, "\n"].
+  Write["sqrt(10^50)= ", sqrt(~1.0e50) $$ n, "\n"].
+  Write["sqrt(10^100)= ", sqrt(~1.0e100) $$ n, "\n"].
+
+  Write["exp(0.0)   = ", exp(~0) $$ n, "\n"].
+  Write["exp(0.1)   = ", exp(~0.1) $$ n, "\n"].
+  Write["exp(1.0)   = ", exp(~1) $$ n, "\n"].
+  Write["exp(-1.0)  = ", exp(-(~1)) $$ n, "\n"].
+  Write["exp(2.0)   = ", exp(~2) $$ n, "\n"].
+  Write["exp(-2.0)  = ", exp(~(-2.0)) $$ n, "\n"].
+  Write["ln(1.0)    = ", ln(~1.0)  $$ n, "\n"].
+  Write["ln(2.0)    = ", ln(~2.0)  $$ n, "\n"].
+  Write["ln(0.01)   = ", ln(~0.01) $$ n, "\n"].
+  Write["ln(100)    = ", ln(~100.0) $$ n, "\n"].
+  Write["ln(e)      = ", ln(exp(~1.0)) $$ n, "\n"].
+  Write["ln(e^0.1)  = ", ln(exp(~0.1)) $$ n, "\n"].
+  Write["exp(ln2)   = ", exp(ln(~2.0)) $$ n, "\n"].
+
+  Write["pi         = ", pi() $$ n, "\n"].
+  Write["sin(0.0)   = ", sin(~0) $$ n, "\n"].
+  Write["sin(1.0)   = ", sin(~1) $$ n, "\n"].
+  Write["sin(-1.0)  = ", sin(-(~1)) $$ n, "\n"].
+  Write["sin(pi/4)  = ", sin(pi()/ ~4)$$ n, "\n"].
+  Write["sin(pi/4)^2= ", (sin(pi()/ ~4))^2$$ n, "\n"].
+  Write["sin(-pi/4) = ", sin(-(pi())/ ~4)$$ n, "\n"].
+  Write["sin(pi/2)  = ", sin(pi()/(+ 2)) $$ n, "\n"].
+  Write["cos(0.0)   = ", cos(~0) $$ n, "\n"].
+  Write["cos(1.0)   = ", cos(~1) $$ n, "\n"].
+  Write["cos(-1)    = ", cos(~(-1)) $$ n, "\n"].
+  Write["cos(pi/4)  = ", cos(pi()/(+4))$$ n, "\n"].
+  Write["cos(pi/4)^2= ", (cos(pi()/(+4)))^2$$ n, "\n"].
+  Write["cos(pi/2)  = ", cos(pi()/(+2)) $$ n, "\n"].
+  Write["cos(pi)    = ", cos(pi()) $$ n, "\n"].
+  Write["sin^2(1) + cos^2(1) = ", (sin(~1))^2 + (cos(~1))^2 $$ n, "\n"].
+
+  Write["atan(0.0)  = ", invtan(~0) $$ n, "\n"].
+  Write["atan(1.0)  = ", invtan(~1) $$ n, "\n"].
+  Write["at(1)-pi/4 = ", (invtan(~1) - pi()/ ~4) $$ n, "\n"].
+  Write["atan(-1)   = ", invtan(-(~1)) $$ n, "\n"].
+  Write["atan(2.0)  = ", invtan(~2) $$ n, "\n"].
+  Write["atan(-2)   = ", invtan(~(-2)) $$ n, "\n"].
+  Write["atan(0.01) = ", invtan(~0.01) $$ n, "\n"].
+  Let xx = invtan(1.2).
+  Let xxx = sin(xx)/cos(xx).
+  Write["tan(atan(1.2)) = ", xxx $$ n, "\n"].
+
+  Write["2.0^0.0    = ", (~2)^~(~0) $$ n, "\n"].
+  Write["2.0^1.0    = ", (~2)^~(~1) $$ n, "\n"].
+  Let a = (~2)^~(~0.5).
+  Write["2^0.5      = ", a $$ n, "\n"].
+  Write["(2^0.5)^2  = ", a^2 $$ n, "\n"].
+  Let b = (~3.5)^~(~(1/3)).
+  Write["3.5^(1/3)    = ", b $$ n, "\n"].
+  Write["(3.5^(1/3))^3= ", b^3 $$ n, "\n"].
+%Define
+
+Execute
+  Write["Standard Precision\n\n"].
+  DoTest(20).
+  Assign precision! := 50.
+  Write["\nPrecision 50\n\n"].
+  DoTest(55).
+  Assign precision! := 200.
+  Write["\nPrecision 200\n\n"].
+  DoTest(205).
+%Execute
+
+%Package
+
+
+
+

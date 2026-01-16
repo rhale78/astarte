@@ -1,0 +1,22 @@
+Package default2 
+
+%% Test default dcls
+
+Advise show.
+Default ANY => Natural.
+
+%% The following should show that [] has type [Natural].
+
+Execute
+  Ignore[].
+%Execute
+
+Default ANY => ?.
+
+%% The following should lead to a complaint about an unbound variable.
+
+Execute
+  Ignore[].
+%Execute
+
+%Package

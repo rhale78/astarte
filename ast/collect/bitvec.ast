@@ -1,0 +1,480 @@
+%% File: bitvec.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_Bitvec 
+
+			Interface
+=============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package provides for infinite bit vectors.  These vectors
+are infinite to the left, but have a right end.  An infinite
+bit vector has species Bitvec.  Operations include bitwise boolean
+operations and shifts.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+===========================================================
+%%		Species Bitvec
+===========================================================
+
+Extension
+  Species{noDollar} Bitvec = Integer
+	%" @{bit vector}
+	%"
+	%" Species Bitvec contains bit vectors that are
+	%" infinite to the left, but have a right end.
+	%" Operations include the following.
+	%"
+	%"   bitvec(k)	This is the bit vector that is the
+	%"		infinite two's complement representation
+	%"		of integer k.  For example,
+	%"		
+	%"		  bitvec(0)  = ...0000
+	%"		  bitvec(2)  = ...0010
+	%"		  bitvec(-1) = ...1111  (all 1's)
+	%"
+	%"  bitvec(b,l) If l is a list of boolean values, then
+	%"		bitvec(b,l) is the bit vector whose
+	%"		rightmost length(l) bits are given by l
+	%"		(with true represented by 1, and false by
+	%"		0), and with infinitely many of bit b.
+	%"
+	%"		For example,
+	%"
+	%"		  bitvec(false, [true,true,false]) = ...0110.
+	%"
+	%"  unbitvec	The functional inverse of bitvec (both
+	%"		versions).
+	%"
+	%"  bvNull	The vector of all 0's.
+	%"
+	%"  bvNull?(v)	True just when v is bvNull.
+	%"
+	%"  bvNot(v)	The bitwise complement of vector v.
+	%"
+	%"  u bvAndWith v   The bitwise 'and' of vectors u and v.
+	%"
+	%"  u bvOrWith v    The bitwise 'or' of vectors u and v.
+	%"
+	%"  u bvXorWith v   The bitwise exclusive or of vectors u
+	%"		    and v.
+	%"
+	%"  v bvShlBy n	    The vector that results from shifting
+	%"		    vector v to the left n bits, pulling
+	%"		    in 0's on the right.
+	%"
+	%"  v bvShrBy n	    The vector that results from shifting
+	%"		    vector v to the right n bits.
+	%"
+	%"  bvMask n	    A vector of n 1's.  For example,
+	%"		    bvMask(4) = ...0001111.
+	%"
+	%"  bvMin v	    Suppose v is a vector that contains
+	%"		    infinitely many of bit b, where b is
+	%"		    either 0 or 1.
+	%"
+	%"		    bvMin v is a pair (n,u) where n is
+	%"		    the position of the rightmost b in
+	%"		    vector v, and u is the vector that 
+	%"		    results from v by replacing that bit
+	%"		    by b.  The rightmost bit is in position
+	%"		    0.  For example, 
+	%"
+	%"		       bvMin(...0010110) = (1, ...0010100)
+	%"
+	%"  bvMax v	    This is similar to bvMin, but it finds
+	%"		    the leftmost occurrence of b.  For
+	%"		    example,
+	%"
+	%"		       bvMax(...0010110) = (4,...0000110)
+	%"
+	%"  bvField(v,m,n)  This is the bit vector obtained by
+	%"		    shifting vector v m places to the
+	%"		    right, and then taking the rightmost
+	%"		    n bits of what is left (zeroing out
+	%"		    all but the rightmost n bits).
+	%"		    For example, 
+	%"
+	%"		      bvField(...0101110010,2,4) = ...01100
+	%"
+	%"  bvSetField(v,m,n,u) This returns the vector obtained
+	%"			from vector v by setting bits 
+	%"			m to m+n-1 to the rightmost n
+	%"			bits of vector u.
+	%"
+	%"  bvSetBits(v,l,b)    This returns the result of setting
+	%"                      the bits in vector v whose indices
+	%"                      are given by list l to 1 if b is
+	%"			true, and to 0 if b is false.
+	%"
+	%"  stringToBitvec(s)	s is a string that contains octal
+	%" 			digits.  The result is the bit
+	%"			vector that is the given octal
+	%"			number.  The bit vector has 
+	%"			infinitely many 0's if the first
+	%"			character of s is 0, 1, 2 or 3,
+	%"			and has infinitely many 1's if
+	%"			the first character of s is
+	%"			4, 5, 6 or 7.
+	%"
+	%"  $(v)		$ converts a bit vector to a string
+	%"			by showing an octal representation
+	%"			of the vector.  The lefmost digit
+	%"			will be 0 if there are infinitely
+	%"			many 0's, and 7 if there are 
+	%"			infinitely many 1's.
+  %Species
+%Extension
+
+Description
+  bitvec	: Integer -> Bitvec
+  
+		%" bitvec(n) is a bit vector that is represented by
+		%" integer n.  The bit vector that n represents is
+		%" the infinite two's complement representation of n.
+		%" For example, bitvec(1) is ...0001, and bitvec(-1)
+		%" is ...111111.
+		;
+		
+  unbitvec	: Bitvec -> Integer
+  
+  		%" unbitvec is the functional inverse of bitvec.
+		;
+		
+%Description
+
+====================================================
+
+Operator
+  bvNot;
+  _bvAnd_(*);
+  _bvOr_(+);
+  _bvXor_(+);
+  _bvShl_(#);
+  _bvShr_(#)
+%Operator
+
+====================================================
+
+Expect
+  bvNull	: Bitvec
+
+		%" bvNull is the zero bit vector, ...0000000.
+		;
+
+  bvNull?	: Bitvec -> Boolean
+
+		%" bvNull?(v) is true if v is a zero vector.
+		;
+
+  bvNot		: Bitvec -> Bitvec
+
+		%" bvNot(v) is the bitwise complement of vector v.
+		%"
+		%" bvNot is a unary operator.
+		;
+
+  _bvAnd_	: (Bitvec, Bitvec) -> Bitvec
+
+		%" u _bvAnd_ v is the bitwise 'and' of vectors
+		%" u and v.
+		%"
+		%" Operator _bvAnd_ is a binary operator with the
+		%" same precedence and associativity as *. 
+		%" See lang/operator.ast.
+		;
+
+  _bvOr_	: (Bitvec, Bitvec) -> Bitvec
+
+		%" u _bvOr_ v is the bitwise 'or' of vectors
+		%" u and v.
+		%"
+		%" Operator _bvOr_ is a binary operator with the
+		%" same precedence and associativity as +. 
+		%" See lang/operator.ast.
+		;
+
+  _bvXor_	: (Bitvec, Bitvec) -> Bitvec
+
+		%" u _bvXor_ v is the bitwise exclusive 'or' of vectors
+		%" u and v.
+		%"
+		%" Operator _bvXor_ is a binary operator with the
+		%" same precedence and associativity as +. 
+		%" See lang/operator.ast.
+		;
+
+  _bvShl_	: (Bitvec, Natural) -> Bitvec
+
+		%" v _bvShl_ n is the result of shifting bit vector v
+		%" left n bits, pulling in zeroes on the right.
+		%"
+		%" Operator _bvShl_ is a binary operator with the
+		%" same precedence and associativity as #. 
+		%" See lang/operator.ast.
+		;
+
+  _bvShr_	: (Bitvec, Natural) -> Bitvec
+
+		%" v _bvShr_ n is the result of shifting bit vector v
+		%" right n bits, dropping the rightmost n bits.
+		%"
+		%" Operator _bvShr_ is a binary operator with the
+		%" same precedence and associativity as #. 
+		%" See lang/operator.ast.
+		;
+
+  bvMask	: Natural -> Bitvec
+
+		%" bvMask(n) is a vector of n 1 bits.  For example,
+		%" bvMask(3) is the binary vector ...00111.
+		;
+
+  bvMin		: Bitvec -> (Natural, Bitvec)
+
+		%" If v has infinitely many zeroes, then bvMin(v) = (n,u)
+		%" where n is the index of the rightmost 1-bit in
+		%" vector v, and u is the vector that results from
+		%" setting bit n to 0 in v, where the rightmost
+		%" bit has index 0.  
+		%"
+		%" For example, if v is the bit
+		%" vector ...0010100, then bvMin(v) is the pair
+		%" (2, ...0010000).
+		%"
+		%" If v has infinitely many ones, then bvMin(v) =
+		%" (n,u) where n is the index of the rightmost 0-bit
+		%" in v, and u is the vector that results from setting
+		%" bit n to 1 in v.  For example, if v is the bit
+		%" vector ...1101101000, then bvMax(v) is the pair
+		%" (3, ...1101100000).
+		%"
+		%" bvMin(v) fails with exception domainX("no 1 bit")
+		%" on a vector of all zeroes or all ones.
+		;
+
+  bvMax		: Bitvec -> (Natural, Bitvec)
+
+		%" bvMax is similar to bvMin, but finds the index of
+		%" the leftmost 1-bit or 0-bit.  For example,
+		%" bvMax(...001001101000) = (9, ...000001101000).
+		%" See bvMin.
+		;
+
+  bvField	: (Bitvec, Natural, Natural) -> Bitvec
+
+		%" bvField(v,n,m) is the subvector of v starting at bit
+		%" n, and having length m (in bits).  The rightmost bit
+		%" of v has index 0.  So, using binary notation,
+		%" bvField(110010111, 2, 3) = 101.  The result of
+		%" bvField always has infinitely many 0 bits.
+		;
+
+  bvSetField	: (Bitvec, Natural, Natural, Bitvec) -> Bitvec
+
+		%" bvSetField(v,n,m,x) returns the result of replacing
+		%" that part of bit vector v from index n to index n+m-1
+		%" (whose length is m) by the low order m bits of vector
+		%" x.  Indices are as for bvField.  So, using binary
+		%" notation, bvSetField(110010111, 2, 3, 000) yields
+		%" 110000011.
+		;
+		
+  bvSetBits	: (Bitvec, [Natural], Boolean) -> Bitvec
+  
+  		%" bvSetBits(v,l,b) returns the result of setting the bits
+		%" in vector v whose indices are given by list l to 1 if
+		%" b is true, and to 0 if b is false.
+		%" For example, if v is vector 01101000, then
+		%"
+		%"   bvSetBits(v, [0,2,3], true)
+		%" 
+		%" is vector 01101101, where the bits at indices
+		%" 0 and 2 have been set to 1, and the bit at index
+		%" 3 was already 1.
+		;
+
+  $             : Bitvec -> String
+  
+  		%" #{bitvec} 
+		%" $(v) is an octal representation of bit vector
+		%" v.  The leftmost digit is 0 if v has infinitely
+		%" many 0's, and is 7 if v has infinitey many
+		%" 1's.  For example, if v is vector 01101000, with
+		%" infinitely many 0's, then $(v) is "0150".
+		;
+		
+  $$		: (Bitvec, Natural) -> String
+  
+  		%" v $$ n is similar to $(v), but it occupies n
+		%" total digits.
+		;
+
+  stringToBitvec: String -> Bitvec
+
+		%" stringToBitvec(s) is a bit-vector v described by string
+		%" s, which is an octal integer.  If the leftmost digit
+		%" of s is 0-3, then v has infinitely many zeroes.  If
+		%" the lefmost digit of s is 4-7, then v has infinitely
+		%" many ones.  For example, stringToBitvec("024") is
+		%" the binary vector ..0010100, and
+		%" stringToBitvec("533") is the vector ...11101011011.
+		;
+		
+  bitvec	: (Boolean, [Boolean]) -> Bitvec
+  
+  		%" bitvec(b,l) is the bitvector that consists of
+		%" list l padded on the left with infinitely many
+		%" copies of b.  For example, bitvec(false,
+		%" [true,true,false]) is the bit vector
+		%" ...000110.
+		;
+		
+  unbitvec	: Bitvec -> (Boolean, [Boolean])
+ 
+ 		%" unbitvec(v) is a pair (b,r) where
+		%"
+		%"  b is true if bit vector v has infinitely many
+		%"    ones, and is false if v has infinitely many
+		%"    zeroes;
+		%"
+		%"  r is the list of all bits that occur in v
+		%"    to the right of the infinite constant part.
+		%"    A 1 bit is treated as true, and a zero bit is
+		%"    treated as false.
+		%"
+		%" For example, if v is ...00010110, then
+		%" unbitvec(v) = (false, [true,false,true,true,false])
+		%"
+		%" If v is ...1110011000, then unbitvec(v) =
+		%" (true, [false,false,true,true,false,false,false]).
+%Expect
+
+===================================================================
+%%  MATERIAL BELOW HERE IS IMPLEMENTATION SPECIFIC.
+===================================================================
+%% Some of the functions are primitives.  They work on integers
+%% rather than on bit vectors.  Get them now.  It is 
+%% not recommended that these be used directly.  Use the operations
+%% expected below.
+===================================================================
+
+Import "-bitvec".
+
+Description
+
+ nbvAnd		: (Integer, Integer) -> Integer
+
+		%" nbvAnd(x,y) is the bitwise 'and' of the binary
+		%" represenations of x and y.
+		;
+
+ nbvMask	: Natural -> Integer
+
+		%" nbvMask(n) is the binary integer represented by n 1 
+		%" bits.  For example, nbvMask(3) is the binary number
+		%" 111, which is 7.
+		;
+
+ nbvMax		: Integer -> (Natural, Integer)
+
+		%" Suppose <x> is the binary representation of
+		%" the absolute value of integer x.
+		%"
+		%" nbvMax(x) returns a pair (m,x') where m is
+		%" the largest index, numbering from 0 at the low
+		%" order bit, of a 1 bit in <x>, and x' is the
+		%" number that results from setting that 1-bit to 0.
+		%" x' has the same sign as x.
+		%"
+		%" For example, integer 12 is written 1100 in binary.
+		%" The leftmost one bit occurs at position 3, numbering
+		%" from the right, starting at 0.  Setting that
+		%" bit to 0 yields binary number 0100, or 4.  So
+		%" nbvMax(12) = (3,4).
+		;
+
+ nbvMin		: Integer -> (Natural, Integer)
+
+		%" nbvMin(x) returns a pair (m,x') where m is
+		%" the smallest index, numbering from 0 at the low
+		%" order bit, of a 1 bit in |x|, and x' is the
+		%" result of setting that 1-bit to 0.
+		%" x' has the same sign as x.
+		;
+
+ nbvOr		: (Integer, Integer) -> Integer
+
+		%" nbvOr(x,y) is the bitwise 'or' of the binary
+		%" represenations of' x and y.
+		;
+
+ nbvShl		: (Integer, Natural) -> Integer
+
+		%" nbvShl(x,n) is the binary representation of x
+		%" shifted left n places, drawing in zeroes on the right.
+		%" For negative numbers, this behaves like infinite two's
+		%" complement notation.
+		;
+
+ nbvShr		: (Integer, Natural) -> Integer
+
+		%" nbvShr(x,n) is the binary representation of x
+		%" shifted right n places.  For negative numbers,
+		%" this behaves like infinite two's complement notation.
+		;
+
+ nbvXor		: (Integer, Integer) -> Integer
+
+		%" nbvXor(x,y) is the bitwise exclusive 'or' of the binary
+		%" represenations of x and y.
+		;
+		
+ nbvSetBits     : (Integer, [Natural], Boolean) -> Integer
+  
+  		%" nbvSetBits(v,l,b) returns the bit vector that results
+		%" by setting the bits at indices given by list l
+		%" to 1 if b is true, and to 0 if b is false.
+		;
+
+ nbvField	: (Integer, Natural, Natural) -> Integer
+  
+  		%" bvField(v,n,m) produces the result of shifting
+		%" bit vector v to the right n bits, and then selecting
+		%" m bits from the right of what is left.
+		;
+
+%Description
+
+===================================================================
+
+Bring
+  bvNull  : {Bitvec} 				from 0;
+  bvNull? : {Bitvec} -> Boolean 		from zero?;
+  _bvAnd_ : ({Bitvec},{Bitvec}) -> {Bitvec} 	from nbvAnd;
+  _bvOr_  : ({Bitvec},{Bitvec}) -> {Bitvec} 	from nbvOr;
+  _bvXor_ : ({Bitvec},{Bitvec}) -> {Bitvec} 	from nbvXor;
+  bvMin   : {Bitvec} -> (Natural, {Bitvec})	from nbvMin;
+  bvMax   : {Bitvec} -> (Natural, {Bitvec}) 	from nbvMax;
+  bvMask  : Natural -> {Bitvec} 		from nbvMask;
+  _bvShl_ : ({Bitvec}, Natural) -> {Bitvec}	from nbvShl;
+  _bvShr_ : ({Bitvec}, Natural) -> {Bitvec}	from nbvShr;
+  
+  bvSetBits : ({Bitvec}, [Natural], Boolean) -> {Bitvec} from nbvSetBits;
+  bvField   : ({Bitvec}, Natural, Natural) -> {Bitvec}   from nbvField;
+%Bring
+
+=====================================================================
+Pattern
+  bitvec(?x) => Match ?x = unbitvec(target).
+%Pattern
+=====================================================================
+
+%Package
+

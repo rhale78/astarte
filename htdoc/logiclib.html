@@ -1,0 +1,287 @@
+<HTML>
+<head>
+<title>Astarte: logic programming</title>
+</head>
+<body>
+<center>
+<a href="systemlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="random.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L10. Logic Programming Support </font></h1>
+</center>
+
+<menu>
+  <li><a href=#variables>Variables and Unknowns</a>
+  <li><a href=#unification>Unification</a>
+  <li><a href=#active>Active pattern matching</a>
+  <li><a href=#cases>Definition by cases</a>
+  <li><a href=#additional>Additional functions</a>
+  <li><a href=#moreunif>More on unification</a>
+</menu>
+
+<a name=variables></a>
+<hr>
+<h2><font color=mediumblue> Variables and Unknowns</font></h2>
+
+Logic programming uses variables that are bound in the course of
+computation.  Such variables are modeled by
+<a href="unknowns.html">unknowns</a> in Astarte.
+An unknown is an item whose value has not been found.  It is
+not a lazy value, because no function is attached to it that
+computes the value on demand.  An unknown is given a value in a
+way similar to a box.  However, an unknown differs from a box in
+that once an unknown is given a value, the binding is permanent,
+and cannot be undone or replaced.
+
+<a name=unification></a>
+<hr>
+<h2><font color=mediumblue> Unification </font></h2>
+
+Unification is a form of pattern matching.  It attempts to bind
+unbound unknowns so as to make two items equal.  
+For example,
+suppose that u1 and u2 are unbound unknowns.  To unify [u1,3] with
+[6,u2], unknown u1 becomes bound to 6 and unknown u2 gets bound
+to 3.
+
+<p> Unificaton can bind unknowns to one another, leaving both
+unbound.  When two unknowns u1 and u2 are bound together, any
+binding of one is also a binding of the other. 
+For example, suppose
+that you unify [u1] with [u2].  This causes u1 and u2 to be bound
+to one another.  If you then unify [u2] with [3], you find that
+both u1 and u2 become bound to 3.
+
+<p> Unification does not always succeed.  
+For example, if you
+try to unify [u1,3] with [u2,4], unification fails, because 3 and
+4 cannot be made the same.
+
+<p> There are two variants of unification.  Imagine unifying
+u with 1::u, where u is an unbound unknown.  That is, we are trying to
+make u be the same as a list whose head is 1 and whose tail is u.
+<ol>
+<p><li>The first kind of unification,
+<i>naive unification</i>, succeeds.  It binds u to 1::u, yielding
+a [1,1,1,...], an infinite list of 1's.
+
+<p><li>The second kind of unification,
+<i>full unification</i>, fails.  In general, full unification will
+refuse to bind an unknown to an item that contains the same unknown
+embedded within it.
+</ol>
+
+<p> To unify, use the following functions.  All are provided in
+<a href="ast/logic/unify.ast">logic/unify.ast</a>, and you must
+import that package to use unification.
+<dl>
+<a name=Unifyf></a>
+<p><dt><font color=red>Unify</font>
+<dd>: (EQ`a,EQ`a) -&gt; ()
+<p> <font color=#D00090>Unify(x,y) %Unify</font>
+unifies x and y using naive unification.  It fails
+with exception testX if the unification cannot be done.
+
+<a name=Unifyqf></a>
+<p><dt><font color=red>Unify?</font>
+<dd>: (EQ`a,EQ`a) -&gt; ()
+<p> <font color=#D00090>Unify?(x,y)</font> 
+unifies x and y using full unification.  It fails
+with exception testX if the unification cannot be done.
+
+<a name=eqeqbang></a>
+<p><dt><font color=red><tt>==</tt>!</font>
+<dd>: (EQ`a,EQ`a) -&gt; Boolean
+<p> <font color=#D00090>x <tt>==</tt>! y</font> unifies x and y 
+using naive unification, and returns true
+if the unification succeeds.  It returns false if
+the unification cannot be done.
+
+<a name=eqeqbangq></a>
+<p><dt><font color=red><tt>==</tt>!?</font>
+<dd>: (EQ`a,EQ`a) -&gt; Boolean
+<p> <font color=#D00090>x <tt>==</tt>!? y</font> 
+unifies x and y using full unification, 
+and returns true
+if the unification succeeds.  It returns false if
+the unification cannot be done.
+
+</dl>
+
+<a name=active></a>
+<hr>
+<h2><font color=mediumblue> Active pattern matching </font></h2>
+
+When a pattern variable must match two different items, an
+equality test is normally used.  For example,
+<font color=#D00090>
+<b><pre>
+      Match (?x,?x) = (y,z).
+</pre></b>
+</font>
+only succeeds if y and z are the same value.  This form of pattern
+matching is passive because it only examines the target (pair (y,z)
+in this case).  You can replace
+the equality test with unification if desired.  Statement
+<font color=#D00090>
+<b><pre>
+      Match active(?x,?x) = (y,z).
+</pre></b>
+</font>
+causes y and z to be unified with one another.  This is an active
+form of pattern matching because it can bind unknowns in the target
+in order to make the match succeed.  Within an active match,
+equality tests are replaced by unifications.
+
+<p> Pattern <font color=red>active</font>(...) uses 
+<a href="logiclib.html#Unifyf">Unify</a>, 
+and pattern <font color=red>active?</font>(...) uses
+<a href="logiclib.html#Unifyqf">Unify?</a>.
+
+<a name=cases></a>
+<hr>
+<h2><font color=mediumblue> Definition by cases </font></h2>
+
+When you perform a definition by cases, you can request that
+pattern matching be active.  Instead of = in the definitions,
+use either &lt;- (for naive unification) or &lt;-? (for
+full unification).  
+For example, here is a function that
+concatenates two lists in an active form.  It binds its third
+parameter to the concatenation of the first two.
+<font color=#D00090>
+<b><pre>
+  Define Append by all
+    case Append(nil,    ?a, ?a).     &lt;- ()
+    case Append(?h::?t, ?a, ?h::?r). &lt;- Append(t, a, r).
+  %Define
+</pre></b>
+</font>
+Notice that pattern ?a occurs twice in the first case.  This will
+force a unification to be done when the first case is tried.  Similarly,
+the second case contains ?h twice, and that will lead to a 
+unification.
+This is an example of 
+<a href=logicprog.html>logic programming</a> available. 
+
+You can also use &lt;- or &lt;-? instead of = 
+in definitions that have a single
+case.  They call for unification to be employed in pattern matching.
+For example,
+<font color=#D00090>
+<b><pre>
+  Define Eq(?x,?x). &lt;- ().
+</pre></b>
+</font>
+Defines Eq so that it unifies its two parameters together, without
+an occur check.
+
+<a name=additional></a>
+<hr>
+<h2><font color=mediumblue> Additional functions </font></h2>
+
+Additional functions that use unification are available.  Each is
+labeled by the package that must be imported to use it.
+
+<dl>
+
+<a name=freeze></a>
+<a name=threads</a>
+<p><dt><font color=red>freeze</font>
+<dd>: `a -&gt; `a
+<p> There is an important consideration when using
+<font color=blue><i>nonshared unknowns and threads</i></font>.
+When one thread binds a nonshared unknown, which is quite
+common in logic programming, other threads do not see that
+binding.
+This can cause a problem when passing a value from one thread to another,
+when the value contains bound nonshared unknowns, since the
+other thread will see those unknowns as unbound.
+
+<p>freeze(x) is the same as x, but the bindings of unprotected
+unknowns are frozen.  That is, the unknown is removed, and replaced
+by the value to which it is bound.  Use this when you want to pass an
+object that might contain bound nonshared unknowns from one
+thread to another.
+
+<a name=hasUnknownsq></a>
+<p><dt><font color=red>hasUnknowns?</font>
+<dd>: `a -&gt; Boolean
+<p> <font color=#D00090>hasUnknowns?(x)</font> 
+is true if x has any unbound unknowns in it.
+Be careful not to apply this to a cyclic structure,
+since it will not terminate then.
+
+<a name=inbang></a>
+<p><dt><font color=red>_in!_</font>
+<dd>: (EQ`a, COLLECTION`c(EQ`a)) -&gt; Boolean
+<p> <font color=#D00090>x _in!_ s</font> 
+is true if x is a member of set s.  If possible,
+x will be unified (without an occur check) with each
+member of s, and all solutions will be returned as
+a stream.  If x has no unknowns, then a lookup using _in_
+will be used.
+
+<a name=inMixed></a>
+<p><dt><font color=red>_inMixed!_</font>
+<dd>: (EQ`a, COLLECTION`c(EQ`a)) -&gt; Boolean
+<p> _inMixed!_ is similar to _in!_, but the solution is
+returned as a mixed stream.
+
+<a name=occurCheck></a>
+<p><dt><font color=red>occurCheck</font>
+<dd>: (`a, `b) -&gt; Boolean
+<p> <font color=#D00090>occurCheck(u,x)</font> 
+is true if unknown u occurs inside x.
+This only goes into the structures of pairs and lists
+by default to look for u, but you can change that.
+
+</dl>
+
+<a name=moreunif></a>
+<hr>
+<h2><font color=mediumblue> More on unification </font></h2>
+
+Unification is designed only to look for unknowns inside certain
+types of items.  The default is to look inside lists and ordered
+pairs.  Unification will go to arbitrary depth as long as it 
+only looks inside lists and ordered pairs.  
+For example,
+if u is an unknown then unifying [(2, [u,5]), (4,3)] and
+[(2, [6,5]), (4,3)] succeeds, and binds u to 6.
+
+<p>If you have a different kind of structured species, unification
+will not look inside the structure for unknowns.  Instead, it just
+does an equality test.  If there is an unknown inside such a structured
+item, the equality test will typically pause its thread, waiting for
+the unknown to become bound.
+
+<p> You can cause unification to go into the structure of other
+kinds of items.  To do that, override each of the following
+functions for your structured species.
+<ol>
+  <li> Unify
+  <li> Unify?
+  <li> hasUnknowns?
+  <li> freeze
+  <li> occurCheck
+</ol> 
+
+<hr>
+<center>
+<a href="systemlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="random.html">Next</a>
+</center>
+</body>
+</HTML>

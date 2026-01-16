@@ -1,0 +1,112 @@
+<HTML>
+<head>
+<title>Astarte: declaration modes</title>
+</head>
+<body>
+<center>
+<a href="declarations.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="executedcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D2. Declaration Modes </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main>Modes</a>
+  <li> <a href=#share>Sharing modes</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue> Modes </font></h2>
+
+Several kinds of declarations allow you to specify modes that
+influence how the declaration is processed.  Modes are written
+in braces just after the word that introduces the declaration.
+For example, 
+a let-declaration that overrides another
+declaration might be written as follows.
+<font color=#D00090>
+<b><pre>
+     Let{override} myid = <font color=black>...</font> %Let
+</pre></b>
+</font>
+You can use several modes.  They are separated by commas, as in
+<font color=#D00090>
+<b><pre>
+     Let{default,override} myid = <font color=black>...</font> %Let
+</pre></b>
+</font>
+and can occur in any order.
+
+<a name=share></a>
+<hr>
+<h2><font color=mediumblue> Sharing modes </font></h2>
+
+Several declarations of the same kind can be grouped together, with
+semicolons separating them.  If you follow the right brace of the mode
+with a colon, then the mode applies across semicolons, to all
+following declarations in a group.  For example,
+<font color=#D00090>
+<b><pre>
+     Let {override}:
+       myId1 = <font color=black>...</font>;
+       myId2 = <font color=black>...</font>
+     %Let
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+     Let{override} myId1 = <font color=black>...</font> %Let
+     Let{override} myId2 = <font color=black>...</font> %Let
+</pre></b>
+</font>
+You can change the mode by providing a new mode with a colon following
+it.  If you provide a mode without a colon, then that mode
+is added to the current mode (from the mode with a colon), and
+only applies to the current declaration.  
+For example,
+<font color=#D00090>
+<b><pre>
+     Let 
+       {override}:
+
+                 id1 = <font color=black>...</font>;
+       {default} id2 = <font color=black>...</font>;
+                 id3 = <font color=black>...</font>;
+
+       {underride}:
+
+                 id4 = <font color=black>...</font>;
+     %Let  
+</pre></b>
+</font>
+uses the following modes.
+<blockquote>
+<table>
+<tr><td bgcolor=lightgrey>Identifier</td>    
+    <td>&nbsp;</td>
+    <td bgcolor=lightgrey>Modes</td>
+<tr> <td>id1</td> <td>&nbsp;</td> <td>override</td>
+<tr> <td>id2</td> <td>&nbsp;</td> <td>override,default</td>
+<tr> <td>id3</td> <td>&nbsp;</td> <td>override</td>
+<tr> <td>id4</td> <td>&nbsp;</td> <td>underride</td>
+</table>
+</blockquote>
+
+<hr>
+<center>
+<a href="declarations.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="executedcl.html">Next</a>
+</center>
+</body>
+</HTML>

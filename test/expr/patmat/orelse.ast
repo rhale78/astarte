@@ -1,0 +1,87 @@
+Package orelse 
+
+%% test _orelse_, _orthen_, _orwith_ pattern functions.
+
+Import "misc/check".
+
+Execute
+  Unique
+    Let x = (1,2).
+
+    Choose first matching x
+      case (?y,1) _orelse_ (?y,?) _orelse_ (1,?y) => Line["Good y = ", $y].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 1"].
+
+    Choose first matching (x,1)
+      case ((?y,2),?y) _orelse_ ((?,?y),1) => Line["Good y = ", $y].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 1"].
+
+    Choose first matching (1,x)
+      case (?y,?y,2) _orelse_ (?,?y,1) => Line["Good y = ", $y].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 1"].
+
+    Choose first matching x
+      case (?y,?) _orelse_ (1,?y) => Line["Good y = ", $y].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 1"].
+
+    Choose first matching x
+      case (?y,?y) _orelse_ (?y,2) => Line["Good y = ", $y].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 1"].
+
+    Choose first matching x
+      case (?z,1) _orelse_ (2,?z) => Line["Bad"].
+      case (?y,1) _orelse_ (1,?y) => Line["Good y = ", $y].
+      case (?w,1) _orelse_ (?w,2) => Line["Bad", $w].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 2"].
+
+    Choose first matching x
+      case (?z,1) _orthen_ (2,?z) => Line["Bad"].
+      case (?y,2) _orthen_ (1,?y) => Line["Good y = ", $y].
+      case (?w,1) _orthen_ (?w,2) => Line["Bad", $w].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 1"].
+  %Unique
+%Execute
+
+Execute
+  Unique
+    Let x = (1,2).
+
+    Choose first matching x
+      case (?z,1) _orwith_ (2,?z) => Line["Bad"].
+      case (?y,1) _orwith_ (1,?y) => Line["Good y = ", $y].
+      case (?w,1) _orwith_ (?w,2) => Line["Bad", $w].
+      else => Line["Bad"].
+    %Choose
+    Check["Good y = 2"].
+
+    Var{nonshared} path.
+    Choose all matching x
+      case (?z,1) _orwith_ (2,?z) => Line["Bad"].
+      case (?y,1) _orwith_ (1,?y) => Line["Good y = ", $y].
+    				     Assign path := 1.
+      case (?w,1) _orwith_ (?w,2) => Line["Good w = ", $w].
+    				     Assign path := 2.
+    %Choose
+    If @path == 1 then
+      Check["Good y = 2"].
+    else
+      Check["Good w = 1"].
+    %If
+  %Unique
+%Execute
+
+%Package

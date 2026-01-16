@@ -1,0 +1,14 @@
+Package locglob 
+
+%% Test using an invisible global as a local id.
+
+Import coinToss from "misc/random".
+
+Advise "Should compile without complaints".
+Execute
+  Writeln["Should print either 0 or 1."].
+  Let random = coinToss().
+  Writeln[$random].
+%Execute
+
+%Package

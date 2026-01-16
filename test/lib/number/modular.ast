@@ -1,0 +1,41 @@
+Package Testmodular 
+
+%% Test operations on modulars
+
+Directory standard.
+  Import "math/modular".
+  Import "misc/check".
+
+Execute
+  Let a = 2 _modulo_ 7.
+  Let b = 3 _modulo_ 7.
+  Line[$a].
+  Check["(2 mod 7)"].
+  Line[remainder a $$ 10, modulus a $$ 10, remainder b $$ 10, modulus b $$ 10, ""].
+  Check["         2         7         3         7"].
+  Line[remainder a $$ 10, remainder b $$ 10, ""].
+  Check["         2         3"].
+  Line[remainder(a+b) $$ 10, remainder(a+b+b) $$ 10, ""].
+  Check["         5         1"].
+  Let c = -a.
+  Line[remainder c $$ 10, remainder (-1 _modulo_ 7) $$ 10, ""].
+  Check["         5         6"].
+  Let x = a*b.
+  Let y = x*x.
+  Line[remainder x $$ 10, remainder y $$ 10, ""].
+  Check["         6         1"].
+  Let d = /a.
+  Let e = /b.
+  Line[remainder d $$ 10, remainder e $$ 10, ""].
+  Check["         4         5"].
+  Let f = a/b.
+  Let g = b^3.
+  Line[remainder f $$ 10, remainder g $$ 10, ""].
+  Check["         3         6"].
+  Let h = b^/(-1).
+  Line[remainder h $$ 10, ""].
+  Check["         5"].
+%Execute
+
+%Package
+

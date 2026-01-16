@@ -1,0 +1,12 @@
+Package imp01 export
+
+Expect x5: Natural.
+Expect x6: Natural.
+Let    x7:Natural = 0.
+
+implementation
+
+Let x5 = 0.
+Let x6 = 0.
+
+%Package

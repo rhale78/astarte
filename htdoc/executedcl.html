@@ -1,0 +1,117 @@
+<HTML>
+<head>
+<title>Astarte: execute declarations</title>
+</head>
+<body>
+<center>
+<a href="modes.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="descriptiondcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D3. Execute Declarations </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Execute declarations</a>
+  <li><a href=#override>When are executes done?</a>
+  <li><a href=#failure>Executes, failure and threads</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue> Execute Declarations </font></h2>
+
+Declaration
+<font color=#D00090>
+<b><pre>
+      Execute 
+        <font color=black><i>s</i></font>
+      %Execute
+</pre></b>
+</font>
+is used to ask for statement <i>s</i> to be evaluated.  
+For example
+<font color="#D00090">
+<b><pre>
+      Execute
+        Let result = computeMyResult().
+        Writeln["I got result ", $result].
+      %Execute
+</pre></b>
+</font>
+might be used to force something to be evaluated.  There can
+be any number of executes in a program.  They are done in the
+order in which they are encountered.
+
+<font color=brown>
+<a name=override></a>
+<hr>
+<h2><font color=mediumblue> When are executes done? </font></h2>
+
+The executes are all done after all definitions
+have been done.  So if you write
+<font color=#D00090>
+<b><pre>
+      Let{default} message = "first message".
+
+      Execute
+         Writeln[message].
+      %Execute
+
+      Let{override} message = "second message".
+</pre></b>
+</font>
+
+what is printed is
+<b><pre>
+      second message
+</pre></b>
+</font>
+
+<a name=failure></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Executes, failure and threads </font></h2>
+
+<p>An execute is considered to have failed if no
+thread completes it successfully.  If an execute
+fails, then computation is aborted.
+
+<p>An execute is considered finished when all of its
+threads have finished.  But at the end of the execute,
+all of the threads are joined together, and only one
+thread starts the next execute.
+
+<p> If several threads complete the execute declaration successfully,
+then the contents of nonshared boxes are determined by their
+values in the first thread that finished.  The nonshared boxes
+of all other threads are discarded.
+
+<p>Typically, you want only one thread to finish an execute.  You
+can do that by using a unique expression, as in
+<font color=#D00090>
+<b><pre>
+    Execute
+      Unique
+        <font color=black>...</font>
+      %Unique
+    %Execute
+</pre></b>
+</font>
+</font>
+
+<hr>
+<center>
+<a href="modes.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="descriptiondcl.html">Next</a>
+</center>
+</body>
+</HTML>

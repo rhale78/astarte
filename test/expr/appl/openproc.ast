@@ -1,0 +1,24 @@
+Package openproc 
+
+%% Test open/closed procedure applications
+
+%% The following should not compile -- x is undefined.
+
+Execute
+  CloseScope
+    Let x = 2.
+  %CloseScope
+  Writeln[$x].
+%Execute
+
+
+%% The following should compile.
+
+Execute
+  open CloseScope
+    Let x = 2.
+  %CloseScope
+  Writeln[$x].
+%Execute
+
+%Package

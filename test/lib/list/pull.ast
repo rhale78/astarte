@@ -1,0 +1,27 @@
+Package pull 
+
+%% Test patterns that do pulls.
+
+Directory standard.
+Import "collect/string".
+Import "misc/check".
+
+Assume m,n,k: Natural.
+
+Var in! holding String := "(12, 24) (50,38,9)".
+
+Execute
+  Extract[ $(?n,?m) ] from in!.
+  Line["Got ", $n, " and ", $m].
+  Check["Got 12 and 24"].
+%Execute
+
+Execute
+  Extract [$(?n,?m,?k)] from in!.
+  Line["Got ", $n, " and ", $m, " and ", $k].
+  Check["Got 50 and 38 and 9"].
+  Line[$(n,m,k)].
+  Check["(50,38,9)"].
+%Execute
+
+%Package

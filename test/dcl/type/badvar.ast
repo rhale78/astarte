@@ -1,0 +1,22 @@
+Package badvar 
+
+%% Test bad vars in declarations
+
+Extension
+  Species T = `a.
+  Species F(`a) = (`a,`b).
+  Abstraction C.
+  Relate Natural | Integer isKindOf C.
+  Default C => `a.
+%Extension
+
+%% Should complain about unbound Var in GG, but be fine for FF.
+
+Extension
+%%  Species{noDollar} AltAny = irregular `a.
+%%  Species OtherAny = irregular `?.
+  Species FF(`?) = Natural.
+  Species GG(`?) = `?.
+%Extension
+
+%Package

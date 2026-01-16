@@ -1,0 +1,17 @@
+Package testwhen 
+
+%% Test when clauses in definitions of functions
+
+Define factorial by one
+  Define factorial(?n) = n*factorial(n--1) when n > 0.
+  Define factorial(?n) = 1 when n == 0.
+%Define
+
+Execute
+  Writeln["\nPrints the factorials of the 0-10.\n"].
+  For ?i from 0 upto 10 do
+    Writeln[$factorial i].
+  %For
+%Execute
+
+%Package

@@ -1,0 +1,51 @@
+Package Testvar
+
+%% Test Var dcls: simple
+
+Import "misc/check".
+
+===========================
+Var{nonshared} v1,v2 holding Natural.
+===========================
+Var v3 holding Real.
+===========================
+Var{shared} p1,p2 holding Natural.
+===========================
+Var ar1(4) holding Natural.
+===========================
+Execute
+  Line[If emptyBox?(v1) then "good" else "bad" %if].
+  Check["good"].
+  Line[If emptyBox?(p1) then "good" else "bad" %if].
+  Check["good"].
+  Assign v1 := 2.
+  Assign v2 := 9.
+  Assign v3 := +3.
+  Line[@v1 $$ 10, @v2 $$ 10, @v3 $$ (10,4)].
+  Check["         2         9    3.0000"].
+  Assign(p1, 42).
+  Line[@p1 $$ 10].
+  Check["        42"].
+  EmptyBox(p1).
+  Line[$(emptyBox? p1)].
+  Check["true"].
+  Var vv.
+  Var{nonshared} pp.
+  Assign vv := 6.
+  Assign(pp, 11).
+  Line[@vv $$ 10, @pp $$ 10].
+  Check["         6        11"].
+  EmptyBox(pp).
+  Line[$(emptyBox? pp)].
+  Check["true"].
+%Execute
+===============================
+Execute
+  For ?i from 0 _upto_ 3 do Assign ar1#_i := i+1..
+  For ?i from 0 _upto_ 3 do 
+    Line[$ @(ar1#_i)].
+    Check[$(i+1)].
+  %For
+%Execute
+
+%Package

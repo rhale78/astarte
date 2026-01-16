@@ -1,0 +1,150 @@
+Package subscript
+
+%% Test subscripting in various kinds of lists.
+
+Import "misc/check".
+
+%% Subscript: CSTR_TAG.
+
+Execute
+  Writeln["CSTR_TAG"].
+  Let a = "abcde".
+  Let b = a#_0.
+  Let c = a#_1.
+  Let d = a#_2.
+  Let e = a#_3.
+  Let f = a#_4.
+  Line[a, " ", [b], " ", [c], " ", [d], " ", [e], " ", [f]].
+  Check["abcde a b c d e"].
+  
+  Untrap subscriptX =>
+    Try
+      Let h = a#_(5).
+    then
+      Writeln["Bad:", $h].
+    %Try
+  %Untrap
+%Execute
+
+%% Subscript: STRING_TAG.
+
+Execute
+  Writeln["STRING_TAG"].
+  Let a = "abcde".
+  Let b = tail a.
+  Let c = b#_0.
+  Let d = b#_1.
+  Let e = b#_2.
+  Let f = b#_3.
+  Line[[c], " ", [d], " ", [e], " ", [f]].
+  Check["b c d e"].
+
+  Untrap subscriptX =>
+    Try
+      Let h = a#_(5).
+    then
+      Writeln["Bad:", $h].
+    %Try
+  %Untrap
+%Execute
+
+%% Subscript: APPEND_TAG
+
+Execute
+  Writeln["APPEND_TAG"].
+  Let a = "abcde" ++ "fghij".
+  For ?i from 0 _upto_ 9 do
+    Line[$(a#_i)].
+    Check[$(char(rank 'a' + i))].
+  %For
+%Execute
+
+%% Subscript: ARRAY_TAG/STRING_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/STRING_TAG"].
+  Let a = "abcdefghijk".   %% "abc..." CSTR_TAG
+  Let b = tail a.          %% "bcd..." STRING_TAG
+  Let c = tail b.          %% "cde..." ARRAY_TAG/STRING_TAG
+  For ?i from 0 _upto_ 8 do
+    Line[$(c#_i)].
+    Check[$(char(rank 'c' + i))].
+  %For
+%Execute  
+
+%% Subscript: ARRAY_TAG/STRING_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/STRING_TAG (follower)"].
+  Let a = "abcde" ++ "fghijk".       %%   APPEND_TAG/CSTR_TAG
+  Let b = tail a.          %% "bcd..."   APPEND_TAG/STRING_TAG
+  Let c = tail b.	   %% "cde..."   ARRAY_TAG/STRING_TAG (follower)
+  For ?i from 0 _upto_ 8 do
+    Line[$(c#_i)].
+    Check[$(char(rank 'c' + i))].
+  %For
+%Execute  
+
+%% Subscript: ARRAY_TAG/PLACE_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG"].
+  Let a = array shared (8).
+  For ?i from 0 _upto_ 7 do Assign a#_i := i..
+  For ?i from 0 _upto_ 7 do
+    Line[$(@(a#_i))].
+    Check[$i].
+  %For
+%Execute
+
+%% Subscript: ARRAY_TAG/PLACE_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG (follower)"].
+  Let a = array shared (8) ++ array shared (3).
+  Let b = tail a.
+  For ?i from 0 _upto_ 9 do Assign b#_i := i..
+  For ?i from 0 _upto_ 9 do
+    Line[$(@(b#_i))].
+    Check[$i].
+  %For
+%Execute
+
+%% Subscript: ARRAY_TAG/BOX_TAG
+
+Execute
+  Writeln["ARRAY_TAG/BOX_TAG"].
+  Let a = array nonshared (8).
+  For ?i from 0 _upto_ 7 do Assign a#_i := i..
+  For ?i from 0 _upto_ 7 do
+    Line[$(@(a#_i))].
+    Check[$i].
+  %For
+%Execute
+
+%% Subscript: ARRAY_TAG/INDIRECT_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG"].
+  Let a = pack[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000].
+  For ?i from 0 _upto_ 10 do
+    Line[$(a#_i)].
+    Check[$(i*1000)].
+  %For
+%Execute
+
+
+%% Subscript: ARRAY_TAG/INDIRECT_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG(follower)"].
+  Let a = forceAll(pack[0, 0, 1000,2000,3000,4000,5000]) ++ [6000,7000].
+  Let b = tail a.
+  For ?i from 0 _upto_ 7 do
+    Line[$(b#_i)].
+    Check[$(i*1000)].
+  %For
+%Execute
+
+
+%Package

@@ -1,0 +1,1609 @@
+/*********************************************************************
+ * File:    evaluate/language.doc
+ * Purpose: Describe instructions supported by the interpreter.
+ * Author:  Karl Abrahamson
+ *********************************************************************/
+
+#ifdef COPYRIGHT
+/************************************************************************
+ * Copyright (c) 1997 Karl Abrahamson					*
+ * All rights reserved.							*
+ *									*
+ * Redistribution and use in source and binary forms, with or without	*
+ * modification, are permitted provided that the following conditions	*
+ * are met:								*
+ *									*
+ * 1. Redistributions of source code must retain the above copyright	*
+ *    notice, this list of conditions and the following disclaimer.	*
+ *									*
+ * 2. Redistributions in binary form must reproduce the above copyright	*
+ *    notice in the documentation and/or other materials provided with 	*
+ *    the distribution.							*
+ *									*
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY		*
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE	*
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 	*
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE	*
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 	*
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 	*
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 	*
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,*
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE *
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,    * 
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.			*
+ *									*
+ ************************************************************************/
+#endif
+
+/************************************************************************
+ *			IMPORTANT NOTE					*
+ ************************************************************************
+ * If this language is changed, or if the instruction codes are		*
+ * changed, BYTE_CODE_VERSION in evaluate/evaluate.h should be 		*
+ * changed as well.							*
+ ************************************************************************/
+
+*************************************************************************
+*			PROGRAM FORMAT					*
+*************************************************************************
+
+This describes the overall format of a package, in the language of 
+this abstract machine.  What is described here is the external format,
+which is used in a .aso file.  There is a corresponding internal format,
+stored in memory while the interpreter is running.
+
+Generally, the internal format 
+
+   :: omits declarations
+
+   :: replaces local labels in instructions (such as GOTO_I instructions)
+      by their offsets from the address of the current instruction
+
+   :: follows each environment size byte for a local environment by 
+      three bytes giving the number of the environment descriptor for
+      that environment.
+
+----------------------------------------------------------------------
+
+		ADDING INSTRUCTIONS
+                -------------------
+
+If an instruction is added, be sure to do the following modifications
+
+ :: evaluate/instruct.h
+      Define instruction number.  
+
+ :: evaluate/evaluate.c
+      Handle the evaluation of the instruction.
+
+If this instruction does not follow a prefix instruction:
+
+ :: evaluate/instinfo.c
+      Add a line for new instruction in instinfo, providing
+      information about the instruction.
+
+ :: messages/instname.txt
+      Add a line for the new instruction, if it is not something that
+      follows a prefix instruction.
+
+If this instruction follows UNARY_PREF_I:
+
+ :: messages/unname.txt
+      If the new instruction follows UNARY_PREF_I, then add a line
+      to this file.
+
+If this instruction follows BINARY_PREF_I:
+
+ :: messages/binname.txt
+      If the new instruction follows BINARY_PREF_I, then add a line
+      to this file.
+
+If this instruction follows any of the other prefix instructions
+
+ :: evaluate/instinfo.c
+      Add a line to an appropriate array giving instruction name.
+
+
+Recompile disassemble.c.
+
+
+=========================================================================
+			PACKAGE
+=========================================================================
+
+A package consists of a sequence of bytes:
+
+	(1) A header, consisting of the null-terminated string "ACODE" 
+	    followed by three null-terminated strings:
+
+	     (a) The byte code version (BYTE_CODE_VERSION) in decimal,
+
+	     (b) The name of the package.  If there
+		 are separate interface and implementation packages,
+		 then this string is the name of the interface
+		 package.  Otherwise, this string is the name of
+		 the package.
+
+	     (c) The name of the implementation package,
+		 if there are separate interface and implementation
+		 packages.  Otherwise, this string is empty
+		 (so there are two null characters in a row).
+
+	(2) A sequence of declarations, as described below.
+	
+	(3) A byte containing constant STOP_PACKAGE_I.
+
+#########################################################################
+			DECLARATIONS
+#########################################################################
+
+Each declaration has an internal form and an external form.
+
+=========================================================================
+			LABEL DECLARATIONS
+=========================================================================
+
+Declaration LABEL_DCL_I(n) labels the next declaration n.  It is used for
+giving names to constants and symbols that are declared.  n is one byte
+long.  LONG_LABEL_DCL_I(n) is the same, but n is three bytes long, so more
+labels can be used.
+
+LABEL_DCL_I and LONG_LABEL_DCL_I do not have an internal form.
+
+=========================================================================
+			GENERAL ID DECLARATIONS
+=========================================================================
+
+If s is a null-terminated string, then 
+
+	NAME_DCL_I s
+
+declares identifier s.  This instruction should be preceded by a label
+instruction, and identifier s is refered to by that label.  
+
+In the internal form, identifier s is put into the name array
+for names that have no particular affiliation, 
+and its index in that array is stored, as a three 
+byte quantity, where the ID_DCL_I instruction occurs.
+
+=========================================================================
+			ENTITY ID DECLARATIONS
+=========================================================================
+
+If s is a null-terminated string, then 
+
+	ID_DCL_I s
+
+declares identifier s.  This instruction should be preceded by a label
+instruction, and identifier s is refered to by that label.  
+
+In the internal form, identifier s is put into the entity id array 
+(outer_binding) and its index in that array is stored, as a three 
+byte quantity, where the ID_DCL_I instruction occurs.  Use the 
+label to find that index.  (See GET_GLOBAL_I and FETCH_GLOBAL_I below.)
+
+=========================================================================
+			CONSTANT DECLARATIONS
+=========================================================================
+
+A constant is placed in the package by one of the following declarations.
+In each case, s is a null-terminated string.  In the case of STRING_DCL_I,
+n is a 3 byte quantity giving the length of the string.
+
+	STRING_DCL_I n s -- declare a string constant.
+	INT_DCL_I    s  -- declare an integer constant (where s is its string
+			   representation).
+	REAL_DCL_I   s  -- declare a real/rational constant (where s is 
+			   its string representation).
+
+Each of these instructions should be preceded by a label.  The 
+internal form stores the constant in an array of constants, and
+stores the index in that array (as a three-byte integer) 
+at the offset in the package where the constant declaration occurs.  
+Use the label that precedes the constant declaration to find
+that index.  See CONST_I below.
+
+=========================================================================
+			BEGIN/END EXTENSION DECLARATIONS
+=========================================================================
+
+BEGIN_EXTENSION_DCL_I indicates the beginning of an extension.
+END_EXTENSION_DCL_I indicates the end of an extension.  Declarations
+that alter the genus/community hierarchy, or that create new
+genera, communities, species or families only occur inside 
+extensions.
+
+When an END_EXTENSION_DCL_I is processed, the tables describing
+the hierarchy are updated, if necessary.
+
+=========================================================================
+			GENUS, SPECIES, ETC. DECLARATIONS
+=========================================================================
+
+Species, genus, etc. identifiers are declared by the following declarations.
+s is the null-terminated identifier.  The instructions that start with
+NEW create new ones, and the others refer to existing ones.
+
+	SPECIES_DCL_I			s
+        NEW_SPECIES_DCL_I		s	  -- s names a species, 
+
+	FAMILY_DCL_I			s
+	NEW_TRANSPARENT_FAMILY_DCL_I	s
+	NEW_OPAQUE_FAMILY_DCL_I		s	  -- s names a family, 
+				     		     (or is PAIR@ or 
+						      FUNCTION@)
+
+	GENUS_DCL_I			s
+	NEW_GENUS_DCL_I			s	  -- s names a genus
+
+	COMMUNITY_DCL_I			s
+	NEW_TRANSPARENT_COMMUNITY_DCL_I s
+	NEW_OPAQUE_COMMUNITY_DCL_I	s	  -- s names a community
+	
+These instructions should be preceded by a label instruction.  In the
+internal form, the declaration is replaced by the index in the
+class table of the thing that is declared.
+
+=========================================================================
+			RELATE AND MEET DECLARATIONS
+=========================================================================
+
+The species/family hierarchy is described by relate declarations.
+The form is as follows.
+
+	(1) A byte containing RELATE_DCL_I.
+
+	(2) 3 bytes containing the label of A, as a genus or
+            community.
+
+	(3) 3 bytes containing the label of B, as a genus
+            or community.
+
+A is declared to be less than B in the hierarchy.
+
+This declaration has no internal form.
+
+Meet declarations indicate intersections.  A meet declaration has
+the form
+
+	(1) a byte holding MEET_DCL_I
+
+	(2) 3 bytes containing the label of A (as a genus
+            or community).
+
+	(3) 3 bytes containing the label of B (as a genus
+            or community).
+
+	(4) 3 bytes containing the label of C (as a genus or
+            community or species or family). 
+	    (If C is a pair, then this is a TYPE_DCL_I for PAIR@.)
+
+This indicates that the intersection of A and B is C.
+
+Ahead meet declarations are similar to meet declarations except
+that the first byte contains AHEAD_MEET_DCL_I, and the meet is
+marked as ahead.  The following asserts that the meet of A and B is C,
+but does not require that A, B or C exist yet.
+
+	(1) a byte holding AHEAD_MEET_DCL_I
+
+	(2) 3 bytes containing the label of identifier A.
+
+	(3) 3 bytes containing the label of identifier B.
+
+	(4) 3 bytes containing the label of identifier C.
+	    (If C is a pair, then the identifier is PAIR@.)
+
+=========================================================================
+			DEFAULT DECLARATIONS
+=========================================================================
+
+Instruction DEFAULT_DCL_I defines a default for a genus or community.
+Its form is
+
+	(1) DEFAULT_DCL_I
+
+	(2) 3 bytes containing the label of A, as a genus or
+            community.
+
+	(3) 1 byte holding 1 if this default is done after the
+	    extension where A was created and 0 if it is done
+	    in the extension where A was created.
+
+	(4) Instructions that generate the type B.  
+
+        (5) END_LET_I.
+
+This does declaration Default A => B.  If there are no instructions
+in part (4), then erase the default for A.
+
+
+=========================================================================
+			IMPORT DECLARATIONS
+=========================================================================
+
+If s is the path name of a file, then 
+
+	IMPORT_I s
+
+causes file s to be imported.  This instruction has no internal form.
+In s, $ stands for the directory where standard packages are put.
+
+=========================================================================
+			IRREGULAR DECLARATIONS
+=========================================================================
+
+An irregular declaration consists of
+
+	(1) An IRREGULAR_DCL_I instruction byte
+
+	(2) A global label (the label of an identifier)
+
+	(3) Instructions that build a type
+
+	(4) An END_LET_I byte.
+
+It indicates that the given identifier is irregular for the given type.
+
+=========================================================================
+			EXECUTE DECLARATIONS
+=========================================================================
+
+An execute declaration consists of 
+
+	(1) An EXECUTE_I or HIDDEN_EXECUTE_I instruction.  (HIDDEN_EXECUTE_I
+            is used for an execute that is done but hidden from the
+            debugger.)
+
+	(2) A byte holding the index in env_size of the number of globals
+	    to be used.
+
+	(3) A sequence of global environment building instructions, which
+	    build the global environment for the code of part (6).
+
+	(4) A STOP_G_I instruction.
+
+	(5) A byte holding the index in env_size of the number of 
+	    local ids needed by the code in part (6).
+
+	(6) The code to be executed, which should return via a RETURN_I 
+	    instruction.
+
+	(7) An END_I instruction.
+
+The code of part (6) is saved for later execution, after all of
+the packages have been read in.
+
+In the internal format, the environment size byte following 
+STOP_G_I is replaced by a three-byte environment descriptor number
+that tells how to determine the names of identifiers used in
+the executable part.
+
+=========================================================================
+			EXCEPTION DECLARATIONS
+=========================================================================
+
+An exception declaration consists of a EXCEPTION_DCL_I instruction 
+followed by 
+
+  (1) A byte that contains 1 if the exception is trapped, and 0
+     if the exception is not trapped.
+
+  (2) A null-terminated string that is the name of the exception.
+
+  (3) A three-byte number n, followed by a null-terminated 
+      description string of length n.  If n is 0, there is 
+      no following string.
+
+  (4) A type, followed by an END_LET_I instruction.
+
+The type is the type that occurs after the name in the 
+exception-declaration in the source code.  It is () if none is
+given.  
+
+The name is forced to have the package name in front of it, 
+followed by a slash, to prevent name conflicts.  So an exception called
+exc defined in the export part of package p will have its name in part
+(2) written p/exc.  If exc is local to the body of package p, the name
+in part (2) will be p/p:exname.
+
+This declaration has no internal form.
+
+=========================================================================
+			DEFINE DECLARATIONS
+=========================================================================
+
+Each define declaration consists of 
+
+	(1) A byte containing DEFINE_DCL_I.
+
+ 	(2) 3 bytes holding the global label of the identifier X being defined.
+
+	(3) The mode of this declaration (one byte).
+
+ 	(4) A sequence of type construction instructions that leave the 
+	    type of X on the type stack.  
+
+        (5) Possibly an END_LET_I instruction, followed by a sequence
+	    of type building instructions.  Can have as many of these as
+	    desired.  X will be defined for each of these types.
+
+	(6) An ENTER_I instruction.
+
+	(7) A byte holding the index in env_size of the number of globals
+	    to be defined in step (8).
+
+	(8) A sequence of global environment building instructions.
+
+	(9) A STOP_G_I instruction.
+
+	(10) A byte holding the index in env_size of the number of locals 
+	     needed to evaluate the identifier.
+
+	(11) The code to evaluate the global identifier.
+
+	(12) An END_I instruction
+
+In the internal format, the code begins at part (4).  The environment size 
+byte following STOP_G_I is followed by a three-byte environment descriptor 
+number.
+
+
+=========================================================================
+			BEGIN-IMPLEMENTATION DECLARATIONS
+=========================================================================
+
+A package can contain parts that came from an interface package and
+parts that came from an implementation package.  BEGIN_IMPLEMENTATION_I
+is placed at the boundary between the two, so that the package reader
+can know where declarations are coming from.
+
+The BEGIN_IMPLEMENTATION_I instruction has no internal form.
+
+
+#########################################################################
+			GLOBAL ENVIRONMENT INSTRUCTIONS
+#########################################################################
+
+The global environment is built by type construction instructions and the
+following instructions. When the global environment building instructions are
+started, the type of the identifier being defined is sitting on the type stack.
+
+Initially, the environment is empty.  Each GET_GLOBAL_I and TYPE_ONLY_I
+instruction adds a value to the environment.  t is the top of the type stack.  
+
+GET_GLOBAL_I(c) Pop t.  Let X be the entity identifier declared at
+		global label c.  Store a reference to X, of type t, 
+		in the next open cell of the environment that is being built. 
+
+TYPE_ONLY_I	Like GET_GLOBAL_I, but puts the type t in the environment
+		without any entity.
+
+
+#########################################################################
+			TYPE CONSTRUCTION INSTRUCTIONS
+#########################################################################
+
+In the following, x is a one byte integer, and c is a 3 byte label.
+t is the top of the type stack, and tt is the next below the top.
+
+STAND_T_I(x)	Push standard species or family T onto the type stack,
+		where T is the species or family whose std_num is x.
+		For example, if x is the std_num value of species 
+		Natural, then this instruction pushes Natural onto 
+		the type stack.
+
+STAND_WRAP_T_I(x)  Push G where G is the standard
+		   genus or community with std_num x.
+
+STAND_VAR_T_I(x) Push a variable for standard genus or community number x.
+		 (x is the std_num field.)
+
+STAND_PRIMARY_VAR_T_I(x) Push a variable G`*a, where G is the
+                      genus or community with standard number x.
+
+STAND_WRAP_VAR_T_I(x) Push a variable G``a, where G is the
+                      genus or community with standard number x.
+
+TYPE_ID_T_I(c)	Push the species or family whose name is
+		found at global label c.
+
+WRAP_TYPE_ID_T_I(c) Push species G where G is the genus or
+		    community that is found at global label c.
+
+TYPE_VAR_T_I(c) Push a type or family variable whose genus or 
+		community's name is at global label c.  c = 0 for a type
+		variable over ANY.
+
+PRIMARY_TYPE_VAR_T_I(c) Push a variable G`*a, where G is the genus or
+		     community found at global label c.
+
+WRAP_TYPE_VAR_T_I(c) Push a variable G``a, where G is the genus or
+		     community found at global label c.
+
+SECONDARY_DEFAULT_T_I Mark the variable on the top of the stack as
+		      preferring a secondary default.
+
+FUNCTION_T_I	Pop t and tt, and push (tt -> t).
+
+PAIR_T_I	Pop t and tt, and push (tt, t).
+
+LIST_T_I	Pop t and push List(t).
+
+BOX_T_I		Pop t and push Box(t).
+
+FAM_MEM_T_I	Pop t and tt, where t is a family F.  Push F(tt).
+
+CONSTRAIN_T_I	Pop t and tt.  Add constraint tt >= t.
+
+UNPAIR_T_I	Pop t, which must be either (a, b), or (a -> b) or
+		b(a). Push a then b, so that b is on top.
+
+HEAD_T_I	Pop t, which must be either (a,b) or (a->b) or b(a).
+		Push a.
+
+TAIL_T_I	Pop t, which must be either (a,b) or (a->b) or b(a).
+		Push b.
+
+POP_T_I		Pop t, and throw it away.
+
+SWAP_T_I	Swap the two types on top of the type stack.
+
+CLEAR_STORAGE_T_I Clear the type storage.
+
+STORE_T_I	Pop t, and store it in the next available location in the
+		type storage.
+
+STORE_AND_LEAVE_T_I Same as STORE_T_I followed by a get on the same var.
+
+GET_T_I(x)	Push the contents of location x in the type storage.
+
+GLOBAL_FETCH_T_I(x)	Push the type at offset x in the global environment
+			onto the type stack.
+
+
+#########################################################################
+			EXECUTABLE INSTRUCTIONS
+#########################################################################
+
+
+These instructions are executed in the body of functions and
+execute declarations.  Each instruction has a one-byte code, 
+possibly followed by one or two arguments.  Arguments called 
+c have 3 bytes, and those called x, y and n have one byte.  
+
+In the following, s is the top of the stack, ss is the next member down.
+
+Each local label number is replaced, in the internal form, by the
+offset (positive or negative) from the start of the instruction of
+the byte referred to by that label.
+
+=========================================================================
+			STACK MANIPULATION
+=========================================================================
+
+DUP_I		Duplicate the top of the stack.  (I.e., pop t and push t
+		twice.)
+
+POP_I		Pop s, and throw it away.
+
+SWAP_I		Swap s and ss.
+
+LOCK_TEMP_I	Pop s, and put it into a temporary location.  Begin an
+		atomic unit of code.  There is only one temporary location.
+
+GET_TEMP_I	Push the value of the temporary location, and end the atomic
+		unit.
+
+=========================================================================
+			BOXES, PLACES
+=========================================================================
+
+EMPTY_BOX_I	Pop s.  If s is empty, push true, else push false.  s can
+		be a box or a place.
+
+BOX_I		Create a new empty box, and place it on the stack.
+
+PLACE_I   	Push a new empty place.
+
+ASSIGN_I	Pop s and ss.  Assign entity s to box ss.
+
+ASSIGN_INIT_I	Pop s and ss.  Assign entity s to box ss in the initial state.
+
+ASSIGN_NODEMON_I Pop s and ss.  Assign s to box ss.  Do not call any
+		 demon functions associated with box ss.
+
+MAKE_EMPTY_I	Pop s, and force box s to be empty.
+
+MAKE_EMPTY_NODEMON_I	Pop s, and force box s to be empty.  Do not run
+			the demon for box s, if it exists.
+
+
+=========================================================================
+			OTHER CONSTANTS
+=========================================================================
+
+SMALL_INT_I(x)	Push integer x.
+
+CHAR_I(x)	Push character x.  (Same as SMALL_INT_I.)
+
+CONST_I(c)      Push the constant at label c.
+
+ZERO_I		Push 0.
+
+HERMIT_I	Push the hermit.
+
+TRUE_I		Push true.
+
+STD_BOX_I(x)	Push box x.
+
+==========================================================================
+			NUMBERS
+==========================================================================
+
+INT_DIVIDE_I	Pop s and ss, which must be integers.  Push the pair 
+		(q,r) of quotient and remainder
+		when ss is divided by s, with r on top.
+
+AS_I(x)		x is the offset in the global env of the type of
+		A -> B, where A is the type of ss.  Pop s and ss.  
+		Push ss converted to type B.  
+
+
+==========================================================================
+			BOOLEAN AND COMPARISON
+==========================================================================
+
+NOT_I		Pop s and push not(s).
+
+EQ_I		Pop s and ss.  Push ss == s.  s must be a string, a
+		number or a box.
+
+TEST_I(x)	Pop s.  Fail(x) if s is false.
+
+ENUM_CHECK_I(k) If s >= k or s < 0 then fails with exception CONVERSION_EX.
+		Otherwise no effect -- leaves the stack unchanged.
+
+LONG_ENUM_CHECK_I(kk) Same as ENUM_CHECK_I, but kk is a long (3 byte) integer.
+
+=========================================================================
+			CARTESIAN PRODUCTS AND LISTS
+=========================================================================
+
+NIL_I		Push an empty list.
+
+NILQ_I		Pop s, and push true just when s is nil.
+
+PAIR_I		Pop s and ss, and push pair (ss,s).  This instruction also
+		pushes ss::s.
+
+MULTIPAIR_I(x)	Perform x consecutive PAIR_I instructions.
+
+HEAD_I		Pop s, and push its first component.  If s is nil, then
+		fail with exception emptyListX.
+
+TAIL_I		Pop s, and push its second component.  If s is nil, then
+		fail with exception emptyListX.
+
+LEFT_I		Pop s, and push its first component.  If s is an
+		unprotected unknown, then split it into a pair first.
+		So this is an aggressive operation.
+
+RIGHT_I		Pop s, and push its second component.  If s is an
+		unprotected unknown, then split it into a pair first.
+		So this is an aggressive operation.
+
+MULTI_RIGHT_I(x) Perform x consecutive RIGHT_I instructions.
+
+SPLIT_I		Pop s, which should be (a,b).  Push a then b, leaving b on
+		top.  If s is nil, then fail with exception 0.
+
+NONNIL_TEST_I   Fail(0) if s is nil.
+
+SUBSCRIPT_I	Pop s and ss.  Push ss # s.
+
+SUBLIST_I	Pop s and ss.  Push ss ## s.
+
+
+=========================================================================
+			FUNCTIONS AND APPLICATION
+=========================================================================
+
+FUNCTION_I(x) 	Place a function on the stack, with body just following the
+		current instruction.  Continue execution at local label x.
+		This instruction is followed by:
+
+		  (1) A sequence of type-building instructions, terminated by
+		      END_LET_I, that place the result type of the function 
+		      on the type stack.  (In the internal representation, 
+		      these instructions are replaced by an index in
+		      lazy_type_instrs of the type-building code.)
+
+		  (2) The body, consisting of a byte holding the index 
+		      in env_size of the number of local ids that this 
+		      function needs, followed by the executable code 
+		      for the function.  The function should finish with 
+		      a RETURN_I instruction.  The code will be started
+		      with the actual parameter on the stack, and the 
+		      result should be left on the stack.  In the internal
+		      form, the environment size byte is followed by three
+		      bytes holding the environment descriptor number.
+
+REV_APPLY_I		Pop s.  Apply function s to argument 
+			ss and leave result on the stack.
+
+REV_PAIR_APPLY_I(x) 	Same as x PAIR_I instructions followed by REV_APPLY_I.
+
+REV_TAIL_APPLY_I     	Same as REV_APPLY_I, but tail recursive.
+
+REV_PAIR_TAIL_APPLY_I(x)  Same as x PAIR_I instructions followed by 
+			  REV_TAIL_APPLY_I.
+
+QEQ_APPLY_I		Apply an equality testing function that was
+			created for a free coproduct type or family.
+			s is the function, and ss and sss (one down from ss)
+			are the parameters.  The equality tester would get
+			the correct answer in all cases, so we could just
+			do a REV_PAIR_APPLY_I instruction.  But, when either of
+			ss and sss has tag NOREF_TAG, which is expected to
+			be common, the equality test can be done more
+			efficiently by comparing representations.
+
+SHORT_APPLY_I		Apply ss to s, but with time limited to 
+			SHORT_APPLY_TIME.  Push the result onto the
+			stack after popping s and ss.  If the function
+			application times out, then push a lazy entity.
+			
+RETURN_I		Return from a function or deferred expression.
+
+INVISIBLE_RETURN_I	Return from a standard function.
+
+=========================================================================
+			GLOBAL ENVIRONMENT
+=========================================================================
+
+DYN_FETCH_GLOBAL_I(c) Like GET_GLOBAL_I, but puts result on stack instead
+		  of environment.  In the internal form, the label c
+		  is replaced by the offset in ent_names, as a three
+		  byte integer.
+
+G_FETCH_I(x)	  Push the value in location x of the current global 
+		  environment.  The global environment is the outermost one.
+
+GLOBAL_ID_VAL_I(x) x is the offset in the global environment of the type 
+		   (String->t) of this instance of outerIdVal.  Pop s
+		   and push the value of the global id whose name is s 
+		   and whose type is t.
+
+=========================================================================
+			 LOCAL ENVIRONMENT
+=========================================================================
+
+FETCH_I(x)	Push the value found in the local environment at offset x.
+
+LONG_FETCH_I(x,y) Push the value in location x of frame y from the top of the
+		current environment.  (y would be 0 to be equivalent to a
+		FETCH_I instruction.)
+
+FINAL_FETCH_I(x) Similar to FETCH_I, but this is the last fetch of x.  If
+		 there are no other refs to x, then drop the reference to
+		 x.
+
+FINAL_LONG_FETCH_I(x,y) Composite of LONG_FETCH_I and FINAL_FETCH_I.
+
+EXIT_SCOPE_I(n)	Set the current environment to have only n bindings (0..n-1).
+
+END_LET_I	See below.
+
+Instructions LET_I, DEF_I, LET_AND_LEAVE_I, FINAL_LET_AND_LEAVE_I and
+DEAD_LET_I are each followed by 
+	(1) A null-terminated name,
+	(2) A sequence of type-building instructions
+	(3) An END_LET_I instruction
+The name is the name of the environment field that is being bound.
+The type building instructions build the type of this field, and are
+assumed to be executed in this environment.  In internal format, a DEF_I
+has its type building instructions replaced by an index in 
+lazy_type_instrs.
+
+In the internal form, only the offset information (x) is stored
+with the instruction.  The other information is used in setting
+up environment descriptors.
+
+LET_I(x)	Pop s.  Place s into the current local environment at offset
+		x.
+
+LET_AND_LEAVE_I(x) Similar to LET_I, but leave the stack unchanged.
+
+FINAL_LET_AND_LEAVE_I(x) Similar to LET_AND_LEAVE_I, but this the last
+			 use of x.  Normally, don't store x.
+
+DEAD_LET_I(x)   Similar to LET_I, but do nothing when do_tro is true.
+		(Used for an identifier that is defined but not used.)
+
+RELET_I(x)      Same as LET_I(x), but not followed by extra info.  This
+                instruction is converted to a LET_I in package.c, so the
+                evaluator in evaluate.c does not see it.  It has no
+		internal form.
+
+RELET_AND_LEAVE_I(x) Same as LET_AND_LEAVE_I, but not followed by extra
+                     info. This instruction is converted to LET_AND_LEAVE_I
+                     in package.c, so the evaluator does not see it -- it
+		     has no internal form.
+
+FINAL_RELET_AND_LEAVE_I(x) Same as FINAL_LET_AND_LEAVE_I, but not followed
+                           by extra info.  This instruction is converted
+                           to FINAL_LET_AND_LEAVE_I in package.c, so
+                           it is not seen by the evaluator.  It has no
+			   internal form.
+
+DEF_I(y,x)	The code following this instruction is code to evaluate the
+		identifier at offset x.  It starts with
+		a byte holding the index in env_size of the number of local
+		ids needed, and in internal format is followed by a 3-byte
+		index of an environment descriptor.
+		Define this id, and continue at local label y.
+
+TEAM_I(x,y)	Following this instruction should be x DEF_I instructions,
+		defining ids y, y+1, ..., y+x-1 in the local frame.  (This
+		instruction suppresses environment ref counting and copying
+		that would be incorrect for a team.)
+
+=========================================================================
+			CONDITIONALS AND LABELS
+=========================================================================
+
+GOTO_I(x)	Jump to local label x.
+
+PAIR_GOTO_I(x,y) Do y PAIR_I instructions followed by GOTO_I(x).
+
+GOTO_IF_FALSE_I(x) Pop the stack, and jump to local label x if the popped 
+		   value is false.  Similar to GOTO_IF_NIL_I, but 
+		   pops stack.
+
+GOTO_IF_NIL_I(x) Goto local label x if s = nil.  Do not pop the stack.
+
+AND_SKIP_I(x)	If s is false, leave s on the stack and goto local
+		label x.  If s is true, then pop s and continue with
+		the next instruction.
+
+OR_SKIP_I(x)	If s is true, leave s on the stack and goto local label 
+		x.  If s is false, then pop s and continue with the
+		next instruction.
+
+LLABEL_I(x)	Label this instruction by local label x.  Local labels are
+		only in effect for one declaration.  This instruction has
+		no internal form.
+
+LONG_LLABEL_I(x) This instruction precedes another instruction that contains
+                 a local label.  It indicates that the local label y that
+		 occurs in the following instruction is to be considered
+		 an extended local label (x,y).  This allows more
+		 local labels.  This instruction can precede any instruction
+		 that contains a local label, including LLABEL_I.
+		 This instruction has no internal form.
+
+TRY_I(x,k)	Place a TRY frame into the state, with else address 
+		at local label x.  k is a single byte that tells what
+		kind of try this is.  It is one of the following.
+		   TRY_F	 try
+		   TRYEACH_F	 try catchingEachThread
+		   TRYTERM_F	 try catchingAllExceptions
+		   TRYEACHTERM_F try catchingEachThread catchingAllExceptions
+
+QUICK_TRY_I(x)	Like TRY_I, but is faster, and can only be used when the
+		condition only has instructions that have local effects
+		whose effect on the stack is monitored in evaluate.
+		The else part begins at local label x.  The kind is
+		always like a TRY_I(TRY_F).
+
+THEN_I		Scan the control backwards to the first TRY frame, and 
+		delete it.  The action depends on the kind of TRY
+		frame.
+
+=========================================================================
+			STREAMS AND FAILURE
+=========================================================================
+
+STREAM_I(x)	Push a branch point with address at local label x.
+
+MIX_I(x)	Fork the current activation with a similar one that
+		begins at local label x.  
+
+CHOOSE_MIX_I(x) Similar to MIX_I, but fork an activation for a
+		choose one mixed instruction guard.
+
+FAIL_I		Pop s.  Fail with exception s.
+
+FAILC_I(x)	Fail with exception x.
+
+PUSH_EXC_I	Push the current exception value onto the exception stack
+		of the current activation.
+
+POP_EXC_I	Pop the exception stack of the current activation.
+
+EXCEPTION_I	Push the current exception.
+
+Each of the following instructions has a global label in the external form, 
+which is replaced by a single byte in the internal form.  That byte holds
+the number of the exception.
+
+EXC_CONST_I(c)  Push the exception whose number is at global label c.
+
+EXC_WRAP_I(c)   Pop s, and push s wrapped with the exception number that
+		is at global label c.
+
+EXC_UNWRAP_I(c) Pop s.  If s is a qwrapped-value that is wrapped with the
+		exception that occurs at global label c, then push
+		the unwrapped value.  Otherwise fail with exception
+		TEST_EX.
+
+EXC_TEST_I(c)   Pop s.  If s is a qwrapped-value that is wrapped with the
+		exception that occurs at global label c, then push
+		true.  Otherwise push false.
+
+
+=========================================================================
+			CUTTING AND PRESERVING
+=========================================================================
+
+BEGIN_CUT_I	Push a mark frame onto the state.  This is done at the 
+		beginning of a CutHere block.
+
+END_CUT_I	Placed at the end of a CutHere block.  Scan the state back to 
+		the first mark, destructively removing branch
+		nodes and coalescing box tables.
+
+CUT_I		Pop the stack.  (The stack should contain () on its top.)
+		Perform a cut.  Nothing is pushed back onto the stack.
+
+BEGIN_PRESERVE_I Push a mark frame onto the state.  This is done at the
+		 beginning of a preserve block.
+
+END_PRESERVE_I	Restore state 
+
+
+=========================================================================
+			TRAPPING
+=========================================================================
+
+PUSH_TRAP_I	Push a new trap node onto the trap list of the current 
+		activation
+
+POP_TRAP_I	Pop a node from the trap list of the current activation.
+
+TRAP_I		Set the trap bit for the exception on the stack (s), in the
+		top vector of the current activation.  Pop s.
+
+UNTRAP_I	Clear the trap bit for the exception on the stack (s), in the
+		top vector of the current activation.  Pop s.
+
+ALL_TRAP_I	Push a value  so that
+			ALL_TRAP_I
+			TRAP_I
+		will cause all exceptions to be trapped, and
+			ALL_TRAP_I
+			UNTRAP_I
+		will cause all exceptions to be untrapped.
+
+
+=========================================================================
+			THREADS
+=========================================================================
+
+PAUSE_I
+  Pop the stack, which should have () on its top.
+  If there is a coroutine to run, switch to one, putting the current coroutine
+  into the done list.  Otherwise, time out.
+
+REPAUSE_I
+  Similar to PAUSE_I, but a Repause.  It indicates that no progress has
+  been made since the most recent pause! by this thread.
+
+BEGIN_ATOMIC_I  Start an atomic section of code.  Don't time-out or
+		switch to another coroutine until END_ATOMIC_I is
+		executed.
+
+END_ATOMIC_I	end an atomic section of code.
+
+
+=========================================================================
+			UNKNOWNS
+=========================================================================
+
+NONNIL_FORCE_I	Like NONNIL_TEST_I, but if s is an unknown, then force
+		it to be nil.
+
+NIL_FORCE_I	Fail(0) is s is not nil.  If s is an unknown, then
+		force it to be nil.
+
+BIND_UNKNOWN_I(x) Bind unknown s to object ss, and pop both.  
+
+		  If x is 0 then s is unprotected, and s is bound to ss.
+		  If x is 1, then s is protected and has the form 
+		  (u,k), where u is the unknown and k is the write-key.  
+
+=========================================================================
+			LAZY EVALUATION
+=========================================================================
+
+TEST_LAZY_I,
+TEST_LAZY1_I	Pop s from the stack and push false if s is lazy, true 
+		if not.  Exception: every once in a while, TEST_LAZY1_I 
+		will push false even when s is not lazy.
+
+Each of the following instructions is followed by an END_LET_I-terminated
+sequence of instructions that place the type of the lazily-computed result
+on the top of the type stack.  In internal format, those instructions are
+replaced by an index in lazy_type_instrs of the type instructions.  The code
+following each instruction begins with a one-byte index in env_size of the
+number of locals needed.  In the internal format, that byte is followed by
+a three byte environment descriptor number.
+
+LAZY_I(x)	Package the following code (which begins result-type building
+		instructions and an index in env_size of the number of 
+		locals needed) into a lazy expr, push it on the stack, 
+		and continue at local label x.
+
+LAZY_RECOMPUTE_I(x) Similar to LAZY_I, but calls for recomputation of
+		    the result rather than storing it.
+
+LAZY_LIST_I(x)	Begin a lazy list.  The current process resumes
+		at local label x.  Code following this instruction has 
+		result-type building instructions followed by the
+		index in env_size of the number of locals needed,
+		and the executable code of the lazy list generation expr.
+
+LAZY_LIST_RECOMPUTE_I(x) Similar to LAZY_LIST_I, but calls for recomputatio
+			 of the result rather than storing it.
+
+=========================================================================
+			DEBUGGING
+=========================================================================
+
+NAME_I(c)		Install the name of the global id at global label 
+			c as the name of this piece of code.  In the
+			internal form, c is replaced by the index
+			in ent_names of the identifier at label c.  
+
+SNAME_I(c)		Install the string at global label c as the name 
+			of this piece of code.  In the internal form,
+			c is replaced by the index in the constant
+			table of the string declared at label c.
+
+			The constant table must have a CSTR_TAG string
+			for this string.
+
+=========================================================================
+			WRAP, UNWRAP
+=========================================================================
+
+GET_TYPE_I(x)	x is the offset in the global id table of the type A -> ()
+		Pop s, push (), and push type A onto the type stack.
+
+WRAP_I		Pop s, and pop t from type stack.  Push wrapped entity
+		<<s:t>>.
+
+UNWRAP_I	Pop wrapped entity <<s:T>>.  Push s onto the entity stack
+		and T onto the type stack.
+
+QWRAP_I(x)	Pop s and push quasi-wrapped entity (s:x). (the tag is x).
+
+QTEST_I(x)	Pop s and push true if s has tag s, false otherwise.
+
+QUNWRAP_I(x)	Pop s.  If s = (s':x), then push s'.  Otherwise fail with
+		exception TEST_EX.  x mut be an integer tag.
+
+UNIFY_T_I	Pop t1 and t2 from type stack and unify them.  If
+		unification succeeds, do nothing.  If unification 
+		fails, fail with exception SPECIES_EX.
+
+=========================================================================
+			COROUTINES
+=========================================================================
+
+COROUTINE_I(l,k) 
+  Set offset k = Indirect(NOTHING) in current env.  Push coroutine immediately
+  following onto done list of current activation.  
+  COROUTINE_I instructions must occur in pairs, as follows.
+
+    COROUTINE_I(l1,k1)
+    --code for first coroutine
+    RESUME_I
+    LLABEL_I l1
+    COROUTINE_I(l2,k2)
+    --code for second coroutine
+    LLABEL_I l2
+    RESUME_I
+    --code for continuing after both coroutines have finished.
+
+  Both coroutine instructions are processed when the first is encountered.
+
+RESUME_I
+  Like PAUSE_I, but does not push current coroutine back -- terminates
+  current coroutine.
+
+CHECK_DONE_I(k)
+  If offset k does not hold Indirect(NOTHING), do a return, else do nothing.
+
+STORE_INDIRECT_I(k)
+  Pop s and store s at the end of an indirection chain in the
+  current environment at offset k.
+
+=========================================================================
+			MISC
+=========================================================================
+
+SPECIES_AS_VAL_I	Pop the top of the type stack, and push it back
+			onto the entity stack as a value.
+
+PUSH_TYPE_BINDINGS_I	Push the top of the_act.type_binding_lists
+			onto the_act.type_binding_lists.  If 
+			the_act.type_binding_list is NIL, then push NIL.
+			This is used to enter a new type binding scope.
+
+POP_TYPE_BINDINGS_I	Pop the_act.type_binding_lists.  This is used
+			to exit a type binding scope.
+
+COMMIT_TYPE_BINDING_I	Delete the member of the_act.type_binding_lists
+			that is just below the top member.  This 
+			commits to the changes made since the last 
+			PUSH_TYPE_BINDINGS_I instruction.
+
+TOPFORCE_I     Pop s.  Push s, evaluated to its top level.
+
+LAZY_DOLLAR_I  Pop s.  If s is a lazy value and currently doing a
+	       show!, the push a string describing lazy value s.  Otherwise
+	       fail with exception TEST_EX.
+
+STRING_DOLLAR_I Pop s, which is a string, and push back a string which
+		is s with quote marks around it, and internal quotes
+		and backslashes escaped.
+
+BEGIN_VIEW_I	Set the state so that $ does not evaluate lazy parts.
+
+END_VIEW_I	Undoes BEGIN_VIEW_I change.
+
+RAW_SHOW_I	Print the representation of s on file ss.
+
+LINE_I(x)	The following code is from line x of the source program.
+
+FPRINT_I	Pop s and ss.  Print s on file ss.  ss must be an
+		external file.
+
+FPRINTLN_I	Pop s and ss.  Print s followed by a newline on file
+		ss.  ss must be an external file.
+
+
+=========================================================================
+			OPERATIONS THAT FOLLOW PREFIXES
+=========================================================================
+
+------------------------------------------------------------------
+			UNARY_PREF_I
+------------------------------------------------------------------
+
+Each of the following takes one parameter s on the stack.  Before
+starting the instruction, s is fully evaluated.
+
+*************** Operations on boxes ***********************
+
+CONTENT_STDF	Pop s (a box or place), and push its content.  Fail with 
+		exception EMPTY_BOX_EX if the box or place is empty.
+
+CONTENT_TEST_STDF Pop s (a box or place), and push its content.  Fail with 
+		exception TEST_EX if the box or place is empty.
+
+PRCONTENT_STDF  Pop s (a box or place) and push its content.  If box
+		s is empty, push NOTHING.
+
+MAKE_ARRAY_STDF Pop s, and push an array of s empty boxes.
+
+MAKE_PARRAY_STDF Pop s, and push a place array of size s.
+
+RANK_BOX_STDF	Pop s (a box or place), and push its rank.
+
+FLAVOR_STDF	Pop s (a box or place) and push its flavor (shared or
+		nonshared).
+
+BOXFLAVOR_TO_STRING_STDF
+		Pop s (a box flavor, either shared or nonshared) and
+		push the name of s (either "shared" or "nonshared").
+
+COPYFLAVOR_TO_STRING_STDF
+		Pop s (a copy flavor (shared, nonshared or same)) and
+		push the name of s ("shared", "nonshared" or "same").
+
+****************** Operations on numbers *****************
+
+ZEROP_STDF	Pop s, and push true of s == 0, false otherwise.
+
+NEGATE_STDF	Pop s and push -s.
+
+SQRT_STDF	Pop s.  Push sqrt(s), to normal precision.
+
+FLOOR_STDF	Pop s.  Push floor(s).
+
+PULLAPARTREAL_STDF Pop s.  Push pair (m,e), where s = m*base^e is
+                the internal representation of real number s.  m and
+                e are both integers.
+
+CEILING_STDF	Pop s.  Push ceiling(s).
+
+NATURAL_STDF	Pop s.  Push it back (minus a type tag if there was
+	        one), provided it is nonnegative.  Fail if negative.
+
+INTEGER_STDF	Pop s,  Push an integer equivalant of s.  This converts
+		from INTEGER`a to Integer, possibly by removing a type
+		tag.
+
+RATIONAL_STDF	Pop s, and push a rational equivalent of s.
+
+REAL_STDF	Pop s.  Push s as a real number.
+
+ABS_STDF	Pop s, and push its absolute value.
+
+RECIPROCAL_STDF Pop s, and push 1/s.
+
+MAKE_RAT1_STDF  Pop s, and push 1/s, as a rational number.  s is an integer.
+
+ODD_STDF	Pop s, and push true if s is odd, false if s is even.
+
+SIGN_STDF	Pop s, and push the sign of s (-1, 0 or 1).
+
+PRED_STDF	If s > 0, pop s, and push s-1.  If s = 0, fail
+		with exception domainEx("predecessor of 0");
+
+EXP_STDF	Pop s, and push exp(s), to normal precision.
+
+LN_STDF		Pop s, and push ln(s), to normal precision.
+
+SIN_STDF	Pop s, and push sin(s), to normal precision.
+
+INVTAN_STDF	Pop s, and push arctan(s), to normal precision.
+
+STRING_TO_NAT_STDF Pop s (a string), and push the string that s represents.
+
+STRING_TO_INT_STDF Pop s (a string), and push the integer that s represents.
+
+STRING_TO_RAT_STDF Pop s (a string), and push the rational number that s
+		   represents.
+
+STRING_TO_REAL_STDF Pop s (a string), and push the real number that s 
+		    represents.
+
+********************** System functions *************************
+
+FCLOSE_STDF          Pop s, and close outfile s.  Push ().
+
+CHDIR_STDF	     Pop s, change the current directory to s, and push ().  
+		     Fail with exception NO_FILE_EX if can't do that, and with
+		     exception LIMIT_EX if s is too long.
+
+GETENV_STDF	     Pop s, and return the value of environment variable
+		     s.  Fail with exception DOMAIN_EX if there is no
+		     such environment variable, and with exception
+		     LIMIT_EX if s is too long.
+
+DATE_STDF	     Pop (), and push a string describing the current
+		     time and date.
+
+SECONDS_STDF	     Pop (), and push the number of seconds since a reference
+		     time.
+
+FSTAT_STDF	     Perform fstat.  See system.ast.
+
+RM_STDF		     Pop s, remove file s, and push ().
+		     Fail with exception NO_FILE_EX if can't do that, and with
+		     exception LIMIT_EX if s is too long.
+
+RMDIR_STDF	     Pop s, remove directory s, and push ().
+		     Fail with exception NO_FILE_EX if can't do that, and with
+		     exception LIMIT_EX if s is too long.
+
+MKDIR_STDF	     Pop s, make a directory called s, and push ().
+		     Fail with exception NO_FILE_EX if can't do that, and with
+		     exception LIMIT_EX if s is too long.
+
+DIRLIST_STDF	    Pop s, and push a list of the names of all files
+		    in directory s.
+
+GETCWD_STDF	    Pop s, and push the current working directory,
+		    a string.
+
+FLUSH_FILE_STDF	    Pop s, which must be an outfile.  Flush its buffer.
+
+OS_ENV_STDF	    Pop s, which must be (), and push a list of pairs
+		    [(name1,val1), (name2,val2),...] that describe the
+		    operating system environment.
+
+*********************** General conversions to string ****************
+
+TO_STRING1_STDF 	Pop s, and push $s, where s is number or function or
+			box or place.
+
+BOOL_TO_STRING_STDF	Pop boolean s, and push its string equivalent.
+
+CHAR_TO_STRING_STDF 	Pop char s, and push its string equivalent.
+
+HERMIT_TO_STRING_STDF 	Pop (), and push its string equivalent.
+
+EXCEPTION_TO_STRING_STDF Pop exception s, and push its string equivalent.
+
+COMPARISON_TO_STRING_STDF Pop Comparison value s, and push its string 
+			  equivalent.
+
+FILEMODE_TO_STRING_STDF  Pop FileMode value s, and push its name.
+
+OUTFILE_DOLLAR_STDF  	Pop s, and push the name of outfile s.
+
+SPECIES_DOLLAR_STDF	Pop s, which should be a value that is a species,
+			and push a string that describes that species.
+
+************************** Unknowns ******************************
+
+PRIVATE_UNKNOWN_STDF	Pop s, and push a new nonshared, unprotected unknown.
+
+PUBLIC_UNKNOWN_STDF	Pop s, and push a new shared, unprotected unknown.
+
+PROT_PRIV_UNKNOWN_STDF	Pop s, and push a pair (u,k) where u is a new
+			protected nonshared unknown, and k is its write-key.
+
+PROT_PUB_UNKNOWN_STDF	Pop s, and push a pair (u,k), where u is a new
+			protected shared unknown, and k is its write-key.
+
+************************** Bit vectors ******************************
+
+BV_MASK_STDF	     Pop s, and push a bit vector of s 1's (as an integer).
+
+BV_MIN_STDF	     Pop s, which is an integer thought of as a bit
+		     vector.  Push pair (k,v), where k is the index
+		     from the right (starting with 0) of the first 1 bit in s,
+		     and v is the result of setting that 1-bit to 0 in s. 
+
+BV_MAX_STDF	     Pop s, which is an integer thought of as a bit
+		     vector.  Push pair (k,v), where k is the index of
+		     the leftmost 1-bit in s, and v is the result of
+		     setting that 1-bit to 0.
+
+************************** Misc ******************************
+
+WILLTRAP_STDF        Pop s, and push true if exception s will be trapped,
+		     and false if s will not be trapped.
+
+FORCE_STDF	Pop s, and push the result of fully evaluating s.
+
+PRIM_TRACE_STDF Turn on or off tracing.  Only used during debugging
+		of the interpreter -- NOT A USER INSTRUCTION!.
+		See evaluate/evaluate.c:prim_trace for what the
+		argument means.
+
+CONT_NAME_STDF	Pop (), and push the name of the continuation of the
+		current function.
+
+GET_STACK_DEPTH_STDF	Pop () and push the current depth of the run-time
+			stack.
+
+PROFILE_STDF    Pop s.  If s is true, turn on profiling.  If s is
+		 false, turn off profiling.  Push ().
+
+SET_STACK_LIMIT_STDF The interpreter keeps a soft limit on the number
+		     of stack frames.  It queries the user if the stack
+		     size exceeds the limit.  This instructions pops s, 
+		     sets the stack limit to s, and pushes ().
+
+GET_STACK_LIMIT_STDF Pop (), and push the current stack limit.
+
+SET_HEAP_LIMIT_STDF  The interpreter keeps a soft limit on the number
+		     of bytes used in the heap.  It queries the user if
+		     the heap gets too large.  This instruction pops s,
+		     sets the heap limit to s, and pushes ().
+
+GET_HEAP_LIMIT_STDF  Pop (), and push the current heap limit.
+
+SHOW_ENV_STDF	     Pop s, and print the current environment on file s.
+
+SHOW_CONFIG_STDF     Pop s, and print the current configuration of file s.
+
+LOAD_PACKAGE_STDF    Pop s, and load package s.  s is a string (the name of
+		     the file containing the package.)
+
+POSITION_STDF	     Pop s, and push its tag.  s must be a value
+		     that is tagged by an integer, as is created by
+		     a QWRAP_I instruction.
+
+ACQUIRE_BOX_STDF     Pop s.  If s is a box, push (s,k), where k is 
+		     true if s is a nonshared box, and false if s is a
+		     shared box.  If s is not a box, then fail with
+		     exception testX.
+
+SUPPRESS_COMPACTIFY_STDF Pop s.  If s is true, turn off compactifying
+			 in the garbage collector.  If s is false, then
+			 turn on compactifying.  Note: What this really
+			 does is add one to a counter if s is true, 
+			 and subtract one if s is false (and the counter
+			 is positive).  If the counter
+			 is positive, then compactification is turned
+			 off.  For each time compactification is
+			 turned on, it should be turned off.
+
+INTERN_STRING_STDF   Pop s, and push an equivalent string that has been
+		     interned into the string table.
+
+
+
+-----------------------------------------------------------
+			BINARY_PREF_I
+-----------------------------------------------------------
+
+Each of the following instructions takes two parameters s and ss
+on the stack.  Before evaluation of the instruction, both s and
+ss are fully evaluated.
+
+*********************** Numbers *****************************
+
+PLUS_STDF	Pop s and ss.  Push ss + s.
+
+MINUS_STDF	Pop s and ss.  Push ss - s.
+
+ABSDIFF_STDF	Pop s and ss.  Push |ss - s|.
+
+TIMES_STDF	Pop s and ss.  Push ss * s.
+
+DIVIDE_STDF	Pop s and ss.  Push s/ss, or fail if not possible. 
+
+MAKE_RAT2_STDF	Pop s and ss.  Push ss/s (a rational number).
+
+TO_STRING2_STDF	Pop s and ss.  Push the representation of ss as a string,
+		using s as formatting information.  ss must be a number.
+
+DIV_STDF	Pop s and ss.  Push ss div s.
+
+MOD_STDF	Pop s and ss.  Push ss mod s.
+
+GCD_STDF	Pop s and ss.  Push gcd(s, ss).
+
+POW_STDF	Pop s and ss.  Push ss ^ s.  s must be an integer.
+
+UPTO_STDF	Pop s and ss.  Push ss upto s.
+
+DOWNTO_STDF	Pop s and ss.  Push ss downto s.
+
+*************************** Comparisons ***********************
+
+The following work for numbers.
+
+COMPARE_STDF	Pop s and ss.  Push compare(ss, s). 
+			less    if ss < s
+			equal   if ss = s
+			greater if ss > s
+
+
+LT_STDF		Pop s and ss.  Push ss < s (boolean).
+
+LE_STDF		Pop s and ss.  Push ss <= s (boolean).
+
+GT_STDF		Pop s and ss.  Push ss > s (boolean).
+
+GE_STDF		Pop s and ss.  Push ss >= s (boolean).
+
+NE_STDF		Pop s and ss.  Push ss =/= s (boolean).
+
+************************* Bit vectors *************************
+
+BV_AND_STDF	Pop s and ss, and push their bit-wise "and".
+
+BV_OR_STDF	Pop s and ss, and push their bit-wise "or".
+
+BV_XOR_STDF	Pop s and ss, and push their bit-wise "exclusive or".
+
+BV_SHL_STDF	Pop s and ss.  Push the result of shifting s to
+		the left ss bits.
+
+BV_SHR_STDF	Pop s and ss.  Push the result of shifting s to
+		the right ss bits.
+
+BV_SETBITS_STDF	Pop s and ss.  ss is a bit vector, and s is a pair
+		(l,k), where l is a list of natural numbers and
+		k is either 0 or 1.  Push the vector that results from
+		ss by setting the bits at indices given in list l to k.
+
+BV_FIELD_STDF	Pop s and ss.  ss is a bit vector, and s is a pair
+		(m,n) of integers.  Push the vector that results by
+		shifting ss to the right m bits, and then taking
+		the rightmost n bits.  (Padding on the left is with 0's.)
+
+*********************** System **************************
+
+RENAME_STDF	Pop s and ss.  Rename file s as ss.
+
+INPUT_STDF	Pop s and ss, and push a list holding the content of the file 
+		whose name is s, with mode given by list-of-modes ss.
+
+FOPEN_STDF	Pop s and ss, and push the outfile named s, opened in
+		mode ss, where ss is a list of file modes.
+
+*********************** Boxes **************************
+
+ONASSIGN_STDF	Process an onassign call.  See standard.ast.
+
+
+-------------------------------------------------------
+			LIST1_PREF_I
+-------------------------------------------------------
+
+Each of these instructions takes a single argument s on the
+stack.  No evaluation of s is initially done.
+
+LENGTH_STDF	Pop s.  Push the length of s.
+
+REVERSE_STDF	Pop s.  Push the reversal of s.
+
+PACK_STDF	Pop s, and push a packed version of s.
+
+LAZY_LEFT_STDF	Pop s, and push lazyLeft(s).
+
+LAZY_RIGHT_STDF	Pop s, and push lazyRight(s).
+
+LAZY_HEAD_STDF	Pop s, and push lazyHead(s).
+
+LAZY_TAIL_STDF	Pop s, and push lazyTail(s).
+
+
+-------------------------------------------------------
+			LIST2_PREF_I
+-------------------------------------------------------
+
+Each of these instructions takes two arguments s and ss on
+the stack.  No evaluation of either is initially done.
+
+APPEND_STDF	Pop s and ss.  Push ss ++ s.
+
+DOCMD_STDF	Pop s and ss.  Push the output from command s (where s
+		is a list of parts) with its standard input containing
+		ss.
+
+SCAN_FOR_STDF	Pop s and ss.  Push the result of scanForChar(s, ss).
+
+
+-------------------------------------------------------
+			TY_PREF_I
+-------------------------------------------------------
+
+Each of the following takes a single argument s on the stack, and 
+additionally is told its own type. s is evaluated to its top level.
+
+BOX_TO_STRING_I(x): Pop s and push a string description of s, which must be
+		    a box or place.  x is the offset of the type of this
+		    function.  It is used to put this box into a
+		    table for print_rts.
+
+WRAP_STDF		Pop s and push <<s:T>>, where T is the
+			domain type of this function.
+
+COMPAT_STDF	Pop s, which must be an ordered pair (a,b).  Both 
+		a and b must be numbers.  Push a pair
+		(a',b') where a' and b' are the same numbers as 
+		a and b, respectively, but such that
+		the types of a' and b' are the same.
+		Conversion of types is upwards, in
+		the direction Natural -> Integer -> Rational -> Real.
+		Also push the type of a' and b' onto the
+		type stack.
+
+-------------------------------------------------------
+			UNK_PREF_I
+-------------------------------------------------------
+
+UNKNOWNQ_STDF		Pop s, and push true if s is an unknown, false if s
+			is not an unknown.
+
+PROTECTED_UNKNOWNQ_STDF	Pop s, and push true if s is a protected unknown, 
+			false if not.
+
+UNPROTECTED_UNKNOWNQ_STDF Pop s, and push true if s is an unprotected unknown, 
+			  false if not.
+
+SAME_UNKNOWN_STDF	Pop s, which is a pair of unknowns.  Push true
+			if the two unknowns are the same unknown, and
+			false if not.

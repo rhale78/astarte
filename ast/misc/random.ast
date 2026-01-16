@@ -1,0 +1,69 @@
+%% File: random.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=======================================================
+Package 		Astarte_Random 
+
+			interface
+=========================================================
+
+========================================================================
+%% This package provides a pseudo-random number generator.  Use
+%% SetRandomSeed or Randomize to initialize the generator, and functions
+%% coinToss, random or randomRange to get pseudo-random bits and numbers.
+========================================================================
+
+Expect 
+  SetRandomSeed   : String  -> ()
+
+                  %" SetRandomSeed s. sets the seed string of the random
+		  %" number generator to s, and restarts the generator
+		  %" with the new seed.
+		  %"
+		  %" s should be a string of at least 44 decimal digits.  
+		  %" You get one million random bits for each 44
+		  %" digits in the seed.
+		  %"
+		  %" If the pseudo-random number generator runs out
+		  %" of seed digits, it will print a complaint, and
+		  %" will begin using Randomize to select seeds.
+		  ;
+		  
+  Randomize	  : () -> ()
+  
+  		  %" Randomize(). sets the seed to something that
+		  %" depends on the time of day.  After you use
+		  %" Randomize, when new seed digits
+		  %" are required, Randomize will automatically
+		  %" be used again to get new seed digits.  It
+		  %" is recommended that you use SetRandomSeed,
+		  %" with enough seed digits, instead of this.
+		  ;
+
+  coinToss        : () -> Natural
+
+                  %" coinToss() is either 0 or 1, and is pseudo-random.
+		  %" Each is about equally likely.
+		  ;
+
+  random          : Natural -> Natural
+
+  	          %" random(n) is a pseudo-random integer uniformly
+		  %" distributed from 0 to n-1.
+		  ;
+		  
+  randomRange	  : (Natural, Natural) -> Natural
+  
+  		  %" randomRange(m,n) is a pseudo-random integer
+		  %" uniformly distributed from m to n, inclusive.
+		  %"
+		  %" If m > n, then randomRange(m,n) fails with
+		  %" exception domainX("Null range for randomRange").
+		  ;
+%Expect
+=====================================================================
+%Package
+

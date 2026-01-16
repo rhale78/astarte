@@ -1,0 +1,82 @@
+%% File: table.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_TableImp 
+
+			Implements "table"
+=============================================================
+
+=============================================================
+%%			table
+%%			fromList
+=============================================================
+
+Let{underride} table = lfold (emptyTable, +/).
+
+Let fromList = table.
+
+=============================================================
+%%			tableKeys
+%%			tableVals
+=============================================================
+
+Let
+   tableKeys = (map left) _o_ toList;
+   tableVals = (map right) _o_ toList
+%Let
+
+========================================================================
+%%			listTable
+========================================================================
+
+Let listTable(?l) =
+  Let cons ?x ?z = x :: z.
+  Loop (?tbl,?r) = (emptyTable, reverse l) one matching r
+    exitcase [] => tbl
+    loopcase [(?a,?b) & ?rst] => 
+      continue (update(tbl, (a, [b]), cons b), rst)
+  %Loop
+%Let
+
+========================================================================
+%%			_defaultAt_
+========================================================================
+
+Let{underride} ?t _defaultAt_ (?k,?v) = (t _at_ k) _butIfFail_ v.
+
+========================================================================
+%%			mapContent
+========================================================================
+
+Let{underride} mapContent ?f ?t =
+  Let f_l (?a,?b) = (a,f(b)).
+  Value table (map f_l (toList t)).
+%Let
+
+========================================================================
+%%			$
+========================================================================
+
+Let{underride} $(?tbl) = $(toList tbl).
+
+========================================================================
+%% 			memoize
+========================================================================
+
+Let memoizeHelp(?f, ?tblPlace) ?x = result |
+  open Try
+    Let result = @tblPlace _at_ x.
+  else
+    Let result = f x.
+    Atomic Assign tblPlace := @tblPlace +/ (x,result)..
+  %Try
+%Let
+
+Let memoize ?tbl ?f = memoizeHelp(f, sharedBox(tbl)).
+
+=============================================================
+%Package

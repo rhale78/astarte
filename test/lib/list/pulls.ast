@@ -1,0 +1,14 @@
+Package pulls
+
+%% Test function pulls
+
+Import "collect/string".
+Import "misc/check".
+
+Execute
+  Let x = pulls (pull:String -> (Natural, String)) "12 234 99 ".
+  Line[$x].
+  Check["[12,234,99]"].
+%Execute
+
+%Package

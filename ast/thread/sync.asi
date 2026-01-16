@@ -1,0 +1,166 @@
+%% File: sync.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_SyncImp 
+
+			implements "sync"
+==============================================================
+
+==============================================================
+%% A synchronizer with info 
+%%
+%% (sem, possibleIds, possibleEvents, num, inIds, selectedEvents, ev) 
+%%
+%% has id set possibleIds and event set possibleEvents, and 
+%% is in one of two states.
+%%
+%% @num == 0:
+%%    The synchronizer is accepting sync requests.  @inIds is a 
+%%    set holding the identities of threads that have already
+%%    made sync requests for this round, and @selectedEvents
+%%    is the intersection of possibleEvents and all of the 
+%%    event lists that have come with the prior sync requests.
+%%
+%% @num > 0:
+%%    The synchronizer has reached a synchronization, and is 
+%%    waiting for all of the threads to respond.  @num is the
+%%    number of threads that have not yet responded. @ev is 
+%%    the result event, or is a fail object if there is a
+%%    deadlock.
+%%
+%% sem is a semaphore that is used to control access to the
+%% boxes.
+==============================================================
+
+Import "collect/sparsset".
+Import "thread/semaphor".
+
+==============================================================
+Extension
+  Species{noEqual} Synchronizer(ORDER`id,ORDER`event) = 
+     makeSynchronizer  (Semaphore,
+			SparseSet(ORDER`id), 
+			SparseSet(ORDER`event), 
+			<:Natural:>, 
+			<:SparseSet(ORDER`id):>,
+			<:SparseSet(ORDER`event):>,
+			<:ORDER`event:>)
+  %Species
+%Extension
+
+==============================================================
+%% 			synchronizer
+==============================================================
+
+Let synchronizer(?ids,?events) =
+  If nil? ids _or_ nil? events
+    then fail syncX
+    else 
+      Let eventSet = set events.
+      Value
+        makeSynchronizer(unblockedSemaphore(),
+		         set ids, 
+		         eventSet, 
+		         sharedBox(0),
+		         sharedBox(emptySet),
+		         sharedBox(eventSet),
+		         sharedBox(head events))
+      %Value
+  %If
+%Let
+
+==============================================================
+%% 			sync
+==============================================================
+
+Let sync ?s ?id ?syncEvents =
+  Match 
+    makeSynchronizer(?sem,
+		     ?possibleIds,
+		     ?possibleEvents,
+		     ?numB,
+		     ?inIdsB,
+		     ?selectedEventsB,
+		     ?evB) = s
+  %Match
+
+  %% Wait until the synchronizer is clear for a sync.
+
+  Wait(() => @numB == 0).
+
+  %% Check that id is acceptable.
+
+  If not(id _in_ possibleIds) then fail syncX.
+
+  %% Add this id to the set of in-ids, and update the 
+  %% selected events.  This part needs to be protected
+  %% from simultaneous updates.
+
+  open SemProtect sem over
+
+    Let 
+      inIds     = @inIdsB +/ id;
+      selected  = @selectedEventsB _intersectWithList_ syncEvents
+    %Let
+    Assign 
+      inIdsB          := inIds;
+      selectedEventsB := selected
+    %Assign
+
+  %SemProtect
+
+  %% Check to see if we are ready to begin the response phase
+  %% of this round.
+
+  Let nids = size(possibleIds).
+  If size(inIds) < nids then
+
+    %% This is not the last id needed for synchronization.  Wait
+    %% until @chNumPlace > 0, then extract the result event.
+
+    Wait(() => @numB > 0).
+
+    %% Get the result and decrement the num count.
+
+    Let result = @evB.
+    Decrement(numB).
+
+    %% Return the event.  If there is no event, then result will
+    %% be a failure object.  Force it to cause the failure 
+    %% to occur now.
+
+    (forceAll result)
+  
+  else
+
+    %% This id is the last one needed for synchronization.  Install
+    %% the result event, set the ids and selected events
+    %% sets for the next synchronization, set numB for
+    %% other threads, and return the result event.
+
+    Let result = 
+      If emptySet? selected
+	then (:fail deadlockX:)
+	else min selected
+      %If
+    %Let
+
+    Assign 
+      inIdsB          := emptySet;
+      selectedEventsB := possibleEvents;
+      evB             := result;
+      numB            := nids -- 1;
+    %Assign
+
+    %% Return the event.  The event is forced to get the delayed
+    %% failure, if any, to happen now.
+
+    (forceAll result)
+  %If
+%Let
+
+%Package

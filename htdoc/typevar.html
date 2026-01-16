@@ -1,0 +1,161 @@
+<HTML>
+<head>
+<title>Astarte: type variables</title>
+</head>
+<body>
+<center>
+<a href="stdgenus.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="polyexample.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T7. Type Variables </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main> Type variables </a>
+  <li> <a href=#otherforms> Other variable forms</a>
+  <li> <a href=#samevar> When are variables the same?</a>
+  <li> <a href=#renamevar> Renaming of variables</a>
+  <li> <a href=#varfam> Variables that stand for families</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Type variables</font></h2>
+
+A type variable stands for an unknown or unspecified or
+arbitrary species.  Basic forms are as follows.
+
+<dl>
+<dt><font color=red> G`a</font>
+<dd> This is a variable that can take on any species in data abstraction G.
+Following the ` (the single left quote or grave accent character)
+is a name that can be any ordinary identifier.
+For example, 
+ORDER`xyz is a variable that can stand for any
+species in ORDER.
+
+<p> Two occurrences of the same variable must be the same species.
+So (REAL`x,REAL`x) can stand for (Natural, Natural) or (Integer, Integer),
+but not (Integer, Natural).
+
+<p> The abstraction G in G`x is considered to be part of the name of
+the variable.
+For example, 
+ORDER`a and EQ`a are different variables.
+
+<p><dt><font color=red> `a</font>
+<dd> `a abbreviates ANY`a.  Note that, if you write both `a and
+ANY`a in a declaration, the two are the same variable.
+
+<a name=anon></a>
+<p><dt><font color=red> G`?</font>
+<dd> This is an anonymous variable.  Two occurrences of this variable
+are always considered different variables.  You can also use this
+with other forms, such as `? and G``? (see below).
+</dl>
+
+<a name=otherforms></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Other variable forms </font></h2>
+
+The following forms of variables are for use with 
+<a href=secondary.html>secondary species</a> and for
+controlling type inference.
+<dl>
+<a name=sec></a>
+<p><dt><font color=red>  G``a</font>
+<dd> G``a is a variable that can only stand for a secondary species
+in genus G.  For example, 
+REAL``x might stand for REAL or INTEGER, but
+cannot stand for species Real.
+
+<p><dt><font color=red> ``a</font>
+<dd> ``a abbreviates ANY``a.
+
+<a name=primary></a>
+<p><dt><font color=red> G`*a</font>
+<dd> G`*a is a variable that can only stand for a primary (non-secondary)
+species in genus G.
+
+<p><dt><font color=red> `*a</font>
+<dd> `*a abbreviates ANY`*a.
+
+<a name=nonrestrictable></a>
+<p><dt><font color=red> G`~a</font>
+<dd> Variable for G`~a is only used for determining sources of
+type restrictions.  It is a variable that is like G`a, but it cannot
+be restricted.  Use this form when you have a definition that is not
+as polymorphic as you think it should be to find out the cause of
+the loss of polymorphism.  You can use the ~ modifier after `* or ``
+as well.
+</dl>
+</font>
+
+<a name=samevar></a>
+<hr>
+<h2><font color=mediumblue> When are variables the same? </font></h2>
+
+Two variables are considered to be the same if 
+<ol>
+<li> Neither is an anonymous variable, and
+<li> They occur in the same declaration, and
+<li> They have the same genus and the same name, and
+<li> They have the same modifiers.
+</ol>
+So, For example, 
+ORDER`a and EQ`a are considered different variables.
+EQ`a and EQ``a are also different variables.
+
+<a name=renamevar></a>
+<hr>
+<h2><font color=mediumblue> Renaming of variables </font></h2>
+
+The compiler does not attempt to keep your names for variables.
+It changes names at its own discretion.
+For example, if you define
+<font color=#D00090>
+<b><pre>
+      Let f(?x: `elephant, ?y: `camel) = (y,x).
+</pre></b>
+</font>
+the compiler will report
+<b><pre>
+      f: (`a,`b) -&gt; (`b,`a)
+</pre></b>
+
+<font color=brown>
+<a name=varfam></a>
+<hr>
+<h2><font color=mediumblue> Variables that stand for families </font></h2>
+
+This section requires knowledge of 
+<a href=commhier.html>parameterized data abstractions</a>.
+
+<p>Variables can stand for parameterized species as well as plain species.  
+For example, 
+COLLECTION is a parameterized data abstraction.  
+COLLECTION`a stands for one of the families
+in COLLECTION.  You can write COLLECTION`a(`b) for an arbitrary kind
+of collection holding an arbitrary species of value.
+
+<p> All of the variable forms that are available for type variables
+are also available for family variables.
+</font>
+
+<hr>
+<center>
+<a href="stdgenus.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="polyexample.html">Next</a>
+</center>
+</body>
+</HTML>

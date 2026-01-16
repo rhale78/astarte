@@ -1,0 +1,7 @@
+Package abbrev3A export
+
+Abbrev A = Integer.
+
+Assume f: Natural -> Natural.
+
+%Package

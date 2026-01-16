@@ -1,0 +1,51 @@
+Package testfunction 
+
+%% Test function expressions and curried function defn.
+
+Directory standard.  Import "misc/check".
+
+Define f =
+  ((?x, ?y) => (x,y, z) |
+    Let z = x + y.
+  )
+%Define
+
+Define g =
+  (?x =>
+    (?y =>
+      (x,y, z) |
+        Let z = x + y.
+    ))
+%Define
+
+Define h (?x,?y) = (x, y, z) | Define z = x + y..
+
+Define i ?x ?y = (x, y, z) | Define z = x + y..
+
+Define j ?x ?y ?z = (x,y,z).
+
+Execute
+
+  Let a = f(1,2).
+  Line[left a $$ 5, left(right a) $$ 5, right(right a) $$ 5].
+  Check["    1    2    3"].
+
+  Let b = g 1 2.
+  Line[left b $$ 5, left(right b) $$ 5, right(right b) $$ 5].
+  Check["    1    2    3"].
+
+  Let c = h(1,2).
+  Line[left c $$ 5, left(right c) $$ 5, right(right c) $$ 5].
+  Check["    1    2    3"].
+
+  Let d = i 1 2.
+  Line[left d $$ 5, left(right d) $$ 5, right(right d) $$ 5].
+  Check["    1    2    3"].
+
+  Let e = j 1 2 3.
+  Line[left e $$ 5, left(right e) $$ 5, right(right e) $$ 5].
+  Check["    1    2    3"].
+%Execute
+
+%Package
+

@@ -1,0 +1,38 @@
+Package meets export
+
+%% Test handling of meet declarations
+
+Extension
+  Abstraction A; B; C; D.
+  Relate B | C isKindOf A.
+  Relate D isKindOf B.
+  Relate D isKindOf C.
+  Relate B & C = D.
+  Relate{ahead} F & G = H.
+%Extension
+
+Extension
+  Abstraction E; F; G; H.
+  Relate F | G isKindOf E.
+  Relate H isKindOf F.
+  Relate H isKindOf G.
+%Extension
+
+<<<<<<<<<
+Extension
+  Abstraction W; X; Y; Z.
+  Relate X | Y isKindOf W.
+  Relate Box(ANY) isKindOf X.
+  Relate Box(ANY) isKindOf Y.
+  Relate X & Y = Box(ANY).
+  Relate{ahead} XX & YY = Box(ANY).
+%Extension
+
+Extension
+  Abstraction WW; XX; YY; ZZ.
+  Relate XX | YY isKindOf WW.
+  Relate Box(ANY) isKindOf XX.
+  Relate Box(ANY) isKindOf YY.
+%Extension
+>>>>>>>>>
+%Package

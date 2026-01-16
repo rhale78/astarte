@@ -1,0 +1,73 @@
+Package testconst 
+
+%% Test constants
+
+Import "misc/check".
+
+Execute
+  Let a = 'x'.
+  Let b = '\n'.
+  Let c = '\t'.
+  Let aa = '\\'.
+  Let aaa = '\"'.
+  Let bb= '\{0}'.
+  Let cc = '\{123}'.
+  Line [[a], [b]].
+  Check["x\n"].
+  Line [[c], "q\n"].
+  Check["\tq\n"].
+  Line[$(rank aa), " ", $(rank aaa), " ", $(rank bb), " ", $(rank cc)].
+  Check["92 34 0 123"].
+
+  Line[$true].
+  Check["true"].
+  Line[$false].
+  Check["false"].
+  
+  Let s1 = "\{1}a\{15}".
+  Line[s1].
+  Check[['\{1}', 'a', '\{15}']].
+
+  Let hermit = ().
+  Line[$hermit].
+  Check["()"].
+
+  Let d = 0.
+  Let e = 42.
+  Line[d $$ 5, e $$ 5, "\n"].
+  Check["    0   42\n"].
+
+  Let f = 1.23.
+  Let g = -0.0.
+  Let h = -6.345.
+  Let i = 1.2e4.
+  Let j = 1.2E-6.
+  Let k = 1.0E5.
+  Line[$f].
+  Check["123/100"].
+  Line[$g].
+  Check["0"].
+  Line[$h].
+  Check["-1269/200"].
+  Line[$i].
+  Check["12000"].
+  Line[$j].
+  Check["3/2500000"].
+  Line[$k].
+  Check["100000"].
+
+  Let (X) = 1.
+  Line[$(X)].
+  Check["1"].
+%Execute
+
+Execute
+  Let x =
+    %" long string
+    %" line 2\
+  %Let
+  Line[x].
+  Check[" long string\n line 2"].
+%Execute
+
+%Package

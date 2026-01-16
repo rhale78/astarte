@@ -1,0 +1,19 @@
+Package curry
+
+%% Test curried functions.
+
+Import "misc/check".
+
+Let f ?x ?y =
+  Line["x = ", $x, " y = ", $y].
+  Check["x = 2 y = 3"].
+  (x + y)
+%Let
+
+Execute
+  Let a = f 2 3.
+  Line[$a].
+  Check["5"].
+%Execute
+
+%Package

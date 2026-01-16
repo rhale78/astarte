@@ -1,0 +1,22 @@
+Package hex
+
+%% Test conversion from natural to hex and back.
+
+Import "misc/check".
+
+Execute
+  Line[$hexToNatural("1A")].
+  Check["26"].
+  Line[$hexToNatural("1011F")].
+  Check["65823"].
+  Line[naturalToHex(26, 0)].
+  Check["1A"].
+  Line[naturalToHex(65823, 0)].
+  Check["1011F"].
+  Line[naturalToHex(65536, 0)].
+  Check["10000"].
+  Line[naturalToHex(65536, 10)].
+  Check["     10000"].
+%Execute
+
+%Package

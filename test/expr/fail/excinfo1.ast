@@ -1,0 +1,13 @@
+Package excinfo1 export
+
+%% Testing exception comments.
+
+Exception newexc1.
+
+Exception newexc2(String).
+
+Exception newexc3 "Description 3".
+
+Exception trap newexc4(String) "Description 4".
+
+%Package

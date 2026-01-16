@@ -1,0 +1,192 @@
+  0 !Hash table too large!
+  1 !Object block too large!
+  2 !Too many string blocks!
+  3 !Env_size subscript %d out of range!
+  4 !Freeze_type: bad kind!
+  5 !Bad kind %d to constrain!
+  6 !Bad role ref count %ld!
+  7 !Unknown type kind to cast_for_bring!
+  8 !Bad ref count!
+  9 !Copy_the_pat_list: no expr in table!
+ 10 !Bad expr kind %ld in scan_expr!
+ 11 !Basic_unify: unknown type kind %d!
+ 12 !Bad code in member_of_ctc!
+ 13 !Infer_type: have encountered unimplemented kind %ld!
+ 14 !Bad function expr in defaults!
+ 15 !Should not be doing do_the_defaults on a PAT_RULE!
+ 16 !Unknown pattern function!
+ 17 !File name too long: %s!
+ 18 !Too many token unputs!
+ 19 !Cannot open trace file!
+ 20 !Final_issue_dcl_p!
+ 21 !Have encountered deallocated cuc node!
+ 22 !Bad tag to ast_int_wrap!
+ 23 !Too many species,families,etc.!
+ 24 !Irregular primitive %d has no restriction!
+ 25 !Non-define in team expr, kind = %d!
+ 26 !Generating type variable with unknown offset!
+ 27 Cannot install "%s" as a descendant of "%s".
+ 28 Link label for descendant "%s" of "%s"\  is incompatible with previous label.
+ 29 !Incompatible id numbers in set_open_temps!
+ 30 !Bad code array genloc!
+ 31 !Identifier location conflict!
+ 32 !Bad kind %ld in generate_variety!
+ 33 !Skip_to_endlet: bad instruction %ld!
+ 34 !Marking garbage!
+ 35 !Bad object tag %d during garbage collection mark phase!
+ 36 !Have encountered garbage!
+ 37 !Marked object encountered!
+ 38 !Ran out of boxes!
+ 39 !Bad state kind in ast_assign_s!
+ 40 !Assign to non-box!
+ 41 !Try-then: no try node!
+ 42 !One_try_then: no try node!
+ 43 !Environment missing!
+ 44 !Bad tag %ld in global environment!
+ 45 !Cannot generate string!
+ 46 !Object name index out of bounds!
+ 47 !Missing STOP_G_I!
+ 48 !Setup_globals: illegal instruction %d!
+ 49 !Bad kind to attribute_tm!
+ 50 !No gic for patfun!
+ 51 !No gic for appl_fun!
+ 52 !Ten_to negative power!
+ 53 !Package too large!
+ 54 !Bad type instruction %ld!
+ 55 !Label %d not defined in package %s!
+ 56 !Unknown instruction code %d, package %s!
+ 57 !Bad type declaration of %s!
+ 58 !Bad family declaration of %s!
+ 59 Bad class declaration of %s.
+ 60 Bad community declaration of %s.
+ 61 !Too many exceptions!
+ 62 !Read_package: illegal instruction %ld!
+ 63 !Bad stack in evaluate!
+ 64 !Non-indirection in CHECK_DONE!
+ 65 !Non-indirection in STORE_INDIRECT!
+ 66 !No exception to pop!
+ 67 !Non-define in team!
+ 68 !Unwrap of non-wrap!
+ 69 !Unwrap of qwrap, tag %d!
+ 70 !Print_ent to non-file!
+ 71 !Bad instruction code!
+ 72 !Evaluate: illegal instruction %ld!
+ 73 !Type_instruction_i: illegal instruction %ld!
+ 74 !Global_eval doesn't see type!
+ 75 !Redo-timeout -- bad kind %ld!
+ 76 !Qwrap_extract of non-qwrap!
+ 77 !Exception_to_string: bad exception!
+ 78 !Application of non-function!
+ 79 !Wrapped equality test of wrong kind of object!
+ 80 !Resume: no coroutines!!
+ 81 !Int-to-array of non-int!
+ 82 !No such int array!
+ 83 !Integer too large!
+ 84 !Ast_as of bad object!
+ 85 !Ast_general_num -- cast to bad type!
+ 86 !Non-real to real-to-rat!
+ 87 !Int-to-real of non-int!
+ 88 !Floor of bad object!
+ 89 !Ast_real of bad object!
+ 90 !Ast_rational of bad object!
+ 91 !Make-real of nan!
+ 92 !Make-real of inf!
+ 93 !Round_real of non-real!
+ 94 !Op_real of non-real!
+ 95 !Bad code to op_real!
+ 96 !Number too large!
+ 97 !Doubles are too small on this machine!!
+ 98 !Ast_fprint on non-file!
+ 99 !Fclose of non-file!
+100 !Input_eval of non-file!
+101 !Non-rational to reduce-rat!
+102 !Mult_rat of non-rational!
+103 !Have encountered garbage character!
+104 !Have encountered marked character!
+105 !Split of non-product, tag %d!
+106 !Head of non-product, tag %d!
+107 !Tail of non-product, tag %d!
+108 !Length of non-product, tag %d!
+109 !Sublist of non-product, tag %d!
+110 !Ran out of temp strings!
+111 !Ran out of temp str records!
+112 !Ast_add of non number!
+113 !Ast_subtract of non number!
+114 !Ast_negate of non number!
+115 !Ast_abs of non-number!
+116 !Ast_odd of non-int!
+117 !Ast_mult of non number!
+118 !Ast_divide of bad number!
+119 !Ast-divide-by-2 of non-int!
+120 !Ast_sign of non-number!
+121 !Ast_sqrt of bad object!
+122 !Num-to-string of bad object!
+123 !Int-to-string on non int!
+124 !Compare_simple: bad tag %d!
+125 !Equal: unknown tag!
+126 !Global_indirect has no type field!
+127 !Process_ids: bad expr kind %ld!
+128 !Get_id_list: unknown expr kind %ld!
+129 !Get_open_lists: bad kind %ld!
+130 !Fresh_id_pm: binding bound var!
+131 !Non-pair param to open pat fun!
+132 !Hash!
+133 !Bad list ref count %ld!
+134 !Bad tag %d to array_sublist!
+135 !Ran out of digits in string_to_int!
+136 Cannot open file %s
+137 !File %s is too large!!
+138 !Bad drop_env, ne = %d, most_entries = %d!
+139 !Cannot do second import of %s!
+140 !Bad index to types_declared_missing.!
+141 !Ran out of memory!
+142 !Got a semantic error %d (%s,%s), line = %d.!
+143 !Got a dup_intersect_err (%s,%s,%s).!
+144 astc: Cannot open file %s for writing.
+145 astr: File name too long: %s
+146 astr: Unable to open file %s for reading
+147 astr: File %s has a bad header
+148 astr: Cannot open temp file for writing
+149 astr: Remp file is missing
+150 Usage: astr [options] file[.aso] [program-options]\Loading options:\  -f   --no-check         Don't query about out-of-date files.\  -m   --make             Compile out-ot-date files without asking.\  -n   --no-run           Do not perform executes; just load and stop.\  -q   --quick-load       Don't do time-consuming tests during loading.\\Debugging options:\  -d   --debug-at-trap    Start debugger at a trap.\  -rtN --dump-sizeN       Set the size limit for ast.rts to N kilobytes.\  -riN --dump-value-sizeN Set the size limit for an individual value in\                          ast.rts to N bytes.\  -t   --no-optimize     Suppress tail-recursion and early recovery\                         optimizations.  This is recommended for reading\                         ast.rts.\  -v   --debug           Run the program through the debugger.\\File redirection options:\  -e FILE --stderr FILE  Redirect the standard error output to file FILE.\  -i FILE --stdin FILE   Redirect the standard input to come from file FILE.\  -o FILE --stdout FILE  Redirect the standard output to file FILE.\\Execution options:\  -hN  --heap-limitN      Set the soft heap size limit to N kilobytes.\  -h+  --heap-limit+      Remove the soft heap size limit.\  -pN  --precisionN       Set the default precision to N decimal digits.\  -sN  --stack-limitN     Set the soft stack limit to N frames.\  -s+  --stack-limit+     Remove the soft stack limit.\       --profile          Produce a crude execution profile.\\Other options:\       --help             Print this synopsis.\       --verbose         Show extra information that you usually\                         don't want to see.\       --version         Show the version number of this program.\
+151 Usage: astc [options] file[.ast | .asi]\Listing control options:\  -a      --report-imports      Report all definitions except in standard.ast.\  -A      --Report-imports      Report all definitions, even in standard.ast.\  -d      --abbreviated-listing Show reports in main package.\  -f      --full-listing        List .ast package when compiling .asi package.\  -F      --Full-listing        List all imported packages as well as main one.\  -l      --no-listing          Do not print a program listing.\  -L FILE --listing FILE        Write the listing onto file FILE.\\Warning and error control options:\  -1                         Stop at the first error.\  -e   --expert              Use short error messages.\  -i   --no-check-indent     Do not check indentation.\  -k   --no-check-exhaustive Do not check choices for exhaustiveness.\  -w   --warn                Turn on all warnings, even those that are \                             being suppressed.\  -s   --show                Show the results of type inference at a\                             type inference error.\  -nw  --no-warn	     Turn off all warnings.\  -e FILE                    Append all error messages to file FILE.\  -E FILE                    Write all error messages to FILE, emptying first.\\Other options:\  -b     --behavior          Turn on behavior checking.\  -c     --start-in-comment  Pretend the package begins with <<<<.\         --help              Show this synopsis.\  -I DIR --import DIR        Look in directory DIR for files to import.\  -ns                        Do not read standard.ast.  Don't do this.\  -pN                        Set pattern match/expand substitution depth to N.\         --verbose           Show extra information that you usually \                             don't want to see.\         --version           Show the version number of this program.\
+152 !There was a segmentation violation!
+153 !Second segmentation violation: aborting!
+154 %s is a directory
+155 !Primitive %d cannot be inverted!
+156 !Subtitute_at_posn on non-pair type!
+157 astr: File %s has an outdated version.  Please recompile.
+158 !close-font on non-font!
+159 !addsub_large_real of non-large-real!
+160 !Bad file mode!
+161 !Non int (tag %d) to copy-int-to-array!
+162 !Unification failure in gen_unwrap_test!
+163 !Type constraint failed!
+164 !Size of leftover chunk is %d (not 4 or 8)!
+165 !Not enough room to store sum!
+166 !Process_scopes: bad expr kind %ld!
+167 !GC: bad tag %d on array mark-after length!
+168 !File %s is has too many (%d) lines!!
+169 !Bad try!
+170 !Impossible constraint removal!
+171 !Generating fictitious type!
+172 Duplicate species or family "%s".
+173 Hierarchy is not associative.\  %s & (%s & %s) = %s\  (%s & %s) & %s = %s\
+174 Cycle in hierarchy: "%s" is less than itself.
+175 Stopping on command.
+176 !Irregular function does not have function type!
+177 !Trying to break apart unstructured type!
+178 Cannot create genus or community "%s".
+179 !Default does not bind!
+180 I am processing an ahead meet declaration\  (%s & %s = %s)\  but the right-hand side does not exist.
+181 Unknown species or family "%s".
+182 !Bad tag to check_t2_structured_binding!
+183 !Bad tag to constrain!
+184 !Bad mode ref count %ld!
+185 Duplicate genus or community "%s".
+186 Unknown genus or community "%s".
+187 !Bad deferred instruction %d!
+188 !Bad deferred relate!
+189 !Not all packages could be finished: dependency loop!
+190 !Redo of deferred instruction was deferred!
+191 !species-dollar of non-species!

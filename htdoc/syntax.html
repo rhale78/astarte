@@ -1,0 +1,149 @@
+<HTML>
+<head>
+<title>Astarte: syntax and lexical issues</title>
+</head>
+<body>
+<center>
+<a href="example.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="novice.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> M4. General Lexical And Syntactic Issues</font></h1>
+</center>
+
+<a name=comments></a>
+<menu>
+  <li> <a href=#comments> Comments</a>
+  <li> <a href=#bracketing> Bracketing</a>
+  <li> <a href=#semicolon> Semicolons</a>
+</menu>
+
+<a name="comments"></a>
+<hr>
+<h2><font color=mediumblue> Comments </font></h2>
+
+<ol>
+<p><li> A short comment starts at %% and ends at the end of a line.
+
+<p><li>A long comment starts at any sequence of four or more consecutive
+&lt; signs, and ends at any sequence of four or more consecutive
+&gt; signs.
+
+<a name=line></a>
+<p><li> You can place a sequence of four or more = signs 
+any place a declaration
+can occur.  It is a comment, and cannot occur inside a declaration.
+Use it to separate declarations.
+</ol>
+<font color=#D00090>
+<b><pre>
+    %% This is a short comment
+
+    <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    This is a long comment.
+    Notice that the arrows point to the
+    noncomment part of the program.
+    >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    =============================
+</pre></b>
+</font>
+<a name=escape></a>
+Within a long comment you can temporarily exit the comment by using %&gt;.  
+From %&gt; to the end of the line is not considered part of the comment 
+-- it is read by the compiler.  
+Some people like to program where most of the time
+they are writing comments, and they occasionally write code.  For example,
+the definition of a function might go like this.
+<font color=#D00090>
+<b><pre>
+    <<<<<<<<<<<<<<<<<<<<<<<<<<
+    This function computes the product of the members of a list.
+    Blah blah blah.
+  
+    %&gt; Define prod by
+    %&gt;   case prod [] = 1
+    %&gt;   case prod (?h::?t) = h * prod(t)
+    %&gt; %Define
+
+    Now we are back into a comment.
+</pre></b>
+</font>
+<a name=bracketing></a>
+<a name="bracketing"></a>
+<hr>
+<h2><font color=mediumblue> Bracketing </font></h2>
+
+Most constructs begin with a word (such as If), and end with the
+same word, preceded by a percent sign (such as %If).  
+There can be no space between % and If.
+By convention, words that have a matching end marker are capitalized.
+
+<a name=period></a>
+<P>You can use a period as a wild-card end marker, matching an
+appropriate begin word.  However, a period can only be used
+when it occurs on the same line as the matching begin word.
+
+<P>For example, here is a definition of a power function.
+Notice the matching of begin and end words, and the periods, 
+which stand for %Let at one place and %Value at others.
+<font color=#D00090>
+<b><pre>
+  Define power(?x,?n) =
+    If n == 0
+      then Value 1.                    %% period stands for %Value
+      else
+        Let s = power(x,n--1).         %% period stands for %Let
+        Value s*x.                     %% period stands for %Value
+    %If
+  %Define
+</pre></b>
+</font>
+
+<a name=semicolon></a>
+
+<hr>
+<h2> <font color=mediumblue>Semicolons</font> </h2>
+<P> All declarations and some expressions allow a special notation for 
+chaining several of the same kind of thing together.  A semicolon stands
+for %W W, for an appropriate word W.  For example,
+<font color=#D00090>
+<b><pre>
+    Define
+      x = 1;
+      y = 2
+    %Define
+</pre></b>
+</font>
+has the same effect as
+<font color=#D00090>
+<b><pre>
+    Define x = 1.
+    Define y = 2.
+</pre></b>
+</font>
+since the semicolon stands for %Define Define.
+You can have a semicolon after the last part; it is ignored.  So
+<font color=#D00090>
+<b><pre>
+    Define
+      x = 1;
+      y = 2;
+    %Define
+</pre>
+</font></b>
+is acceptable.
+
+<hr>
+<center>
+<a href="example.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="novice.html">Next</a>
+</center>
+</body>
+</HTML>

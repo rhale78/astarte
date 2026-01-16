@@ -1,0 +1,526 @@
+%% File: stdnum.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=================================================================
+Package 		Astarte_Stdnum 
+===================================================================
+
+%% This package describes the standard numeric species and
+%% functions.  These operations are available in all packages.
+%%
+%% Extended numeric species are available as well.  See
+%% the following packages.
+%%
+%% 	complex.ast	Complex numbers.
+%%	modular.ast	Modular arithmetic.
+%%
+%% The standard numeric hierarchy is as follows, with larger
+%% genera to the left.
+%%
+%%                                                  Natural
+%%                                                /
+%%                                         INTEGER
+%%                                        /       \
+%%                     ORDER       RATIONAL         Integer
+%%                          \     /       \       /
+%%                           _REAL__       RATRING
+%%                                  \     /       \
+%%                                   RRING         _ Rational
+%%                                        \      /
+%%                                         RFIELD
+%%                                               \
+%%                                                \_ Real
+%%                             
+%%
+%% Numeric constants have two forms.  
+%%
+%% 1. Natural constants are decimal integers, such as 123.  They are 
+%% normally polymorphic, with any species in genus REAL.  See
+%% natconst for how you can change that.
+%%
+%% 2. Rational constants have a decimal point, with at least one digit on
+%% each side of the decimal point.  For example, 1.23 is a rational
+%% constant.  Optionally, you may include a power of 10 by following
+%% the constant by E or e, followed by the power of 10.  For example,
+%% 1.23E4 is the same number as 12300.0, and 1.23e-2 is the same as
+%% 0.0123.  There must be no spaces inside a number.
+%%
+%% Rational constants are normally polymorphic over genus RFIELD.
+%% See ratconst for how to change that.
+
+=====================================================================
+			Export
+=====================================================================
+
+Description
+
+ INTEGER	%" INTEGER is a genus initially holding species 
+ 		%" Natural and Integer.  This genus cannot be extended.
+ 		;
+
+ RATIONAL	%" RATIONAL is a genus initially holding species 
+ 		%" Natural, Integer and Rational.  This genus cannot
+		%" be extended.
+		;
+
+ RATRING	%" RATRING is a genus initially holding species 
+ 		%" Integer and Rational.  This genus cannot be
+		%" extended.
+		;
+
+ REAL		%" REAL is a genus initially holding species Natural, 
+ 		%" Integer, Rational and Real.  This genus cannot
+		%" be extended.
+		;
+
+ RFIELD		%" RFIELD is a genus initially holding species 
+ 		%" Rational and Real.  This genus cannot be extended.
+		;
+
+ RRING		%" RRING is a genus initially holding species Integer, 
+ 		%" Rational and Real.  This genus cannot be extended.
+		;
+
+ Integer	%" Integer is a species of integers, including positive
+		%" and negative integers.
+                ;
+
+ Natural	%" Natural is a species of nonnegative integers.
+		;
+
+ Rational	%" Rational is a species of fractions, represented
+		%" exactly as ratios of integers.
+		;
+
+ Real		%" Real is a species of real numbers, represented 
+		%" approximately.  The precision of operations on 
+		%" reals is controlled by setting box precision! 
+		%" to the number of decimal digits desired.  
+		%" At least that many digits will be used.
+		;
+
+ +		: (REAL`a, REAL`a) -> REAL`a
+
+		%" x + y is the sum of x and y.
+		;
+
+ +		: REAL`a -> REAL`b
+
+		%" Use +x to convert x from one numeric species to another.
+		%" It only converts in the direction Natural -> Integer
+		%" -> Rational -> Real, or to a secondary species.
+		%"
+		%" When converting to a secondary species, + can fail, 
+		%" with exception conversionX, if the
+		%" conversion is impossible.  It will only convert
+		%" the wrapped value in the direction Natural -> 
+		%" Integer -> Rational -> Real.
+		%"
+		%" + is a unary operator.
+		%"
+		%" See also function _as_.
+		;
+
+ -		: (RRING`a,RRING`a) -> RRING`a
+
+		%" x - y is the difference of x and y (x minus y).
+		;
+
+ -		: RRING`a -> RRING`a
+
+		%" -x = 0-x.  - is a unary operator.
+		;
+
+ --		: (REAL`a,REAL`a) -> REAL`a
+
+		%" x -- y = abs(x-y).
+		;
+
+ *		: (RRING`a,RRING`a) -> RRING`a
+
+		%" x * y is the product of x and y.
+		;
+
+ /		: (RFIELD`a,RFIELD`a) -> RFIELD`a
+
+		%" x / y is the quotient of x and y (x divided by y).
+		%" It fails with exception domainX("divide by zero")
+		%" if y is zero.
+		;
+
+ /		: RFIELD`a -> RFIELD`a
+
+		%" /x = 1/x.  / is a unary operator.
+		;
+
+ //		: (INTEGER`a,INTEGER`b) -> Rational
+
+		%" x // y is x/y (as a rational number).
+		;
+
+ //		: INTEGER`a -> Rational
+
+		%" //x = 1//x.  // is a unary operator.
+		;
+
+  ^		: ({RRING`a},Natural) -> {RRING`a}
+
+		%" x^y  is x to the y power.  It fails with exception
+		%" domainX("0^0") if x and y are both zero.
+		;
+
+  ^/		: ({RFIELD`a},Integer) -> {RFIELD`a}
+  
+		%" x^/y  is x to the y power.  It fails with exception
+		%" domainX("0^0") if x and y are both zero, and
+		%" with exception domainX("divide by zero") if
+		%" x = 0 and y < 0.
+		;
+
+ ~		: REAL`a -> Real
+
+		%" ~x is the result of converting x to Real.  If
+		%" x is of type Rational or Real, x is rounded
+		%" to the current precision.
+		%"
+		%" ~ is a unary operator.
+		;
+
+ $		: REAL`a -> String
+
+		%" #{number}
+		%" $(x) is x converted to a string.  For example,
+		%"
+		%"    $(255)           = "255"
+		%"    $(2/4)           = "1/2"
+		%"    $(1.234567:Real) = "1.234E 00"
+		%"
+		%" $ is a unary operator.
+		;
+
+ $$		: (REAL`a, Natural) -> String
+
+		%" x $$ n is a string representation of x in at least 
+		%" n characters.  Exactly n characters are used if 
+		%" that is enough.  For rational numbers, the form is
+		%" n/d, where n is the numerator and d is the 
+		%" denominator.  For real numbers, floating point
+		%" format is used.  
+		;
+
+ $$		: (REAL`a, (Natural, Natural)) -> String
+
+		%" x $$ (n,d) is a string represenation of x using at least
+		%" n characters, and having d digits to the right of
+		%" the decimal point.  Fixed-point notation is used.
+		;
+
+ $$		: (REAL`a, (Natural, Natural, Natural)) -> String
+
+		%" x $$ (n,d,e) is a string representation of x using at
+		%" least n characters, with d significant digits and 
+		%" e digits used for the exponent (including the sign, 
+		%" but excluding the 'E'.  Floating point format is used.
+		; 
+
+ abs		: REAL`a -> REAL`a
+
+		%" abs(x) is the absolute value of x.
+		;
+
+ absCeiling	: REAL`a -> Natural
+ 
+ 		%" absCeiling(x) is the absolute value of the
+		%" ceiling of x.
+		;
+ 
+ absFloor	: REAL`a -> Natural
+ 
+ 		%" absFloor(x) is the absolute value of the
+		%" floor of x.
+		;
+ 
+ AddTo		: (<:REAL`a:>, REAL`a) -> ()
+
+		%" AddTo(b,x) %AddTo adds x to the content
+		%" of box b.  It fails with exception emptyBoxX
+		%" if b is empty.  AddTo is atomic, so it will not
+		%" be interrupted part way through its operation.
+		%"
+		%" Example:
+		%"
+		%"   Var x holding Natural := 4.
+		%"   AddTo(x,1).
+		%"   --- now x has content 5.
+                ;
+
+ _as_		: (REAL`a, REAL`b) -> REAL`b
+
+		%" (x _as_ y) is the result of converting x to the
+		%" species of y. It can fail, with exception 
+		%" conversionX, if the conversion is impossible.  
+		%" It will not lose information except when converting
+		%" to species Real, when it can round to the current 
+		%" precision.
+		;
+
+ ceiling	: REAL`a -> Integer
+
+		%" ceiling(x) is the smallest integer that is not
+		%" smaller than x.
+                ;
+
+ compatify	: (REAL`a, REAL`b) -> (REAL`c,REAL`c)
+ 
+ 		%" compatify(x,y) returns a pair (x',y') where x' and
+		%" y' are the same numeric values as x and y, but
+		%" have been converted to the same species.  The
+		%" species of x' and y' is the most general of the 
+		%" species of x and y, where conversion is done
+		%" in the direction Natural -> Integer -> Rational 
+		%" -> Real.
+		;
+ 
+ Decrement	: <:INTEGER`a:> -> ()
+
+		%" Decrement  b %Decrement subtracts 1 from the content
+		%" of box b.  It fails with exception emptyBoxX if
+		%" b is empty, and fails with exception
+		%" domainX("decrement of 0") if b has content
+		%" species Natural and contains 0. Decrement is atomic,
+		%" so it will not be interrupted part way through
+		%" the decrement.
+                ;
+
+ denominator	: Rational -> Natural
+
+		%" denominator(x) is the denominator of the reduced
+		%" form of rational number x.  For example,
+		%" denominator(3/6) = 2. since the reduced form
+		%" if 3/6 is 1/2.  See numerator.
+                ;
+
+ _div_		: (INTEGER`a,Natural) -> INTEGER`a
+
+		%" x _div_ y  is  the quotient when x is divided by y.
+		%" See divide.
+		;
+
+ divide		: (INTEGER`a,Natural) -> (INTEGER`a,Natural)
+
+		%" divide(x,y) = (q,r) where q is the quotient and
+		%" r is the remainder when x is divided by y.  
+		%" Precisely, q and r satisfy 
+		%" 
+		%"      0 <= r < y
+		%"      q*y + r = x.
+		%"
+		%" You may use roles as
+		%"   divide(dividend ~> x, divisor ~> y) =
+		%"   (quotient ~> q, remainder ~> r).
+                %" See _div_, _mod_.
+		;
+
+ _downto_	: (INTEGER`a, INTEGER`b) -> [INTEGER`b]
+
+		%" m _downto_ n is the list [m,m-1,...,n].
+		;
+
+ floor		: REAL`a -> Integer
+
+		%" floor(x) is the largest integer that is not
+		%" greater than x.
+                ;
+
+ gcd		: (INTEGER`a,INTEGER`a) -> INTEGER`a
+
+		%" gcd(x,y) is the greatest common divisor of |x| and |y|.
+                %" gcd(0,0) fails with exception domainX("gcd(0,0)").
+		;
+
+ hexToNatural	: String -> Natural
+ 
+ 		%" hexToNatural(s) produces the natural number described
+		%" by hexadecimal string s.  For example,
+		%" hexToNatural("1A") = 26.  You can use either lower
+		%" case or upper case letters A-F for the hex digits
+		%" 10-15.
+		;
+		
+ Increment	: <:INTEGER`a:> -> ()
+
+		%" Increment(b) %Increment adds 1 to the content
+		%" of box b.  It fails with exception emptyBoxX if
+		%" b is empty.  Increment is Atomic, so it will
+		%" not be interrupted part way through the increment.
+		%"
+		%" Example
+		%"
+		%"   Var x holding Natural := 8.
+		%"   Increment(x).
+		%"   --- x now has content 9.
+                ;
+
+ integer	: INTEGER`a -> Integer
+
+		%" integer(x) is the result of converting x to species
+		%" Integer.
+                ;
+
+ largenum	: Natural
+
+		%" largenum is a large natural number.  It is sufficiently
+		%" large that x ## (n,largenum) produces a suffix of
+		%" list x.
+                ;
+
+
+ _mod_		: (INTEGER`a,Natural) -> Natural
+
+		%" x _mod_ y  is  the remainder when x is divided by y.
+		%" See divide.
+		;
+
+ _monus_	: (Natural, Natural) -> Natural
+
+		%" a _monus_ b is max(0, a-b).
+		;
+
+ nabs		: INTEGER`a -> Natural
+
+		%" nabs(x) is the absolute value of x.
+                ;
+
+ natconst	: Natural -> REAL`a
+
+		%" When you write an integer constant such as 4, the
+		%" compiler replaces this by (natconst 4).  Normally,
+		%" this is of no consequence to you.  However, if you
+		%" want to make integer constants have new species, you
+		%" can do so by extending the definition of natconst.
+		%" See also ratconst.
+		;
+		
+ natural	: INTEGER`a -> Natural
+
+		%" natural(x) is the result of converting x to species
+		%" Natural.  It fails with exception conversionX
+		%" is x is negative.
+                ;
+
+ naturalToHex	: (Natural,Natural) -> String
+ 
+ 		%" naturalToHex(x,n) is a hexadecimal number
+		%" that represents natural number x.  It is 
+		%" shown it at least n characters.  Use n = 0
+		%" if you do not care how many characters are used.
+		;
+		
+ numerator	: Rational -> Integer
+
+		%" numerator(x) is the numerator of the reduced
+		%" form of rational number x.  See denominator.
+		;
+
+ odd?		: INTEGER`a -> Boolean
+
+		%" odd?(x) is true just when x is odd.
+		;
+
+ precision!	: <:Natural:>
+
+		%" Arithmetic operations on species Real are carried
+		%" out to at least @precision! decimal digits of
+		%" precision.  precision! is a nonshared box.
+		;
+
+ putCommasInNumbers! : <:Boolean:>
+
+		%" If @putCommasInNumbers! is true, then $ and $$ put
+		%" commas in numbers every three digits.  See $.
+		%" putCommasInNumbers! is a nonshared box.
+		;
+
+ ratconst	: Rational -> RFIELD`a
+
+		%" When you write a real constant such as 4.3, the
+		%" compiler replaces this by (ratconst 4.3).  Normally,
+		%" this is of no consequence to you.  However, if you
+		%" want to make rational constants have new species, you
+		%" can do so by extending the definition of ratconst.
+		%" See also natconst.
+		;		
+
+ rational	: REAL`a -> Rational
+
+		%" rational(x) is the result of converting x to species
+		%" Rational.
+		;
+
+ round		: REAL`a -> Integer
+
+		%" round(x) is the closest integer to x.
+		;
+
+ sign		: REAL`a -> Integer
+
+		%" sign(x) is
+		%"   1  if x > 0
+		%"   0  if x = 0
+		%"  -1  if x < 0
+		;
+
+ stringToInteger: String -> Integer
+
+		%" stringToInteger(s) is the integer described by
+		%" decimal string s.  It fails with exception
+		%" conversionX if s is not a decimal number.
+		%" Leading and trailing white space are allowed.
+		;
+
+ stringToNatural: String -> Natural
+
+		%" stringToNatural(s) is the natural number described by
+		%" decimal string s.  It fails with exception
+		%" conversionX if s is not a decimal number.
+		%" Leading and trailing white space are allowed.
+		;
+
+ stringToRational: String -> Rational
+
+		%" stringToRational(s) is the rational number described
+		%" by string s.  It fails with exception conversionX
+		%" if s is not a valid number representation.
+		%" Numbers can be in the same form as constants
+		%" in programs.
+		%" Leading and trailing white space are allowed.
+		;
+
+ stringToReal: String -> Real
+
+		%" stringToReal(s) is the real number described
+		%" by string s.  It fails with exception conversionX
+		%" if s is not a valid number representation.
+		%" Numbers can be in the same form as constants
+		%" in programs.
+		%" Leading and trailing white space are allowed.
+		;
+
+ _upto_		: (INTEGER`a, INTEGER`b) -> [INTEGER`a]
+
+		%" m _upto_ n is the list [m,m+1,...,n].
+		;
+
+ zero?		: REAL`a -> Boolean
+
+		%" zero?(x) is true just when x = 0.
+		;
+
+%Description
+
+%Package
+
+

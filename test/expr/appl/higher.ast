@@ -1,0 +1,71 @@
+Package higher
+
+%% Test a few higher order functions, and some others.
+
+Import "collect/listfun".
+Import "misc/check".
+
+%% ||
+
+Execute
+  Let g = map(+) || map(-).
+  Line[$g[(2,4),(6,7)]].
+  Check["[-6,-13]"].
+%Execute
+
+%% idf
+
+Execute
+  Line[idf("abcd")].
+  Check["abcd"].
+%Execute
+
+%% _o_, _o3_
+
+Execute
+  Let f(?x) = x + x.
+  Let g = f _o_ f.
+  Let h = f _o_ f _o_ f.
+  Let r = _o3_(f,f,f).
+  Line[$g(3), " ", $h(3), " ", $r(3)].
+  Check["12 24 24"].
+%Execute
+
+%% constf
+
+Execute
+  Let f = constf 3.
+  Line[$f 25].
+  Check["3"].
+%Execute
+
+%% curry, uncurry
+
+Execute
+  Let sub = curry(-).
+  Line[$(sub 8 2)].
+  Check["6"].
+  
+  Let subb = uncurry sub.
+  Line[$subb(8,2)].
+  Check["6"].
+%Execute
+
+%% MapProc
+
+Execute
+  MapProc Writeln, [["Should", " print "], ["this"]].
+%Execute
+
+%% succeedsf
+
+Execute
+  Let testnonnull = succeedsf head.
+  Untrap emptyListX =>
+    If testnonnull ([] : [Natural])
+      then Writeln["Bad"].
+    %If
+  %Untrap
+%Execute
+
+%Package

@@ -1,0 +1,15 @@
+Package wcollect
+
+%% Test wrap operations for collections.
+
+Import "collect/linset".
+
+Let s1 = set [1,2,3].
+
+Let c1 = ^^ s1 : COLLECTION(Natural).
+
+Execute
+  Writeln[$c1].
+%Execute
+
+%Package

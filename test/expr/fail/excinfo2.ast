@@ -1,0 +1,13 @@
+Package excinfo2
+
+Import "excinfo1".
+
+Execute
+  Writeln["Should write newexc1, and then fail with exception newexc3.\n"].
+  Writeln[$newexc1].
+  Fail(newexc3).
+%%  Fail(newexc4("ok")).
+%%  Fail(sizeX).
+%Execute
+
+%Package

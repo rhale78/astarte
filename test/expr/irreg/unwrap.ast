@@ -1,0 +1,72 @@
+Package testunwrap 
+
+Import "misc/check".
+
+Extension
+  Species AReal     = aReala REAL.
+  Species NumOrBool = boolNOB Boolean | numNOBa REAL.
+%Extension
+
+Let aReal(?x) = aReala(<<x>>).
+Pattern aReal(?x) => Match aReala(?<<?x>>?) = target..
+
+Let numNOB(?x) = numNOBa(<<x>>).
+Pattern numNOB(?x) => Match numNOBa(?<<?x>>?) = target..
+
+Let Test(?x). =
+  Choose first
+    case do Match aReal(?y:INTEGER`a) = x. => 
+      Line["test: input is integer or natural ", $y].
+    case do Match aReal(?z:RFIELD`a) = x. =>
+      Line["test: input is a real or rational ", $z].
+  %Choose
+%Let
+
+Define Testany(?x). =
+  Choose first
+    case do Match (?<<?y:INTEGER`a>>?) = x. => 
+      Line["test: input is integer or natural ", $y].
+    case do Match (?<<?z:RFIELD`a>>?) = x. =>
+      Line["test: input is a real or rational ", $z].
+  %Choose
+%Define
+
+Define Testunwrap(?x). =
+  Choose first
+    case do Match <<?y>> = x. => 
+	Show(@stdout!), y.
+	Writeln[].
+  %Choose
+%Define
+
+Define testdunwrap(?x) =
+  Choose first matching x
+    case boolNOB(?b) => $b ++ " is boolean"
+    case numNOB(?n) => $n ++ " is " ++ $(speciesOf n)
+  %Choose
+%Define
+
+Execute
+  Test(aReal(3)).
+  Check["test: input is integer or natural 3"].
+  Test(aReal(3.0)).
+  Check["test: input is a real or rational 3"].
+  Testany(<<3>>).
+  Check["test: input is integer or natural 3"].
+  Testany(<<3.0>>).
+  Check["test: input is a real or rational 3"].
+  Writeln["Should print 3\n"].
+  Testunwrap(<<3>>:ANY).
+  Writeln[].
+  Line[testdunwrap(boolNOB(true))].
+  Check["true is boolean"].
+  Line[testdunwrap(numNOB(1))].
+  Check["1 is Natural"].
+  Line[testdunwrap(numNOB(4.0))].
+  Check["4 is Rational"].
+%Execute
+
+%Package
+
+
+

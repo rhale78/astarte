@@ -1,0 +1,46 @@
+Package testtype1 Export
+
+%% Test uniform types.
+
+Import "misc/check".
+
+Extension
+  Species
+    T1 = Natural;
+    T2 = (T1, Natural);
+    T3 = makeT3 T2;
+  %Species
+%Extension
+
+Execute
+  Let a = t1(2).
+  Match t1(?b) = a.
+  Line[b $$ 5].
+  Check["    2"].
+
+  Let c = t2(t1(3), 4).
+  Match t2(t1(?d), ?e) = c.
+  Line[d $$ 5, e $$ 5].
+  Check["    3    4"].
+  
+  Let f = makeT3(c).
+  Match makeT3(?g) = f.
+  Match t2(t1(?h), ?i) = g.
+  Line[h $$ 5, i $$ 5].
+  Check["    3    4"].
+
+  If a == a 
+    else Writeln["BAD"].
+  %If
+  Let aa = t1(3).
+  If a == aa
+    then Writeln["BAD"].
+  %If
+  
+%Execute
+  
+%Package
+
+
+
+

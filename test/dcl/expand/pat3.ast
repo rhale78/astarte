@@ -1,0 +1,13 @@
+Package Testpat
+
+%% Test pattern matching with pattern declarations.
+
+Pattern
+  p6 (idf ?x) (idf ?y) => Match (?x,?y) = target.;
+  p6 ?x (?y ++ ?z)     => Match (?x,?y,?z) = target.
+%Pattern
+
+%Package
+
+  
+  

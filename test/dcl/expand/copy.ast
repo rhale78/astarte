@@ -1,0 +1,17 @@
+Package copy 
+
+%% Test copying of pattern functions and constants
+
+Pattern zz = nil.
+
+Pattern rr = ::.
+
+Execute
+  Assume :: : (Natural, [Natural]) -> [Natural].
+  Writeln["\nShould fail with exception testX\n"].
+  Match zz = [ :: ].
+  Match rr(?,?) = [ :: ].
+%Execute
+
+%Package
+ 

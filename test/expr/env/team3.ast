@@ -1,0 +1,41 @@
+Package testteam2
+
+%% Test Team expressions
+
+Define merge ?x ?y =
+ Await then
+   Choose first matching (x,y)
+      case ([], ?a) 	        => a
+      case (?a, []) 	        => a
+      case (?a :: ?b, ?c :: ?d) => 
+	Choose first
+	  case a == c => a :: merge b d
+	  case a < c  => a :: merge b y
+	  else        => c :: merge x d
+	%Choose
+   %Choose
+ %Await
+%Define	     
+=========================================================
+Define printHamming! ?n. =
+  Team
+    Define 
+      hamming = 1 :: merge twos (merge threes fives);
+      twos    = [: 2 * x | Let x = eachMixed hamming. :];
+      threes  = [: 3 * x | Let x = eachMixed hamming. :];
+      fives   = [: 5 * x | Let x = eachMixed hamming. :];
+    %Define 
+  %Team
+
+  Loop ?i = 0 first
+    while i < n => Writeln[hamming#_i $$ 4].
+	            continue i+1
+    until else    => ()
+  %Loop
+%Define
+
+Execute
+  printHamming! 16.
+%Execute
+
+%Package

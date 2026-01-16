@@ -1,0 +1,30 @@
+Package rank 
+
+%% Test rankBox, _eq_, _neq_.
+
+Import "misc/check".
+
+Execute
+  Var{nonshared} a,aa holding Natural.
+  Var{shared} b,bb holding Natural.
+  Writeln["NonshardBox a has rank ", $rankBox(a)].
+  Writeln["SharedBox b has rank ", $rankBox(b)].
+  Line ["a _eq_ a   = ", $(a _eq_ a)].
+  Check["a _eq_ a   = true"].
+  Line ["a _eq_ aa  = ", $(a _eq_ aa)].
+  Check["a _eq_ aa  = false"].
+  Line ["b _eq_ b   = ", $(b _eq_ b)].
+  Check["b _eq_ b   = true"].
+  Line ["b _eq_ bb  = ", $(b _eq_ bb)].
+  Check["b _eq_ bb  = false"].
+  Line ["a _neq_ a  = ", $(a _neq_ a)].
+  Check["a _neq_ a  = false"].
+  Line ["a _neq_ aa = ", $(a _neq_ aa)].
+  Check["a _neq_ aa = true"].
+  Line ["b _neq_ b  = ", $(b _neq_ b)].
+  Check["b _neq_ b  = false"].
+  Line ["b _neq_ bb = ", $(b _neq_ bb)].
+  Check["b _neq_ bb = true"].
+%Execute
+
+%Package

@@ -1,0 +1,13 @@
+Package sysenv
+
+%% Test the environ function.
+
+Import "system/system".
+
+Execute
+  For (?name,?val) from sysEnviron do
+    Writeln[name, " = ", val].
+  %For
+%Execute
+
+%Package

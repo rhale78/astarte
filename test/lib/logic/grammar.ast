@@ -1,0 +1,68 @@
+Package grammar
+
+Import "logic/unify".
+
+%% Test a simple logic grammar
+
+Define Append by all
+  case Append([], ?x, ?x).         <- ()
+  case Append(?h::?t, ?x, ?h::?y). <- Append(t,x,y).
+%Define
+
+Team
+  Define Sentence by all
+    case Sentence(?l,?x,?y). <-
+       Var{logic} np,vp,r.
+       NP(l,np,r).
+       VP(r,vp,y).
+       Append(np,vp,x).
+  %Define
+  
+  Define NP by all
+    case NP(?l,?x,?y). <-
+      ProperNoun(l,x,y).
+
+    case NP(?l,?x,?y). <-
+      Var{logic} det,cn,r.
+      Determiner(l,det,r).
+      CommonNoun(r,cn,y).
+      Append(det,cn,x).
+  %Define
+  
+  Define VP by all
+    case VP(?l,?x,?y). <-
+      Var{logic} tv,np,r.
+      TransitiveVerb(l,tv,r).
+      NP(r,np,y).
+      Append(tv,np,x).
+  %Define
+
+  Define Determiner by all
+    case Determiner(["a" & ?r], ["a"], ?r).     <- ()
+    case Determiner(["the" & ?r], ["the"], ?r). <- ()
+  %Define
+
+  Define CommonNoun by all
+    case CommonNoun(["hamburger" & ?r], ["hamburger"], ?r). <- ()
+  %Define
+  
+  Define ProperNoun by all
+    case ProperNoun(["Archie" & ?r], ["Archie"], ?r). <- ()
+    case ProperNoun(["Betty" & ?r], ["Betty"], ?r).   <- ()
+  %Define
+  
+  Define TransitiveVerb by all
+    case TransitiveVerb(["eats" & ?r], ["eats"], ?r).   <- ()
+    case TransitiveVerb(["likes" & ?r], ["likes"], ?r). <- ()
+  %Define
+  
+%Team
+
+Execute
+  Var{logic} x.
+  Sentence(["Archie", "likes", "the", "hamburger"], x, []).
+  Writeln["Success: ", $x].
+%Execute
+
+%Package
+

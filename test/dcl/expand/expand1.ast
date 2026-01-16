@@ -1,0 +1,67 @@
+Package expand1 
+
+%% Test expansions
+
+Directory standard.  Import "misc/check".
+
+Let sum(?x,?y) = x+y.
+Expand sum(?x,?y) => x + y.
+
+Execute
+  Let a = sum(1,2).
+  Line[$a].
+  Check["3"].
+%Execute
+
+Execute
+  Let a = sum(1*3, 2*5).
+  Line[$a].
+  Check["13"].
+%Execute
+
+Expand prod ?x ?y => x * y.
+
+Execute
+  Let a = prod 2 5.
+  Line[$a].
+  Check["10"].
+%Execute
+
+Expand 0 * ?x => 0.
+
+Execute
+  Let a = 0 * 4.
+  Line[$a].
+  Check["0"].
+  Let b = 1 * 4.
+  Line[$b].
+  Check["4"].
+%Execute
+
+Expand (?x)^2 => x*x.
+
+Execute
+  Let a = (2.0+2.0)^2.
+  Line[$a].
+  Check["16"].
+%Execute
+
+Expand gg(?x) => x * x.
+
+Execute
+  Let b = Writeln["Should print this just once"]. 2.0.
+  Line[$(gg(b))].
+  Check["4"].
+%Execute
+
+Expand sum' = sum.
+
+Execute
+  Let a = sum'(1,2).
+  Line[$a].
+  Check["3"].
+%Execute
+
+
+%Package
+

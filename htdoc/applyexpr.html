@@ -1,0 +1,515 @@
+<HTML>
+<head>
+<title>Astarte: functions and function application</title>
+</head>
+<body>
+<center>
+<a href="sequence.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tupleexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1> <font color=mediumblue>E5. Functions and Function Application</font> </h1>
+</center>
+
+<menu>
+  <li> <a href=#basicapp> Basic function application</a>
+  <li> <a href=#assocjux> Associativity of juxtaposition</a>
+  <li> <a href=#precedence> Precedence of binary operators</a>
+  <li> <a href=#ordereval> Order of evaluation</a>
+  <li> <a href=#othersyntac> Other syntactic forms</a>
+  <li> <a href=#operator> Creating new operators</a>
+  <li> <a href=#suppress>  When is special meaning suppressed?</a>
+</menu>
+
+<a name=basicapp></a>
+<hr>
+<h2><font color=mediumblue> Basic function application </font></h2>
+
+A function is a computational engine that takes one parameter
+and produces one result.  In some cases, it also has side-effects;
+it can change things.  Most functions, however, have no side
+effects.  They only produce an answer.
+
+<p>When you use, or run, a function, you <em>apply</em> it.  
+The basic syntactic form for function application is juxtaposition.
+To apply a function to a value, you can just write
+the value after the function.  That is, you <i>juxtapose</i> the function
+and its argument.  For example, 
+<font color=#D00090>sqrt 4</font> is an expression
+that applies function sqrt to value 4.  Its value is 2.  
+Both the function and the
+argument can be arbitrarily complex expressions.  
+<font color=BLACK>For example</font>,
+<font color=#D00090>sqrt(2+2)</font> is also the square root of 4.
+
+<a name=assocjux></a>
+<hr>
+<h2><font color=mediumblue> Associativity of juxtaposition </font></h2>
+
+<P> Juxtaposition associates to the <em>left</em>.  So 
+<font color=#D00090>
+<b><pre>
+  f a b
+</pre></b>
+</font> 
+is understood to mean 
+<font color=#D00090>
+<b><pre>
+  (f a) b
+</pre></b>  
+</font> 
+You need to be careful about this.  If your write 
+<font color=darkorange>
+<b><pre>
+  sqrt sqrt 4
+</pre></b>
+</font> 
+this is read as 
+<font color=darkorange>
+<b><pre>
+  (sqrt sqrt) 4
+</pre></b>
+</font> 
+which is asking to take the square root of the square root function.
+That makes no sense; you take the square root of a number, not of a 
+function. So this results in a type error.
+Use parentheses to help.  Expression
+<font color=#D00090>
+<b><pre>
+  sqrt(sqrt 4) 
+</pre></b>
+</font>
+yields the square root of the square root of 4.
+
+<P> Juxtaposition has higher precedence than binary operators.
+So sqrt 2 + 2 is understood to mean (sqrt 2) + 2.
+Use parentheses to get what you want.
+
+<a name=precedence></a>
+<hr>
+<h2><font color=mediumblue>Precedence of binary operators</font></h2>
+
+<p>Precedence and associativity of binary operators are as follows,
+from high to low.
+
+<p><table border=2>
+  <tr>
+    <td><b>Operators(s)<b></td>
+    <td><b>Associativity<b></td>
+    <td><b>Precedence<b></td>
+  </tr>
+  <tr>
+    <td>_opL9_</td>
+    <td>left</td>
+    <td>high</td>
+  </tr>
+  <tr>
+    <td>_opR9_, _o_</td>
+    <td>right</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>_opL8_,	#, ##, _as_, _eagerCutBy_</td>
+    <td>left</td>
+    <td></td>
+  </tr>
+  <tr>	
+    <td>_opR8_, ^</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>	
+    <td>_opL7_, *, /, //, _div_, _mod_</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opR7_</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opL6_, +, -, --, _monus_</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opR6_</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opL5_, $$, _upto_, _downto_, _leftin_</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opR5_, ::</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opL4_, +/</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opR4_, ++</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td><, >, <=, >=, ==, =/=, _eq_, _neq_, _is_</td>
+    <td>none</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opL3_</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opR3_, _and_, _andf_</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opL2_</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opR2_, _or_, _orf_</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opL1_, _where_, _also_, _orelse_, _orthen_, _orwith_</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_opR1_, ==>, _implies_</td>
+    <td>right</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_bar_, ||, |</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>_butIfFail_</td>
+    <td>left</td>
+    <td></td>
+  </tr>	
+  <tr>
+    <td>:=</td>
+    <td>right</td>
+    <td>low</td>
+  </tr>
+</table>
+
+<p>Note: Symbols :=, |, _and_, _implies_ and _or_ are reserved.  You cannot
+redefine their meanings or their precedence. 
+
+<a name=ordereval></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Order of evaluation </font></h2>
+
+Although functions are often just given by names, they can
+be arbitrarily complex expressions.  When a function is given by
+an expression, that expression must be evaluated to obtain the
+function before the function can be applied.
+
+<p>The order of evaluation
+of the parts of expression (<i>f</i> <i>a</i>) or 
+(<i>f</i> <i>a</i> <i>b</i>) is not specified.
+The compiler can choose to evaluate the individual parts from
+left to right or from right to left, or in any other order.
+Here are two possible ways to compute expression (<i>f</i> <i>a</i>).
+<ol>
+  <p><li> First evaluate <i>f</i>, then evaluate <i>a</i>, then apply function 
+  <i>f</i> to value <i>a</i>.
+  <p><li> First evaluate <i>a</i>, then evaluate <i>f</i>, then apply function
+  <i>f</i> to value <i>a</i>.
+</ol>
+Because the order of evaluation is undefined, any
+identifiers that are defined in one of the parts are not
+visible in the other parts, since they might not have been
+computed yet.  So the following is not allowed, since the name x is
+defined inside the function expression, and used in the argument.
+<font color=darkorange>
+<b><pre>
+    (Let x = 1.5. Value sqrt.)(x)
+</pre></b>
+</font>
+This problem can show up with binary operators.  If you write
+<font color=darkorange>
+<b><pre>
+    Let x = 1.5.
+    x + x
+</pre></b>
+</font>
+you might expect to have an expression whose value is 3.0.  But
+juxtaposition has higher precedence than binary operators, so according
+to the rules of precedence, this is equivalent to (Let x = 1.5. x) + x.
+The second x is not allowed, since it might be evaluated before x is
+defined.  To avoid this problem, either use parentheses or Value ... %Value.
+For example, write
+<font color=#D00090>
+<b><pre>
+    Let x = 1.5.
+    Value x + x.
+</pre></b>
+</font>
+</font>
+
+<a name=othersyntac></a>
+<hr>
+<h2><font color=mediumblue> Other syntactic forms </font></h2>
+
+For convenience, there are some other syntactic forms that can
+be used for applying functions.  They are nothing but conveniences
+of notation; the effect is exactly the same as what is achieved
+using juxtaposition.
+
+<dl>
+<a name=bar></a>
+<p><dt><font color="red"> x | f </font>
+<dd> x | f has the same meaning as f(x).  Bar has
+lower precedence than juxtaposition, and associates to the left.
+You typically use it for doing a sequence of function applications.
+<font color=BLACK>For example</font>, <font color=#D00090>(16 | sqrt | sqrt | -)</font> produces -2, the
+same result as 
+<font color=#D00090>-(sqrt(sqrt 16))</font>.
+
+<a name="procedure"></a>
+<p><dt><font color="red"> P a %P </font>
+<dd> A function name that starts with an upper case letter
+is called a <font color=blue><i>procedure</i></font>.  
+When you apply a procedure, you must include
+a matching end-word or period.  
+<font color=BLACK>For example</font>, standard procedure Writeln
+prints a list of strings, followed by a newline.  The following
+two forms are equivalent.
+<font color=#D00090>
+<b><pre>
+  Writeln ["Test"] %Writeln
+  Writeln ["Test"].
+</pre></b>
+</font>
+
+<p>To use a procedure as an ordinary
+identifier, without special handling, enclose it in parentheses.
+See <a href="#suppress">suppressing special handling</a> for details on
+on treating procedure identifiers as ordinary identifiers.
+
+<P> You can write P a,b,c %P.  This stands for ((P) (a) (b) (c)).  You can
+have any number of parts.  Note the absence of parentheses.  P (a,b,c) %P
+is not the same; it applies P to a single parameter that is an ordered 
+triple, and is equivalent to ((P)(a,b,c)).
+<font color=BLACK>For example</font>,
+<font color=#D00090>
+<b><pre>
+  FWriteln myoutfile, ["Test"] %FWriteln
+</pre></b>
+</font>
+is equivalent to 
+<font color=#D00090><b><tt>(FWriteln) myoutfile ["Test"]</tt></b></font>.
+
+<P> You can write P %P as an abbreviation for P() %P.
+<font color=BLACK>For example</font>, the following two lines are equivalent.
+<font color=#D00090>
+<b><pre>
+  Randomize. 
+  Randomize().
+</pre></b>
+</font>
+
+<P> You can use semicolons with procedures.  Each semicolon starts another
+application of the same procedure.  
+<font color=BLACK>For example</font>, Assign is a standard
+library procedure.  Statement
+<font color=#D00090>
+<b><pre>
+  Assign
+    x := 1;
+    y := 2
+  %Assign
+</pre></b>
+</font>
+is equivalent to statement
+<font color=#D00090>
+<b><pre>
+  Assign x := 1.
+  Assign y := 2.
+</pre></b>
+</font>
+
+<a name=ask></a>
+<p><dt><font color="red"> Ask x => f %Ask </font>
+<dd> This notation is used to apply a function f to x,
+but to think of x as the agent that is carrying out the action performed 
+by f.  If f is not a function application, then Ask x => f %Ask stands
+for ((f)(x)).  In general, Ask x => e %Ask places x just after the
+function that is being applied in e.  Here are some 
+<font color=BLACK>example</font> translations.
+
+<p><table>
+<tr> <td> <b>Expression</b> </td> 
+     <td> <b>Stands for</b> </td> 
+<tr> <td> <font color=#D00090>Ask x => f.</font></td> <td> f x </td>
+<tr> <td> <font color=#D00090>Ask x => f y.</font> </td> <td> f x y </td>
+<tr> <td> <font color=#D00090>Ask x => f y z.</font>&nbsp;&nbsp; </td> <td> f x y z </td>
+</table>
+<p>As you can see, the value being asked to perform an action is placed
+immediately after the action, and before any other parameters.
+
+<a name=is></a>
+<p><dt><font color="red"> x _is_ f </font>
+<dd> x _is_ f is the same as f(x), but it requires that
+f be a predicate.  That is, f must be a function whose return-type
+is Boolean.
+(See <a href="ast/lang/boolean.ast">lang/boolean.ast</a>)
+<font color=BLACK>For example</font>, 
+<font color=#D00090>n _is_ prime?</font> is the same
+as <font color=#D00090>prime?(n)</font>.
+
+<a name=unaryop></a>
+<p><dt><font color="red"> op x</font>
+<dd> Some identifiers are unary operators.  They are just
+functions, but have different precedence and associativity rules
+than usual functions.  Application of unary operators associates to the
+<i>right</i>, and has lower precedence than application of ordinary functions.
+<font color=BLACK>For example</font>, 
+$ and - are unary operators.  
+If you write <font color=#D00090>$ f x</font>, the compiler
+implicitly parenthesizes this as <font color=#D00090>$ (f x)</font>.
+Similarly, <font color=#D00090>-sqrt(x)</font> means 
+<font color=#D00090>-(sqrt(x))</font>.
+
+<p>The standard unary operators are 
+<b><pre>
+   $  +   -   /  //  ~  ^^  @  not
+</pre></b>
+Unary operators are discussed in more detail in
+<a href="ast/lang/operator.ast">lang/operator.ast</a>.
+See <a href="applyexpr.html#operator">operator</a> for how to create a
+new unary operator.
+
+<P>To use a unary operator without special syntactic processing, enclose
+it in parentheses.  <font color=BLACK>For example</font>, 
+($) is the function whose name is $.
+See <a href="#suppress">suppressing special handling</a> for details on
+on treating unary operators as ordinary identifiers.
+
+<a name=binaryop></a>
+<p><dt><font color="red"> a op b </font>
+<dd> Some identifiers are binary operators.  
+If op is a binary operator, then a op b abbreviates (op)(a,b).
+<font color=BLACK>For example</font>, +, -, * and / are binary operators. 
+<font color=#D00090>2 + 3</font> abbreviates 
+<font color=#D00090>(+)(2,3)</font>.
+
+<P>When a word is used as a binary
+operator, it is conventional (but not required) 
+to start and end that word with an underscore.
+So _plus_ might be used as a binary operator.  
+
+<P> The precedence
+and associativity of standard operators is described 
+<a href=#precedence">above</a>.
+
+<P>To use a binary operator without special syntactic processing, enclose
+it in parentheses.  For example, (+) is the addition function.
+See <a href="#suppress">suppressing special handling</a> for details on
+on treating binary operators as ordinary identifiers.
+
+<p><font color=BLACK>Example:</font> 
+<font color="#D00090">x*y</font> means <font color=#D00090>(*)(x,y)</font>
+</dl>
+
+<a name="operator"></a>
+<hr>
+<h2><font color=mediumblue> Creating new operators </font></h2>
+
+You can create a new unary operator called myop by giving
+declaration
+<font color=#D00090>
+<b><pre>
+      Operator myop.
+</pre></b>
+</font>
+Declaration
+<font color=#D00090>
+<b><pre>
+      Operator newbinop(oldbinop).
+</pre></b>
+</font>
+defines newbinop to be a binary operator with the same
+precedence and associativity as binary operator oldbinop.
+<font color=BLACK>For example</font>, 
+to create a binary operator _plus_ with the
+same precedence and associativity as +, use
+<font color="#D00090">
+<b><pre>
+      Operator _plus_(+).
+</pre></b>
+</font>
+There are nine precedence levels, and two associativity choices for
+each level.  Each level has a special operator name that describes it.
+Operator _opL1_ is at level 1, and associates to the left. Operator
+_opR1_ is at level 1 and associates to the right.  This goes through
+_opL9_ and _opR9_.  Level 9 has the highest precedence, level 1 the
+lowest precedence.  In all levels, the L operator has higher precedence
+than the R operator.
+
+<p>All operators have a precedence and associativity given by one
+of the eighteen possible values.  For example, + has the same
+precedence and associativity as _opL6_.  See 
+<a href=#precedence>above</a> for a 
+list of standard operators and their precedences and associativities.
+
+</dl>
+
+<font color=brown>
+<a name=suppress></a>
+<hr>
+<h2><font color=mediumblue> When is special meaning suppressed?</font></h2>
+
+You can suppress the special meaning of a procedure, unary operator
+or binary operator by enclosing it in parentheses.  In general, 
+special meaning is suppressed whenever the token that follows
+the operator or procedure is one of the following.
+<b><pre>
+  ) ] } ; , | = by
+</pre></b>
+Additionally, a binary or unary operator (but not a procedure)
+has special handling suppressed if it is followed by a period
+or end marker such as %Let.
+
+<p> Tokens that follow a name are only recognized if there are not too
+many characters between tokens.  If you put a large number
+of characters between a binary operator symbol and the token
+that follows it, then the symbol will be treated as a binary operator.
+The special case of a right parenthesis is always detected, regardless
+of how many characters intervene.
+</font>
+
+<hr>
+<center>
+<a href="sequence.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tupleexpr.html">Next</a>
+</center>
+</body>
+</HTML>

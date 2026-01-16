@@ -1,0 +1,181 @@
+%% File: lintbl.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================================
+Package 		Astarte_LinTblImp
+
+			Implements "lintbl"
+=======================================================================
+
+Import  
+  "collect/search";
+  "collect/listfun"
+%Import
+
+Extension
+  Species{transparent,noEqual,noDollar} 
+    LinTable(EQ`a, `b) = makeLinTable [(EQ`a, `b)]
+  %Species
+%Extension
+
+Abbrev
+  K     = EQ`k;
+  V     = `v;
+  TblKV = {LinTable}(K,V);
+%Abbrev
+
+========================================================================
+
+Bring
+  table		: [(K,V)] -> TblKV      from idf;
+  emptyTable	: TblKV 		from [];
+  emptyTable?	: TblKV -> Boolean 	from nil?;
+  toList	: TblKV -> [(K,V)]	from idf;
+  eagerToList	: TblKV -> [(K,V)]      from idf;
+  size		: TblKV -> Natural      from length;
+%Bring
+
+========================================================================
+%%			linTable
+========================================================================
+
+Let linTable   = table.
+
+========================================================================
+%%			linMemoize
+========================================================================
+
+Let linMemoize = memoize (emptyTable:LinTable(`?,`?)).
+
+========================================================================
+%%			+/
+========================================================================
+
+Let makeLinTable(?x) +/ (?k,?v) = 
+  Let suf = assocSuffix k x.
+  If nil? suf
+    then makeLinTable((k,v) :: x)
+    else makeLinTable(x)
+  %If
+%Let
+
+========================================================================
+%%			+//
+========================================================================
+
+Let makeLinTable(?x) +// (?k,?v) = 
+  Let sel ?z = left(z) == k.
+  Match (?a,?b) = x _cutBy_ sel.
+  If nil? b
+    then makeLinTable((k,v):: x)
+    else makeLinTable((k,v):: (a ++ tail(b)))
+  %If
+%Let
+
+========================================================================
+%%			update
+========================================================================
+
+Let update(makeLinTable(?x), (?k,?v), ?f) = 
+  Let sel ?z = left(z) == k.
+  Match (?a,?b) = x _cutBy_ sel.
+  If nil? b
+    then makeLinTable((k,v) :: x)
+    else 
+      Match (?,?vv) :: ?r = b.
+      Value makeLinTable((k,f(vv)) :: (a++r)).
+  %If
+%Let
+
+========================================================================
+%%			_minusKey_
+========================================================================
+
+Let makeLinTable(?x) _minusKey_ ?k = 
+  Let sel ?z = left(z) == k.
+  Match (?a,?b) = x _cutBy_ sel.
+  If nil? b
+    then makeLinTable(x)
+    else makeLinTable(a ++ tail(b))
+  %If
+%Let
+
+========================================================================
+%%			_keyMember?_
+========================================================================
+
+Let ?k _keyMember?_ makeLinTable(?x) =
+  not nil?(assocSuffix k x)
+%Let
+
+========================================================================
+%%			_in_
+========================================================================
+
+Let (?k,?v) _in_ makeLinTable(?x) =
+  Choose first matching assocSuffix k x
+    case []           => false
+    case (?,?vv) :: ? => v == vv
+  %Choose
+%Let
+
+========================================================================
+%%			memberWithKey
+========================================================================
+
+Let memberWithKey(?k, makeLinTable(?x)) =
+  Choose first matching assocSuffix k x
+    case []       => fail tableX
+    case ?pr :: ? => pr
+  %Choose
+%Let
+
+========================================================================
+%%			_at_
+========================================================================
+
+Let makeLinTable(?x) _at_ ?k =
+  Choose first matching assocSuffix k x
+    case []          => fail tableX
+    case (?,?v) :: ? => v
+  %Choose
+%Let
+
+========================================================================
+%%			min
+%%			max
+========================================================================
+
+Let keyle((?k1,?),(?k2,?)) = k1 <= k2.
+
+Let min(makeLinTable ?x) = maxmin keyle x |
+  {not nil? x else tableX}
+%Let
+    
+Let keyge((?k1,?),(?k2,?)) = k1 >= k2.
+
+Let max(makeLinTable ?x) = maxmin keyge x |
+  {not nil? x else tableX}
+%Let
+  
+========================================================================
+%%			extractMin
+%%			extractMax
+========================================================================
+
+Let extractMin(?t) = ((k,v), t _minusKey_ k) |
+  Match (?k,?v) = min(t).
+%Let
+  
+Let extractMax(?t) = ((k,v), t _minusKey_ k) |
+  Match (?k,?v) = max(t).
+%Let
+
+=======================================================================
+%Package
+
+
+

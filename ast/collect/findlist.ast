@@ -1,0 +1,432 @@
+%% File: findlist.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%================================================================
+Package 		Findlist
+
+			Interface
+==================================================================
+
+================================================================
+%% This package implements two methods of searching for a list
+%% as a sublist of another list.  The algorithms are the
+%% Knuth/Morris/Pratt pattern matching algorithm and the
+%% (more general but slower) Aho/Corasick algorithm.  
+================================================================
+
+Import "collect/collect".
+
+Operator _sublist?_(==).
+
+================================================================
+Extension
+  Expect{noEqual} species ACPatternMatcher(ORDER`a)
+  
+	%" An object of species ACPatternMatcher(T) can
+	%" be used to control pattern matching in lists of
+	%" species [T].  The functions are
+	%"
+	%"     acPatternMatcher	- constructor.
+	%"
+	%"     acPatterns       - the list of patterns that this
+	%"                        pattern matcher uses.
+	%"
+	%"     acFindSublist	- function that does the
+	%"			  pattern matching.
+	%"
+	%"     acFindSubword    - function that does pattern
+	%"                        matching with word delimiters.
+  %Expect		
+
+  Expect{noEqual} species ACMatchInfo(ORDER`a)
+
+	%" Suppose that a pattern matcher (species ACPatternMatcher(T)
+	%" has been created with a given pattern list, and a match
+	%" has been performed using acFindSublist against
+	%" a given target list.  There might be several matches.
+	%" An ACMatchInfo(T) value is created to describe just one
+	%" of the matches.  The following functions can be applied
+	%" to this ACMatchInfo(T) value to obtain specific information.
+	%" The functions are as follows.  See their documentation
+	%" and the documentation of acFindSublist for more details.
+	%"
+	%"   acMatchPosition   The number of memberts in the
+	%"                     target of the match that must
+	%"                     be skipped over to reach the END
+	%"                     of this match.
+	%"
+	%"   acMatchedIndices  A list of the indices in
+	%"                     the list of patterns that was
+	%"                     used to create the matcher that
+	%"                     have been found to match at this point.
+	%"
+	%"   acRest            The part of the target list that
+	%"                     follows the match.
+	%"
+	%"   acMatched k       The string at index k in the list
+	%"                     of patterns used in the match.
+	%"
+	%"   acPatterns	       The list of patterns used in the match.
+	%"
+	%"   acBeforeMember k  The member of the target that occurred
+	%"		       just before the pattern of index k.
+	%"
+	%"   acBeforeList      The list that occurs before the pattern
+	%"                     of index k.
+	%"
+	%"   acInfo            A combination of acMatchedIndices,
+	%"                     acMatchPosition and acRest.
+	%"
+	%"   acLongestMatchInfo  A combination of acBeforeList,
+	%"                       acRest and acMatchedIndex for the
+	%"                       longest pattern that matches.
+  %Expect
+%Extension
+================================================================
+Expect
+
+  findSublist	: [EQ`a] -> [EQ`a] -> (Natural, [EQ`a])
+
+		%" (findSublist pat l) is a pair (n,s) where s is
+		%" the suffix of list l that begins at the first
+		%" occurrence of pat, and n is the number of members
+		%" of l that come before s.  For example,
+		%"
+		%" (findSublist "cul" "calculator") = (3, "culator")
+		%"
+		%" since 3 characters must be skipped in "calculator"
+		%" to reach the first occurrence of "cul", and the
+		%" string beginning at the first occurrence of "cul"
+		%" is "culator".
+		%"
+		%" You can perform matches in various types of lists.
+		%" For example,
+		%"
+		%" (findSublist [7,8,6] [3,2,7,8,6,3]) = (2, [7,8,6,3]).
+		%"
+		%" If pat does not occur in list l, then the result
+		%" is (length(l), []).  For example,
+		%"
+		%" (findSublist "rabbit" "moreover") = (8, [])
+		;
+
+  findSublistBeforeAfter : [EQ`a] -> [EQ`a] -> ([EQ`a], [EQ`a])
+
+		%" (findSublistBeforeAfter pat l) is a pair (b,a)
+		%" where l = b ++ pat ++ a, and b++pat does not have
+		%" pat as a sublist except as a suffix.
+		%" That is, list l is searched
+		%" for the first occurrence of pattern pat,
+		%" b is what comes before that match, and a is
+		%" what comes after that match.  For exampe,
+		%"
+		%" (findSublistBeforeAfter "cul" "calculator")
+		%"         = ("cal", "ator")
+		%"
+		%" (findSublistBeforeAfter [7,8,6] [3,2,7,8,6,3])
+		%"         = ([3,2], [3]).
+		%"
+		%" If there is no occurrence of pat in l, then
+		%" findSublistBeforeAfter pat l fails with
+		%" exception testX.
+		;
+
+  _sublist?_	: ([EQ`a], [EQ`a]) -> Boolean
+
+		%" x _sublist?_ y is true if x is a (contiguous)
+		%" sublist of y.  For example,
+		%"
+		%"  "cde" _sublist?_ "abcdefg" = true
+		%"
+		%"  "cde" _sublist?_ "abcedecf" = false
+		;
+
+  acPatternMatcher : [[ORDER`a]] -> ACPatternMatcher(ORDER`a)
+
+		   %" acPatternMatcher([p1,...,pn]) returns an object
+		   %" that can be used to control pattern matching
+		   %" in a list.  This object indicates that patterns
+		   %" p1, ..., pn should be searched for.  See
+		   %" acFindSublist.
+		   ;
+
+  acFindSublist    : ACPatternMatcher(ORDER`a) -> [ORDER`a]
+		       -> [ACMatchInfo(ORDER`a)]
+
+		   %" (acFindSublist matcher txt) searches for matches
+		   %" in list txt of the patterns indicated by pattern
+		   %" match object 'matcher'.  It produces a list of
+		   %" all matches, from left to right.  Each match is
+		   %" described by an ACMatchInfo value.  If there
+		   %" is no match, the result is [].
+		   %"
+		   %" The result list is lazy.
+		   %"
+		   %" EXAMPLE
+		   %"
+		   %" Suppose that matcher m is created by
+		   %"
+		   %"    Let m = acPatternMatcher(["abcd", "db", "cd"]).
+		   %"
+		   %" Now suppose that you do
+		   %"
+		   %"    Let infos = acFindSublist m "zrasabcdbp".
+		   %"    Let info  = head infos.
+		   %"
+		   %" You are asking acFindSublist to find
+		   %" occurrences of any of the strings "abcd", "db" or
+		   %" "cd" in string "zrasabcdbp".  Value info describes
+		   %" the first match. The information give by info
+		   %" will be as follows.
+		   %"
+		   %"   acMatchPosition info = 8
+		   %"                 The first match ENDS after the
+		   %"                 8-th character of "zrasabcdbp".
+		   %"
+		   %"   acRest info = "bp"      
+		   %"                 since "bp" is what follows the
+		   %"                 match.
+		   %"
+		   %"   acMatchedIndices info = [0,2]
+		   %"                 since patterns "abcd" and "cd" both
+		   %"                 match at the end of the first 8
+		   %"                 characters, and they occur at
+		   %"                 indices 0 and 2 in the list 
+		   %"                 ["abcd", "db", "cd"] that
+		   %"                 was used to create matcher m.
+		   %"
+		   %"   acInfo info = ([0,2], 8, "bp")
+		   %"                 since the match ends at position 8,
+		   %"                 both "abcd" (index 0) and "cd"
+		   %"                 (index 2) are matched, and the match
+		   %"                 is followed by "cd".
+		   %"
+		   %"   acMatched info 0 = "abcd"
+		   %"   acMatched info 2 = "cd"
+		   %"                 since pattern 0 is "abcd" and 
+		   %"                 pattern 2 is "cd", and both were
+		   %"                 matched.
+		   %"
+		   %"   acPatterns info = ["abcd", "db", "cd"]
+		   %"                 This is the list of patterns used
+		   %"                 to build the matcher that created
+		   %"                 info.
+		   %"
+		   %"   acBeforeMember info 0 = value('s')
+		   %"   acBeforeMember info 2 = value('b')
+		   %"                 since the match of "abcd" (index 0)
+		   %"                 is immediately preceded by 's',
+		   %"                 and the match of "cd" (index 2)
+		   %"		      is immediately preceded by 'b'.
+		   %"		      (If a match had begun at the
+		   %"		      beginning of the string,
+		   %"                 acBeforeMember would have
+		   %"                 returned noValue.)
+		   %"
+		   %"   acBeforeList info "zrasabcdbp" 0 = "zras"
+		   %"   acBeforeList info "zrasabcdbp" 2 = "zrasab"
+		   %"		      since the match of pattern "abcd"
+		   %"		      (index 0) is preceded by string
+		   %"		      "zras" in the target string
+		   %"                 "zrasabcdbp", and pattern "cd"
+		   %"                 is preceded by "zrasab".
+		   %"
+		   %"   acLongestMatchInfo info "zrasabcdbp" =
+		   %"                             ("zras",0,"bp")
+		   %"		      since the longest pattern that has
+		   %"                 matched ("abcd") is preceded by
+		   %"                 "zras", is followed by "bp",
+		   %"                 and has index 0.
+		   %"
+		   %" See pattern function firstOccurrence for how to
+		   %" use this in pattern matching.
+		   ;
+
+  acFindSubword	   : (ACPatternMatcher(ORDER`a), COLLECTION`a(ORDER`a))
+  			-> [ORDER`a]
+			-> [ACMatchInfo(ORDER`a)]
+
+		   %" (acFindSubword (m,chars) txt) is similar to
+		   %" (acFindSublist m txt), but matches must be
+		   %" surrounded by word boundaries.  A word boundary
+		   %" is either the start of end of a list or
+		   %" is a position that is not between two members
+		   %" of collection chars.
+		   %"
+		   %" To locate "goat", but avoid "goatie", in string
+		   %" txt, you could use the following.
+		   %"
+		   %"  Let wordChars =
+		   %"    denseSet "abcdefghijklmnopqrstuvwxyz"
+		   %"	       ++ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		   %"  %Let
+		   %"  Let matcher = acPatternMatcher ["goat"].
+		   %"  Let goatMatcher = (matcher, wordChars).
+		   %"  Let info = findSubword goatMatcher txt.
+		   ;
+
+  acMatchedIndices : ACMatchInfo(ORDER`a) -> [Natural]
+
+		   %" If info describes a match found by acFindSublist
+		   %" then acMatchedIndices(info) is a list of the
+		   %" indices of the patterns that matched.
+		   %" See acFindSublist.
+		   ;
+
+  acMatchPosition   : ACMatchInfo(ORDER`a) -> Natural
+
+		   %" If info describes a match found by acFindSublist
+		   %" then acMatchPosition(info) is the number of
+		   %" characters in the target list that must be
+		   %" skipped to reach the end of the match.
+		   %" See acFindSublist.
+		   ;
+
+  acMatched	   : ACMatchInfo(ORDER`a) -> Natural -> [ORDER`a]
+
+		   %" If info describes a match found by acFindSublist
+		   %" then (acMatched info k) is the string at index
+		   %" k in the pattern matcher that created info.
+		   %" See acFindSublist.
+		   ;
+
+  acPatterns	   : ACPatternMatcher(ORDER`a) -> [[ORDER`a]]
+
+		   %" acPatterns(m) is the list of patterns that
+		   %" was used to build matcher m.
+		   ;
+
+  acPatterns	   : ACMatchInfo(ORDER`a) -> [[ORDER`a]]
+
+		   %" If info describes a match found by acFindSublist
+		   %" then acPatterns(info) is the list of patterns
+		   %" used by the pattern matcher employed by
+		   %" acFindSublist.
+		   ;
+
+  acBeforeMember   : ACMatchInfo(ORDER`a) -> Natural -> Optional(ORDER`a)
+
+		   %" If info describes a match found by acFindSublist
+		   %" then (acBeforeMember info k) tells what
+		   %" immediately preceded the match of the pattern
+		   %" with index k.  The result is
+		   %"
+		   %"   noValue  if the match was at the beginning of
+		   %"            the target list,
+		   %"
+		   %"   value(x) if x is what precedes the match.
+		   %"
+		   %" See acFindSublist.
+		   ;
+
+  acBeforeList     : ACMatchInfo(ORDER`a) -> [ORDER`a] -> Natural -> [ORDER`a]
+
+		   %" If info describes a match found by acFindSublist
+		   %" then (acBeforeList info (k,t)) tells the prefix
+		   %" of t that precedes the match of the pattern
+		   %" with index k.  t must be the target on which
+		   %" the match was done that led to info.
+		   %" See acFindSublist.
+		   ;
+
+  acRest	   : ACMatchInfo(ORDER`a) -> [ORDER`a]
+
+		   %" If info describes a match found by acFindSublist
+		   %" then acRest(info) is that part of the target
+		   %" list that immediately follows the match.
+		   %" See acFindSublist.
+		   ;
+
+  acInfo	   : ACMatchInfo(ORDER`a) ->
+  		       ([Natural], Natural, [ORDER`a])
+		       
+		   %" acInfo(i) = 
+		   %"   (acMatchedIndices(i), 
+		   %"    acMatchPosition(i), 
+		   %"    acRest(i)).  
+		   %"
+		   %" See acMatchedIndices, acMatchPosition, acRest,
+		   %" acFindSublist.
+		   ;
+		   
+  acLongestMatchInfo: ACMatchInfo(ORDER`a) -> [ORDER`a] ->
+  			([ORDER`a], Natural, [ORDER`a])
+
+		   %" Suppose info describes a match found by
+		   %" acFindSublist. acLongestMatchInfo info t
+		   %" returns triple (p,i,r) where
+		   %"
+		   %"   p = the prefix of the target that precedes
+		   %"       the longest pattern that matched.  (t must
+		   %"       be the target of the match that produced
+		   %"       info i.)
+		   %"
+		   %"   i = the index (in the pattern list) of the
+		   %"       longest pattern that matched.
+		   %"
+		   %"   r = the suffix of the target that follows
+		   %"       the longest pattern that matched.
+		   %"
+		   %" See acFindSublist.
+		   ;
+
+  {missing}:
+
+  firstOccurrence  : [EQ`a] -> [EQ`a]
+
+		   %" #{pattern}
+		   %"
+		   %"   Match ?x ++ firstOccurrence(p) ++ ?y = t.
+		   %"
+		   %" finds the first occurrence of sublist p in target
+		   %" list t, binds x to the part of t that comes before
+		   %" p, and binds y to the part of t that occurs
+		   %" after t.
+		   %"
+		   %" If pattern p does not occur in t, then the
+		   %" match fails with exception testX.
+		   ;
+
+  firstOccurrence  : ACPatternMatcher(ORDER`a) -> Natural
+			-> [ORDER`a]
+
+		   %" #{pattern}
+		   %"
+		   %" Suppose that m = acPatternMatcher[p0,p1,...].
+		   %"
+		   %" Pattern match
+		   %"
+		   %"   Match ?x ++ firstOccurrence m ?k ++ ?y = t
+		   %"
+		   %" binds x, k and y so that t = x ++ pk ++ y, if
+		   %" possible.  (k is an index in list [p0,p1,...].)
+		   %"
+		   %" The match that is selected is the
+		   %" first one (shortest x).
+		   ;
+
+%Expect
+
+========================================================
+
+Pattern
+  (?x ++ firstOccurrence(p)) ++ ?y =>
+    Match (?x,?y) = findSublistBeforeAfter p target.;
+
+  ?x ++ (firstOccurrence(p) ++ ?y) =>
+    Match (?x,?y) = findSublistBeforeAfter p target.;
+
+  (?x ++ firstOccurrence m ?k) ++ ?y =>
+    Match [?info_l & ?] = acFindSublist m target.
+    Match (?x, ?k, ?y)  = acLongestMatchInfo info_l target.;
+
+  ?x ++ (firstOccurrence m ?k ++ ?y) =>
+    Match [?info_l & ?] = acFindSublist m target.
+    Match (?x, ?k, ?y)  = acLongestMatchInfo info_l target.
+%Pattern
+
+=======================================================
+%Package

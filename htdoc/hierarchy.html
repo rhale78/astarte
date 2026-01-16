@@ -1,0 +1,77 @@
+<HTML>
+<head>
+<title>Astarte: relations among data abstractions</title>
+</head>
+<body>
+<center>
+<a href="pausetype.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="commhier.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T11. Relations Among Data Abstractions </font></h1>
+</center>
+
+Data abstractions (genera) are related to one another by the <em>subgenus</em>
+relation.  Generally, genus A is a subgenus of genus B if
+genus B contains all of the species that A contains, and
+possibly more.  We also say that B is a supergenus of A when
+A is a subgenus of B.
+
+<p> The subgenus relation gives rise to a hierarchy of genera.
+For example, 
+here is the hierarchy of standard numeric genera,
+with species included.
+Larger genera are to the left.
+<pre>
+                                  Natural
+                                /
+                         INTEGER
+                        /       \
+                 RATIONAL         Integer
+                /       \       /
+            REAL         RATRING
+                \       /       \
+                 \_RRING        _ Rational
+                        \      /
+                         RFIELD
+                               \
+                                \_Real
+</pre>
+The hierarchy of Astarte is <i>complete</i>.
+This means that,
+given any two genera A and B, you can form the 
+<font color=blue><em>meet</em></font>, or
+<em>largest common subgenus</em> (or sometimes common member),
+of A and B.  It is the genus that represents the intersection
+of A and B, or the largest genus that is a subgenus of
+both A and B.  
+
+<p>For example, the meet of RATIONAL and RRING is
+RATRING.  In some cases, the meet is a species.  
+For example,
+the meet of RRING and INTEGER is species Integer.  In some cases,
+such as RFIELD and INTEGER, the meet is the empty genus.
+
+<p>There is also a dual notion of the 
+<font color=blue><em>join</em></font>, or smallest
+common supergenus, of two genera.
+The join of A and B is the smallest genus that has both A and B as
+a subgenus. For example, 
+the join of INTEGER and RFIELD is REAL.
+
+<hr>
+<center>
+<a href="pausetype.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="commhier.html">Next</a>
+</center>
+</body>
+</HTML>
+

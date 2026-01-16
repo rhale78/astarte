@@ -1,0 +1,589 @@
+%% File: matrix.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=========================================================
+Package 		Astarte_Matrix
+
+			Interface
+===========================================================
+
+========================================================
+%% A matrix is a rectangular two-dimensional array.
+%% For example, a matrix of numbers having two rows
+%% and three columns might look like
+%%
+%%     1 2 3
+%%     4 5 6
+%%
+%% A matrix can have no elements.  Such a matrix always
+%% has 0 rows and 0 columns, by definition.
+%%
+%% This package provides paramaterized type Matrix
+%% and some basic operations for working with matrices.
+========================================================
+
+
+==================================================
+Operator
+  #=		(#); 
+  #_=		(#);
+  _aside_	(::);
+  _atop_	(::);
+  _beside_	(++);
+  _above_	(++)
+%Operator
+==================================================
+Extension
+  Expect{transparent} species Matrix(`a)
+    %" Matrix(T) is a species of rectangular matrices whose
+    %" members have species T.
+  %Expect
+%Extension
+==================================================
+
+Expect
+  #_		: pot__fail__domainEx ~> 
+  		  (Matrix(`a), Natural, Natural) -> `a
+		  
+		%" x #_ (m,n) is the member of matrix
+		%" x at row m, column n, where indexing is
+		%" from 0.  It fails with exception subscriptX if 
+		%" index (m,n) does not exist.
+		;
+		
+  #		: pot__fail__domainEx ~> 
+  		  (Matrix(`a), Natural, Natural) -> `a
+		  
+		%" x # (m,n) is the member of matrix
+		%" x at row m, column n, where indexing is
+		%" from 1.  It fails with exception subscriptX if 
+		%" index (m,n) does not exist.
+		;
+		
+  #_=		: (Matrix(`a), ((Natural,Natural), `a)) -> Matrix(`a)
+
+		%" x #_= ((m,n),v) is the matrix obtained from 
+		%" matrix x by replacing the value at index (m,n) by v,
+		%" where the members are numbered starting at 0.
+		%"
+		%" If index (m,n) does not exist in x, then
+		%" x #_= ((m,n),v) fails with exception subscriptX.
+		%"
+		%" Function #_= is quasi-lazy.
+		;
+  		
+  #=		: (Matrix(`a), ((Natural,Natural), `a)) -> Matrix(`a)
+
+		%" x #= ((m,n),v) is the matrix obtained from
+		%" matrix x by replacing the value at index (m,n) by v,
+		%" where the members are numbered starting at 1.
+		%"
+		%" If index (m,n) does not exist in x, then
+		%" x #= ((m,n),v) fails with exception subscriptX.
+		%"
+		%" Function #= is quasi-lazy.
+		;
+		
+  ##		: (Matrix(`a), ((Natural,Natural), (Natural,Natural))) 
+  		     -> Matrix(`a)
+		   
+		%" a ## ((i,n),(j,m)) is the submatrix of a consisting
+		%" of rows i to i+n-1 and columns j to j+m-1.  
+		%" (So there are n rows and m columns in the submatrix.)
+		%" Indexing is from 0.  For example, if A is matrix
+		%"
+		%"    a b c d e f
+		%"    g h i j k l
+		%"    m n o p q r
+		%"
+		%" then A##((1,2),(2,4)) is matrix
+		%"
+		%"    i j k l
+		%"    o p q r
+		%"
+		%" The steps in obtaining A##((i,n),(j,m)) are
+		%"
+		%"  1. Remove the first i rows of A.  If i is greater
+		%"     than the number of rows in A, remove them all --
+		%"     the result is an empty matrix.
+		%"
+		%"  2. Take only the next n rows.  If n is greater
+		%"     than the number of remaining rows, take them all.
+		%"
+		%"  3. Remove the first j columns of what is left.  If
+		%"     j is greater than the number of columns, then
+		%"     remove them all -- the result is an empty matrix.
+		%"
+		%"  4. Take only the next m columns of what is left.
+		%"     If m is greater than the number of remaining
+		%"     columns, take them all.
+		;
+		
+  _aside_	: ([`a], Matrix(`a)) -> Matrix(`a)
+  
+  		%" c _aside_ m is the matrix obtained by adding
+		%" column c to the left side of m.  For example,
+		%" if c is the list [x,y,z] and m is the matrix
+		%"
+		%"       d e
+		%"       f g
+		%"       h i
+		%"
+		%" then c _aside_ m is the matrix
+		%"
+		%"       x d e
+		%"       y f g
+		%"       z h i
+		%"
+		%" It is required that c have the same number of
+		%" members as m has rows.  Otherwise, c _aside_ m
+		%" fails with exception sizeX.  
+		%"
+		%" There is a special case where the matrix is empty.
+		%" If m is an empty matrix, then c _aside_ m is
+		%" a matrix with just the column given by c.  If c is
+		%" an empty list then this is another empty matrix.
+		%"
+		%" _aside_ can be used in patterns.  If m is the matrix
+		%"
+		%"       a b c
+		%"       d e f
+		%"       g h i
+		%"  
+		%" then 
+		%"
+		%"     Match ?r _aside_ ?m' = m.
+		%"
+		%" binds r = [a,d,g] and m' to matrix
+		%"
+		%"       b c
+		%"       e f
+		%"       h i
+		;
+		
+  _atop_	: ([`a], Matrix(`a)) -> Matrix(`a)
+  
+  		%" r _atop_ m produces the matrix that is obtained
+		%" by adding row r to the top of matrix m.  For
+		%" example, if r is row [a,b,c] and m is matrix
+		%"
+		%"       d e f
+		%"       g h i
+		%"
+		%" then r _atop_ m is matrix
+		%"
+		%"       a b c
+		%"       d e f
+		%"       g h i
+		%"
+		%" It is required that r have the same number of
+		%" members as m has columns.  Otherwise, c _atop_ m
+		%" fails with exception sizeX.  
+		%"
+		%" There is a special case where the matrix is empty.
+		%" If m is an empty matrix, then r _atop_ m is
+		%" a matrix with just the row given by r.  If r is
+		%" an empty list, then this is another empty matrix.
+		%"
+		%" _atop_ can be used in patterns.  If m is the matrix
+		%"
+		%"       a b c
+		%"       d e f
+		%"       g h i
+		%"  
+		%" then 
+		%"
+		%"     Match ?r _atop_ ?m' = m.
+		%"
+		%" binds r = [a,b,c] and m' to matrix
+		%"
+		%"       d e f
+		%"       g h i
+		;
+  
+  _above_	: (Matrix(`a), Matrix(`a)) -> Matrix(`a)
+  
+  		%" A _above_ B is the matrix formed by putting matrix
+		%" A above matrix B.  For example,  if A and B are
+		%" as follows
+		%"
+		%"         A            B
+		%"       a b c        g h i
+		%"       d e f        j k l
+		%"                    p q r
+		%"
+		%" then A _above_ B is
+		%"
+		%"      a b c
+		%"      d e f
+		%"      g h i
+		%"      j k l
+		%"      p q r
+		%"
+		%" It is required that A and B have the same number
+		%" of columns.  Otherwise, A _above_ B fails with
+		%" exception sizeX.
+		%"
+		%" There are special cases for handling empty 
+		%" matrices.  If A is empty, then A _above_ B = B.
+		%" If B is empty, then A _above_ B = A.
+		;
+		
+  _beside_	: (Matrix(`a), Matrix(`a)) -> Matrix(`a)
+  
+  		%" A _beside_ B is the matrix formed from matrices
+		%" A and B by writing A to the left of B.  For example,
+		%" if A and B are as follows
+		%"
+		%"      A              B
+		%"     a b           e f g
+		%"     c d           h i j
+		%"
+		%" then A _beside_ B is
+		%"
+		%"     a b e f g
+		%"     c d h i j
+		%"
+		%" It is required that A have the same number of
+		%" rows as b. Otherwise, A _beside_ B fails
+		%" with exception sizeX.
+		%"
+		%" There are special cases for handling empty 
+		%" matrices.  If A is empty, then A _beside_ B = B.
+		%" If B is empty, then A _beside_ B = A.
+		;
+  
+  column	: Natural -> Matrix(`a) -> [`a]
+  
+  		%" column i x is the i-th column of matrix
+		%" x.  Indexing is from 1, so the leftmost column
+		%" is column 1. It fails with exception subscriptX
+		%" if column i does not exist.
+		;
+		
+  column_	: Natural -> Matrix(`a) -> [`a]
+  
+  		%" column_ i x is the i-th column of matrix
+		%" x.  Indexing is from 0, so the leftmost column
+		%" is column 0. It fails with exception subscriptX
+		%" if column i does not exist.
+		;
+		
+  columns	: Matrix(`a) -> [[`a]]
+  
+  		%" columns(m) is a list of the columns of matrix m.
+		%" For example, if m is matrix
+		%"
+		%"   a b c
+		%"   d e f
+		%"
+		%" then columns(m) is the list [[a,d],[b,e],[c,f]].
+		%" 
+		%" If m is an empty matrix, then columns(m) = [].
+		;
+
+  diagLR	: (Natural, Natural) -> Matrix(`a) -> [`a]
+  
+  		%" diagLR (i,j) x is the diagonal of matrix
+		%" x that contains index (i,j), where indexing
+		%" is from 1.  This diagonal is in the following
+		%" direction.
+		%"
+		%"     *
+		%"       *
+		%"         *
+		%"
+		%" and is given in row-increasing order.
+		%" For example, if x is
+		%"
+		%"    a b c d
+		%"    e f g h
+		%"    i j k l
+		%"    m n o p
+		%"
+		%" then diagLR(1,2) x is the diagonal that contains the b
+		%" (row 1, column 2).  So it is the list [b,g,l].
+		%"
+		%" Similarly, diagLR(3,3) x is list [a,f,k,p].
+		%"
+		%" If there is no entry at row i and column j, then
+		%" diagLR(i,j) x fails with exception subscriptX.
+		;
+
+  diagLR_	: (Natural, Natural) -> Matrix(`a) -> [`a]
+  
+  		%" diagLR_ is similar to diagLR, but indexing is from
+		%" 0 rather than from 1.  (The top row is row 0, etc.)
+		;
+  
+  diagRL	: (Natural, Natural) -> Matrix(`a) -> [`a]
+  
+  		%" diagRL (i,j) x is the diagonal of matrix
+		%" x that contains index (i,j), where indexing
+		%" is from 1.  This diagonal is in the following
+		%" direction.
+		%"
+		%"         *
+		%"       *
+		%"     *
+		%"
+		%" and is given in row-increasing order.
+		%" For example, if x is
+		%"
+		%"    a b c d
+		%"    e f g h
+		%"    i j k l
+		%"    m n o p
+		%"
+		%" then diagRL(1,3) x is the diagonal that contains the c
+		%" (row 1, column 3).  So it is the list [c,f,i].
+		%"
+		%" Similarly, diagRL(3,3) x is list [h,k,n].
+		%"
+		%" If there is no entry at row i and column j, then
+		%" diagRL(i,j)x fails with exception subscriptX.
+		;
+
+  diagRL_	: (Natural, Natural) -> Matrix(`a) -> [`a]
+  
+  		%" diagRL_ is similar to diagRL, but indexing is from
+		%" 0 rather than from 1.  (The top row is row 0, etc.)
+		;
+  
+  emptyMatrix	: Matrix(`a)
+  
+  		%" emptyMatrix is an empty matrix (no rows and no
+		%" columns.
+		;
+  
+  map		: (`a -> `b) -> Matrix(`a) -> Matrix(`b)
+  
+  		%" map f M is the result of replacing each value
+		%" x in matrix m by f(x).
+		;
+  
+  matrix	: [[`a]] -> Matrix(`a)
+  
+  		%" matrix(L) is the matrix represented by L, where
+		%" L is a list of rows of the matrix.  For example,
+		%"
+		%"   matrix [[a,b,c],[d,e,f]]
+		%"
+		%" is the matrix
+		%"
+		%"     a b c
+		%"     d e f
+		%"
+		%" All rows must have the same number of members.
+		%" If they don't, matrix(L) fails with exception
+		%" sizeX.
+		%"
+		%" matrix [] is an empty matrix.
+		%"
+		%" In patterns, matrix can be used to extract the
+		%" list of rows of a matrix.  Writing
+		%"
+		%"   Match matrix(?r) = m.
+		%"
+		%" is equivalent to writing
+		%"
+		%"   Match ?r = rows m.
+		;
+		
+  ncols		: Matrix(`a) -> Natural
+  
+  		%" ncols(x) is the number of columns of matrix
+		%" x.  If x is empty, ncols x is 0.
+		;
+		
+  nrows		: Matrix(`a) -> Natural
+  
+  		%" nrows(x) is the number of rows of matrix
+		%" x.  If x is empty, nrows x is 0.  
+		;
+		
+  row		: Natural -> Matrix(`a) -> [`a]
+  
+  		%" row i x is the i-th row of matrix
+		%" x.  Indexing is from 1, so the top row
+		%" is row 1.  It fails with exception subscriptX
+		%" if row i does not exist.
+		;
+		
+  row_		: Natural -> Matrix(`a) -> [`a]
+  
+  		%" row_ i x is the i-th row of matrix
+		%" x.  Indexing is from 0, so the top row
+		%" is row 0.  It fails with exception subscriptX
+		%" if row i does not exist.
+		;
+
+  rows		: Matrix(`a) -> [[`a]]
+  
+  		%" rows(m) is a list of the rows of matrix m.
+		%" For example, if m is matrix
+		%"
+		%"   a b c
+		%"   d e f
+		%"
+		%" then rows(m) is the list [[a,b,c],[d,e,f]].
+		%" 
+		%" If m is an empty matrix, then rows(m) = [].
+		;
+		
+  splitAtLeft	: Matrix(`a) -> ([`a], Matrix(`a))
+  
+  		%" splitAtLeft(m) produces a pair (c,m') where c is
+		%" the leftmost column of matrix m and m' is all but the
+		%" leftmost column of m.  For example, if m is matrix
+		%"
+		%"    d e f
+		%"    g h i
+		%"    j k l
+		%"
+		%" then splitAtLeft(m) produces pair ([d,g,j], m')
+		%" where m' is matrix
+		%"
+		%"    e f
+		%"    h i
+		%"    k l
+		%"
+		%" splitAtLeft fails with exception emptyListX on
+		%" an empty matrix.
+		;
+
+  splitAtTop	: Matrix(`a) -> ([`a], Matrix(`a))
+  
+  		%" splitAtTop(m) produces a pair (r,m') where r is
+		%" the top row of matrix m and m' is all but the
+		%" top row of m.  For example, if m is matrix
+		%"
+		%"    a b c
+		%"    d e f
+		%"    g h i
+		%"
+		%" then splitAtTop(m) produces pair ([a,b,c], m')
+		%" where m' is matrix
+		%"
+		%"    d e f
+		%"    g h i
+		%"
+		%" splitAtTop fails with exception emptyListX on
+		%" an empty matrix.
+		;
+		
+  transpose	: Matrix(`a) -> Matrix(`a)
+  
+  		%" transpose(m) is the transpose of matrix m.  The
+		%" rows become columns and the columns become rows.
+		%" For example, if m is
+		%"
+		%"     a b c
+		%"     d e f
+		%"
+		%" then transpose(m) is
+		%"
+		%"      a d
+		%"      b e
+		%"      c f
+		;
+
+  ^^		: Matrix(`a) -> Matrix(`b) constraint(`b >= `a);
+  downcast	: Matrix(`a) -> Matrix(`b) constraint(`a >= `b);
+%Expect
+
+==================================================
+
+Expect{protected} 
+  makeMatrix	: (Natural, Natural, [[`a]]) -> Matrix(`a)
+ 
+  		%" makeMatrix(m,n,L) makes a matrix of m rows
+		%" and n columns, represented by list L.
+		%"
+		%" CAUTION: makeMatrix does not check that L
+		%" has m rows and m columns.  Be sure that 
+		%" L is of the correct size before calling
+		%" this function.
+		;
+		
+  listDiagLR	: Integer -> Integer -> [[`a]] -> [`a]
+  
+  		%" (listDiagLR k c x) returns a left-to-right
+		%" diagonal of two-dimensional list x.  Parameter
+		%" c is the number of columns in x.
+		%"
+		%" Parameter k tells how far above or below the main
+		%" diagonal the desired diagonal is. 
+		%"
+		%" Here are some of the diagnoals that are extracted.
+		%" The * shows what is taken.
+		%"
+		%"   k = -1        k = 0         k = 1
+		%"  ---------    ---------     ---------
+		%"  . . . . .    * . . . .     . * . . .
+		%"  * . . . .    . * . . .     . . * . .
+		%"  . * . . .    . . * . .     . . . * .
+		%"  . . * . .    . . . * .     . . . . *
+		;
+
+  listDiagRL	: Integer -> Integer -> [[`a]] -> [`a]
+  
+  		%" (listDiagRL k c x) returns a right-to-left
+		%" diagonal of two-dimensional list x.  Parameter
+		%" c is the number of columns in x.
+		%"
+		%" Parameter k tells which diagonal to select.  The
+		%" first diagonal is 0, the next 1, etc.  If k is 
+		%" negative, the result is an empty list.
+		%"
+		%" Here are some of the diagnoals that are extracted.
+		%" The * shows what is taken.
+		%"
+		%"   k = 0         k = 1         k = 2
+		%"  ---------    ---------     ---------
+		%"  * . . . .    . * . . .     . . * . .
+		%"  . . . . .    * . . . .     . * . . .
+		%"  . . . . .    . . . . .     * . . . .
+		%"  . . . . .    . . . . .     . . . . .
+		;
+
+  submat	: (Natural,Natural,[[`a]]) -> 
+  		  ((Natural,Natural),(Natural,Natural)) -> [[`a]]
+		  
+		%" submat (nr,nc,x) ((i,n),(j,m)) is the sublist
+		%" of two-dimensional list x that is obtained by
+		%" 
+		%"  a. Removing the top i rows and leftmost j columns;
+		%"  b. Keeping the first n rows and m columns of what
+		%"     is left.
+		%"
+		%" Parameters nr and nc are the number of rows and
+		%" columns in x, respectively.
+		%"
+		%" If i is larger than the number of rows or j
+		%" is larger than the number of columns, then 
+		%" an empty list is returned.
+		%"
+		%" If n is larger than the number of remaining rows,
+		%" then all remaining rows are selected.
+		%"
+		%" If m is larger than the number of remaining columns,
+		%" then all remaining columns are selected.
+		;
+%Expect
+
+==================================================
+
+Pattern
+  ?a _atop_ ?b => Match (?a,?b) = splitAtTop(target).;
+  
+  ?a _aside_ ?b => Match (?a,?b) = splitAtLeft(target).;
+  
+  matrix(?r) => Match ?r = rows target.
+%Pattern
+    
+==================================================
+%Package

@@ -1,0 +1,17 @@
+Package ovl2
+
+%% Test overlaps of irregular defs.  Should get a complaint
+%% that the following overlap.
+
+Expect{irregular} f: Natural -> INTEGER`a.
+
+Define{irregular} (f: Natural -> Natural) = forget.
+
+Define{irregular} (f: Natural -> Integer) ?x = integer x.
+
+Execute
+  Let x = f(2).
+  Writeln[$x].
+%Execute
+
+%Package

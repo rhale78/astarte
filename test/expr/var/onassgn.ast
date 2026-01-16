@@ -1,0 +1,56 @@
+Package onassgn 
+
+%% Test OnAssign 
+
+Import "misc/check".
+
+Let Prtnew by first 
+  case Prtnew(?,noValue).  = Line["nothing"].
+  case Prtnew(?,value ?a). = Line[$a].
+%Let
+
+Execute
+  Var{shared} x.
+  OnAssign(x, (Prtnew)).
+  Assign x := 1.
+  Check["1"].
+  Assign x := 2.
+  Check["2"].
+%Execute
+
+Execute
+  Var{nonshared} x.
+  OnAssign(x, (Prtnew)).
+  Assign x := 1.
+  Check["1"].
+  Assign x := 2.
+  Check["2"].
+%Execute
+
+Let Altprt(?p). = Line[$p]..
+
+Execute
+  Var{shared} x,y.
+  OnAssign(x, (Altprt)).
+  OnAssign(y, (Altprt)).
+  Assign x := 4.
+  Check["(noValue,value(4))"].
+  Assign y := 8.
+  Check["(noValue,value(8))"].
+  Assign x := 12.
+  Check["(value(4),value(12))"].
+%Execute
+
+Execute
+  Var{nonshared} x,y.
+  OnAssign(x, (Altprt)).
+  OnAssign(y, (Altprt)).
+  Assign x := 4.
+  Check["(noValue,value(4))"].
+  Assign y := 8.
+  Check["(noValue,value(8))"].
+  Assign x := 12.
+  Check["(value(4),value(12))"].
+%Execute
+
+%Package

@@ -1,0 +1,95 @@
+%% File: linset.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=========================================================
+Package 		Astarte_LinSet 
+
+			Interface
+===========================================================
+
+%%=========================================================
+%% This package implements sets as lists.  Such sets can
+%% be over any species for which equality tests are defined.
+%% See package set.ast for a description of sets.
+%%
+%%   LinSet(T) is a species of sets whose members have species T.
+%%=========================================================
+
+Directory standard.  
+Import "collect/set".
+
+========================================================================
+%% Sets are special cases of collections.
+%% The following suppresses expectations being generated from
+%% anticipations in collect.ast, since sets
+%% defined here are only over EQ species.  The anticipations
+%% indicate that any species would do, and so are too general.
+========================================================================
+
+Extension
+  Expect{transparent} species LinSet(EQ`a)
+    %" LinSet(T) is a species of sets whose member have
+    %" species T, and that is represented as a list of
+    %" members.
+  %Expect
+  
+  Relate{noExpect} LinSet isKindOf SET.
+%Extension
+
+=================================
+
+Abbrev 
+
+  {noExport}:
+  
+  A    = EQ`a;
+  O    = ORDER`a;
+  SetA = LinSet(A);
+  SetO = LinSet(O);
+  
+  {}:
+  
+  Set = LinSet;
+%Abbrev
+
+=================================
+
+Expect
+  emptySet		: SetA;
+  emptySet?		: SetA 			-> Boolean;
+  linSet		: [A]			-> SetA;
+  size			: SetA 			-> Natural;
+  sizeAtLeast		: Natural -> SetA	-> Boolean;
+  toList,
+    eagerToList		: SetA			-> [A];
+  _in_			: (A, SetA)		-> Boolean;
+  +/      		: (SetA, A)		-> SetA;
+  -/     		: (SetA, A) 		-> SetA;
+  extractMin,
+    extractMax		: SetO      		-> (O, SetO);
+
+  {override}:
+
+  set          		: [A] 			-> SetA;
+  _subset?_	 	: (SetA, SetA)		-> Boolean;
+  ==           		: (LinSet A, LinSet A)  -> Boolean;
+  _unionWithList_,
+    _intersectWithList_,
+    _minusList_  	: (SetO, [O])	-> SetO;
+      
+  {underride}:
+  
+  ^^			: LinSet(EQ`a) -> LinSet(EQ`b)
+  		            constraint (EQ`b >= EQ`a);
+			    
+  downcast		: LinSet(EQ`a) -> LinSet(EQ`a)
+  			    constraint (EQ`b <= EQ`a);
+%Expect
+
+=================================
+%Package
+
+

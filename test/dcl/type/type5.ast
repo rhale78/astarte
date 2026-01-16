@@ -1,0 +1,15 @@
+Package testtype4 
+
+%% test ANY as a genus.
+
+Extension
+  Species U(ANY`x) = ANY`x.
+%Extension
+
+Let idfun(?x:ANY`a) = x.
+
+Execute
+  Writeln[idfun("hello")].
+%Execute
+
+%Package

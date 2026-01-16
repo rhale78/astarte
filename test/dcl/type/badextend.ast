@@ -1,0 +1,15 @@
+Package badextend
+
+%% Test late extensions. The second extension should lead to errors
+%% indicating that the intersection of A and other genera should
+%% be empty.
+
+Extension
+  Abstraction A.
+%Extension
+
+Extension
+  Relate Natural isKindOf A.
+%Extension
+
+%Package

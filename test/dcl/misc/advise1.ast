@@ -1,0 +1,16 @@
+Package advise1
+
+%% Test some advise dcls.
+
+%% Overloads
+
+Let a:Natural = 1.
+Let a:Integer = 1.
+Let a:Rational = 1.
+
+Advise overloads 2 one.
+Let b = a.
+
+Let c = a.
+
+%Package

@@ -1,0 +1,12 @@
+Package forget 
+
+%% Test function forget
+
+Execute
+  Writeln["Should fail with a run-time species mismatch"].
+  Let a = forget(2).
+  Let b = forget("abc").
+  Ignore a == b.
+%Execute
+
+%Package

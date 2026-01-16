@@ -1,0 +1,36 @@
+Package TestStream1
+
+%% Test streams
+
+Import "misc/check".
+
+Define count ?n = 
+  If n == 0 
+     then 0 
+     else Stream n then count(n -- 1).
+  %If
+%Define
+      
+
+Execute
+  Unique
+    Let a = count 5.
+    {a < 3}
+    Line[a $$ 10].
+    Check["         2"].
+
+    open Stream
+      Let x = 1.
+    then
+      Let x = 2.
+    %Stream
+    {x == 2}
+    Line[x $$ 10].
+    Check["         2"]. 
+
+    Line[:Stream "         5" then "         6" then "\n" %stream:].
+    Check["         5         6\n"].
+  %Unique
+%Execute
+    
+%Package

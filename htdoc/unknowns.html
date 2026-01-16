@@ -1,0 +1,349 @@
+<HTML>
+<head>
+<title>Astarte: Unknowns</title>
+</head>
+<body>
+<center>
+<a href="boxexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tagexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E19. Unknowns </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main> Unknowns</a>
+  <li> <a href=#create> Creating unknowns</a>
+  <li> <a href=#test> Classifying, recognizing and comparing unknowns</a>
+  <li> <a href=#bind> Explicity binding unknowns</a>
+  <li> <a href=#active> Active functions (which implicitly bind unknows)</a>
+  <li> <a href=#array> Creating lists of unknowns</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Unknowns</font></h2>
+
+An unknown is a value that has not yet been determined.  It can occur
+in a data structure, representing a part of the data structure that
+has not been found.
+
+<p>An unknown is different from a "lazy value", or promise, 
+that is created as a result of lazy evaluation.  
+There is no expression held with an unknown
+that tells how to compute its value.  Instead, the value of an 
+unknown is bound by the program, in a way that is similar to the
+binding of the content of a box.  
+
+<p>Like boxes, there are two flavors
+of unknowns: shared and nonshared.  Bindings done to a shared unknown
+are visible to all threads.  Bindings done to a nonshared unknown are
+only visible to the thread that does the binding, and to its child
+threads.
+
+<p>There are two important differences between boxes and unknowns.
+<ol>
+<p><li>An unknown can only be bound once.  
+After it is bound, the unknown disappears: the value is no
+longer considered unknown, and the former presence of the unknown
+is not visible to the program.
+(But see <a href=logiclib.html#freeze>nonshared unknowns and threads</a>.)
+
+<p><li>You never explicitly ask for the content of an unknown.  A bound
+unknown has disappeared.  
+</ol>
+
+<a name=protected></a>
+<p> There are two varieties of unknowns: 
+<font color=blue><i>protected</i></font> and 
+<font color=blue><i>unprotected</i></font>.  An
+unprotected unknown can be bound by anyone.  A protected unknown is created
+along with a key, and only somebody who holds the key for a given protected
+unknown can bind that unknown.
+
+<p> There is no separate species of unknowns.  An unknown can have any species,
+and any value can potentially be an unknown.  If a thread tries to get
+the value of an unknown, then that thread is suspended until the unknown
+becomes bound.  <b>Be careful about that.</b>  If some other thread does
+not bind the unknown, then all threads that are waiting for that unknown
+are dead.
+
+<p> Some functions, called <a href=#active><i>active</i></a> functions, 
+are designed to work with unprotected unknowns.  An active
+function tries to prevent itself from waiting for the value
+of an unknown, and also tries to prevent itself from failing.
+An active function that returns a Boolean result generally tries
+to make itself return true if possible.
+
+<p>For example, activeHead(x) will check whether x is an
+unprotected unknown.  If it is, activeHead will bind it to a list
+consisting of an unknown head and an unknown tail, and will return the
+unknown head.  Evaluating activeNil?(x) on an unbound unprotected
+unknown x will bind that unknown to [], and return true.
+
+<p>The following sections describe operations for use with unknowns.  
+More detail
+is available in <a href="ast/logic/unknown.ast">logic/unknown.ast</a>.
+
+<a name="create"></a>
+<hr>
+<h2><font color=mediumblue> Creating unknowns </font></h2>
+
+<dl>
+
+<a name=UnknownKey></a>
+<p><dt><font color=red>UnknownKey</font>
+<dd> UnknownKey is the species of a key for a protected unknown.
+
+<a name=newProtectedUnknown></a>
+<p><dt><font color=red>newProtectedUnknown</font>
+<dd> : BoxFlavor -&gt; (`a, UnknownKey)
+<p>newProtectedUnknown(flav) returns a pair (u,k) where
+u is a new unbound, protected
+unknown of flavor flav, and k is its key.
+
+<a name=newUnknown></a>
+<p><dt><font color=red>newUnknown</font>
+<dd>: BoxFlavor -&gt; `a
+<p>newUnkown(flav) produces a new 
+(unprotected) unknown of flavor flav
+(either shared or nonshared).
+
+<a name=nonsharedUnknown></a>
+<p><dt><font color=red>nonsharedUnknown</font>
+<dd>: () -&gt; `a
+<p> nonsharedUnknown() returns a new unbound, nonshared, unprotected
+unknown.
+
+<a name=protectedNonsharedUnknown></a>
+<p><dt><font color=red>protectedNonsharedUnknown</font>
+<dd>: () -&gt; `a
+<p> protectedNonsharedUnknown() returns a pair (u,k) where
+u is a new unbound, nonshared, protected
+unknown and k is its key.
+
+<a name=protectedSharedUnknown></a>
+<p><dt><font color=red>protectedSharedUnknown</font>
+<dd>: () -&gt; (`a, UnknownKey)
+<p> protectedSharedUnknown() returns a pair (u,k) where
+u is a new unbound, shared, protected
+unknown and k is its key.
+
+<a name=sharedUnknown></a>
+<p><dt><font color=red>sharedUnknown</font>
+<dd>: () -&gt; `a
+<p> sharedUnknown() returns a new unbound, shared, unprotected
+unknown.
+
+<a name=unknownf></a>
+<p><dt><font color=red>unknown</font>
+<dd>: () -&gt; `a
+<p> unknown() returns a new unbound, nonshared, unprotected
+unknown.  You can use this function in patterns; unknown() matches
+any unknown at all.
+
+<a name=logicvar></a>
+<p><dt><font color=red>Var{unknown}<br>Var{logic}</font>
+<dd> Statement
+<font color=#D00090>
+<b><pre>
+  Var{unknown} x.
+</pre></b>
+</font>
+creates a new unprotected shared unknown and binds x to it.  
+You can force a nonshared unknown by using the
+nonshared option, as in Var{nonshared,unknown} x.  
+Statement
+<font color=#D00090>
+<b><pre>
+  Var{logic} x.
+</pre></b>
+</font>
+is equivalent to Var{nonshared,unknown} x.
+
+<p>With one exception, all forms of var-expression can be used with unknowns.
+For example, you can create arrays of unknowns. The exception is that
+forms that use initialization cannot be used.  It is not sensible
+to produce initialized unknowns, since then they are not unknown at all.
+
+</dl>
+
+<a name="test"></a>
+<hr>
+<h2><font color=mediumblue> Classifying, recognizing and comparing unknowns </font></h2>
+
+<dl>
+
+<a name=protectedUnknownq></a>
+<p><dt><font color=red>protectedUnknown?</font>
+<dd>: `a -&gt; Boolean
+<p> protectedUnknown?(x) returns true just when x is an
+unbound protected unknown.
+
+<a name=sameUnknownq></a>
+<p><dt><font color=red>sameUnknown?</font>
+<dd> (`a,`a) -&gt; Boolean
+<p>sameUnknown?(x,y) is true if x and y are the same unbound unknown.
+Here, x and y must have the same species.
+
+<a name=sameUnknownqq></a>
+<p><dt><font color=red>sameUnknown??</font>
+<dd>: (`a,`b) -&gt; Boolean
+<p> sameUnknown?? is the same as sameUnknown?, but it does not require
+its two parameters to have the same species.
+
+<a name=unknownq></a>
+<p><dt><font color=red>unknown?</font>
+<dd>:`a -&gt; Boolean
+<p> unknown?(x) is true if x is any kind of unbound unknown.
+
+<a name=unprotectedUnknownq></a>
+<p><dt><font color=red>unprotectedUnknown?</font>
+<dd>: `a -&gt; Boolean
+<p> unprotectedUnknown?(x) returns true just when x is an
+unbound unprotected unknown.
+
+</dl>
+
+<a name="bind"></a>
+<hr>
+<h2><font color=mediumblue> Explicitly binding unknowns </font></h2>
+<dl>
+
+<a name=BindProtectedUnknown></a>
+<p><dt><font color=red>BindProtectedUnknown</font>
+<dd>: ((`a,UnknownKey), `a) -&gt; ()
+<p>Statement
+<font color=#D00090>
+<b><pre>
+  BindProtectedUnknown (x,k) := y.
+</pre></b>
+</font> 
+binds protected unknown x to y.  
+x must be an unbound protected unknown and k must be the
+key for x, otherwise BindProtectedUnknown fails with exception
+bindUnknownX.
+
+<a name=BindUnknown></a>
+<p><dt><font color=red>BindUnknown</font>
+<dd>: (`a,`a) -&gt; ()
+<p> Statement
+<font color=#D00090>
+<b><pre>
+  BindUnknown x := y.
+</pre></b>
+</font> 
+binds unprotected unknown x to y.  
+x must be an unbound unprotected unknown, 
+otherwise BindUnknown fails with exception bindUnknownX.
+</dl>
+
+<p> You can bind one unknown to another.  The two become the
+same unknown, so that subsequent binding of one implicitly
+bind the other as well.  If you try to bind an unknown to itself, 
+nothing happens.  The unknown is left unknown.
+
+<p> It is possible to create cyclic structures by binding unknowns.
+For example, 
+if you create a structure <i>x</i> that contains an unknown
+<i>u</i>, and you bind <i>u</i> to <i>x</i>, then you have a cyclic structure.
+Be careful about that.
+
+<a name="active"></a>
+<hr>
+<h2><font color=mediumblue> Active functions 
+(which implicitly bind unknowns) </font></h2>
+
+Active functions behave like passive ones, but they try to
+avoid failing by binding unknowns where possible.  For example,
+activeHead?(x) tries to take the head of x.  If x is an
+unknown, then it normally would not be possible to take the head
+of x until x becomes bound.  To avoid waiting, and also to avoid
+failure, activeHead(x) will bind x to a nonempty list with an
+unknown head and an unknown tail, and return the unknown head.
+
+<dl>
+
+<a name=activeHead></a>
+<p><dt><font color=red>activeHead</font>
+<dd>: [`a] -&gt; `a
+<p> activeHead(x) is the head of x, but it will bind x to a
+nonempty list if x is an unprotected unknown.
+
+<a name=activeLazyHead></a>
+<p><dt><font color=red>activeLazyHead</font>
+<dd>: [`a] -&gt; `a
+<p> activeLazyHead(x) is similar to lazyHead.  
+It produces the head of x, but it will bind x to a
+nonempty list if x is an unprotected unknown.  This binding will done
+only be done when the promise created by activeLazyHead is forced.
+
+<a name=activeLazyTail></a>
+<p><dt><font color=red>activeLazyTail</font>
+<dd>: [`a] -&gt; [`a]
+<p> activeLazyTail(x) is similar to lazyTail.  
+It produces the tail of x, but it will bind x to a
+nonempty list if x is an unprotected unknown.  This binding will done
+only be done when the promise created by activeLazyTail is forced.
+
+<a name=activeListToPair></a>
+<p><dt><font color=red>activeListToPair</font>
+<dd>: [`a] -&gt; (`a, [`a])
+<p> activeListToPair(x) is the pair (head(x), tail(x)), 
+but it will bind x to a nonempty list if x is an unprotected unknown.
+
+<a name=activeNilq></a>
+<p><dt><font color=red>activeNil?</font>
+<dd>: [`a] -&gt; Boolean
+<p> activeNil?(x) is the true if x is [] and false otherwise, 
+but it will bind x to [] if x is an unprotected unknown.
+(It tries to make itself return true.)
+
+<a name=activeTail></a>
+<p><dt><font color=red>activeTail</font>
+<dd>: [`a] -&gt; [`a]
+<p> activeTail(x) is the tail of x, but it will bind x to a
+nonempty list if x is an unprotected unknown.
+
+</dl>
+
+<a name=array></a>
+<hr>
+<h2><font color=mediumblue>Creating lists of unknowns</font></h2>
+
+The following functions are available if you import
+<a href="ast/collect/boxes.ast">collect/boxes.ast</a>.
+Alternatively, use <a href=boxexpr.html#varexpr>var-expressions</a>.
+
+<dl>
+<a name=infiniteUnknownArray></a>
+<p><dt><font color=red>infiniteUnknownArray</font>
+<dd>: BoxFlavor -&gt; [`a]
+<p>infiniteUnknownArray(flav) is an infinite list of 
+unbound, unprotected unknowns of flavor flav (either
+shared or nonshared).
+
+<a name=unknownArray></a>
+<p><dt><font color=red>unknownArray</font>
+<dd>: BoxFlavor -&gt; Natural -&gt; [`a]
+<p> (unknownArray flav n) is a list of n unbound, unprotected
+unknowns of flavor flav (either shared or nonshared).
+</dl>
+
+<hr>
+<center>
+<a href="boxexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tagexpr.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,55 @@
+%% File: object.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 2000 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=================================================================
+Package 		Astarte_Object
+
+			interface
+====================================================================
+
+Import "collect/boxes".
+
+Extension
+  Expect species Object!.
+  
+  Abstraction 
+    Object;
+    OPAQUE_OBJECT(ANY);
+    {transparent} TRANSPARENT_OBJECT(ANY)
+  %Abstraction
+  
+  Relate 
+    Object                     isKindOf EQ;
+    Object!                    isKindOf Object;
+    OPAQUE_OBJECT              isKindOf OPAQUE_EQ;
+    OPAQUE_OBJECT(ANY)         isKindOf Object;
+    TRANSPARENT_OBJECT         isKindOf TRANSPARENT_EQ;
+    TRANSPARENT_OBJECT(Object) isKindOf Object;
+    
+    Object & OPAQUE_EQ      = OPAQUE_OBJECT(ANY);
+    Object & OPAQUE         = OPAQUE_OBJECT(ANY);
+    Object & TRANSPARENT_EQ = TRANSPARENT_OBJECT(Object);
+    Object & TRANSPARENT    = TRANSPARENT_OBJECT(Object);
+  %Relate
+%Extension
+
+Anticipate
+  retract : {Object`a} -> Object!
+%Anticipate
+
+Expect
+            $		: Object! -> String;
+  {default} $		: Object`*a -> String;
+  {default} ==		: (Object`a,Object`a) -> Boolean;
+            object!	: () -> Object!;
+            retract	: Object! -> Object!
+%Expect
+
+Let retract = idf.
+
+Context Object.
+
+%Package

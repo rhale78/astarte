@@ -1,0 +1,27 @@
+Package testSpecies4 export
+
+%% Check associativity testing
+
+%% Should not complain
+
+Extension
+  Species M = Natural.
+  Species N = Natural.
+  Species P = Natural.
+  Abstraction A.
+  Relate M isKindOf A.
+  Abstraction B.
+  Relate A| N isKindOf B.
+  Abstraction C.
+  Relate B | P isKindOf C.
+%Extension
+
+%% Should complain
+
+Extension
+  Abstraction V1;V2;.
+  Relate Natural isKindOf V1.
+  Relate V1 | Integer isKindOf V2.
+%Extension
+
+%Package

@@ -1,0 +1,27 @@
+Package streamExecption 
+
+%% Test exception handling with streams.
+
+Import "misc/check".
+
+Execute
+  Untrap domainX("") =>
+    Try
+      Let x = 
+	Stream
+	  1/0
+	then
+	  1/0
+	%Stream
+      %Let
+    then
+      Writeln["Bad", $x].
+    else
+      Line["Exception is domainX(\"divide by zero\")"].
+      Check["Exception is ", $exception].
+    %Try
+  %Untrap
+%Execute
+
+%Package
+

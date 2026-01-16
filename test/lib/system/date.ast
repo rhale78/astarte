@@ -1,0 +1,12 @@
+Package date 
+
+%% test dateTime, secondsSinceTimeZero
+
+Import "system/system".
+
+Execute
+  Writeln[dateTime()].
+  Writeln["Seconds since time zero: ", $secondsSinceTimeZero()].
+%Execute
+
+%Package

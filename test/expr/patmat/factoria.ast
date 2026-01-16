@@ -1,0 +1,35 @@
+Package factorial 
+
+Define factorial ?n =
+  Choose first matching n
+    case 0 => 1
+    case ?j+1 => (j+1) * factorial j
+  %Choose
+%Define
+
+Execute
+  Write["0! =  ", factorial 0 $$ 50, "\n"].
+  Write["1! =  ", factorial 1 $$ 50, "\n"].
+  Write["2! =  ", factorial 2 $$ 50, "\n"].
+  Write["3! =  ", factorial 3 $$ 50, "\n"].
+  Write["4! =  ", factorial 4 $$ 50, "\n"].
+  Write["5! =  ", factorial 5 $$ 50, "\n"].
+  Write["6! =  ", factorial 6 $$ 50, "\n"].
+  Write["7! =  ", factorial 7 $$ 50, "\n"].
+  Write["8! =  ", factorial 8 $$ 50, "\n"].
+  Write["9! =  ", factorial 9 $$ 50, "\n"].
+
+  Write["10! = ", factorial 10 $$ 50, "\n"].
+  Write["20! = ", factorial 20 $$ 50, "\n"].
+  Write["30! = ", factorial 30 $$ 50, "\n"].
+  Write["40! = ", factorial 40 $$ 50, "\n"].
+
+  Write["15! = ", ~(factorial 15) $$ 12, "\n"].
+  Write["25! = ", ~(factorial 25) $$ 12, "\n"].
+  Write["38! = ", ~(factorial 38) $$ 12, "\n"].
+  Write["50! = ", ~(factorial 50) $$ 12, "\n"].
+  Write["60! = ", ~(factorial 60) $$ 12, "\n"].
+  Write["66! = ", ~(factorial 66) $$ 12, "\n"].
+%Execute
+
+%Package

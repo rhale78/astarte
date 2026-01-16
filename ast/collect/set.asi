@@ -1,0 +1,114 @@
+%% File: set.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================================
+Package 		Astarte_SETImp
+
+			Implements "set"
+====================================================================
+
+Directory standard. 
+Import
+  "collect/search"; 
+  "collect/listfun"; 
+  "collect/pair";
+  "collect/linset"
+%Import
+
+Advise nowarn missingDefinition all.
+
+==========================================================
+%% 			emptySet:SET			%%
+==========================================================
+%% Use linear sets as the fundamental representation
+%% of sets.
+==========================================================
+
+Let{underride} emptySet = <<emptySet: LinSet(`?)>>.
+
+==========================================================
+%% 			set				%%
+==========================================================
+
+Let{underride} set = lfold (emptySet, +/).
+
+==========================================================
+%% 			_subset?_			%%
+==========================================================
+
+Let{underride} ?s _subset?_ ?s' =
+  (toList s) _is_ (allSatisfy (__ _in_ s'))
+%Let
+
+====================================================================
+%% 			\/ 
+%%			_unionWithList_
+====================================================================
+
+Let{underride} ?s _unionWithList_ ?l = lfold (s, +/) l.
+
+Let{underride} ?s \/ ?s' =
+  If size(s) > size(s')
+    then s  _unionWithList_ (toList s')
+    else s' _unionWithList_ (toList s)
+  %If
+%Let
+
+====================================================================
+%% 			/\ 
+%%			_intersectWithList_
+====================================================================
+
+Let{underride} ?s _intersectWithList_ ?l =
+  lfold (emptySet, plusIfMem) l |
+    Let plusIfMem(?r,?k) =
+      If k _in_ s
+        then r +/ k
+	else r
+      %If
+    %Let
+%Let
+
+Let{underride} ?s /\ ?s' =
+  If size(s) > size(s')
+    then s  _intersectWithList_ (toList s')
+    else s' _intersectWithList_ (toList s)
+  %If
+%Let
+
+====================================================================
+%% 			-
+%%			_minusList_
+====================================================================
+
+Let{underride}: 
+  ?s _minusList_ ?l = lfold (s,-/) l;
+  ?s - ?s'          = s _minusList_ (toList s');
+%Let
+
+====================================================================
+%%	Operations for secondary species
+====================================================================
+
+Let
+  {underride}:
+  
+  emptySet? <<?s>>		= emptySet? s;
+  <<?s>> +/ ?x			= <<s +/ x>>;
+  <<?s>> -/ ?x			= <<s -/ x>>;
+  <<?s>> _intersectWithList_ ?x = <<s _intersectWithList_ x>>;
+  <<?s>> _minusList_ ?x 	= <<s _minusList_ x>>;
+
+  extractMin <<?s>> 		= (m,<<s'>>) |
+                                    Match (?m,?s') = extractMin(s).;
+				    
+  extractMax <<?s>> 		= (m,<<s'>>) |
+                                    Match (?m,?s') = extractMax(s).;
+%Let
+  
+====================================================================
+%Package
+

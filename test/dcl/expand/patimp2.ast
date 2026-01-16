@@ -1,0 +1,13 @@
+Package patimp2 export
+
+%% Helper for patimp1
+
+Import "patimp4".
+
+Pattern ff(?x) => 
+  Match ?x = target + 2.
+%Pattern
+
+Expand gg(?x) => x + 2.
+
+%Package

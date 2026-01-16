@@ -1,0 +1,38 @@
+Package longtestmult 
+
+%% Test integer multiplication For a multitude of sizes of numbers.
+
+Var badcnt holding Natural.
+
+Let Test(?c,?p,?a,?b). =
+  If c =/= p then 
+    Writeln["Bad product:"].
+    Writeln["a   = ", $a].
+    Writeln["b   = ", $b].
+    Writeln["a*b = ", $c].
+    Increment badcnt.
+  %If
+%Let
+
+Execute
+  Assign badcnt := 0.
+  Loop (?i,?p) = (1,2) perhaps
+  loopcase i < 200 =>
+    Writeln["Product ", $p].
+    Loop (?j,?k,?a,?b) = (1,i--1,2,p _div_ 2) perhaps
+    loopcase k >= 1 =>
+      Let c = a*b.
+      Test(c,p,a,b).
+      Let c1 = (a+1)*(b+1).
+      Test(c1,p+a+b+1,(:a+1:),(:b+1:)).
+      Let c2 = (a--1)*(b--1).
+      Test(c2,p--a--b+1,(:a--1:),(:b--1:)).
+      Writeln[j$$5,k$$5].
+      continue (j+1, k--1, a+a, b _div_ 2)
+    %Loop
+    continue (i+1, p+p)
+  %Loop
+  Writeln["\n There were ", $ @badcnt, " bad cases"].
+%Execute
+
+%Package

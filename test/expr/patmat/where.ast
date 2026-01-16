@@ -1,0 +1,19 @@
+Package testwhere 
+
+%% Test identifier handling for _where_
+
+Execute
+  %% There should be no complaints here.
+
+  Match (?a,?b) _where_ a == b = (1,1).
+
+  %% Should complain that c is undefined
+
+  Match (?c, ?d _where_ c == d) = (2,2).
+
+  %% Should complain that f is undefined.
+
+  Match (?e _where_ e == f, ?f) = (3,3).
+%Execute
+
+%Package

@@ -1,0 +1,11 @@
+Package ovld
+
+%% Test a simple overload.
+
+Define less by one
+  case less [?h] = h
+  case less (?h::?t) = less(t) when h >= head(t)
+  case less (?h::?t) = less(h::tail(t)) when h < head(t)
+%Define
+
+%Package

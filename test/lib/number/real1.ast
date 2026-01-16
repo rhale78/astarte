@@ -1,0 +1,118 @@
+Package testreal1 
+
+%% Test real and rational constants and printing
+
+Import "misc/check".
+
+  %% Rational printing
+  Execute 
+    Write ["Rationals\n"].
+    Line [0/10       $$ 21].
+    Check ["                    0"].
+    Line [1/2        $$ 21, ""].
+    Check ["                  1/2"].
+    Line [1.2347     $$ 21, ""].
+    Check ["          12347/10000"].
+    Line [1.2345678  $$ 21, ""].
+    Check ["      6172839/5000000"].
+    Line [1.00234567 $$ 21, ""].
+    Check ["  100234567/100000000"].
+    Line [1.123e24   $$ 21, ""].
+    Check ["1123000000000000000000000"].
+    Line [1.123e-24  $$ 21, ""].
+    Check ["1123/1000000000000000000000000000"].
+  %Execute
+
+  Execute
+    Write ["Same as above, but using $\n"].
+    Line [$(0/10), ""].
+    Check ["0"].
+    Line [$(1/2), ""].
+    Check["1/2"].
+    Line [$(1.2347), ""].
+    Check ["12347/10000"].
+    Line [$(1.2345678), ""].
+    Check ["6172839/5000000"].
+    Line [$(1.00234567), ""].
+    Check ["100234567/100000000"].
+    Line [$(1.123e24), ""].
+    Check ["1123000000000000000000000"].
+    Line [$1.123e-24, ""].
+    Check ["1123/1000000000000000000000000000"].
+  %Execute
+
+  %% Real printing
+  Execute
+    Write ["Small reals, single format parameter\n"].
+    Writeln [~0.0        $$ 21, ""].
+    Writeln [~(1/2)      $$ 21, ""].
+    Writeln [~1.2347     $$ 21, ""].
+    Writeln [~1.2345678  $$ 21, ""].
+    Writeln [~1.00234567 $$ 21, ""].
+    Writeln [~1.123E24   $$ 21, ""].
+    Writeln [~1.123E-24  $$ 21, ""].
+
+    Write ["\nSmall reals, double format parameter\n"].
+    Writeln [~0.0        $$ (21, 10), ""].
+    Writeln [~0.5        $$ (21, 10), ""].
+    Writeln [~1.2347     $$ (21, 10), ""].
+    Writeln [~1.2345678  $$ (21, 10), ""].
+    Writeln [~1.00234567 $$ (21, 10), ""].
+    Writeln [~1.123E24   $$ (21, 10), ""].
+    Writeln [~1.123E-24  $$ (21, 10), ""].
+
+    Writeln [~(-0.5)        $$ (21, 10), ""].
+    Writeln [~(-1.2347)     $$ (21, 10), ""].
+    Writeln [~(-1.2345678)  $$ (21, 10), ""].
+    Writeln [~(-1.00234567) $$ (21, 10), ""].
+    Writeln [~(-1.123E24)   $$ (21, 10), ""].
+    Writeln [~(-1.123E-24)  $$ (21, 10), ""].
+
+    Write ["\nSmall reals, triple format parameter\n"].
+    Writeln [~0.0        $$ (21, 10, 3), ""].
+    Writeln [~0.5        $$ (21, 10, 3), ""].
+    Writeln [~1.2347     $$ (21, 10, 3), ""].
+    Writeln [~1.2345678  $$ (21, 10, 3), ""].
+    Writeln [~1.00234567 $$ (21, 10, 3), ""].
+    Writeln [~1.123E24   $$ (21, 10, 3), ""].
+    Writeln [~1.123E-24  $$ (21, 10, 3), ""].
+
+    Writeln [~(-0.5)        $$ (21, 10, 3), ""].
+    Writeln [~(-1.2347)     $$ (21, 10, 3), ""].
+    Writeln [~(-1.2345678)  $$ (21, 10, 3), ""].
+    Writeln [~(-1.00234567) $$ (21, 10, 3), ""].
+
+    Write ["\nSmall reals, $\n"].
+    Writeln [$(~0.0)].
+    Writeln [$(~3.0)].
+    Writeln [$(~(-3.0))].
+    Writeln [$(~0.01)].
+    Writeln [$(~(-0.01))].
+    Writeln [$(~(1/2))].
+    Writeln [$(~0.01234567891234523)].
+    Writeln [$(~(-0.01234567891234523))].
+    Writeln [$(~1.2347)].
+    Writeln [$(~1.2345678)].
+    Writeln [$(~1.00234567)].
+    Writeln [$(~1000.002345)].
+    Writeln [$(~(-1000.002345))].
+    Writeln [$(~1.123E24)].
+    Writeln [$(~(-1.123E24))].
+    Writeln [$ ~1.123E-24].
+    Writeln [$ ~(-1.123E-24)].
+    Writeln [$ ~1.123E-200].
+    Writeln [$ ~(-1.123E-200)].
+
+    Write ["\nLarger reals\n"].
+    Writeln [~0.00000000000000123    $$ (21, 10, 3), ""].
+    Writeln [~1230000000000000000    $$ (21, 10, 3), ""].
+    Writeln [~123456789.0            $$ (21, 6, 4), ""].
+    Writeln [~0.00000000123456789    $$ (21, 6, 4), ""].
+    Writeln [~(-0.00000000000000123) $$ (21, 10, 3), ""].
+    Writeln [~(-1230000000000000000) $$ (21, 10, 3), ""].
+    Writeln [~(-123456789.0)         $$ (21, 6, 4), ""].
+    Writeln [~(-0.00000000123456789) $$ (21, 6, 4), ""].
+  %Execute
+
+%Package
+

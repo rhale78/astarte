@@ -1,0 +1,96 @@
+<HTML>
+<head>
+<title>Astarte: random numbers</title>
+</head>
+<body>
+<center>
+<a href="logiclib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="evallib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L12. Pseudo-Random Numbers</font></h1>
+</center>
+
+Package <a href="ast/misc/random.ast">misc/random.ast</a>
+provides a pseudo-random number generator.  The following
+functions are provided.
+
+<dl>
+
+<a name=SetRandomSeed></a>
+<p><dt><font color="red">SetRandomSeed</font>
+<dd>: String -&gt; ()
+<p> <font color=#D00090>SetRandomSeed(s).</font> 
+should be used to initialize the pseudo-random 
+number generator with a seed value of truly random 
+digits.  The seed s should be a string of at least 44 decimal
+digits.  For each million bits generated, another 44 digits
+are consumed from this string.
+<p>Example:
+<font color="#D00090">
+<br>SetRandomSeed "48399210909178352761873368291736286982647720".
+</font>
+
+<a name=Randomize></a>
+<p><dt><font color="red">Randomize</font>
+<dd>: () -&gt; ()
+<p> <font color=#D00090>Randomize.</font> 
+uses the system clock to set the seed of the
+pseudo-random number generator.
+<p>Example:<font color="#D00090">
+Randomize.
+</font>
+
+<a name=coinToss></a>
+<p><dt><font color="red">coinToss</font>
+<dd>: () -&gt; Natural
+<p> <font color=#D00090>coinToss()</font> 
+returns either 0 or 1, drawn from the
+pseudo-random sequence.  Each call to coinToss gets
+the next value in the sequence.
+<p>Example:
+<font color="#D00090">
+Let c = coinToss().
+</font>
+
+<a name=random></a>
+<p><dt><font color="red">random</font>
+<dd>: Natural -&gt; Natural
+<p> <font color=#D00090>random(n)</font> 
+is a pseudo-random integer uniformly
+distributed from 0 to n-1.
+<p>Example:
+<font color="#D00090">
+Let r = random(30).
+</font>
+
+<a name=randomRange></a>
+<p><dt><font color="red">randomRange</font>
+<dd>: (Natural,Natural) -&gt; Natural
+<p> <font color=#D00090>randomRange(m,n)</font> 
+is a pseudo-random integer uniformly
+distributed from m to n.
+<p>Example:
+<font color="#D00090">
+Let r = randomRange(1,20).
+</font>
+
+</dl>
+
+<hr>
+<center>
+<a href="logiclib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="evallib.html">Next</a>
+</center>
+</body>
+</HTML>

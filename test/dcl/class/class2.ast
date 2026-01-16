@@ -1,0 +1,65 @@
+Package class2
+
+%% Test classes with expectations.
+
+Import "object".
+Import "collect/boxes".
+Import "misc/check".
+
+Extension
+  Class Monster
+    Var m holding Integer.
+    Expect
+      get_m: Integer;
+      Set_m: Integer -> ()
+    %Expect
+  %Class
+%Extension
+
+Define Monster constructor
+  monster(?m_val) = () then
+    Assign my m := m_val.
+%Define
+
+Define Ask Monster ? => get_m. = @(my m).
+
+Define Ask Monster ? => Set_m(?v).. = 
+  Assign my m := v.
+%Define
+
+Execute
+  Let g = monster(5).
+  Line[$(Ask g => get_m.)].
+  Check["5"].
+  Ask g => Set_m 6..
+  Line[$(Ask g => get_m.)].
+  Check["6"].
+%Execute
+
+Extension 
+  Class Gremlin isKindOf Monster
+    Var color holding Integer.
+    Expect getcolor: Integer.
+  %Class
+%Extension
+
+Define Gremlin constructor gremlin(?c,?x) =
+  Let super = monster(x).
+  then 
+  Assign my color := c + @(my m) + my get_m.
+%Define
+
+Define Ask Gremlin ? => getcolor. =
+  @(my color) + my get_m
+%Define
+
+Execute
+  Let g = gremlin(20,40).
+  Line[$(Ask g => get_m.)].
+  Check["40"].
+  Line[$(Ask g => getcolor.)].
+  Check["140"].
+%Execute
+
+%Package
+

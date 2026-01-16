@@ -1,0 +1,97 @@
+Package awaitt 
+
+%% Test Await
+
+Execute
+  Writeln["\nLines should be in matching pairs\n"].
+
+  Define a = 2.
+  Define b = 3.
+  Let c = 4.
+  Let d = 5.
+
+  Let e = Await a,c then 6..
+  Show (@stdout!), e.
+  Writeln["\n(lazy Exec-awaitt-1.e)\n"].
+  Writeln[$e].
+  Writeln["6\n"].
+  
+  Let f = Await d then 7..
+  Show(@stdout!), f.
+  Writeln["\n7\n"].
+
+  Let g = Await a,b,c,d then 8..
+  Show(@stdout!), g.
+  Writeln["\n(lazy Exec-awaitt-1.g)\n"].
+  Writeln[$g].
+  Writeln["8\n"].
+%Execute
+
+Execute
+  Define aa = 2.
+  Define ab = 3.
+  Define ac = 4.
+
+  Let c =
+    Await aa then
+      Let d = 4.
+      (d + d)
+    %Await
+  %Let
+  Writeln[$c].
+  Writeln["8\n"].
+
+  Let cc =
+    Await 1 then
+      Let d = 4.
+      (d + d)
+    %Await
+  %Let
+  Show(@stdout!), cc.
+  Writeln["\n8\n"].
+  Writeln[$c].
+  Writeln["8\n"].
+
+  Let d =
+    Await ab then
+      Let e = 5.
+      Let f = 6.
+      Let g = 8.
+      Let h = 9.
+      (e + f + g + h)
+    %Await
+  %Let
+  Writeln[$d].
+  Writeln["28\n"].
+
+  Let e =
+    Await 1,ac then
+      Let f = 
+	1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13 + 14 +
+	15 + 16 + 17 + 18 + 19 + 20 + 21 + 22 + 23 + 24 + 25 + 26 + 27 
+	+ 28 + 29 + 30
+      %Let
+      (f + f)
+    %Await
+  %Let
+  Writeln[$e].
+  Writeln["930\n"].
+%Execute
+
+Execute
+  Writeln
+    [$(Await 2 then
+         Let a = 1.
+         Let b = 2.
+         Let c = 3.
+         Let d = 4.
+         Let e = 5.
+         (a + b + c + d + e)
+       %Await)]
+  %Writeln
+  Writeln["15\n"].
+%Execute
+  
+ 
+
+%Package

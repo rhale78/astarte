@@ -1,0 +1,96 @@
+<HTML>
+<head>
+<title>Astarte: missing declarations</title>
+</head>
+<body>
+<center>
+<a href="expectdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="letdcl.html">Next</a>
+</center>
+<hr>
+
+<font color=brown>
+<center>
+<h1><font color=mediumblue> D6. Missing Declarations </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Declaring definitions missing</a>
+  <li><a href=#strong>Strongly missing types</a>
+  <li><a href=#warn>Using definitions that are missing</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Declaring definitions missing</font></h2>
+
+Occasionally you make an expectation that will have holes in it
+that you do not intend to fill.  If you just fail to make the
+definitions, then you will get a warning that definitions
+are missing.  You can tell the compiler to suppress those warnings
+using missing declarations.
+
+<p> Declaration
+<font color=#D00090>
+<b><pre>
+      Missing x: T.
+</pre></b>
+</font>
+indicates that the definition of x might not be defined for species
+that belong to polymorphic type T.  You are allowed to define them,
+but you will not receive any warnings about x not being defined for
+any type in T.
+
+<a name=strong></a>
+<hr>
+<h2><font color=mediumblue> Strongly missing types </font></h2>
+
+<p> Declaration
+<font color=#D00090>
+<b><pre>
+      Missing{strong} x: T.
+</pre></b>
+</font>
+indicates that no declarations of x should be given for any species
+in polymorphic type T.  If any are given, the compiler will warn
+you.
+
+<a name=warn></a>
+<hr>
+<h2><font color=mediumblue> Using definitions that are missing </font></h2>
+
+If you use an identifier of a species that has been declared missing,
+the compiler will look for a definition with that species.  If it
+does not find one, it will warn you that you are using a missing
+definition.  
+
+<p> If you are doing a polymorphic definition, the compiler will
+warn you if any of the types would lead to use of a definition
+that has been declared missing, and that the compiler cannot see.
+
+<p> You can suppress warnings about missing definitions being used
+by using modifier <i>missing</i> on the offending identifier.  
+For example, use
+<font color=#D00090>
+<b><pre>
+    Let x = (missing f)(y).
+</pre></b>
+</font>
+to suppress warnings about f being missing.
+</font>
+
+<hr>
+<center>
+<a href="expectdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="letdcl.html">Next</a>
+</center>
+</body>
+</HTML>

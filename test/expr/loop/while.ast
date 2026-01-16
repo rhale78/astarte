@@ -1,0 +1,25 @@
+Package whiletest
+
+%% Test while loops.
+
+Let factorial(?n) =
+  Let k = 0.
+  Let r = 1.
+  While k < n do
+    Relet k = k + 1.
+    Relet r = r * k.
+  %While
+  Value r.
+%Let
+
+Execute
+  Let k = 0.
+  While k <= 20 do
+    Writeln[k $$ 3, factorial(k) $$ 20].
+    Relet k = k + 1.
+  %While
+%Execute
+
+%Package
+
+  

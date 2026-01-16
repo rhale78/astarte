@@ -1,0 +1,1532 @@
+<HTML>
+<head>
+<title>Astarte: list library</title>
+</head>
+<body>
+<center>
+<a href="pairlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="listpattern.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC2. Lists and Operations on Lists</font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Lists</a>
+  <li><a href=#infinite>Infinite lists and lazy evaluation</a>
+  <li><a href=#cost>Operation cost</a>
+  <li><a href=#descr>Note on function descriptions</a>
+  <li><a href=#nil>Empty list</a>
+  <li><a href=#misc>Miscellaneous operations</a>
+  <li><a href=#selpos>Selection and cutting by position</a>
+  <li><a href=#addpos>Adding or removing by position</a>
+  <li><a href=#prop>Checking for properties</a>
+  <li><a href=#selprop>Selection and filtering by properties</a>
+  <li><a href=#cut>Cutting lists by properties of members</a>
+  <li><a href=#insert>Inserting and replacing</a>
+  <li><a href=#comb>Combining and uncombining lists</a>
+  <li><a href=#tostring>Converting to and from strings</a>
+  <li><a href=#rel>Relationships among lists</a>
+  <li><a href=#mapsec>Mapping</a>
+  <li><a href=#foldsec>Folding and unfolding</a>
+  <li><a href=#count>Counting</a>
+  <li><a href=#max>Maximum and minimum</a>
+  <li><a href=#sortsec>Sorting</a>
+  <li><a href=#pack>Changing representation</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Lists</font></h2>
+
+A list is a sequence of things of the same species.  
+For example, 
+[2,5,3] is a list of numbers.  
+<P>The head of a list
+is the first thing in the list, and the tail of a list
+is the list obtained by removing the first thing.  
+For example, 
+<blockquote>head([2,5,3]) = 2</blockquote>
+<blockquote>tail([2,5,3]) = [5,3] </blockquote>
+There is an empty list [&nbsp;] for each species.  The empty list
+has no head or tail.
+
+Lists are described in more detail in 
+<a href="ast/collect/list.ast">collect/list.ast</a>, and
+expression forms for building lists are described in
+<a href="listexpr.html">list expressions</a>.
+
+<a name=infinite></a>
+<hr>
+<h2><font color=mediumblue> Infinite lists and lazy evaluation </font></h2>
+
+Lists can be finite or infinite.  Infinite lists are created
+either using recursion to create a cyclic list or
+by making a suffix of the list lazy, so that it is not
+computed until needed (if ever).
+
+<p>Some of the library functions are eager, some are quasi-lazy and some
+are fully lazy.  Roughly, here is the distinction.
+<dl>
+
+<dt> <b>eager</b> <dd> Eager functions compute their entire results
+when they are used.  For example, 
+eagerMap computes its entire
+result list before it stops running.  An eager function should never be used
+on an infinite list, since otherwise it will try to evaluate
+the entire infinite list.
+
+<p><dt> <b>quasi-lazy</b> <dd> Quasi-lazy functions compute part of their
+results when they are used, and defer the rest of the computation.
+They will not evaluate lazy suffixes of lists until necessary, but 
+they will proceed part way down explicitly given lists.
+For example, 
+map computes a prefix of its result list, and then
+returns, with a suffix being left lazy.
+
+<p><dt> <b>lazy</b> <dd> Fully lazy functions compute only as much of their
+answer as is necessary.  They avoid any evaluation that is not
+required.
+</dl>
+
+<p>If you need all computation of a function to happen before
+proceeding, use an eager operation.  Alternatively, use a quasi-lazy
+operation, and call forceList on the result.  If you do not
+know which kind to use, you are probably best off with a quasi-lazy
+operation.
+
+<a name=cost></a>
+<hr>
+<h2><font color=mediumblue> Operation cost </font></h2>
+
+In ECU Astarte, lists are stored internally in multiple representations.  
+There are
+two main representations, linked and packed.  In the linked
+representation, it is very fast to access the beginning of a
+list, but to access something inside the list, you must scan down
+the list to find it.  So for linked lists, 
+function <i>head</i> is much faster than
+function <i>last</i>.  In the packed representation, lists are stored
+as arrays, and subscripting is fast.
+
+<font color=brown>
+<p>Operation ++ (list concatenation) is done in an unusual way, using
+a data structure due to Okasaki.  Concatenation takes constant time,
+regardless of the lengths of the lists being concatenated.  One effect
+of this is that, if you use ++ to create a list, then the costs of
+operations on that list are amortized costs.   For example, the head operation
+takes constant <i>amortized</i> time on a list created using ++.  If you don't
+know what this means, ignore it.
+</font>
+
+<a name=descr></a>
+<hr>
+<h2><font color=mediumblue> Note on function descriptions </font></h2>
+
+Function descriptions given here are abbreviated.
+Many of the functions have special behaviors for inputs
+that do not seem to make sense by the abbreviated definitions.
+For example, 
+some of them fail when applied to some inputs.
+See their defining packages for details, or use asthelp to get the
+full description.
+
+<p>Those functions below that come from collect/list.ast are standard, and
+can be used without any import.  Those that come from
+other packages are only available by importing their
+packages.  For example, 
+to use function sort, use declaration
+
+<font color=#D00090>
+<b><pre>
+    Import &quot;collect/sort&quot;.
+</pre></b>
+</font>
+
+<a name="nil"></a>
+<hr>
+<h2><font color=mediumblue> Empty list </font></h2>
+
+<dl>
+<p><dt><font color="red"> [&nbsp;]</font>
+<dd>: [`a]
+<p> [&nbsp;] is the empty list. 
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+
+<p><dt><font color="red">nil</font>
+<dd>: [`a]
+<p>You can also call [&nbsp;] by the name <font color=#D00090>nil</font>.  
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+
+<a name=nilq></a>
+<p><dt><font color="red"> nil? </font>
+<dd>: [`a] -&gt; Boolean
+<p> <font color=#D00090>nil?(x)</font> is true just when x = [&nbsp;].
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+</dl>
+
+<a name="misc"></a>
+<hr>
+<h2><font color=mediumblue> Miscellaneous operations </font></h2>
+
+<dl>
+<a name=dup></a>
+<p><dt><font color="red"> dup </font>
+<dd>: Natural -&gt; `a -&gt; [`a]
+<p> <font color=#D00090>dup n x</font> 
+= [x,x,...,x] (n copies of x).  n must have species Natural.
+Function dup is eager, but it shares sublists, so that dup
+n x takes only O(log n) time.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">dup 4 5</font> = [5,5,5,5].
+
+<a name=fdup></a>
+<p><dt><font color="red"> fdup </font>
+<dd>: Natural -&gt; (() -&gt; `a) -&gt; [`a]
+<p> <font color=#D00090>fdup n f</font> 
+= [f(),f(),...,f()] where there are
+n copies of f().
+Each item f() is calculated by a separate call to f.
+Function fdup is eager.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">fdup 3 emptyBox</font> 
+is a list of 3 different empty boxes.
+
+<a name=indexedList></a>
+<p><dt><font color="red"> indexedList </font>
+<dd>: `a -&gt; [(Natural,`a)] -&gt; [`a]
+<p> <font color=#D00090>indexedList d [(i<sub>1</sub>,x<sub>1</sub>), 
+..., (i<sub>k</sub>,x<sub>k</sub>)]</font> 
+is a list L such
+that L#(i<sub>1</sub>) = x<sub>1</sub>, ..., 
+L#(i<sub>k</sub>) = x<sub>k</sub>.  If there is no entry
+for index i, then L#i = d.  Later pairs have precedence in case of
+conflict.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">
+indexedList "none" [(3,"abc"), (2,"def")]</font> = ["none","def","abc"].
+
+<a name=infFdup></a>
+<p><dt><font color="red"> infFdup </font>
+<dd>: (() -&gt; `a) -&gt; [`a] 
+<p><font color=#D00090>infFdup f</font> = [f(),f(),...] where there are
+infinitely many copies of f().
+Each f() is calculated by a separate call to f.
+Function infFdup is partially lazy; it computes a few
+members of the result list at a time.
+(<a href="ast/collect/boxes.ast">collect/boxes.ast</a>)
+
+<a name=length></a>
+<p><dt><font color="red"> length </font>
+<dd>: [`a] -&gt; Natural
+<p> <font color=#D00090>length(x)</font> 
+is the number of members of list x.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">length([5,6,7])</font> = 3.
+ 
+<a name=lengthAtLeast></a>
+<p><dt><font color="red"> lengthAtLeast </font>
+<dd>: Natural -&gt; [`a] -&gt; Boolean 
+<p><font color=#D00090>lengthAtLeast n x</font> 
+is true if x has length at least n.
+It computes only the first n items of a list, so can be used on 
+infinite lists.  n must have species Natural.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">lengthAtLeast 4 [7,2,1]</font> = false.
+
+<a name=list></a>
+<p><dt><font color="red"> list </font>
+<dd>: `a -&gt; [`a]
+<p> <font color=#D00090>list(x)</font> = [x].
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">list(4) </font>= [4].
+
+<a name=reverse></a>
+<p><dt><font color="red"> reverse </font>
+<dd>: [`a] -&gt; [`a]
+<p> <font color=#D00090>reverse(x)</font> is list x written backwards.
+Function reverse is eager.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">reverse([2,6,3,8]) </font>= [8,3,6,2].
+
+</dl>
+
+<a name="selpos"></a>
+<hr>
+<h2><font color=mediumblue> Selection and cutting by position </font></h2>
+
+<dl>
+<a name=sharp></a>
+<p><dt><font color="red"> #  </font>
+<dd>: ([`a],Natural) -&gt; `a
+<p><font color=#D00090>x # n</font> is the n-th member of s, numbering from 1.
+n must have species Natural.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[2,6,1,8] # 2 </font>= 6.
+
+<a name=sharpzero></a>
+<p><dt><font color="red"> #_  </font>
+<dd>: ([`a],Natural) -&gt; `a
+<p><font color=#D00090>x#_n</font> is the n-th member of s, numbering from 0.
+n must have species Natural.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[2,6,1,8]#_2 </font>= 1.
+
+<a name=dblsharp></a>
+<p><dt><font color="red"> ## </font>
+<dd>: ([`a],(Natural,Natural)) -&gt; `a
+<br>: ([`a],(Natural,Infinity)) -&gt; `a
+<p><font color=#D00090>x##(m,n)</font> 
+is the list obtained by removing the first m members 
+of x and then taking the first n members of what is left.
+So x##(m,n) = take n (drop m x).  
+Either both m and n have species Natural, or m has species Natural
+and n has species Infinity.  x ## (m,infinity) is the same
+as drop m x.
+
+<p> In <font color=#D00090>x##(m,n)</font>, 
+if m larger than the length of x, then x##(m,n)
+is the empty list.  If n is larger than the length of what is left,
+then all of what is left is taken.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[2,6,1,8,9,20]##(2,3) </font>= [1,8,9].
+
+<a name=drop></a>
+<p><dt><font color="red"> drop </font>
+<dd>: Natural -&gt; [`a] -&gt; [`a]
+<p> <font color=#D00090>drop n x</font> 
+is the suffix of list x obtained by deleting 
+the first n members of list x.  n must have species Natural.
+If x has fewer than n members, then drop n x = [&nbsp;].
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">drop 2 [4,1,8,9,3,5] </font>= [8,9,3,5].
+
+<a name=head></a>
+<p><dt><font color="red"> head </font>
+<dd>: [`a] -&gt; `a
+<p> <font color=#D00090>head(x)</font> is the head of list x.  
+head [&nbsp;] fails with exception emptyListX.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)<br>
+<p>Example:
+<font color="#D00090">head([2,3,4]) </font>= 2.
+
+<a name=last></a>
+<p><dt><font color="red"> last </font>
+<dd>: [`a] -&gt; `a
+<p> <font color=#D00090>last(x)</font> is the last member of list x.
+last [&nbsp;] fails with exception emptyListX.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">last([2,6,4]) </font>= 4.
+
+<a name="take"></a>
+<p><dt><font color="red"> take </font>
+<dd>: Natural -&gt; [`a] -&gt; [`a]
+<p> <font color=#D00090>take n x</font> 
+is the prefix of list x having length n.
+Here, n must have species Natural.
+If x has fewer than n members, then take n x = x.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">take 3 [4,1,8,9,3,5] </font>= [4,1,8].
+
+</dl>
+
+<a name="addpos"></a>
+<hr>
+<h2><font color=mediumblue> Adding or removing by position </font></h2>
+
+<dl>
+<p><dt><font color="red"> :: </font>
+<dd>: (`a, [`a]) -&gt; [`a]
+<p><font color=#D00090>h::t</font> 
+is the list whose head is h and whose tail is t.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">3::[5,2] </font>= [3,5,2].
+
+<p>You can use :: in patterns to take a list apart into its head and tail.
+For example, 
+<font color=#D00090>Match ?h::?t = [1,2,3].</font> binds
+h to 1 and t to [2,3].
+
+<a name=plusslash></a>
+<p><dt><font color="red"> +/ </font>
+<dd>: ([`a], `a) -&gt; [`a]
+<p> <font color=#D00090>[a,b,c] +/ d</font> 
+= [a,b,c,d].  In general, +/ adds something
+to the end of a list.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[3,4] +/ 6 </font>= [3,4,6].
+
+<p>You can use +/ in patterns to extract the last member of a list.
+For example, 
+<font color=#D00090>Match ?x +/ ?y = [1,2,3].</font> binds
+x to [1,2] and y to 3.
+
+<a name=minusslash></a>
+<p><dt><font color=red> -/ </font>
+<dd>: ([`a],`a) -&gt; [`a]
+<p> <font color=#D00090>x -/ v</font> 
+is the result of removing the first occurrence of v from
+list x.  For example, 
+<font color=#D00090>&quot;abcdabcd&quot; -/ 'b'</font>
+= &quot;acdabcd&quot;.  If v does not occur in x, then x -/ v = x.
+
+<a name=minusdblslash></a>
+<p><dt><font color=red> -// </font>
+<dd>: ([`a],`a) -&gt; [`a]
+<p> <font color=#D00090>x -// v</font> 
+is the result of removing all occurrences of v from
+list x.  For example, 
+<font color=#D00090>&quot;abcdabcd&quot; -// 'b'</font>
+= &quot;acdacd&quot;.  If v does not occur in x, then x -// v = x.
+
+<a name=allButLast></a>
+<p><dt><font color="red"> allButLast </font>
+<dd>: [`a] -&gt; [`a]
+<p> <font color=#D00090>allButLast(x)</font> 
+is the list of all members of list x
+excluding the last one.  Expression allButLast([]) fails
+with exception emptyListX.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">allButLast([3,6,2,7]) </font>= [3,6,2].
+
+<a name=allSuffixes></a>
+<p><dt><font color="red"> allSuffixes </font>
+<dd>: [`a] -&gt; [[`a]]
+<p> <font color=#D00090>allSuffixes(x)</font> is the list of all nonempty
+suffixes of x, in decreasing order of length.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">
+allSuffixes([3,7,2,9]) </font>= [[3,7,2,9], [7,2,9], [2,9], [9]].
+
+<a name=listToPair></a>
+<p><dt><font color="red"> listToPair </font>
+<dd>:[`a] -&gt; (`a,[`a])
+<p> <font color=#D00090>listToPair(x)</font> = (head(x), tail(x)).
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">listToPair([3,4,5])</font> = (3, [4,5]).
+
+<a name=splitAtEnd></a>
+<p><dt><font color="red"> splitAtEnd </font>
+<dd>: [`a] -&gt; ([`a],`a)
+<p> <font color=#D00090>splitAtEnd([a,b,c,d])</font> = ([a,b,c],d).
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">splitAtEnd([2,5,9])</font> = ([2,5], 9).
+
+<a name="tail"></a>
+<p><dt><font color="red"> tail </font>
+<dd>: [`a] -&gt; [`a]
+<p> <font color=#D00090>tail(x)</font> is the tail of list x.
+tail [&nbsp;] fails with exception emptyListX.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)<br>
+<p>Example:
+<font color="#D00090">tail([2,3,4])</font> = [3,4].
+
+</dl>
+
+<a name="prop"></a>
+<hr>
+<h2><font color=mediumblue> Checking for properties </font></h2>
+
+<dl>
+<a name=allSatisfy></a>
+<p><dt><font color="red"> allSatisfy </font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a] -&gt; Boolean
+<p> <font color=#D00090>allSatisfy f x</font> 
+is true if every member b of list
+x satisfies f(b) = true.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+allSatisfy (?x =&gt; x &gt; 7) [2,7,3,9]</font> = false.
+
+<a name=in></a>
+<p><dt><font color="red"> _in_ </font>
+<dd>: (`a,[`a]) -&gt; Boolean
+<p> <font color=#D00090>x _in_ s</font> is true if x is a member of list x.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+
+<font color="#D00090"> 2 _in_ [3,7,2,9] </font>= true, 
+<font color="#D00090">6 _in_ [3,7,2,9]</font> = false.
+
+<a name=someSatisfy></a>
+<p><dt><font color="red"> someSatisfy </font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a] -&gt; Boolean
+<p><font color=#D00090>someSatisfy f x</font> 
+is true if some member b of list
+x satisfies f(b) = true.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+someSatisfy (?x =&gt; x &gt; 7) [2,7,3,9]</font> = true.
+
+</dl>
+
+<a name="selprop"></a>
+<hr>
+<h2><font color=mediumblue> Selection and filtering by properties </font></h2>
+
+<dl>
+<a name=assoc></a>
+<p><dt><font color="red"> assoc </font>
+<dd>: `a -&gt; [(`a,`b)] -&gt; `b
+<p> <font color=#D00090>assoc a x</font> 
+finds the first member of list x that looks
+like (a,b), and returns b.  If there is no such pair, then
+<font color=#D00090>assoc a x</font> fails with exception testX.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+assoc 8 [(2,"abc"), (7,"xx"), (8,"zz"), (9,"nnn")] </font>= "zz".
+
+<a name=assocSuffix></a>
+<p><dt><font color="red"> assocSuffix </font>
+<dd>: `a -&gt; [(`a,`b)] -&gt; [(`a,`b)]
+<p> <font color=#D00090>assocSuffix a x</font> 
+finds the first member of list x that looks
+like (a,b), and returns the suffix of x that starts at that member (a,b).
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+assocSuffix 8 [(2,"abc"), (7,"xx"), (8,"zz"), (9,"nnn")]</font> = 
+[(8,"zz"), (9,"nnn")].
+
+<a name=filter></a>
+<p><dt><font color="red"> filter </font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a] -&gt; [`a]
+<p> <font color=#D00090>filter f x</font> 
+is the list of all members b of list
+x that make f(b) true.  Filter is quasi-lazy.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+filter (?x =&gt; x &gt; 7) [13,7,2,9,14,3] </font>= [13,9,14].
+
+<a name=findLastMember></a>
+<p><dt><font color="red"> findLastMember </font>
+<dd>: (COLLECTION`a(`b),Boolean) -&gt; [`b] -&gt; (Natural,[`a])
+<p><font color=#D00090>(findLastMember(s,true) L)</font> 
+scans list L for the LAST
+occurrence of a value x that is a member of collection
+s.  It returns a pair (n,r) where 
+<ul>
+ <p><li>n is the index in L of x (counting from 0).
+     That is, starting at the beginning of L, 
+     you must skip over n members of L to 
+     reach the last member that is in 
+     collection s.
+
+ <p><li>r is the suffix of L that begins at x.
+    So r = L##(n,infinity).
+</ul>
+
+<p>If no member of collection s occurs in L, then
+<font color=#D00090>(findLastMember (s,true) L)</font> 
+fails with exception testX.
+
+<p><font color=#D00090>(findLastMember(s,false) L)</font> 
+is similar, but it searches 
+for the last member of list L that is NOT in set s.
+
+<p>For example,
+
+<p><font color=#D00090>findLastMember("ab", true) "zcarbac"</font> = (5,"ac")
+
+<p><font color=#D00090>findLastMember("ab", false) "zcarbac"</font> = (6, "c")
+
+<p><font color=#D00090>findLastMember("ab", true) "chore"</font> 
+fails with exception testX.
+
+<a name=findMember></a>
+<p><dt><font color="red"> findMember </font>
+<dd>: (COLLECTION`a(`b),Boolean) -&gt; [`b] -&gt; (Natural,[`a])
+<p><font color=#D00090>(findMember(s,true) L)</font> 
+scans list L for the first
+occurrence of a value x that is a member of collection
+s.  It returns a pair (n,r) where 
+<ul>
+ <p><li>n is the index in L of x (counting from 0).  
+     That is, n tells how many members of L to 
+     skip over to reach the first member of 
+     collection s.
+
+ <p><li>r is the suffix of L that begins at x.  So
+     r = L##(n,infinity).
+</ul>
+<p>If no member of s occurs in L, then
+<font color=#D00090>(findMember (s,true) L)</font> fails with exception testX.
+
+<p><font color=#D00090>(findMember(s,false) L)</font> 
+is similar, but it searches 
+for the first member of list L that is NOT in
+collection s.
+
+For example,
+
+<p><font color=#D00090>findMember("ab", true) "zcarba"</font> = (2,"arba")
+
+<p><font color=#D00090>findMember("ab", false) "zcarba"</font> = (0, "zcarba")
+
+<p><font color=#D00090>findMember("ab", true) "chore"</font> 
+fails with exception testX.
+
+<p> See pattern functions 
+<a href=listpattern.html#span>span</a> and 
+<a href=listpattern.html#spanOthers>spanOthers</a>.  They
+use findMember when used with Extract.
+
+<a name=findMemberAfter></a>
+<p><dt><font color="red"> findMemberAfter </font>
+<dd>: (COLLECTION`a(`b),Boolean) -&gt; `b -&gt; [`b] -&gt; (`a,Natural,[`a])
+<p> <font color=#D00090>(findMemberAfter (s,sense) c L)</font> is similar to
+(findMember (s,sense) L), but it tells you what immediately 
+preceded the match.  It returns a triple (d,n,r) where
+<p><ul>
+ <li> (n,r) = findMember(s,sense) L
+ <li> d = L#n (if n > 0)
+ <li> d = c (if n = 0)
+</ul>
+<p>For example
+<font color=#D00090>findMemberAfter("ab", true) 'x' "zcarba"</font> 
+= ('c', 2, "arba") since the character 'c' 
+occurs just before "arba" in "zcarba".
+
+<a name="locate"></a>
+<p><dt><font color="red"> locate </font>
+<dd>: ((`b,`b)-&gt;Boolean) -&gt; (`a-&gt;`b) -&gt; `b -&gt; [`a] -&gt; Natural
+<p> locate performs a binary search in a list.
+Suppose that lst is a list of length n, and let L = (map f lst) =
+[y<sub>1</sub>, y<sub>2</sub>, ..., y<sub>n</sub>].  
+Define y<sub>0</sub> = -infinity and
+y<sub>n+1</sub> = +infinity.  
+Then <font color=#D00090>(locate (&lt;=) f x lst)</font> 
+returns a natural number i such that
+y<sub>i</sub> < x <= y<sub>i+1</sub>. For example,
+<b><pre>
+  <font color=#D00090>locate (&lt;=) idf 5 [1,3,6,8]</font> = 2 (since 3 &lt; 5 &lt;= 6)<br>
+  <font color=#D00090>locate (&lt;=) idf 5 [0,2,4,5,7,8]</font> = 3 (since 4 &lt; 5 &lt;= 5)<br>
+  <font color=#D00090>locate (&lt;=) idf 5 [0,0,20]</font> = 2 (since 0 &lt; 5 &lt;= 20)<br>  
+  <font color=#D00090>locate (&lt;=) idf 5 [0,5,5,50]</font> = 1 (since 0 &lt; 5 &lt;= 5)<br>
+  <font color=#D00090>locate (&lt;=) idf 5 [10]</font> = 0 (since -infty &lt; 5 &lt;= 5)
+</pre></b>
+<b> IMPORTANT REQUIREMENT:</b> L must be in non-decreasing order according to
+relation &lt;=, which should return true on equal inputs.
+
+<p><b>NOTE:</b> The algorithm is binary search.  locate will perform 
+well only on packed lists.  Also note that the list
+L is not necessarily all constructed; only those elements of L that
+are examined are computed.  So f should not
+have side effects.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+
+<a name=maybeFindLastMember></a>
+<p><dt><font color="red"> maybeFindLastMember </font>
+<dd>: (COLLECTION`a(`b),Boolean) -&gt; [`b] -&gt; (Natural,[`a])
+<p><font color=#D00090>(maybeFindLastMember(s,sense) L)</font> is similar to 
+(findLastMember(s,sense) L),
+but if the sought member is not found, it returns (length(L), [])
+rather than failing.
+
+<a name=maybeFindMemberAfter></a>
+<p><dt><font color="red"> maybeFindMemberAfter </font>
+<dd>: (COLLECTION`a(`b),Boolean) -&gt; `b -&gt; [`b] -&gt; (`a,Natural,[`a])
+<p><font color=#D00090>(maybeFindMemberAfter(s,sense) c L)</font> 
+is similar to 
+(findMemberAfter(s,sense) c L),
+but if the sought member is not found, it returns (last(L),length(L), [])
+(when L is not empty) and (c, length(L), []) (when L is empty),
+rather than failing.
+
+<a name=maybeFindMember></a>
+<p><dt><font color="red"> maybeFindMember </font>
+<dd>: (COLLECTION`a(`b),Boolean) -&gt; [`b] -&gt; (Natural,[`a])
+<p><font color=#D00090>(maybeFindMember(s,sense) L)</font> 
+is similar to (findMember(s,sense) L),
+but if the sought member is not found, it returns (length(L), [])
+rather than failing.
+
+<a name=select></a>
+<p><dt><font color="red"> select </font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a] -&gt; `a
+<p><font color=#D00090>select f x</font> is the first member b of list x
+such that f(b) is true.  It fails with exception testX if there
+is no such b.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+select (?x =&gt; x &gt; 7) [3,7,2,9,14,3] </font>= 9.
+
+</dl>
+
+<a name="cut"></a>
+<hr>
+<h2><font color=mediumblue> Cutting lists by properties of members </font></h2>
+
+<dl>
+
+<a name=acFindSublist></a>
+<p><dt><font color="red"> acFindSublist </font>
+<dd> This function can be used to find a sublist
+that matches any of several given lists.  See
+<a href="ast/collect/findlist.ast">collect/findlist.ast</a>
+for details.
+
+<a name=acFindSubword></a>
+<p><dt><font color="red"> acFindSubword </font>
+<dd> This function can be used to find a sublist
+that matches any of several given lists, but only in certain
+contexts.  (For example, 
+it can be used to match "goat" without
+matching "goatie".)  See
+<a href="ast/collect/findlist.ast">collect/findlist.ast</a>
+for details.
+
+<a name="bpartition"></a>
+<p><dt><font color="red"> bpartition </font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a] -&gt; ([`a],[`a])
+<p> <font color=#D00090>bpartition f x</font> = (x1,x2) where x1 is the list
+of all members of x that make f return true, and x2 is the list
+of all members of x that make f return false.  Function
+bpartition is quasi-lazy.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+bpartition (?x =&gt; x &gt; 5) [2,3,9,3,8,10,4] </font>= ([2,3,3,4], [9,8,10]).
+
+<a name=cutAtAll></a>
+<p><dt><font color="red"> _cutAtAll_ </font>
+<dd>: ([`a],COLLECTION`b(`a)) -&gt; [[`a]] 
+<p><font color=#D00090>x _cutAtAll_ s</font> returns a list of sublists
+of x that do not contains any members of collection s.
+Function _cutAtAll_ is quasi-lazy.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+&quot;ab#cd/j###ef/&quot;&nbsp; _cutAtAll_&nbsp; &quot;#/&quot; </font>= [&quot;ab&quot;,&quot;cd&quot;,&quot;j&quot;,&quot;ef&quot;].
+
+<a name=cutBy></a>
+<p><dt><font color="red"> _cutBy_ </font>
+<dd>:([`a],`a -&gt; Boolean) -&gt; ([`a],[`a])
+<p> This is the same as eagerCutBy (below), but quasi-lasy.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+
+<a name=eagerCutBy></a>
+<p><dt><font color="red"> _eagerCutBy_ </font>
+<dd>:([`a],`a -&gt; Boolean) -&gt; ([`a],[`a])
+<p><font color=#D00090>[x<sub>1</sub>,x<sub>2</sub>,...,x<sub>n</sub>] 
+_eagerCutBy_ f</font> = 
+([x<sub>1</sub>,...,x<sub>k</sub>],[x<sub>k+1</sub>,...,x<sub>n</sub>]) where 
+f(x<sub>1</sub>) = f(x<sub>2</sub>) = ... = f(x<sub>k</sub>) = false 
+but f(x<sub>k+1</sub>) = true.
+(If there is no such x<sub>k+1</sub>, then the second list is [&nbsp;].)
+Function _eagerCutBy_ is eager.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[3,7,9,2,5,10] _eagerCutBy_ (?x =&gt; x &gt; 8) 
+</font>= ([3,7], [9,2,5,10].
+
+<a name=eagerTakeWhile></a>
+<p><dt><font color="red"> eagerTakeWhile </font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a] -&gt; [`a]
+<p> This is the same as takeWhile (below), but eager.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+
+<a name=findSublist></a>
+<p><dt><font color="red"> findSublist </font>
+<dd>: [`a] -&gt; [`a] -&gt; (Natural,[`a])
+<p>Function findSublist is used to find one list inside another list.
+For example, 
+it can be used for string matching.
+<font color=#D00090>(findSublist p x)</font> 
+= (n,s), where the first occurrence of list p
+inside list x can be found by removing the first n members from x.
+Then p begins at the front of what is left.  List s is drop n x.
+If the sought list is not a sublist of x, then
+findSublist returns (length(x), [&nbsp;]).
+(<a href="ast/collect/findlist.ast">collect/findlist.ast</a>)
+<p>Example:
+<font color="#D00090">
+findSublist "cul" "calculator" </font>= (3, "culator").
+
+<a name=findSublistBeforeAfter></a>
+<p><dt><font color="red"> findSublistBeforeAfter </font>
+<dd>: [`a] -&gt; [`a] -&gt; ([`a],[`a])
+<p><font color=#D00090>findSublistBeforeAfter p x</font>
+finds the first occurrence of p in list x, and returns (a,b) where
+x = a ++ p ++ b, and list a is what occurs before the first match
+of p.  If there is no occurrence of p in x, then 
+<font color=#D00090>(findSublistBeforeAfter p x)</font>
+fails with exception testX.
+(<a href="ast/collect/findlist.ast">collect/findlist.ast</a>)
+<p>Example:
+<font color="#D00090">
+findSublistBeforeAfter "cul" "calculator" </font>= ("cal", "ator").
+
+<a name="partition"></a>
+<p><dt><font color="red"> partition </font>
+<dd>: [`a -&gt; Boolean] -&gt; [`a] -&gt; [[`a]]
+<p> partition partitions a list into several lists,
+according to properties of members.  
+<p><font color=#D00090>
+partition [f<sub>1</sub>, f<sub>2</sub>, ..., f<sub>n</sub>] s</font> 
+is a list [p<sub>1</sub>, p<sub>2</sub>, ..., p<sub>n+1</sub>] 
+where each p<sub>i</sub> is a set, and
+p<sub>i</sub> contains the members x of c that make
+f<sub>1</sub>(x), ..., f<sub>i-1</sub>(x) all false, but makes
+f<sub>i</sub>(x) true.  The last list, p<sub>n+1</sub>, consists
+of those members of c on which none of the functions
+f<sub>1</sub>, ..., f<sub>n</sub> returns true.
+
+<a name="suffixAt"></a>
+<p><dt><font color="red"> suffixAt </font>
+<dd>: `a -&gt; [`a] -&gt; [`a]
+<p><font color=#D00090>(suffixAt a x)</font> is the suffix of list x that
+begins at the first occurrence of a.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+suffixAt 2 [3,7,2,9]) </font>= [2,9].
+
+<a name="takeWhile"></a>
+<p><dt><font color="red"> takeWhile </font>
+<dd>: (`a -&gt; Boolean) -&gt; [`a] -&gt; [`a]
+<p> <font color=#D00090>takeWhile f x</font> 
+is the prefix of x up to but not
+including the first member that fails to satisfy f.  Function 
+takeWhile is quasi-lazy.
+(<a href="ast/collect/search.ast">collect/search.ast</a>)
+<p>Example:
+<font color="#D00090">
+takeWhile (?x =&gt; x &lt; 5) [2,3,6,4,7]</font> = [2,3].
+
+</dl>
+
+<a name="insert"></a>
+<hr>
+<h2><font color=mediumblue> Inserting and replacing </font></h2>
+
+<dl>
+<a name=sharpeq></a>
+<p><dt><font color="red"> #= </font>
+<dd>: ([`a],(Natural,`a)) -&gt; [`a]
+<p> <font color=#D00090>x #= (n,v)</font> is the list obtained from x by
+replacing x#n by v, and leaving all other members intact.
+If x has fewer than n-1 members,
+then x #= (n,v) fails with exception subscriptX.  If
+x has length exactly n-1, then x #= (n,v) is the same
+as x +/ v.
+Function #= is quasi-lazy.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">[3,7,2,9] #= (1,12)</font> = [12,7,2,9].
+
+<a name=sharpzeroeq></a>
+<p><dt><font color="red"> #_= </font>
+<dd>: ([`a],(Natural,`a)) -&gt; [`a]
+<p><font color=#D00090>x #_= (n,v)</font> 
+is similar to x #= (n,v), but indexing is
+from 0 rather than from 1.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">[3,7,2,9] #_= (1,12) </font>= [3,12,2,9].
+
+<a name=insertLeft></a>
+<p><dt><font color="red"> insertLeft </font>
+<dd>: `a -&gt; [`b] -&gt; [(`a,`b)]
+<p><font color=#D00090>insertLeft x [a,b,c]</font> = [(x,a), (x,b), (x,c)].
+Function insertLeft is quasi-lazy.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">insertLeft true [3,4,5,6]</font> =
+[(true,3), (true,4), (true,5), (true,6)].
+
+<a name=insertRight></a>
+<p><dt><font color="red"> insertRight </font>
+<dd>: `a -&gt; [`b] -&gt; [(`b,`a)]
+<p><font color=#D00090>insertRight x [a,b,c]</font> = [(a,x), (b,x), (c,x)].
+Function insertRight is quasi-lazy.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">insertRight true [3,4,5,6]</font> =
+[(3,true), (4,true), (5,true), (6,true)].
+</dl>
+
+<a name="comb"></a>
+<hr>
+<h2><font color=mediumblue> Combining and uncombining lists </font></h2>
+
+<dl>
+<p><dt><font color="red"> ++ </font>
+<dd>: ([`a],[`a]) -&gt; [`a]
+<p><font color=#D00090>x++y</font> is the concatenation of x and y.
+This is a constant-time operation.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[3,7]++[5,2] </font>= [3,7,5,2].
+
+<p>You can use ++ in patterns.  See
+<a href=listpattern.html>pattern matching in lists and strings</a>.
+
+<a name=fairMerge></a>
+<p><dt><font color="red"> fairMerge </font>
+<dd>: ([`a],[`a]) -&gt; [`a]
+<p><font color=#D00090>fairmerge(a,b)</font> merges (shuffles) lists a and b.
+The order of each list a and b is preserved, but the order of the
+shuffle is up to fairmerge.  It is neither random nor predetermined.
+Function fairmerge is lazy.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">fairmerge([1,2,3,4],[10,11,12])</font>
+<i>might</i> yield [10,1,2,3,11,12,4].  There are many other possibilities.
+The order is partly determined by how quickly the members of each
+list are computed.  As they are found, they are put into the result list.
+So if one list is slower to compute, its members will be put later
+into the result list.
+
+<p>When applied to infinite lists, fairMerge is guaranteed to use
+all of both lists.
+
+<a name=flatten></a>
+<p><dt><font color="red"> flatten </font>
+<dd>: [[`a]] -&gt; [`a]
+<p> <font color=#D00090>flatten [a,b,c]</font> = a++b++c.
+Function flatten is lazy.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">
+flatten[[3,7], [8], [&nbsp;], [2,4]] </font>= [3,7,8,2,4].
+
+<a name=lminus></a>
+<p><dt><font color="red"> _lminus_ </font>
+<dd>: ([`a],[`a]) -&gt; [`a]
+<p> <font color=#D00090>x _lminus_ y</font> 
+is the list z such that y++z = x.
+That is, it removes y from the left end of x.  It fails with
+exception testX if y is not a prefix of x.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[3,7,2,9] _lminus_ [3,7] </font>= [2,9].
+
+<a name=quickzip></a>
+<p><dt><font color="red"> _quickZip_ </font>
+<dd>: ([`a],[`b]) -&gt; [(`a,`b)]
+<p>This is the same as _zip_ (below), but quasi-lasy.  Be careful:
+if the lengths do not match, _quickZip_ does not find out until
+it has already returned some of the result list.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+
+<a name=rminus></a>
+<p><dt><font color="red"> _rminus_ </font>
+<dd>: ([`a],[`a]) -&gt; [`a]
+<p> <font color=#D00090>x _rminus_ y</font> 
+is the list z such that z++y = x.
+That is, it removes y from the right end of x.
+It fails with exception testX if y is not a suffix of x.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">[3,7,2,9] _rminus_ [2,9] </font>= [3,7].
+
+<a name=separateBy></a>
+<p><dt><font color="red"> _separateBy_ </font>
+<dd>: ([[`a]],[`a]) -&gt; [`a] 
+<p> <font color=#D00090>[a,b,c] _separateBy_ x</font> 
+= a ++ x ++ b ++ x ++ c.
+Generally, _separateBy_ puts x between adjacent members of its
+argument list.  Function _separateBy_ is quasi-lazy.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">["The", "red", "fox"] _separateBy_ "."
+</font> = "The.red.fox".
+
+<a name=unzip></a>
+<p><dt><font color="red"> unzip </font>
+<dd>: [(`a,`b)] -&gt; ([`a],[`b])
+<p><font color=#D00090>unzip([(a,b), (c,d), (e,f)]</font> 
+= ([a,c,e], [b,d,f]).
+Function unzip is quasi-lazy.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">unzip[(3,10),(2,11)] </font>= ([3,2], [10,11]).
+
+<a name=zip></a>
+<p><dt><font color="red"> _zip_ </font>
+<dd>: ([`a],[`b]) -&gt; [(`a,`b)]
+<p> <font color=#D00090>[a,b,c] _zip_ [d,e,f]</font> 
+= [(a,d), (b,e), (c,f)].
+Operator _zip_ is eager.  
+It fails with exception sizeX is the two lists are
+of different lengths.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">[2,3,4,5] _zip_ [5,6,7,8]</font> = 
+[(2,5), (3,6), (4,7), (5,8)].
+
+<p><dt><font color="red"> zip </font>
+<dd>: [`a] -&gt; [`b] -&gt; [(`a,`b)]
+<p><font color=#D00090>zip x y</font> 
+= x _zip_ y.  zip is just a curried form of _zip_.
+
+</dl>
+
+<a name=tostring></a>
+<hr>
+<h2><font color=mediumblue> Converting to and from strings </font></h2>
+
+<dl>
+
+<a name="dollar"></a>
+<p><dt><font color=red> $ </font>
+<dd>: [`a] -&gt; String
+<p>When function $ is applied to a list, it converts the list to a 
+string.  For example, 
+<font color=#D00090>$([1,2,3])</font> = &quot;[1,2,3]&quot;.  
+Strings (which are
+just lists of characters) are shown
+differently.  
+For example, 
+<font color=#D00090>$(['a', 'b', 'c'])</font> 
+= &quot;\&quot;abc\&quot;&quot;.
+
+<a name="pull"></a>
+<p><dt><font color=red> pull </font>
+<dd>: String -&gt; ([`a],String)
+<p><font color=#D00090>pull(s)</font> 
+extracts a list from the front of string s and
+returns an ordered pair (L,r) where L is the list and r is the suffix
+of s that follows the list.  
+In string s, the list is written in brackets, with members
+separated by commas, except
+for strings, which are written in double quotes.  
+For example, 
+<font color=#D00090>pull(&quot;[2,3] 345&quot;)</font> 
+= ([2,3], &quot; 345&quot;).
+Any initial white space is skipped over.
+
+<a name=extract></a>
+<p><dt><font color=red> Extract</font>
+<dd> A convenient way to get a list from a string is to put the
+string in a box and used <a href=read.html#dollar>Extract</a>.
+For example, 
+if box b contains "[9,8,7] abc" then
+<font color=#D00090>
+<b><pre>
+  Extract [$(?x)] from b.
+</pre></b>
+</font>
+binds x to [9,8,7] and leaves box b holding " abc".
+
+</dl>
+
+<a name="rel"></a>
+<hr>
+<h2><font color=mediumblue> Relationships among lists </font></h2>
+
+<dl>
+<p><dt><font color="red"> <tt>==</tt> </font>
+<dd>: ([`a],[`a]) -&gt; Boolean
+<p> Two lists are equal just when they hold exactly the same members.
+
+<p><dt><font color="red"> compare, &lt;, &gt;, &lt;=, &gt;= </font>
+<dd> Lists are ordered lexicographically, with priority given
+to members closer to the front of the list.  
+For example, 
+[2,5,8] &lt; [2,6,3].  You can
+compare lists as long as comparisons are available for the members
+of the lists.
+
+<a name=prefix></a>
+<p><dt><font color="red"> _prefix?_ </font>
+<dd>: ([`a],[`a]) -&gt; Boolean
+<p> <font color=#D00090>x _prefix?_ y</font> is true if x is a prefix of y.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">[3,7] _prefix?_ [3,7,2,9] </font>= true.
+
+<a name="sublistq"></a>
+<p><dt><font color="red"> _sublist?_ </font>
+<dd>: ([`a],[`a]) -&gt; Boolean
+<p><font color=#D00090>x _sublist?_ y</font> 
+is true if x is a contiguous sublist
+of y.
+(<a href="ast/collect/findlist.ast">collect/findlist.ast</a>)
+<p>Example:
+
+<font color="#D00090">[4,5,6] _sublist?_ [1,2,3,4,5,6,7]</font> = true,
+<br> <font color="#D00090">"cd" _sublist?_ "abcd"</font> = true,
+<br> <font color="#D00090">"cd" _sublist?_ "cabd"</font> = false.
+
+<a name="suffixq"></a>
+<p><dt><font color="red"> _suffix?_ </font>
+<dd>: ([`a],[`a]) -&gt; Boolean
+<p><font color=#D00090>x _suffix?_ y</font> is true if x is a suffix of y.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">[2,9] _suffix?_ [3,7,2,9] </font>= true.
+
+</dl>
+
+<a name=mapsec></a>
+<hr>
+<h2><font color=mediumblue> Mapping </font></h2>
+
+<dl>
+<a name=eagerMap></a>
+<p><dt><font color="red"> eagerMap </font>
+<dd>: (`a -&gt; `b) -&gt; [`a] -&gt; [`b]
+<p> <font color=#D00090>eagerMap f [a,b,c]</font> = [f(a),f(b),f(c)].
+Function eagerMap is eager.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">eagerMap (?x =&gt; x^2) [2,5,7,9] </font>= [4,25,49,81].
+
+<a name=lazyMap></a>
+<p><dt><font color="red"> lazyMap </font>
+<dd>: (`a -&gt; `b) -&gt; [`a] -&gt; [`b]
+<p> <font color=#D00090>lazyMap f [a,b,c]</font> = [f(a),f(b),f(c)].
+Function lazyMap is fully lazy.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">lazyMap (?x =&gt; x^2) [2,5,7,9] </font>= [4,25,49,81].
+
+<a name="map"></a>
+<p><dt><font color="red"> map </font>
+<dd>: (`a -&gt; `b) -&gt; [`a] -&gt; [`b]
+<p> <font color=#D00090>map f [a,b,c]</font> = [f(a),f(b),f(c)].
+Function map is quasi-lazy.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">map (?x =&gt; x^2) [2,5,7,9]</font> 
+= [4,25,49,81].
+
+<a name="MapProc"></a>
+<p><dt><font color="red"> MapProc </font>
+<dd>: (`a -&gt; ()) -&gt; [`a] -&gt; ()
+<p> <font color=#D00090>MapProc (P) [a,b,c] %MapProc</font> 
+applies procedure P to each
+member of list [a,b,c], in the order written.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">MapProc (Writeln) [["here"], ["we"], ["go"]].</font>
+prints
+<b><pre>
+here
+we
+go
+</pre></b>
+
+<a name="mapSuccesses"></a>
+<p><dt><font color="red"> mapSuccesses </font>
+<dd>: (`a -&gt; `b) -&gt; [`a] -&gt; [`b]
+<p> <font color=#D00090>map f [a,b,c]</font> = [f(a),f(b),f(c)].
+If any of f(a), f(b) or f(c) fails, it is left out of the result list.
+Function mapSuccesses is quasi-lazy.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+If emptyListX has been untrapped, then
+<font color="#D00090">mapSuccesses head [[2,3],[&nbsp;],[7,9,10]]</font> 
+= [2,7].
+
+</dl>
+
+<a name=foldsec></a>
+<hr>
+<h2><font color=mediumblue> Folding and unfolding</font></h2>
+
+<dl>
+
+<a name=bfold></a>
+<p><dt><font color="red"> bfold </font>
+<dd>: (`a, (`a,`a)-&gt;`a) -&gt; [`a] -&gt; `a
+<p> bfold is similar to fold (below), but it balances the
+operations, so that about half of the list is combined with about
+half.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+
+<a name="fold"></a>
+<p><dt><font color="red"> fold </font>
+<dd>: (`a, (`a,`a)-&gt;`a) -&gt; [`a] -&gt; `a
+<p> <font color=#D00090>fold (i,+) [a,b,c,d]</font> = a + b + c + d.
+It is required that + be any associative binary operator, and
+that i be an identity for +.  If the list [a,b,c,d] being folded
+has species [T], then operator + must have species (T, T) -&gt; T.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">fold (1,*) [3,4,5] = 3*4*5 </font>= 60.
+
+<a name="lfold"></a>
+<p><dt><font color="red"> lfold </font>
+<dd>: (`a, (`a,`b)-&gt;`a) -&gt; [`b] -&gt; `a
+<p> <font color=#D00090>lfold(i,+) [a,b,c,d]</font> = i + a + b + c + d.
+Here, + is an operator that associates to the left.
+If the list [a,b,c,d] being folded has species [T], and the
+initial value i has species S, then function + must have
+species (S,T) -&gt; S.
+
+<p>You can understand lfold as follows.  Let diagram
+<b><pre>
+             y
+             |
+             v
+         x--&gt;f--&gt;r
+</pre></b>
+indicate that f(x,y) = r.  Then to compute R = lfold(i,f)[a,b,c,d],
+compute as follows.
+<b><pre>
+        a       b       c       d
+        |       |       |       |
+        v       v       v       v
+    i--&gt;f------&gt;f------&gt;f------&gt;f---&gt;R
+</pre></b>
+As you can see, the computation is performed in a single left-to-right
+scan across the list.
+
+<p>Function lfold is eager.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+
+<p>Example:
+<font color="#D00090">lfold(1,*) [2,3,5] = 1*2*3*5 </font>= 30.
+
+<a name=lunfold></a>
+<p><dt><font color="red"> lunfold </font>
+<dd>: (`a -&gt; Boolean, `a -&gt; (`b,`a)) -&gt; `a -&gt; [`b]
+<p> <font color=#D00090>lunfold (p,f) x</font> produces a list as follows.
+Let diagram
+<b><pre>
+           
+      x --&gt;f--&gt; x'
+           |
+           v
+
+           a
+</pre></b>
+indicate that f(x) = (a,x').  Compute a sequence of values as shown.
+<b><pre>
+    x --&gt;f--&gt; x' --&gt;f--&gt; x'' --&gt;f--&gt; x''' --&gt;f--&gt; x'''' --&gt; ....
+         |          |           |            |
+         v          v           v            v
+
+         a          b           c            d
+</pre></b>
+The list produced is [a,b,c,d,...]. (So the list is produced from
+left to right.)
+This continues until a value y in x, x', x'', x''', ...
+is found such that p(y) is false.  That value and all subsequent
+values are not put in the result list.
+If, For example,
+p(x''') is false in the above illustration, but p(x), 
+p(x') and p(x'') are all true, then
+lunfold(p,f) x would be [a,b,c].  But if p(x) were false, the list produced
+would be [&nbsp;].
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+
+<p>Example:
+Suppose that f(x) = (x,x+1) and p(x) = x < 8.
+Then <font color="#D00090">lunfold (p,f) 3 </font>= [3,4,5,6,7].
+
+<p>lunfold is lazy.  It produces only as much of the result list as
+is needed.
+
+<a name=rfold></a>
+<p><dt><font color="red"> rfold </font>
+<dd>: (`a, (`b,`a)-&gt;`a) -&gt; [`b] -&gt; `a
+<p> <font color=#D00090>rfold(i,+) [a,b,c,d]</font> = a + b + c + d + i.
+Here, + is an operator that associates to the right.
+If the list [a,b,c,d] being folded has species [T], and the
+initial value i has species S, then function + must have
+species (T,S) -&gt; S.
+
+<p>You can understand rfold as follows.  Let diagram
+<b><pre>
+             x
+             |
+             v
+         r&lt;--f&lt;--y
+</pre></b>
+indicate that f(x,y) = r.  Then to compute R = rfold(i,f)[a,b,c,d],
+compute as follows.
+<b><pre>
+        a       b       c       d
+        |       |       |       |
+        v       v       v       v
+   R &lt;--f&lt;------f&lt;------f&lt;------f&lt;---i
+</pre></b>
+As you can see, the computation is performed in a single right-to-left
+scan across the list.
+
+<p>Function rfold is lazy.  It passes the last f a promise,
+as follows.
+<b><pre>
+        a              b       c       d
+        |              |       |       |
+        v              v       v       v
+   R &lt;--f&lt;--promise----f&lt;------f&lt;------f&lt;---i
+</pre></b>
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">
+rfold([&nbsp;],++) [[1,2],[3],[4,5]] </font>= [1,2,3,4,5].
+
+<a name=runfold></a>
+<p><dt><font color="red"> runfold </font>
+<dd>: (`a -&gt; Boolean, `a -&gt; (`a,`b)) -&gt; `a -&gt; [`b]
+ <font color=#D00090>runfold (p,f) x</font> produces a list as follows.
+Let diagram
+<b><pre>
+             
+      x' &lt;--f&lt;-- x
+            |
+            v
+
+            a
+</pre></b>
+indicate that f(x) = (x',a).  Compute a sequence of values as shown, from
+right to left.
+<b><pre>
+    ... &lt;-- x''''&lt;--f&lt;-- x''' &lt;--f&lt;-- x'' &lt;--f&lt;-- x' &lt;--f&lt;-- x
+                    |            |           |          |
+                    v            v           v          v
+
+                    d            c           b          a
+</pre></b>
+The list produced is [..., d, c, b, a].  (So the list is produced
+from right to left.)
+This continues until a value y in x, x', x'', x''' ...
+is found such that p(y) is false.  If, 
+For example,
+p(x''') is false in the above illustration, but p(x), 
+p(x') and p(x'') are all true, then
+runfold(p,f) x would be [c,b,a].  But if p(x) were false, the list produced
+would be [&nbsp;].
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+
+<p>Example:
+Suppose that f(x) = (x+1,x) and p(x) = x < 8.
+Then <font color="#D00090">runfold (p,f) 3 </font>= [7,6,5,4,3].
+
+<p>runfold is eager.  It produces the entire result list 
+before returning.
+
+<a name=unfold></a>
+<p><dt><font color="red"> unfold </font>
+<dd>: (`a -&gt; `a) -&gt; `a -&gt; [`a]
+<p><font color=#D00090>unfold f x</font> 
+is the infinite list [x, f(x), f(f(x)), ...].
+Function unfold is lazy.  
+See <a href="ast/collect/listfun.ast">collect/listfun.ast</a> for more detail.
+(<a href="ast/collect/listfun.ast">collect/listfun.ast</a>)
+<p>Example:
+<font color="#D00090">unfold (?x =&gt; 2*x) 1 </font>= [1,2,4,8,16,...].
+
+</dl>
+
+<a name="count"></a>
+<hr>
+<h2><font color=mediumblue> Counting </font></h2>
+
+<dl>
+<a name=downto></a>
+<p><dt><font color="red"> _downto_ </font>
+<dd>: (INTEGER`a,INTEGER`a) -&gt; [INTEGER`a]
+<br>: (Integer,Infinity) -&gt; [Integer]
+<p> <font color=#D00090>m _downto_ n</font> = [m, m-1, ..., n].
+<br><font color=#D00090>m _downto_ minusInfinity</font> = [m, m-1, ...].
+<p>Function _downto_ is lazy.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">5 downto 2 </font>= [5,4,3,2].
+
+<a name=upto></a>
+<p><dt><font color="red"> _upto_ </font>
+<dd>: (INTEGER`a,INTEGER`a) -&gt; [INTEGER`a]
+<br>: (INTEGER`a,Infinity) -&gt; [INTEGER`a]
+<p><font color=#D00090>m _upto_ n</font> = [m, m+1, ..., n].
+<br><font color=#D00090>m _upto_ infinity</font> = [m, m+1, ...].
+<p>Function _upto_ is lazy.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+<p>Example:
+<font color="#D00090">2 _upto_ 5 </font>= [2,3,4,5].
+</dl>
+
+<a name="max"></a>
+<hr>
+<h2><font color=mediumblue> Maximum and minimum </font></h2>
+
+<dl>
+<p><dt><font color="red"> max </font>
+<dd>: [ORDER`a] -&gt; ORDER`a
+<p> <font color=#D00090>max(x)</font> is the largest value in list x.
+(<a href="ast/lang/compare.ast">lang/compare.ast</a>)
+<p>Example:
+<font color="#D00090">max[2,4,6,3] </font>= 6,
+<br><font color="#D00090">
+max[&quot;cat&quot;,&quot;dog&quot;,&quot;mouse&quot;,&quot;hamster&quot;] 
+</font>= &quot;mouse&quot;.
+
+<p><dt><font color="red"> min </font>
+<dd>: [ORDER`a] -&gt; ORDER`a
+<p> <font color=#D00090>min(x)</font> is the smallest value in list x.
+(<a href="ast/lang/compare.ast">lang/compare.ast</a>)
+<p>Example:
+<font color="#D00090">min[2,4,6,3] </font>= 2,
+<br><font color="#D00090">
+max[&quot;cat&quot;,&quot;dog&quot;,&quot;mouse&quot;,&quot;hamster&quot;] 
+</font>= &quot;cat&quot;.
+
+<p><dt><font color="red"> maxmin </font>
+<dd>: (([`a],[`a]) -&gt; Boolean) -&gt; [`a] -&gt; `a
+<p> <font color=#D00090>(maxmin r x)</font> is an extremal value in list
+x, as determined by relation r.  For example, maxmin(&lt;=) x is the
+smallest member of list x, and maxmin(&gt;=)x is the largest member.
+(<a href="ast/lang/compare.ast">lang/compare.ast</a>)
+
+</dl>
+
+<a name=sortsec></a>
+<hr>
+<h2><font color=mediumblue> Sorting </font></h2>
+
+<dl>
+<a name=merge></a>
+<p><dt><font color="red"> mergeSortedLists </font>
+<dd>: ((`a,`a) -&gt; Boolean) -&gt; ([`a],[`a]) -&gt; [`a]
+<p><font color=#D00090>mergeSortedLists r (a,b)</font> merges lists
+a and b into a single sorted list.  r is the sort relation.  Lists
+a and b must already be sorted by relation r.  See sort.
+Function mergeSortedLists is quasi-lazy.
+(<a href="ast/collect/sort.ast">collect/sort.ast</a>)
+<p>Example:
+<font color="#D00090">
+mergeSortedLists (&lt;=) ([1,3,4,6,9],[2,3,8,10]) </font>= [1,2,3,3,4,6,8,10].
+
+<a name=mergerd></a>
+<p><dt><font color="red"> mergeSortedListsRemovingDuplicates </font>
+<dd>: ((EQ`a,`EQa) -&gt; Boolean) -&gt; ([EQ`a],[EQ`a]) -&gt; [EQ`a]
+<p> This is the same as mergeSortedLists,
+but duplicates are removed from the result list.
+Function mergeSortedListsRemovingDuplicates is quasi-lazy.
+(<a href="ast/collect/sort.ast">collect/sort.ast</a>)
+<p>Example:
+<font color="#D00090">
+mergeSortedListsRemovingDuplicates (&lt;=) ([1,3,4,6,9],[2,3,8,10]) </font>= [1,2,3,4,6,8,10].
+
+<a name="sort"></a>
+<p><dt><font color="red"> sort </font>
+<dd>: ((`a,`a) -&gt; Boolean) -&gt; [`a] -&gt; [`a]
+<p> <font color=#D00090>sort r x</font> 
+returns the result of sorting x according
+to relation r.  If the list to be sorted has species
+[T], then function r must have species (T,T) -&gt; Boolean.
+(<a href="ast/collect/sort.ast">collect/sort.ast</a>)
+<p>Example:
+
+<font color="#D00090">sort (&lt;=) [8,1,10,4,5,2,4]</font> = [1,2,4,4,5,8,10],
+<br><font color="#D00090">sort (&gt;=) [8,1,10,4,5,2] </font>= [10,8,5,4,4,2,1]]
+
+<p> If relation r is chosen so that r(x,x) = true, then the sort
+is stable.
+
+<a name="sortedq"></a>
+<p><dt><font color="red"> sorted? </font>
+<dd>: ((`a,`a) -&gt; Boolean) -&gt; [`a] -&gt; Boolean
+<p> <font color=#D00090>sorted? r x</font> 
+is true if list x is sorted according
+to relation r.  If the list being tested has species [T], then
+function r must have species (T,T) -&gt; Boolean.
+(<a href="ast/collect/sort.ast">collect/sort.ast</a>)
+<p>Example:
+
+<font color="#D00090">sorted? (&lt;=) [1,3,4,6,9]</font> = true,
+<br><font color="#D00090">sorted? (&gt;=) [5,3,4]</font> = false
+
+<a name="sortrd"></a>
+<p><dt><font color="red"> sortRemovingDuplicates </font>
+<dd>: ((EQ`a,EQ`a) -&gt; Boolean) -&gt; [EQ`a] -&gt; [EQ`a]
+<p>This is similar to sort, but removes duplicates, 
+leaving only one copy of 
+each value.
+(<a href="ast/collect/sort.ast">collect/sort.ast</a>)
+<p>Example:
+<font color="#D00090">
+sortRemovingDuplicates (&lt;=) [8,1,10,4,5,2,4] </font>= [1,2,4,5,8,10] 
+
+</dl>
+
+<a name="pack"></a>
+<hr>
+<h2><font color=mediumblue> Changing representation </font></h2>
+
+<dl>
+<p><dt><font color="red"> eagerPack </font>
+<dd>: [`a] -&gt; [`a]
+<p>eagerPack is the same as pack, but is eager on all species.
+
+<p><dt><font color="red"> lazyPack </font>
+<dd>: [`a] -&gt; [`a]
+<p> lazyPack is the same as pack, but is lazy on all species.
+
+<p><dt><font color="red"> pack </font>
+<dd>: [`a] -&gt; [`a]
+<p><font color=#D00090>pack(x)</font> = x, 
+but the result list uses an array representation.
+That is, the values in the list are stored in consecutive memory
+locations.  This makes the list take up less memory, and also
+makes certain operations, such as subscripting, more efficient.
+In the case of strings or lists of booleans (or lists of small
+integers) the array will be an array of bytes, so that only one
+byte will be used per list member.
+
+<p>Function pack is eager, forcing full evaluation, 
+on strings and on lists of enumerated species, such
+as lists of Booleans.
+On other species, pack is partly lazy: it does not evaluate
+the members of the list that is being packed.
+If you have a list of 
+very small natural numbers that might have unevaluated members, 
+you will get more effective packing if you force the list first.  
+For example,
+use pack(forceAll(x)).  The
+packed list will become an array of bytes.
+If unevaluated members are left, then it is not possible to pack 
+as efficiently.
+(<a href="ast/collect/list.ast">collect/list.ast</a>)
+
+</dl>
+
+<hr>
+<center>
+<a href="pairlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="listpattern.html">Next</a>
+</center>
+</body>
+</HTML>

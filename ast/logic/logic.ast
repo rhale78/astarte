@@ -1,0 +1,20 @@
+%% File: logic.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%========================================================
+Package 		Astarte_Logic
+
+			Export
+==========================================================
+
+Import
+  "symbol";
+  "unify";
+  "unknown";
+  "utils"
+%Import
+
+%Package

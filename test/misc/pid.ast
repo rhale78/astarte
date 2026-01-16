@@ -1,0 +1,7 @@
+Package pid
+
+%% Test skipping proc ids by following context.
+
+Let P = (Writeln).
+
+%Package

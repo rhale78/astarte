@@ -1,0 +1,339 @@
+%% File: linset.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================
+Package 		Astarte_LinSetImp 
+
+			Implements "linset"
+=======================================================
+
+Directory standard.
+Import "collect/search".
+Import "collect/sort".
+Import "collect/listfun".
+Import "collect/pair".
+
+%%Advise nowarn missingDefinition all.
+
+==============================================================
+%% Although linear sets are defined over any species for which
+%% equality is defined, it is efficient to have lists sorted
+%% for species that also have order tests.  Unfortunately,
+%% it is too costly to keep the lists sorted, so instead
+%% we sort them only when appropriate.  When a set is sorted,
+%% we memoize the sorting.  So a linear set is represented
+%% by a shared box, to permit memoization.
+==============================================================
+
+Extension
+  Species{transparent,noDollar,noEqual} 
+    LinSet(EQ`a) = makeLinSet Box([EQ`a])
+  %Species
+%Extension
+
+==============================================================
+
+Abbrev
+  A    = EQ`a;
+  B    = EQ`b;
+  SetA = LinSet(A)
+%Abbrev
+
+==============================================================
+
+Assume s, s': SetA.
+
+==============================================================
+%% We will accept defaults for most operations in package collect.ast.
+%% Also accept defaults from set.ast for
+%%   \/
+%%   /\
+%%   -
+==============================================================
+
+==============================================================
+%% 			linSet
+==============================================================
+
+Let linSet = set.
+
+==============================================================
+%% 			emptySet
+==============================================================
+
+Let emptySet = makeLinSet <:# nil #:>.
+
+==============================================================
+%% 			emptySet?
+==============================================================
+
+Let emptySet?(makeLinSet<:?x:>) = (nil? x).
+
+==============================================================
+%% 			_in_
+==============================================================
+
+Let ?x _in_ makeLinSet<:?l:> = x _in_ l.
+
+==============================================================
+%%			sortSetList
+==============================================================
+
+Let sortSetList = sortRemovingDuplicates (==) (<).
+
+==============================================================
+%% 			removeDuplicates
+==============================================================
+
+%%------------------------------------------------------
+%% Return a list obtained from l by removing values
+%% with duplicated keys.  This operations is only intended
+%% to be used for lists of unordered species.
+%%------------------------------------------------------
+
+Let removeDuplicates (?l) =
+  Loop (?result, ?restl) = (nil, l)
+    first matching restl
+
+    exitcase nil      => result
+    case [?h & ?t] =>
+      Subcases
+	loopcase h _in_ result => continue (result, t)
+	loopcase else          => continue ([h & result], t)
+      %Subcases
+  %Loop
+%Let
+
+==============================================================
+%% 			set (for unordered types)
+==============================================================
+
+Let{default,override} set ?l = makeLinSet <:# removeDuplicates l #:>.
+
+==============================================================
+%% 			set (for ordered types)
+==============================================================
+
+Let{override} set ?l =
+  makeLinSet <:# sortSetList l #:>
+%Let
+
+==============================================================
+%% 			toList
+%%			eagerToList
+==============================================================
+
+Let{default}  toList (makeLinSet<:?l:>) = removeDuplicates l.
+Let{override} toList (makeLinSet<:?l:>) = sortSetList l.
+Let eagerToList = toList.
+
+==============================================================
+%% 			-/
+==============================================================
+
+Let (makeLinSet<:?l:> _also_ ?s) -/ ?k =
+  Let selector(?entry) = entry == k.
+  Match (?front,?rear) = l _eagerCutBy_ selector.
+  If nil? rear
+    then s
+    else makeLinSet <:# front ++ tail rear #:>
+  %If
+%Let
+  
+==============================================================
+%% 			+/
+==============================================================
+
+Let (makeLinSet<:?l:> _also_ ?s)  +/  ?x =
+  If x _in_ l
+    then s
+    else makeLinSet<:# [x & l] #:>
+  %If
+%Let
+
+==============================================================
+%% 			extractMin
+%%			extractMax
+==============================================================
+
+Let extractm ?p_splitter (makeLinSet(<:?l:> _also_ ?b)) =
+  If nil? l
+    then fail emptyListX
+    else
+      Let sorted_l = sortSetList l.
+      Assign b := sorted_l.
+      Match (?h, ?t) = p_splitter(sorted_l).
+      (h, makeLinSet<:#t#:>)
+  %If
+%Let
+
+Let extractMin   = extractm (listToPair).
+Let xpSplitAtEnd = splitAtEnd || xpose.
+Let extractMax   = extractm (xpSplitAtEnd).
+
+==============================================================
+%% 			_subset?_
+==============================================================
+
+%%------------------------------------------------------
+%% Take default from set.ast.  The following is for ordered species.
+%%------------------------------------------------------
+
+Let{override}
+  (makeLinSet(<:?l:> _also_ ?b) _subset?_ makeLinSet(<:?l':> _also_ ?b')) =
+    Let sortl  = sortSetList l.
+    Assign b  := sortl.
+    Let sortl' = sortSetList l'.
+    Assign b' := sortl'.
+
+    Loop (?r,?r') = (sortl, sortl') first
+
+      exitcase nil? r => true
+
+      exitcase nil? r' => false
+
+      do Match [?h  & ?t]  = r.
+         Match [?h' & ?t'] = r'.
+         Let cmp_res = compare(h,h').
+
+      loopcase cmp_res == equal => continue (t,t')
+
+      exitcase cmp_res == less  => false
+
+      loopcase else             => continue (r,t')
+    %Loop
+%Let
+
+==============================================================
+%% 			_unionWithList_
+==============================================================
+
+%% Take default from set.ast.  The following is for ordered species.
+
+Let{override} makeLinSet(<:?l:> _also_ ?b) _unionWithList_ ?l' =
+  makeLinSet<:# reverse result ++ rest_result #:> |
+
+  Let sortl = sortSetList l.
+  Assign b := sortl.
+  Let sortl' = sortSetList l'.
+  
+  Match (?result, ?rest_result) =
+    Loop (?r,?r',?res) = (sortl,sortl',nil) first
+
+      exitcase nil? r => (res, r')
+
+      exitcase nil? r' => (res, r)
+
+      do Match [?h  & ?t]  = r.
+	 Match [?h' & ?t'] = r'.
+	 Let cmp = compare(h,h').
+
+      loopcase cmp == equal => continue (t,t',[h' & res])
+
+      loopcase cmp == less  => continue (t,r',[h & res])
+
+      loopcase else         => continue (r,t',[h' & res])
+    %Loop
+  %Match
+%Let
+
+==============================================================
+%% 			_minusList_
+==============================================================
+
+%%------------------------------------------------------
+%% Take defaults from set.ast.  The following are for ordered species.
+%%------------------------------------------------------
+
+Let makeLinSet(<:?l:> _also_ ?b) _minusList_ ?l' =
+  makeLinSet<:# reverse result ++ rest_result #:> |
+
+  Let sortl = sortSetList l.
+  Assign b := sortl.
+  Let sortl' = sortSetList l'.
+  
+  Match (?result, ?rest_result) =
+    Loop (?r,?r',?res) = (sortl,sortl',nil) first
+
+      exitcase nil? r => (res,[])
+
+      exitcase nil? r' => (res,r)
+
+      do Match [?h  & ?t]  = r.
+	 Match [?h' & ?t'] = r'.
+	 Let cmp = compare(h,h').
+
+      loopcase cmp == equal => continue (t,t',res)
+
+      loopcase cmp == less  => continue (t,r',[h & res])
+
+      loopcase else         => continue (r,t',res)
+    %Loop
+  %Match
+%Let
+
+==============================================================
+%% 			_intersectWithList_
+==============================================================
+
+Let makeLinSet(<:?l:> _also_ ?b) _intersectWithList_ ?l' =
+  makeLinSet <:# reverse result #:> |
+
+  Let sortl = sortSetList l.
+  Assign b := sortl.
+  Let sortl' = sortSetList l'.
+  
+  Let result =
+    Loop (?r,?r',?res) = (sortl,sortl',nil) first
+
+      exitcase nil? r => res
+
+      exitcase nil? r' => res
+
+      do Match ([?h & ?t], [?h' & ?t']) = (r,r').
+	 Let cmp = compare(h,h').
+
+      loopcase cmp == equal => continue (t,t',[h & res])
+
+      loopcase cmp == less  => continue (t,r',res)
+
+      loopcase else         => continue (r,t',res)
+    %Loop
+  %Let
+%Let
+
+==============================================================
+%% 			==
+==============================================================
+
+%%------------------------------------------------------
+%% The default is to check whether each is a subset of the other.
+%% But be sure to check the whole entry, not just the key.
+%% Override that for ordered species -- it is better to sort.
+%%------------------------------------------------------
+
+Let{default} ?s  ==  ?s' =
+  s _subset?_ s' _and_ s' _subset?_ s
+%Let
+
+Let{override}  
+  makeLinSet(<:?l:> _also_ ?b) == makeLinSet(<:?l':> _also_ ?b') =
+    Let sortl = sortSetList l.
+    Assign b := sortl.
+    Let sortl' = sortSetList l'.
+    Assign b' := sortl'.
+    (sortl  ==  sortl')
+%Let
+
+==============================================================
+%%			^^
+==============================================================
+
+Let{underride} ^^(makeLinSet(<:?l:>)) = makeLinSet(<:# ^^l #:>).
+
+==============================================================
+
+%Package

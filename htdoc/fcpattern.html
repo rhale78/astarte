@@ -1,0 +1,348 @@
+<HTML>
+<head>
+<title>Astarte: first class patterns</title>
+</head>
+<body>
+<center>
+<a href="evallib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="trace.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L14. First Class Patterns </font></h1>
+</center>
+
+<menu>
+<li><a href=#main> Species of first class patterns</a>
+<li><a href=#create> Creating first class patterns</a>
+<li><a href=#library> First class patterns in the library</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue> Species of first class patterns</font></h2>
+
+Because patterns are handled by inline expansion, you cannot
+treat a pattern or pattern function as a value.  For example, it is not
+possible to pass a pattern to a function, and let that function use
+it in a pattern match.
+
+<p>To fix this problem, there are some parameterized species that can be used
+for almost that purpose.  The species are as follows.
+You need to import <a href=ast/pattern/pattern.ast>pattern/pattern.ast</a>
+to use them.
+
+<dl>
+<a name=PatternFunction></a>
+<p><dt><font color=red>PatternFunction(`a -&gt; `b)</font></dt>
+<dd>A value of species PatternFunction(<i>A</i> -&gt; <i>B</i>) can be used
+in a pattern as a function of species <i>A</i> -&gt; <i>B</i>, provided the
+operator * is applied to it.  For example, if <i>x</i> has species <i>A</i>,
+<i>t</i> has species <i>B</i> and <i>f</i> has species 
+PatternFunction(<i>A</i> -&gt; <i>B</i>), then
+<font color=#D00090>
+<b><pre>
+    Match *f(?x) = t.
+</pre></b>
+</font>
+is well-typed.  It performs a match against target <i>t</i>, according to
+what function <i>f</i> does, and binds <i>x</i>.</dd>
+
+<a name=PatternConstant></a>
+<p><dt><font color=red>PatternConstant(`a)</font></dt>
+<dd> A value of species PatternConstant(<i>A</i>) can be used in a
+pattern as a constant of species <i>A</i>, provided operator * is
+applied to it.  For example, if <i>c</i> has species PatternConstant(<i>A</i>)
+and <i>t</i> has species <i>A</i>, then
+<font color=#D00090>
+<b><pre>
+    Match c = t.
+</pre></b>
+</font>
+is well-typed.  It performs a match according to the definition
+of <i>c</i>.</dd>
+
+<a name=ListPatternFunction></a>
+<p><dt><font color=red>ListPatternFunction(`a -&gt; [`b])</font></dt>
+<dd>A value of species ListPatternFunction(<i>A</i> -&gt; [<i>B</i>]) 
+can be used
+as a function in a list pattern match, such as is done
+in Extract statements, provided operator * is applied to it.
+If <i>x</i> has species <i>A</i>,
+<i>t</i> has species &lt;:[<i>B</i>]:&gt; and <i>f</i> has 
+species ListPatternFunction(<i>A</i> -&gt; [<i>B</i>]), then
+<font color=#D00090>
+<b><pre>
+    Extract *f(?x) from t.
+</pre></b>
+</font>
+is well-typed.  It performs a match against target <i>t</i>, according to
+what function <i>f</i> does, and binds <i>x</i>.  Pattern match
+<font color=#D00090>
+<b><pre>
+    Match *f(?x) ++ ?rest = tt.
+</pre></b>
+</font>
+is also well-typed, provided <i>tt</i> has species [<i>B</i>],
+since the same mechanism is used for
+list patterns as for Extract.
+</dd>
+
+<a name=ListPatternConstant></a>
+<p><dt><font color=red>ListPatternConstant([`a])</font></dt>
+<dd>A value of species ListPatternConstant([<i>A</i>]) can be used
+as a constant in a list pattern match, such as is done
+in Extract statements, provided operator * is applied to it.
+If <i>t</i> has species &lt;:[<i>A</i>]:&gt; and 
+<i>c</i> has species ListPatternConstant([<i>A</i>]), then
+<font color=#D00090>
+<b><pre>
+    Extract *c from t.
+</pre></b>
+</font>
+is well-typed.  It performs a match against target <i>t</i>, according to
+what c does.  Pattern match
+<font color=#D00090>
+<b><pre>
+    Match *c ++ ?rest = tt.
+</pre></b>
+</font>
+is also well-typed, provided <i>tt</i> has species [<i>A</i>],
+since the same mechanism is used for
+list patterns as for Extract.
+</dd>
+</dl>
+
+<a name=create></a>
+<hr>
+<h2><font color=mediumblue> Creating first class patterns</font></h2>
+
+Pattern functions and constants are created as follows.
+<dl>
+<a name=patternFunction></a>
+<p><dt><font color=red>patternFunction</font></dt>
+<dd>: (`a -&gt; `b) -&gt; PatternFunction(`b -&gt; `a)
+<p>If p is <font color=#D00090>patternFunction(f)</font>, then
+<font color=#D00090>
+<b><pre>
+    Match *p(?x) = t.
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+    Match ?x = f(t).
+</pre></b>
+</font>
+If f has type A -&gt; B, then patternFunction(f) has type
+PatternFunction(B -&gt; A).
+
+<a name=patternConstant></a>
+<p><dt><font color=red>patternConstant</font></dt>
+<dd>: (`a -&gt; ()) -&gt; PatternFunction(`a)
+<p> If p is <font color=#D00090>patternConstant(F)</font>, then 
+<font color=#D00090>
+<b><pre>
+    Match *p(?x) = t.
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+    F(t).
+</pre></b>
+</font>
+If F has type A -&gt; (), then patternConstant(F) has type
+PatternConstant(A).
+
+<a name=listPatternFunction></a>
+<p><dt><font color=red>listPatternFunction</font></dt>
+<dd>: ([`a] -&gt; (`b,[`a]) -&gt; ListPatternFunction(`b -&gt; [`a])
+<p>If p is <font color=#D00090>listPatternFunction(f)</font>, then
+<font color=#D00090>
+<b><pre>
+    Match *p(?x) ++ ?rest = t.
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+    Match (?x,?rest) = f(t).
+</pre></b>
+</font>
+Similarly, statement
+<font color=#D00090>
+<b><pre>
+    Extract *p(?x) from bx.
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+    Match (?x,?rst) = f(@bx).
+    Assign bx := rst.
+</pre></b>
+</font>
+If f has type [A] -&gt; (B,[A]), then listPatternFunction(f) has type
+ListPatternFunction(B -&gt; [A]).
+
+<a name=listPatternConstant></a>
+<p><dt><font color=red>listPatternConstant</font></dt>
+<dd>: ([`a] -&gt; [`a]) -&gt; ListPatternConstant([`a])
+<p>If p is <font color=#D00090>listPatternConstant(f)</font>, then
+<font color=#D00090>
+<b><pre>
+    Match *p ++ ?rest = t.
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+    Match ?rest = f(t).
+</pre></b>
+</font>
+Similarly, statement
+<font color=#D00090>
+<b><pre>
+    Extract *p from bx.
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+    Assign bx := f(@bx).
+</pre></b>
+</font>
+If f has type [A] -&gt; [A], then listPatternFunction(f) has type
+ListPatternFunction([A]).
+</dl>
+
+<a name=library></a>
+<hr>
+<h2><font color=mediumblue> First class patterns in the library</font></h2>
+
+The following are available by importing 
+<a href=ast/pattern/pattern.ast>pattern/pattern.ast</a>
+
+<dl>
+<a name=const_P></a>
+<p><dt><font color=red>const_P</font></dt>
+<dd>: EQ`a -&gt; PatternConstant(EQ`a)
+<p> Pattern <font color=#D00090>*(const_P c)</font> 
+is a pattern constant that matches only c.
+
+<a name=constList_P></a>
+<p><dt><font color=red>constList_P</font></dt>
+<dd>: [EQ`a] -&gt; ListPatternConstant([EQ`a])
+<p> Pattern <font color=#D00090>*(constList_P c)</font> 
+is a list pattern constant that matches only c.
+
+<a name=span_P></a>
+<p><dt><font color=red>span_P</font></dt>
+<dd>: COLLECTION`c(EQ`a) -&gt; ListPatternFunction([EQ`a] -&gt; [EQ`a])
+<p> Pattern <font color=#D00090>*(span_P c) ?x</font> 
+has the same effect as pattern
+<font color=#D00090>span c ?x</font>.  
+It is a list pattern function that matches a maximal
+prefix of the target list that contains only members of collection c.
+For example, <font color=#D00090>*(span_P "ab") ?s</font>
+matches a prefix that contains only a's and b's, and binds s to
+that prefix.
+
+<a name=spanOthers_P></a>
+<p><dt><font color=red>spanOthers_P</font></dt>
+<dd>: COLLECTION`c(EQ`a) -&gt; ListPatternFunction([EQ`a] -&gt; [EQ`a])
+<p> Pattern <font color=#D00090>*(spanOthers_P c) ?x</font> 
+has the same effect as pattern
+<font color=#D00090>spanOthers c ?x</font>.  
+It is a list pattern function that matches a maximal
+prefix of the target list that contains only nonmembers of collection c.
+For example, <font color=#D00090>*(span_P "ab") ?s</font> 
+matches a prefix that contains only characters other than a and b,
+and binds s to that prefix.
+
+<a name=theN_P></a>
+<p><dt><font color=red>theN_P</font></dt>
+<dd>: Natural -&gt; ListPatternFunction([`a] -&gt; [`a])
+<p> Pattern <font color=#D00090>*(theN_P n) ?x</font> 
+has the same effect as pattern <font color=#D00090>(theN n) ?x</font>.  
+It is a list pattern function that matches exactly
+n members of the target list.  It requires that the list contain
+at least n members.
+
+<a name=theUpToN_P></a>
+<p><dt><font color=red>theUpToN_P</font></dt>
+<dd>: Natural -&gt; ListPatternFunction([`a] -&gt; [`a])
+<p> Pattern <font color=#D00090>*(theUpToN_P n) ?x</font> 
+has the same effect as pattern
+<font color=#D00090>(theUpToN n) ?x</font>.  
+</dl>
+
+<hr>
+The following are available by importing 
+<a href=ast/pattern/stringp.ast>pattern/stringp.ast</a>
+<dl>
+<a name=dollar_P></a>
+<p><dt><font color=red>dollar_P</font></dt>
+<dd>: ListPatternFunction(`a -&gt; String)
+<p> Pattern <font color=#D00090>*dollar_P(?x)</font> 
+has the same effect as pattern <font color=#D00090>$(?x)</font>.</dd>
+
+<a name=hex_P></a>
+<p><dt><font color=red>hex_P</font></dt>
+<dd>: ListPatternFunction(Natural -&gt; String)
+<p> Pattern <font color=#D00090>*hex_P(?x)</font> 
+has the same effect as pattern <font color=#D00090>hex(?x)</font>.</dd>
+
+<a name=white_P></a>
+<p><dt><font color=red>white_P</font></dt>
+<dd>: ListPatternConstant(String)
+<p> Pattern <font color=#D00090>*white_P</font> 
+has the same effect as pattern white.</dd>
+
+<a name=theWS_P></a>
+<p><dt><font color=red>theWS_P</font></dt>
+<dd>: ListPatternFunction(String -&gt; String)
+<p> Pattern <font color=#D00090>*theWS_P(?x)</font> 
+has the same effect as pattern <font color=#D00090>theWS(?x)</font>.</dd>
+
+<a name=theLine_P></a>
+<p><dt><font color=red>theLine_P</font></dt>
+<dd>: ListPatternFunction(String -&gt; String)
+<p> Pattern <font color=#D00090>*theLine_P(?x)</font> 
+has the same effect as pattern <font color=#D00090>theLine(?x)</font>.</dd>
+
+<a name=theString_P></a>
+<p><dt><font color=red>theString_P</font></dt>
+<dd>: ListPatternFunction(String -&gt; String)
+<p> Pattern <font color=#D00090>*theString_P(?x)</font> 
+has the same effect as pattern <font color=#D00090>theString(?x)</font>.</dd>
+
+<a name=theId_P></a>
+<p><dt><font color=red>theId_P</font></dt>
+<dd>: ListPatternFunction(`a -&gt; String)
+<p> Pattern <font color=#D00090>*theId_P(?x)</font> 
+has the same effect as pattern <font color=#D00090>theId(?x)</font>.</dd>
+
+<a name=theBalanced_P></a>
+<p><dt><font color=red>theBalanced_P</font></dt>
+<dd>: ListPatternFunction(String -&gt; String)
+<p> Pattern <font color=#D00090>*theBalanced_P(?x)</font> 
+has the same effect as pattern <font color=#D00090>theBalanced(?x)</font>.</dd>
+
+</dl>
+
+<hr>
+<center>
+<a href="evallib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="trace.html">Next</a>
+</center>
+</body>
+</HTML>

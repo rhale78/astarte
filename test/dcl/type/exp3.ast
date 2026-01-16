@@ -1,0 +1,21 @@
+Package exp3 
+
+%% Test type expectation after definition.
+
+Extension
+  Species T1 = Integer.
+  Species F1(`a) = `a.
+  Species T2 = Integer.
+%Extension
+
+%% Should complain only about T2.
+
+Extension
+  Expect species T1.
+  Expect species F1(`?).
+  Expect species T2(`?).
+%Extension
+
+%Package
+
+

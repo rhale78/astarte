@@ -1,0 +1,30 @@
+Package files 
+
+%% Test fileStatus
+
+Execute
+  Let status = fileStatus("testfile").
+  Writeln["Status of file testfile"].
+  Writeln["  Kind: ", $fstatIsDirectory?(status)].
+  Writeln["  Size: ", $fstatSize(status)].
+  Writeln["  Time: ", $fstatModTime(status)].
+  Writeln["  Readable?: ", $fstatReadable?(status)].
+  Writeln["  Writable?: ", $fstatWritable?(status)].
+  Writeln["  Executable?: ", $fstatExecutable?(status)].
+  Writeln["  Owner: ", $fstatOwner(status)].
+  Writeln["  Group: ", $fstatGroup(status)].
+%Execute
+
+Execute
+  renameFile!("testfile", "testfile1").
+  Try
+    Let status = fileStatus("testfile1").
+  then
+    Writeln["File testfile1 exists"].
+  else
+    Writeln["Bad: file testfile1 does not exist!!"].
+  %Try
+  renameFile!("testfile1", "testfile").
+%Execute
+
+%Package

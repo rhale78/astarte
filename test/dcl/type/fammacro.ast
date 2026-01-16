@@ -1,0 +1,33 @@
+Package fammacro 
+
+%% Test family macros
+
+Abbrev 
+  M1(`a) = (`a,`a);
+  C = `c;
+  M2(`a,`b) = (`a,`b, C);
+  M3(`a) = r ~> `a;
+  T1 = (r~> Natural, s~> `a);
+%Abbrev
+
+%% Should show type of f1 as 
+%% (REAL`a,REAL`a) -> (REAL`a,REAL`a).
+
+Let f1(?x:M1(REAL`a)) = x.
+
+%% Should show type of f2 as 
+%% ((Natural, (REAL`a, `b)), `b) -> ((Natural, (REAL`a, `b)), `b)
+
+Let f2(?x:(M2(Natural, REAL`a), C)) = x.
+
+%% Should show type of f3 as r~>Natural -> Natural.
+
+Let f3(?x:M3(Natural)) = x.
+
+
+%% Should show type of f4 as (r~>Natural, s~>`a) -> (Natural, `a).
+
+Let f4(?x:T1) = x.
+
+%Package
+

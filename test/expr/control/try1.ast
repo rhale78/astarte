@@ -1,0 +1,67 @@
+Package try1
+
+%% Test basic tries to test control.
+
+Let f1() =
+  fail testX
+%Let
+
+Let f2() =
+  Let x:Natural = f1().
+  Writeln[$x].
+%Let
+
+Execute
+  Writeln["Should print \"Good testX\" five times"].
+%Execute
+
+Execute
+  %% Simple try
+  
+  Try
+    Let x = f2().
+  then
+    Writeln["Bad", $x].
+  else
+    Writeln["Good ", $exception].
+  %Try
+%Execute
+
+Execute
+  %% Embedded try, fail in inner.
+  
+  Try
+    Try
+      Let y = f2().
+    then
+      Writeln["Bad", $y].
+    else
+      Writeln["Good ", $exception].
+    %Try
+  then
+    Writeln["Good testX"].
+  else
+    Writeln["Bad"].
+  %Try
+%Execute
+
+Execute
+  %% Embedded try, fail in outer
+  
+  Try
+    Try
+      Writeln["Good testX"].
+    then
+      fail testX
+    else
+      Writeln["Bad"].
+    %Try
+  then
+    Writeln["Bad"].
+  else
+    Writeln["Good ", $exception].
+  %Try
+    
+%Execute
+
+%Package

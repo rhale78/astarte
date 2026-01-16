@@ -1,0 +1,20 @@
+Package testtype3 export
+
+%% Test disjoint union types
+
+Extension
+  Species NatList = natnull | natpair(Natural, NatList).
+%Extension
+
+Execute
+  Let l = natpair(1, natnull).
+  Let j = natpair(2, natnull).
+  Match natpair(?x,?y) = j.
+  Writeln[$x].
+  If l == l then Writeln["good"]. else Writeln["bad"]..
+  If j == l then Writeln["bad"]. else Writeln["good"]..
+  If j == natnull then Writeln["bad"]. else Writeln["good"]..
+%Execute
+
+%Package
+

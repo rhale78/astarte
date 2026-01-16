@@ -1,0 +1,9 @@
+Package imp6 export
+
+Expect x4: Natural.
+
+implementation
+
+Let x4 = 0.
+
+%Package

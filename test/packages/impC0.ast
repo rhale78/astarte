@@ -1,0 +1,48 @@
+Package impC0
+
+%% Test case were an import in the implementation
+%% part of a package overrides expectations made
+%% locally.
+
+Export
+
+%% v, u and w are defined here.
+
+Expect{underride} v: Natural.
+Expect{underride} u: Natural.
+Expect{default} w: Natural.
+
+%% v1, u1 and w1 are not defined here.
+
+Expect{underride} v1: Natural.
+Expect{underride} u1: Natural.
+Expect{default} w1: Natural.
+
+Implementation
+
+Let{default} w1 = 8.
+
+Import "impC1".
+
+Let{underride} v1 = 6.
+Let{underride} u1 = 7.
+
+Import "misc/check".
+
+Execute
+  Line[$v].
+  Check["2"].
+  Line[$u].
+  Check["5"].
+  Line[$w].
+  Check["4"].
+  Line[$v1].
+  Check["2"].
+  Line[$u1].
+  Check["5"].
+  Line[$w1].
+  Check["4"].
+%Execute
+
+%Package
+

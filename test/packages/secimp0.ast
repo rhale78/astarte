@@ -1,0 +1,13 @@
+Package secimp0
+
+%% Test second imports.  This is the top-level file.
+
+Import "secimp1".
+Import "secimp2".
+Import "secimp5".
+
+Execute
+  Writeln[$tst, " ", $tst1, " ", $tst2].
+%Execute
+
+%Package

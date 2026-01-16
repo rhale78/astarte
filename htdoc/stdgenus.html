@@ -1,0 +1,194 @@
+<HTML>
+<head>
+<title>Astarte: standard data abstractions</title>
+</head>
+<body>
+<center>
+<a href="polymorphism.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="typevar.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T6. Standard Data Abstractions </font></h1>
+</center>
+
+<menu>
+  <li><a href=#noimports>Abstractions that do not require imports</a>
+  <li><a href=#imports>Abstractions that require imports</a>
+</menu>
+
+<hr>
+You can think of a data abstraction, or genus, as a collection of related
+species, but it is often more convenient
+to think of it as representing the shared characteristics
+and capabilities of the species that it contains.  
+For example,
+genus RRING contains species that share the operations of
+addition, subtraction and multiplication. 
+
+<a name=noimports></a>
+<hr>
+<h2><font color=mediumblue> Abstractions that do not require 
+imports </font></h2>
+
+The following abstractions are available to all packages.  See
+<a href="ast/lang/hierarch.ast">the standard hierarchy</a> for
+the relationships among these.
+
+<dl>
+
+<a name=ANY></a>
+<dt> <font color=red>ANY</font>
+<dd> ANY contains all species.
+
+<a name=EQ></a>
+<p><dt> <a href="boollib.html#compare">EQ</a>
+<dd> EQ contains species on which an equality test can be
+done.  (This excludes functions, for which equality is undecidable.)
+
+<a name=ORDER></a>
+<p><dt> <a href="boollib.html#compare">ORDER</a>
+<dd> ORDER contains species on which order tests (such as &lt;) can be
+done.
+
+<a name=RANKED></a>
+<p><dt> <a href="speciesdcl.html#enumerated">RANKED</a>
+<dd> RANKED contains species Natural and all enumerated
+species.  Species in RANKED have an operation rank that converts
+them to a natural number.
+
+<a name=ENUMERATED></a>
+<p><dt> <a href="speciesdcl.html#enumerated">ENUMERATED</a>
+<dd> ENUMERATED contains all enumerated species.  These
+share some operations with natural numbers.
+
+<a name=INTEGER></a>
+<p><dt> <a href="numericlib.html">INTEGER</a>
+<dd> INTEGER contains species Natural and Integer.
+
+<a name=RATIONAL></a>
+<p><dt> <a href="numericlib.html">RATIONAL</a>
+<dd> RATIONAL contains species Natural, Integer and Rational.
+
+<a name=REAL></a>
+<p><dt> <a href="numericlib.html">REAL</a>
+<dd> REAL contains species Natural, Integer, Rational and Real.
+These species share the operations of addition and multiplication,
+among some others.
+
+<a name=RATRING></a>
+<p><dt> <a href="numericlib.html">RATRING</a>
+<dd> RATRING contains species Integer and Rational.
+
+<a name=RFIELD></a>
+<p><dt> <a href="numericlib.html">RFIELD</a>
+<dd> RFIELD contains species Rational and Real.
+These are the standard species that support addition, subtraction,
+multiplication and division.
+
+<a name=RRING></a>
+<p><dt> <a href="numericlib.html">RRING</a>
+<dd> RRING contains species Integer, Rational and Real.
+These species support addition, subtraction and multiplication.
+
+</dl>
+
+<a name=imports></a>
+<hr>
+<h2><font color=mediumblue> Abstractions that require imports </font></h2>
+
+The following are available by importing packages.
+
+<dl>
+<a name=NUMBER></a>
+<p><dt> <a href="numericlib.html">NUMBER</a>
+<dd> NUMBER includes all of the numeric species
+Natural, Integer, Rational, Real and Complex.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=APPROX></a>
+<p><dt> <a href="numericlib.html">APPROX</a>
+<dd> APPROX holds species Real and Complex.  Here, operations
+such as exp, sin and sqrt are provided.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=SEMIGROUP></a>
+<p><dt> <a href="numericlib.html">SEMIGROUP</a>
+<dd> SEMIGROUP contains species that support addition.
+This includes Natural, Integer, Rational, Real, Complex and Modular.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=GROUP></a>
+<p><dt> <a href="numericlib.html">GROUP</a>
+<dd> GROUP contains species that support both addition 
+and subtraction.
+This includes Integer, Rational, Real, Complex and Modular.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=SEMIRING></a>
+<p><dt> <a href="numericlib.html">SEMIRING</a>
+<dd> SEMIRING contains species that support both addition 
+and multiplication.
+This includes Natural, Integer, Rational, Real, Complex and Modular.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=RING></a>
+<p><dt> <a href="numericlib.html">RING</a>
+<dd> RING contains species that support addition 
+subtraction and multiplication
+This includes Integer, Rational, Real, Complex and Modular.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=NRING></a>
+<p><dt> <a href="numericlib.html">NRING</a>
+<dd> NRING is the intersection of RING and NUMBER.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=FIELD></a>
+<p><dt> <a href="numericlib.html">FIELD</a>
+<dd> FIELD holds species Rational, Real, Complex and Modular.
+These are species where all four basic arithmetic operations
+(+, -, * and /) are available, with the usual rules of arithmetic
+applying.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=NFIELD></a>
+<p><dt> <a href="numericlib.html">NFIELD</a>
+<dd> NFIELD is the intersection of FIELD and NUMBER.
+Import <a href="ast/math/math.ast">math/math.ast</a>.
+
+<a name=ARRAY></a>
+<p><dt> <font color=red>ARRAY</font>
+<dd> ARRAY contains boxes, lists of boxes, lists of lists
+of boxes, etc.
+Import <a href="ast/collect/boxes.ast">collect/boxes.ast</a>.
+
+<a name=NEW></a>
+<p><dt> <font color=red>NEW</font>
+<dd> NEW contains boxes, pairs of boxes, pairs of pairs
+of boxes, etc.  These are things that can be created with operation new.
+Import <a href="ast/collect/boxes.ast">collect/boxes.ast</a>.
+
+<a name=BOXES></a>
+<p><dt> <font color=red>BOXES</font>
+<dd> BOXES contains boxes, lists of boxes, pairs of boxes, and
+arbitrary mixtures of pairs and lists of boxes.  These can be
+copied.
+Import <a href="ast/collect/boxes.ast">collect/boxes.ast</a>.
+
+</dl>
+
+<hr>
+<center>
+<a href="polymorphism.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="typevar.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,131 @@
+<HTML>
+<head>
+<title>Astarte: list expressions</title>
+</head>
+<body>
+<center>
+<a href="tupleexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="identifiers.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E7. List Expressions </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#basic> Basic operations on lists</a>
+  <li> <a href=#listcomp> List comprehensions</a>
+  <li> <a href=#morelists> More operations on lists</a>
+</menu>
+
+<a name=basic></a>
+<hr>
+<h2><font color=mediumblue> Basic operations on lists </font></h2>
+
+A list is a sequence of items of the same species.
+The following expression forms and functions are available.
+
+<dl>
+<a name=nil></a>
+<dt><font color="red"> [ ]</font> 
+<dd> [ ] is the empty list.  It can also be called 
+<font color=#D00090>nil</font>.
+
+<a name=head></a>
+<p><dt><font color=red> head</font>
+<dd> Function head takes the first member of a nonempty list.
+<p><font color=BLACK>Example:</font> <font color=#D00090> head [2,7,3]</font> = 2.
+
+<a name=tail></a>
+<p><dt><font color=red> tail</font>
+<dd> Function tail removes the first member of a nonempty list.
+<p><font color=BLACK>Example:</font> <font color=#D00090> tail [2,7,3]</font> = [7,3]
+
+<a name=cons></a>
+<p><dt><font color=red> ::</font>
+<dd> Operator :: produces a list with a given head and tail;
+<i>h</i> :: <i>t</i> is the list whose head is 
+<i>h</i> and whose tail is <i>t</i>.
+<p><font color=BLACK>Example:</font> <font color=#D00090> 2 :: [7,3]</font> = [2,7,3]
+
+<a name=literal></a>
+<p><dt><font color="red"> [<i>a</i>,<i>b</i>,<i>c</i>] </font>
+<dd> [<i>a</i>,<i>b</i>,<i>c</i>] is the list holding 
+<i>a</i>, <i>b</i> and <i>c</i>.  
+Expression [<i>a</i>,<i>b</i>,<i>c</i>] abbreviates <i>a</i>::<i>b</i>::<i>c</i>::[].
+<p>You can put any number of members in the brackets, separated by commas,
+including only one. 
+<font color=BLACK>For example</font>, [<i>a</i>] abbreviates <i>a</i>::[], 
+and is a singleton list holding just <i>a</i>.
+
+<a name=ampersand></a>
+<p><dt><font color="red"> [<i>h</i> &amp; <i>t</i>] </font>
+<dd> [<i>h</i> &amp; <i>t</i>] is the same as <i>h</i>::<i>t</i>.
+
+<p><dt><font color="red"> [<i>a</i>,<i>b</i>,<i>c</i> &amp; <i>t</i>] </font>
+<dd> [<i>a</i>,<i>b</i>,<i>c</i> &amp; <i>t</i>] is the 
+same as <i>a</i>::<i>b</i>::<i>c</i>::<i>t</i>.  You can list as many
+members as you like.
+
+</dl>
+
+<a name=listcomp></a>
+<hr>
+<h2><font color=mediumblue> List comprehensions </font></h2>
+
+A list comprehension typically has the form
+<font color=#D00090>
+<b><pre>
+  [: <font color=black><i>expression</i></font> | Let <font color=black><i>identifier</i></font> = each <font color=black><i>list</i></font>.
+                  {<font color=black><i>test</i></font>} :]
+</pre></b>
+</font>
+where <i>expression</i> is an expression whose value goes into the list,
+<i>list</i> is a source list, and </i>test</i> is a test that must be
+satisfied.  <font color=BLACK>For example</font>, 
+expression <font color=#D00090>(2 _upto_ 20)</font> produces the
+list [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].  List
+comprehension
+<font color="#D00090">
+<b><pre>
+     [: x^2 | Let x = each(2 _upto_ 20). 
+              {x _is_ prime?} 
+     :]
+</pre></b>
+</font>
+produces the list [4,9,25,49,121,169,289] of the squares of the 
+primes up to 20.
+Another <font color=BLACK>example</font> of
+a list comprehension is the following, which computes the
+list of all members of list y that are positive.
+<font color="#D00090">
+<b><pre>
+     [: x | Let x = each(y). 
+            {x > 0} 
+     :]
+</pre></b>
+</font>
+List comprehensions are a special case of a more general
+<a href=streams.html#listcomp>stream facility</a>.
+
+<a name=morelists></a>
+<hr>
+<h2><font color=mediumblue> More operations on lists </font></h2>
+
+Assorted operations on lists are described in
+<a href="listlib.html">the list library</a>.
+
+<hr>
+<center>
+<a href="tupleexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="identifiers.html">Next</a>
+</center>
+</body>
+</HTML>

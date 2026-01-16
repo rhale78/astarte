@@ -1,0 +1,304 @@
+%% File listfun.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package 		Astarte_Listfun 
+
+			Interface
+===============================================================
+
+===============================================================
+%% This package implements assorted functions on lists.
+===============================================================
+
+Operator 
+  #=		(#); 
+  #_=		(#);
+  _prefix?_	(<); 
+  _suffix?_	(<);
+  _zip_		(++); 
+  _quickZip_	(++);
+  _separateBy_	(#)
+%Operator
+
+==============================================================
+
+Abbrev {noExport}:
+  A     = `a;
+  B     = `b;
+  Alist = [A];
+  Blist = [B];
+%Abbrev
+
+===============================================================
+
+Expect
+  _prefix?_	:([EQ`a], [EQ`a]) -> Boolean
+
+		%" _prefix?_(x, y) is true if x is a prefix of y (or x = y).
+		;
+
+
+  _suffix?_	: ([EQ`a], [EQ`a]) -> Boolean
+
+		%" _suffix?_(x, y) is true if x is a suffix of y (or x = y).
+		;
+
+  lengthAtLeast : Natural -> [`a] -> Boolean
+  
+  		%" (lengthAtLeast n x) is true if x has at least n 
+		%" members.
+		;
+  
+  take		: Natural -> Alist -> Alist
+
+		%" take n l is the prefix of l of length n, or is l
+		%" if l has fewer than n members.
+		;
+
+  drop		: Natural -> Alist -> Alist
+
+		%" drop n l is the suffix of l obtained by deleting the
+		%" first n members of l, or is nil if l has fewer than n
+		%" members.
+		;
+
+  #_=		: (Alist, (Natural, A)) -> Alist
+
+		%" x #_= (n,v) is the list obtained
+		%" from x by replacing the n-th member by v,
+		%" where the members are numbered starting at 0.
+		%" If x has fewer than n members, then
+		%" x #_= (n,v) fails with exception subscriptX.
+		%" If x has exactly n members, then x #_= (n,v)
+		%" adds v to then end of x.
+		%"
+		%" Function #_= is quasi-lazy.
+		;
+
+  #=		: (Alist, (Natural, A)) -> Alist
+
+		%" x #= (n,v) is the list obtained
+		%" from x by replacing the n-th member by v,
+		%" where the members are numbered starting at 1.
+		%" If n = 0 or x has fewer than n-1 members, then
+		%" x #= (n,v) fails with exception subscriptX.
+		%" If x has exactly n-1 members, then x #= (n,v)
+		%" adds v to then end of x.  (It is the same as x +/ v).
+		%"
+		%" Function #= is quasi-lazy.
+		;
+
+  allSuffixes	: Alist	-> [Alist]
+
+		%" allSuffixes(x) is a list of all of the nonempty suffixes
+		%" of x, including x, in decreasing order of length.
+		%" For example, allSuffixes([1,2,3]) =
+		%" [[1,2,3],[2,3],[3]].  AllSuffixes is quasi-lazy.
+		;
+
+  _zip_		: (Alist, Blist) -> [(A,B)]
+
+		%" [a1,a2,a3] _zip_ [b1,b2,b3] = [(a1,b1),(a2,b2),(a3,b3)].
+		%" In general, _zip_ applies to any two lists of the same
+		%" length.  If the lists have different lengths, then
+		%" _zip_ fails with exception sizeX.
+		%"
+		%" See zip for a curried form of this function.
+		;
+		
+  zip		: Alist -> Blist -> [(A,B)]
+  
+		%" This is a curried form of _zip_.  See that function.
+		;
+
+  _quickZip_	: (Alist, Blist) -> [(A,B)]
+
+		%" Same as _zip_, but assumes that the lengths of the
+		%" two lists are the same.  This function is quasi-lazy.
+		%" If the lengths of the two lists are different,
+		%" _quickZip_ fails with exception sizeX, but might
+		%" do so late, after producing some of the list.
+		;
+		
+  pzip		: (A,B) -> (Alist, Blist) -> [(A,B)]
+  
+  		%" pzip(d1,d2)(l1,l2) is similar to (l1 _zip_ l2),
+		%" but if lists l1 and l2 are of different lengths,
+		%" then the shorter one is padded to the same
+		%" length as the longer one, by adding an appropriate
+		%" number of copies of a default value to its end.
+		%"
+		%" The default for l1 is d1, and the default for
+		%" l2 is d2.
+		%"
+		%" pzip is quasi-lazy.
+		;
+
+  unzip		: [(A,B)] -> (Alist, Blist)
+
+		%" unzip is the functional inverse of zip.  It is
+		%" quasi-lazy.
+		;
+
+  insertLeft    : A -> Blist -> [(A,B)]
+
+		%" insertLeft x [a,b,c] = [(x,a), (x,b), (x,c)].
+		%" This generalizes in the obvious way to other lists.
+		%" Function insertLeft is quasi-lazy.
+		;
+
+  insertRight   : A -> Blist -> [(B,A)]
+
+		%" insertRight x [a,b,c] = [(a,x), (b,x), (c,x)].
+		%" This generalizes in the obvious way to other lists.
+		%" Function insertRight is quasi-lazy.
+		;
+
+  indexedList	: EQ`a -> [(Natural, EQ`a)] -> [EQ`a]
+
+		%" indexedList d [(i1,x1), ..., (ik,xk)] is a list l such
+		%" that l#(i1) = x1, ..., l#(ik) = xk.  
+		%" 
+		%" If there is no entry for index i, then l#i = d.  
+		%" The shortest such list is returned.  Later 
+		%" pairs in the list of pairs have precedence in case 
+		%" of conflict.
+		%"
+		%" For example,
+		%"
+		%"  indexedList "none" [(1,"abc"), (3, "def"), (1, "ghi")]
+		%"  = ["none", "ghi", "none", "def"].
+		;
+
+  _separateBy_	: ([Alist], Alist) -> Alist
+
+		%" [a,b,c] _separateBy_ s = a ++ s ++ b ++ s ++ c.  In
+		%" general, _separateBy_ concatenates, but puts s between
+		%" successive lists.  Function _separateBy_ is
+		%" quasi-lazy.
+		;
+
+  bfold		: (nil ~> A, :: ~> (A,A)->A) -> Alist -> A
+
+		%" bfold is similar to lfold and rfold, but balances the
+		%" expression tree.  Should only be used when op is
+		%" associative and init is an identity for op.
+		;
+
+  unfold	: (A -> A) -> A -> Alist
+
+		%" (unfold f x) is the infinite list [x, f(x), f(f(x)),
+		%" ...].  If any of these applications of f fails,
+		%" then the list is ended just before the failure.
+		;
+		
+  lunfold	: (B -> Boolean, B -> (A,B)) -> B -> Alist
+  
+  		%" lunfold (p,f) x produces a list generated as follows.
+		%" Start with x, and apply f to it.  That gives an ordered
+		%" pair (a,x').  Now apply f to x', yielding (b,x'').  Keep
+		%" going, until an x value X is found such that
+		%" p(X) is false.  Produce the list [a,b,...] of values
+		%" that came out of the left-hand members of the results
+		%" of f.  (If p(x) is false for the initial x, the result
+		%" of lunfold is [].)
+		%"
+		%" For example, let p be the function p(x) = x < 6, and
+		%" let f be the function f(x) = (x,x+1).  Then
+		%"
+		%"  lunfold (p,f) 2 = [2,3,4,5]
+		%"
+		%" This process is illustrated as follows.  Diagram
+		%"
+		%"           f
+		%"      x ------> x'
+		%"           |
+		%"           a
+		%"
+		%" indicates that f(x) = (a,x').
+		%"
+		%"       f          f           f
+		%"  x ------> x' ------> x'' ------> x''' ....
+		%"       |          |           |
+		%"      a           b           c
+		%"
+		%" This continues until a value y in the chain x, x', ...
+		%" is found such that p(y) is false.  If, for example,
+		%" p(x''') is false in the above illustration, but p(x), 
+		%" p(x') and p(x'') are all true, then
+		%" lunfold(p,f) x would be [a,b,c].
+		%"
+		%" lunfold is lazy.  It only produces as much of the
+		%" result list as is needed.
+		;
+		
+  runfold	: (A -> Boolean, A -> (A,B)) -> A -> [B]
+  
+  		%" runfold (p,f) x produces a list generated as follows.
+		%" Start with x, and apply f to it.  That gives an ordered
+		%" pair (x',a).  Now apply f to x', yielding (x'',b).  Keep
+		%" going, until an x value X is found such that
+		%" p(X) is false.  Produce the list [...,b,a] of values
+		%" that came out of the right-hand members of the results
+		%" of f, building the list from right to left.  
+		%" (If p(x) is false for the initial x, the result
+		%" of runfold is [].)
+		%"
+		%" For example, let p be the function p(x) = x < 6, and
+		%" let f be the function f(x) = (x+1,x).  Then
+		%"
+		%"  runfold (p,f) 2 = [5,4,3,2]
+		%"
+		%" This process is illustrated as follows.  Diagram
+		%"
+		%"             f
+		%"      x' <------ x
+		%"             |
+		%"             a
+		%"
+		%" indicates that f(x) = (x',a).
+		%"
+		%"               f           f          f
+		%"  ... x''' <------ x'' <------ x' <------ x
+		%"               |           |          |
+		%"               c           b          a
+		%"
+		%" This continues until a value y in the chain x, x', ...
+		%" is found such that p(y) is false.  If, for example,
+		%" p(x''') is false in the above illustration, but p(x), 
+		%" p(x') and p(x'') are all true, then
+		%" runfold(p,f) x would be [c,b,a].
+		%"
+		%" runfold is eager.  It produces the entire result
+		%" list before returning.
+		;
+		
+  fdup		: Natural -> (() -> A)	-> Alist
+
+		%" (fdup n f) produces list [f(),f(),...,f()], where the
+		%" order of values is the same as the order of f() calls.
+		%" For example, (fdup 5 readNat) will read 5 natural numbers
+		%" and return a list of them, in the same order in which
+		%" they were read.  Function fdup is eager.  The 
+		%" resulting array is packed.
+		;
+
+  fairMerge	:(Alist, Alist) -> Alist
+
+		%" fairmerge(a,b) is a shuffle of lists a and b that is fair
+		%" in the sense that neither a nor b is locked out forever
+		%" (so both a and b can be recovered by unshuffling the
+		%" result).  Function fairMerge is lazy.
+		;
+
+  {irregular}
+  unwrappingEagerMap: (`a -> ``b) -> [`a] -> [`*c] 
+  		      constraint (``b >= `*c)
+  
+%Expect
+=========================================================
+%Package

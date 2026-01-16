@@ -1,0 +1,9 @@
+Package patconst 
+
+Execute
+  Let a:[Natural] = nil.
+  Match nil = a.
+  Writeln["Success"].
+%Execute
+
+%Package

@@ -1,0 +1,9 @@
+Package assume2 export
+
+Expect x:AA.
+Expect y:BB.
+===============
+Let f(?nn) = nn.
+
+Let ff(?mm) = mm.
+%Package

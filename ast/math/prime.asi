@@ -1,0 +1,277 @@
+%% File: prime.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==========================================================
+Package			Astarte_primeImp
+
+			Implements "prime"
+============================================================
+
+Import "misc/random".
+Import "collect/sort".
+Import "collect/search".
+
+============================================================
+%%			witness
+============================================================
+
+Let 
+  description
+    %%------------------------------------------------------
+    %" witness n k is true if k is a witness to the fact
+    %" that n is composite.  This is the Miller/Rabin
+    %" witness function.  Its main part is to test whether
+    %" k^(n-1) =/= 1 (mod n).  If that is the case, then
+    %" n must be composite.  There is an added test to 
+    %" catch Carmichael numbers, which the main test will miss.
+    %%------------------------------------------------------
+    
+  witness ?n ?k =
+  
+    %%---------------------------------------------------------
+    %% First get the binary representation of n-1 backwards.
+    %% For example, if n-1 = 10110, then r will be [0,1,1,0,1].
+    %%---------------------------------------------------------
+    
+    Let r =
+      Loop (?b, ?rr) = (n--1, []) first
+        exitcase zero? b => rr
+	loopcase odd?  b => continue (b _div_ 2, [1 & rr])
+	loopcase else    => continue (b _div_ 2, [0 & rr])
+      %Loop
+    %Let
+    
+    %%---------------------------------------------------------
+    %% Now do the witness calculation.  k is a witness for n
+    %% if k^(n-1) =/= 1 (mod n) or if there is a t such that
+    %% n-1 is divisible by 2^t and k^((n-1)/2^t) is not 1 or n-1.
+    %%---------------------------------------------------------
+        
+    Loop (?b, ?d) = (r, 1) first
+    
+      exitcase nil? b => d =/= 1
+      
+      do Let dsq = (d*d) _mod_ n.
+      
+      exitcase dsq == 1 _and_ d =/= 1 _and_ d =/= n--1 => true
+      
+      loopcase head(b) == 1 => continue(tail b, (dsq*k) _mod_ n)
+      
+      loopcase else  => continue(tail b, dsq)
+    %Loop
+%Let
+      
+
+============================================================
+%%			hasWitness
+============================================================
+
+Let 
+  description
+    %%------------------------------------------------------
+    %" hasWitness(n,k) is true if a test of k random numbers
+    %" yields a witness that n is composite.  It is required
+    %" that n > 4, and that n is odd.
+    %%------------------------------------------------------
+  
+  hasWitness(?n,?k) =
+    Loop ?i = k first
+      exitcase i == 0                       => false
+      exitcase witness n (random(n--3) + 2) => true
+      loopcase else                         => continue i--1
+    %Loop
+%Let
+
+
+============================================================
+%%			smallFactorList
+%%			maxSmallFactor
+%%			afterMaxSmallFactor
+%%			smallFactor
+============================================================
+
+Let smallFactorList = 
+  [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,
+   103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179,
+   181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263,
+   269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353,
+   359, 367, 373, 379, 383, 389, 397, 401]
+%Let
+
+Let 
+  description
+    %%------------------------------------------------------
+    %" maxSmallFactor is the largest number in smallFactorList.
+    %%------------------------------------------------------
+    
+  maxSmallFactor = 401
+%Let
+
+Let 
+  description
+    %%------------------------------------------------------
+    %" afterMaxSmallFactor is the smallest prime that is larger
+    %" than maxSmallFactor.
+    %%------------------------------------------------------
+
+  afterMaxSmallFactor = 409
+%Let
+
+Let 
+  description
+    %%------------------------------------------------------
+    %" smallFactor(?n) is the smallest prime factor of n if n has a 
+    %" small factor, and is 0 if n has no small nontrivial factor.
+    %" We only test a few factors, up to maxSmallFactor.
+    %%------------------------------------------------------
+ 
+  smallFactor(?n) =
+    Loop ?factorList_l = smallFactorList first
+      exitcase nil? factorList_l => 0
+      
+      do Let factor_l = head factorList_l.
+      
+      exitcase factor_l*factor_l > n => 0
+
+      exitcase n _mod_ factor_l == 0 => factor_l
+      
+      loopcase else => continue tail factorList_l
+    %Loop
+%Let
+  
+============================================================
+%%			primeOrFactor
+============================================================
+
+Let 
+  description
+    %%------------------------------------------------------
+    %" primeOrFactor(n) returns 1 if n is prime, and either 0 or
+    %" the smallest prime factor of n if n is composite.
+    %" It is required that n > 1.
+    %%------------------------------------------------------
+
+  primeOrFactor(?n) =
+  
+    %%-----------------------------------------------------
+    %% We try a few fixed numbers and one randomly chosen
+    %% number as potential witnesses.
+    %%------------------------------------------------------
+
+    Choose first
+      case Let f = smallFactor(n).
+           Value f =/= 0.        => f
+      case n <= maxSmallFactor^2 => 1
+      case someSatisfy (witness n) [2,3,5,7,11,39,101,307,622] => 0
+      case hasWitness(n,1)       => 0
+      else                       => 1
+    %Choose
+%Let
+
+============================================================
+%%			prime?
+============================================================
+
+Let prime?(?n) = n > 1 _and_ primeOrFactor(n) == 1.
+
+============================================================
+%%			    rhoFactor
+============================================================
+
+Define 
+  description
+    %%------------------------------------------------------
+    %" rhoFactorHelp does Pollard's rho algorithm, described
+    %" under rhoFactor below.  It compares members of the
+    %" sequence r0,r1,r2,... by fixing a number y in the
+    %" sequence and comparing it with those that follow,
+    %" for a while.  If no factor is found, then it chooses
+    %" another y, and waits twice as long as the previous
+    %" time before choosing yet another y.
+    %"
+    %" It can happen that r(i) and r(j) are found such that
+    %" gcd(r(i)-r(j), n) = n.  In that case, the factors of 
+    %" n are being found together, and are hiding each other.
+    %" In that case, we restart with a new random number, and
+    %" a new value of c to try to get the factors to separate.
+    %"
+    %" While we are going, we also run the naive algorithm
+    %" in parallel, to guarantee that a factor will be found,
+    %" even if Pollard's algorithm has trouble.
+    %%------------------------------------------------------
+
+  rhoFactorHelp(?n, ?c, ?f0) =
+    Assume x, y, newx: Integer.
+    If c == 2 then Relet c = 3. %If
+    Let r = integer(random(n)).
+    
+    %%-----------------------------------------
+    %% x is the current value in the sequence
+    %% y is the value that we are remembering, to compare
+    %%   with succeeding values.
+    %% k is the duration during which y will remain active
+    %%   (until another y is chosen)
+    %% i is the number of times this y has been used.
+    %% f is the next factor to try in the interleaved
+    %%   naive algorithm.
+    %%----------------------------------------
+    
+    Loop (?i, ?x, ?y, ?k, ?f) = (1, r, r, 2, f0)
+      exitcase n _mod_ f == 0 => f
+      
+      do Let newx = integer((x*x - c) _mod_ n).
+         Let d = gcd(nabs(y-newx), n).
+
+      exitcase d == n  => rhoFactorHelp(n, c+1, f+2)
+      
+      exitcase d =/= 1 => d
+      
+      loopcase i == k  => continue (i+1, newx, newx, k+k, f+2)
+       
+      loopcase else    => continue (i+1, newx, y, k, f+2)
+    %Loop
+%Define
+
+Let 
+  description
+    %%------------------------------------------------------
+    %" rhoFactor(n) returns a nontrivial factor of n.  It 
+    %" is required that n is composite.
+    %"
+    %" The algorithm is Pollard's Rho algorithm.  Starting at
+    %" a random number r0, we successively compute r1,r2,...
+    %" where r(i+1) = r(i)^2 - c for some c, until two values 
+    %" r(i) and r(j) are found such that 1 < gcd(r(i) - r(j), n) < n.
+    %" Then we have a factor.
+    %%------------------------------------------------------
+    
+  rhoFactor(?n) = rhoFactorHelp(n, 1, afterMaxSmallFactor)
+%Let
+
+============================================================
+%%			factors
+============================================================
+
+Define factors(?n) =
+  Choose first
+    case n < 4 => [n]
+    
+    do Let f = primeOrFactor(n).
+    
+    case f == 1 => [n]
+    
+    case f > 1  => [f & factors(n _div_ f)]
+  
+    else =>
+       Let factor_l  = rhoFactor(n).
+       Let factors_l = factors(factor_l).
+       Value sort (<=) (factors_l ++ factors(n _div_ factor_l)).
+  %Choose
+%Define
+
+%Package
+
+

@@ -1,0 +1,29 @@
+Package mixes
+
+Import "misc/check".
+
+Execute
+  Let x = (1,2).
+
+  Choose first matching x
+    case (?z,1) _orwith_ (2,?z) => Line["Bad"].
+    case (?y,1) _orwith_ (1,?y) => Line["Good y = ", $y].
+    case (?w,1) _orwith_ (?w,2) => Line["Bad", $w].
+    else => Line["Bad"].
+  %Choose
+  Check["Good y = 2"].
+
+  Var{nonshared} wh.
+  Choose all matching x
+    case (?z,1) _orwith_ (2,?z) => Line["Bad"].
+    case (?y,1) _orwith_ (1,?y) => Line["Good y = ", $y]. Assign wh := 1.
+    case (?w,1) _orwith_ (?w,2) => Line["Good w = ", $w]. Assign wh := 2.
+  %Choose
+  Choose
+    case @wh == 1 => Check["Good y = 2"].
+    case @wh == 2 => Check["Good w = 1"].
+    else         => Writeln["BAD"].
+  %Choose
+%Execute
+
+%Package

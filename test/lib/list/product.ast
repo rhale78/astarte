@@ -1,0 +1,94 @@
+Package prod 
+
+%% test products
+
+Import "collect/pair".
+Import "misc/check".
+
+Operator left; right.
+
+Execute
+
+  %% Basics
+
+  Let a = (1,2).
+  Let b = left a.
+  Let c = right a.
+  Line[b $$ 5, c $$ 5].
+  Check["    1    2"].
+
+  Let aa = (1,2,3).
+  Let bb = left aa.
+  Let cc = left right aa.
+  Let dd = right right aa.
+  Line[bb $$ 5, cc $$ 5, dd $$ 5].
+  Check["    1    2    3"].
+  
+  Let d = (1,2,3,4).
+  Let e = left d.
+  Let f = left right d.
+  Let g = d|(right)|(right)|(left).
+  Let h = right right right d.
+  Line[(e) $$ 5, (f $$ 5), (((g)) $$ 5), h $$ 5].
+  Check["    1    2    3    4"].
+
+  Let ee = (1,2,3,4,5).
+  Line[$ee].
+  Check["(1,2,3,4,5)"].
+
+  Let ff = (1,2,3,4,5,6).
+  Line[$ff].
+  Check["(1,2,3,4,5,6)"].
+
+  Let gg = (1,2,3,4,5,6,7).
+  Line[$gg].
+  Check["(1,2,3,4,5,6,7)"].
+
+  %% xpose
+
+  Line[$xpose(2,3)].
+  Check["(3,2)"].
+  
+  %% xposef
+  
+  Line[$(xposef -)(4,2)].
+  Check["-2"].
+
+  %% _tee_
+
+  Let f1 ?x = x + 2.
+  Let f2 ?x = x + 5.
+  Line[$(_tee_ (f1,f2) 5)].
+  Check["(7,10)"].
+
+  %% _pmap_
+
+  Line[$(_pmap_ (f1,f2) (5,6))].
+  Check["(7,11)"].
+
+  %% $
+
+  Line[$(1,2,3,4)].
+  Check["(1,2,3,4)"].
+
+  %% compare, ==
+
+  If (1,2,3) == (1,2,3) else Writeln["bad"]..
+  If (1,2,3) == (1,3,2) then Writeln["bad"]..
+  Line[$compare((1,2,3), (1,2,3))].
+  Check["equal"].
+  Line[$compare((1,2,3), (1,3,2))].
+  Check["less"].
+  Line[$compare((1,2,3), (1,1,5))].
+  Check["greater"].
+  Line[$compare((1,2,3), (0,2,3))].
+  Check["greater"].
+  Line[$compare((1,2,3), (2,2,3))].
+  Check["less"].
+  Line[$compare((1,2,3), (1,2,4))].
+  Check["less"].
+  Line[$compare((1,2,3), (1,2,2))].
+  Check["greater"].
+%Execute
+
+%Package

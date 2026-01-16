@@ -1,0 +1,55 @@
+Package apply
+
+%% Test function application forms
+
+Import "misc/check".
+
+Let Proc(?x). = Line[x]..
+
+Let Proc0. = Line["ok0"]..
+
+Let Proc2 ?x, ?y. = 
+  Line[x, " ", y].
+%Let
+
+Let ff ?x ?y ?z = x + y + z.
+
+Execute
+  %% Procedure: single arg
+  
+  Proc("ok").
+  Check["ok"].
+  
+  Proc("ok") %Proc
+  Check["ok"].
+  
+  %% Procedure: no args.
+  
+  Proc0.
+  Check["ok0"].
+
+  %% Procedure: multiple args.
+  
+  Proc2 "ok", "and also ok".
+  Check["ok and also ok"].
+  
+  %% |, _bar_
+  
+  Let x = (2,3) | +.
+  Let y = (2,3) _bar_ +.
+  Line[$x, " ", $y].
+  Check["5 5"].
+  
+  %% Ask
+  
+  Ask "ok3" => Proc2 "ok4"..
+  Check["ok3 ok4"].
+  
+  Let xx = Ask 3 => ff 4 5..
+  Line[$xx].
+  Check["12"].
+%Execute
+
+%Package
+
+  

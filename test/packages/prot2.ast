@@ -1,0 +1,7 @@
+Package prot2 isKindOf prot1
+
+Import "prot1".
+
+Let x = prot + 1.
+
+%Package

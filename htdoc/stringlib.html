@@ -1,0 +1,78 @@
+<HTML>
+<head>
+<title>Astarte: strings</title>
+</head>
+<body>
+<center>
+<a href="listpattern.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tostring.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC4. Strings and Operations on Strings </font></h1>
+</center>
+
+A string is a list of characters (species [Char]).  The list
+operations can therefore be used on strings.  You can use
+String to abbreviate [Char].
+
+<a name=constant></a>
+<P>You can create a string constant using double quotes.  
+For example, 
+&quot;abc&quot; is another way to write the list ['a', 'b', 'c']
+(but in packed representation).
+To put a double quote inside such a constant, precede it by a backslash.
+
+<P> A normal string constant is not allowed to contain a line break.
+(It can contain the escape sequence \n, but not a true line break.)
+Multiline string constants are written as in the following 
+example.
+All lines following the first %&quot; whose first non-white characters
+are %&quot; are concatenated together, each followed by a newline character.
+<font color=#D00090>
+<b><pre>
+    %&quot; This is a long sting constant.
+    %&quot; It can go on for several
+    %&quot; lines, and forms a single string.
+</pre></b>
+</font>
+If the last character of a line is a backslash, the newline at the
+end of that line is suppressed.  For example, 
+here is a single line 
+string constant, with only a newline character at the end.
+<font color=#D00090>
+<b><pre>
+    %&quot; This is a long sting constant.\
+    %&quot; It can go on for several\
+    %&quot; lines, and forms a single string.
+</pre></b>
+</font>
+
+<p>See the following pages for more operations on strings.
+<menu>
+<li>L3. <a href="char.html">Characters (back)</a>
+<li>LC1. <a href="listlib.html">Lists.  (back)</a>
+<li>L9. <a href="iolib.html">Input and Output (jumps forward)</a>
+<li>LC4. <a href="tostring.html">Conversion to and from strings (next)</a>
+<li>LC5. <a href="read.html">Operations on strings, reading from strings and 
+pattern matching in strings</a>
+</menu>
+
+<hr>
+<center>
+<a href="listpattern.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tostring.html">Next</a>
+</center>
+</body>
+</HTML>

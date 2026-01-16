@@ -1,0 +1,15 @@
+Package letdo
+
+Define f by one
+  do   f ?y => Writeln[$y].
+  case f [] = 0
+  case f(?::?t) = 1 + f(t)
+%Define
+
+Execute
+  Writeln["Should print the suffixes of [1,2,3,5], followed by 4."].
+  Writeln[$f[1,2,3,4]].
+%Execute
+
+
+%Package

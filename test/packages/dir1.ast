@@ -1,0 +1,14 @@
+Package dir1
+
+%% Test directory dcls.
+
+Directory "$/collect".
+Import "search".
+
+Import "$/collect/boxes".
+
+Directory "$/collect:$/number".
+
+Import "number".
+
+%Package

@@ -1,0 +1,20 @@
+Package openscope 
+
+%% Test scoping of Choose and Loop expressions
+
+%% Should complain that a is undefined
+
+Execute
+  open Choose perhaps
+    case false    => Let a = 1.
+    case true => 
+      Subcases
+        case true => Let a = 2.
+	else      => Let a = 5.
+      %Subcases
+%%    else => Let a = 4.
+  %Choose
+  If a =/= 2 then Writeln["bad"]. %if
+%Execute
+
+%Package

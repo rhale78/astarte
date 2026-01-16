@@ -1,0 +1,166 @@
+Package sys2
+
+%% Test functions in package system.ast
+
+Import "system/system".
+
+==============================================================
+%% ChangeDirectory, getCwd.
+
+Execute
+  Writeln["ChangeDirectory, getCwd()"].
+  Let init_dir_l:String = getCwd().
+  Writeln[getCwd()].
+  ChangeDirectory "/usr/local".
+  Writeln[getCwd()].
+  ChangeDirectory init_dir_l.
+  Writeln[].
+%Execute
+  
+==============================================================
+%% getEnv, sysEnvironF
+
+Execute
+  Writeln["\ngetEnv"].
+  Writeln[getEnv("PATH")].
+  Writeln[].
+  Writeln[$sysEnvironF()].
+%Execute
+
+==============================================================
+%% file, direct, filename, basename, ext
+
+Execute
+  Writeln["\ndirect, etc., file sys2.ast"].
+  Let f = file("sys2.ast").
+  Writeln["f:     ", $f].
+  Writeln["path:  ", $pathname(f)].
+  Writeln["dir:   ", $direct(f)].
+  Writeln["file:  ", $filename(f)].
+  Writeln["base:  ", $basename(f)].
+  Writeln["ext:  ", $ext(f)].
+%Execute
+  
+Execute
+  Writeln["\ndirect, etc., file test"].
+  Let f = file("test").
+  Writeln["f:     ", $f].
+  Writeln["path:  ", $pathname(f)].
+  Writeln["dir:   ", $direct(f)].
+  Writeln["file:  ", $filename(f)].
+  Writeln["base:  ", $basename(f)].
+  Writeln["ext:  ", $ext(f)].
+%Execute
+
+Execute
+  Writeln["\ndirect, etc., file /usr/include/stdio.h"].
+  Let f = file("/usr/include/stdio.h").
+  Writeln["f:     ", $f].
+  Writeln["path:  ", $pathname(f)].
+  Writeln["dir:   ", $direct(f)].
+  Writeln["file:  ", $filename(f)].
+  Writeln["base:  ", $basename(f)].
+  Writeln["ext:  ", $ext(f)].
+%Execute
+
+Execute
+  Writeln["\ndirect, etc., file \\usr\\include\\stdio.h"].
+  Let f = file("\\usr\\include\\stdio.h").
+  Writeln["f:     ", $f].
+  Writeln["path:  ", $pathname(f)].
+  Writeln["dir:   ", $direct(f)].
+  Writeln["file:  ", $filename(f)].
+  Writeln["base:  ", $basename(f)].
+  Writeln["ext:  ", $ext(f)].
+%Execute
+
+Execute
+  Writeln["\ndirect, etc., file .."].
+  Let f = file("..").
+  Writeln["f:     ", $f].
+  Writeln["path:  ", $pathname(f)].
+  Writeln["dir:   ", $direct(f)].
+  Writeln["file:  ", $filename(f)].
+  Writeln["base:  ", $basename(f)].
+  Writeln["ext:  ", $ext(f)].
+%Execute
+  
+==============================================================
+%% /
+
+Execute
+  Writeln["\n/ (current directory)"].
+  Let f = getCwd() / "../../expr/appl".
+  Writeln[$f].
+%Execute
+
+==============================================================
+%% directory?, writable?, readable?, executable?
+
+Execute
+  Writeln["\n directory?, etc. (current dir)"].
+  Let d = getCwd().
+  Writeln["File: ", $d].
+  Writeln["d: ", $directory?(d)].
+  Writeln["w: ", $writable?(d)].
+  Writeln["r: ", $readable?(d)].
+  Writeln["x: ", $executable?(d)].
+  
+  Writeln["\n directory?, etc. (file sys2.ast)"].
+  Let f = file "sys2.ast".
+  Writeln["File: ", $f].
+  Writeln["d: ", $directory?(f)].
+  Writeln["w: ", $writable?(f)].
+  Writeln["r: ", $readable?(f)].
+  Writeln["x: ", $executable?(f)].
+%Execute
+
+==============================================================
+%% dirList
+
+Execute
+  Writeln["\ndirList"].
+  Writeln[$dirList(getCwd())].
+%Execute
+
+==============================================================
+%% modTime, size
+
+Execute
+  Writeln["\nmodTime, size"].
+  Writeln["file: sys2.ast"].
+  Writeln["modtime: ", $modTime(file "sys2.ast")].
+  Writeln["size:    ", $size(file "sys2.ast")].
+%Execute
+
+==============================================================
+%% MakeDirectory, RemoveDirectory
+
+%%Execute
+%%  MakeDirectory("imadethisdir").
+%%  MakeDirectory("anotherdir").
+%%  RemoveDirectory("anotherdir").
+%%%Execute
+
+==============================================================
+%% RenameFile
+
+%%Execute
+%%  Let outf_l = outfile("myoutfile").
+%%  FWriteln outf_l, ["Test line"].
+%%  CloseFile outf_l.
+%%  RenameFile ("myoutfile", "mynewoutfile").
+%%%Execute
+  
+==============================================================
+%% RemoveFile
+
+%%Execute
+%%  Let outf_l = outfile("myoutfile").
+%%  FWriteln outf_l, ["Test line"].
+%%  CloseFile outf_l.
+%%  RemoveFile "myoutfile".
+%%%Execute
+
+
+%Package

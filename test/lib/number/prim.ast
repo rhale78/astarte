@@ -1,0 +1,51 @@
+Package prim
+
+%% Test prime.ast package
+
+Import "math/prime".
+
+Let reallyPrime?(?n) =
+  Loop ?i = 2 first
+    exitcase i*i > n        => true
+    exitcase n _mod_ i == 0 => false
+    loopcase else           => continue i+1
+  %Loop
+%Let
+
+Execute
+
+  Let s = 10000000000000000000.
+  
+%%  Writeln["Checking primes from ", $s, " to ", $(s+10000), "."].
+%%  Writeln["Every 100 numbers, we echo the current number to show progress."].
+%%  For ?n from s _upto_ s + 10000 do
+%%    If n _mod_ 100 == 0 then Writeln[$n]. %If
+%%    If reallyPrime?(n) =/= prime?(n) then
+%%      Writeln["Bad prime: ", $n].
+%%    %If
+%%  %For
+  
+  Writeln["Here are factorizations from ", $s, " to ", $(s+100), "."].
+  For ?n from s _upto_ s + 100 do
+    Let factors_l = factors(n).
+    Write[n $$ 4, "  ", ($factors_l) $$ 40].
+    If length(factors_l) > 1
+      then Writeln[factors_l#_(length(factors_l) -- 2) $$ 12].
+      else Writeln[].
+    %If
+    If (fold(1,*) factors_l) =/= n then
+      Writeln[n $$ 10, "  ", $factors_l, "  ", $(fold(1,*) factors_l)].
+    %If
+  %For
+  
+%%  Writeln["Checking factorizations from ", $s, " to ", $(s+100), "."].
+%%  For ?n from s _upto_ s + 100 do
+%%    If n _mod_ 100 == 0 then Writeln[$n]. %If
+%%    Let factors_l = factors(n).
+%%    If (fold(1,*) factors_l) =/= n then
+%%      Writeln[n $$ 10, "  ", $factors_l, "  ", $(fold(1,*) factors_l)].
+%%    %If
+%%  %For
+%Execute
+
+%Package

@@ -1,0 +1,36 @@
+Package cut2
+
+%% Test a cut that is caught by using catchingTermination
+
+Execute
+  Writeln
+    [%"Thread B should report that a = 100.
+     %"Thread A should report that is has caught termination.
+    ]
+  %Writeln
+  
+  Try
+    CutHere
+      Mix
+        Try catchingTermination
+          Let a = 0.
+	  For ? from 1 _upto_ 100 do Relet a = a + 1..
+          Writeln["Should not get here"].
+	else
+	  Writeln["Thread A: Have caught termination."].
+	%Try
+	  
+      with
+        Let a = 0.
+	For ? from 1 _upto_ 100 do Relet a = a + 1..
+        Cut.
+        Writeln["Thread B, a = ", $a].
+      %Mix
+    %CutHere
+    {false}
+  %Try
+%Execute
+
+%Package
+
+

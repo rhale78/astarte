@@ -1,0 +1,12 @@
+Package name1
+
+%% Test that using the same name for two different kinds
+%% of type yields an error.
+
+Expect fun1: `a -> {`a}.
+
+Expect fun2: EQ`b -> {|EQ`b|}.
+
+Expect fun3: {ORDER`aa} -> {|ORDER`aa|}.
+
+%Package

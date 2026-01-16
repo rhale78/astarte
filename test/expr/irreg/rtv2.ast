@@ -1,0 +1,64 @@
+## Currently not used.  Not correct.
+Package testrtv2 
+
+%% Test run-time bound vars
+
+Import "misc/check".
+
+
+Define f(?<<?x>>?) = x.
+
+Define{irregular} s(?<<?x>>?) = x.
+
+
+%% Test irregular function with non-tagged type.  Note that $ is fetched
+%% as primitive, because have primitive for REAL.
+
+Extension
+  Abstraction TEST.
+  Relate Natural | Rational isKindOf TEST.
+  Species{noEqual} Test = TEST.
+  Relate TEST isKindOf ORDER.
+  Default TEST => Natural.
+  Relate TEST & RANKED = Natural.
+%Extension
+
+Let{irregular} t(test <<?x>>) = x.
+
+
+%% Test standard mode of doing unwrap.
+
+Let{default} double(?x) = <<x+x>>.
+
+Let{override} double(<<?x>>) = double(x).
+
+Advise show one.
+Execute
+  Let a = <<5:Natural>>.
+
+  Let fa:Natural = f(a).
+  Line[$a, "  ", $(fa)].
+  Check["5  5"].
+
+  Let sa = s(a).
+  Line[$a, "  ", $(sa)].
+  Check["5  5"].
+
+  Let b = test(<<2>>).
+  Let tb = t(b).
+  Line[$tb].
+  Check["2"].
+
+  Let c = test(<<3.0>>).
+  Let tc = t(c).
+  Line[$tc].
+  Check["3"].
+
+  Line[$double(<<6.0>>)].
+  Check["<<12:Rational>>"].
+
+  Line[$a, "  ", $double(a)].
+  Check["5  <<10:Natural>>"].
+%Execute
+
+%Package

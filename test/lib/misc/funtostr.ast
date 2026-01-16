@@ -1,0 +1,9 @@
+Package funtostr
+
+%% Test converting a function to a string.
+
+Execute
+  Writeln[$(+:(Integer,Integer) -> Integer)].
+%Execute
+
+%Package

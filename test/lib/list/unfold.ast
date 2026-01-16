@@ -1,0 +1,20 @@
+Package unfold
+
+%% Test lunfold, runfold.
+
+Import "collect/listfun".
+Import "misc/check".
+
+Execute
+  Let p(?x) = x < 6.
+  Let fl(?x) = (x, x+1).
+  Let fr(?x) = (x+1, x).
+  Let l = lunfold(p,fl) 2.
+  Let r = runfold(p,fr) 2.
+  Line["l = ", $l].
+  Check["l = [2,3,4,5]"].
+  Line["r = ", $r].
+  Check["r = [5,4,3,2]"].
+%Execute
+
+%Package

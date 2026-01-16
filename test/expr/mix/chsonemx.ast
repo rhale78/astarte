@@ -1,0 +1,40 @@
+Package Testchoose
+
+%% Test Choose-one-mixed expressions 
+
+Execute
+  Writeln["\nShould print\n    5 or 7\n    2\n"].
+%Execute
+
+Execute
+  Try
+    Let x = 
+      Choose one mixed
+        case 1 == 1 => 5
+        case 1 == 2 => 6
+        case 2 == 2 => 7
+      %Choose
+    %Let
+    Writeln[x $$ 5].
+    (fail testX)
+  %Try
+%Execute
+
+Define runlong() = For ? from 0 _upto_ 10000 do ()..
+Define runshort() = For ? from 0 _upto_ 200  do ()..
+
+Execute
+  Try
+    Let x =
+      Choose one mixed
+         case (runlong()) true  => 1
+         case (runshort()) true => 2
+      %Choose
+    %Let
+    Writeln[x $$ 5].
+    {false}
+  %Try
+%Execute
+
+%Package
+

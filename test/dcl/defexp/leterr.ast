@@ -1,0 +1,12 @@
+Package leterr 
+
+%% Test recursive Let -- erroneous.
+
+Let factorial ?n =
+  Choose first
+    case n == 0 => 1
+    case n > 0  => n * factorial(n--1)
+  %Choose
+%Let
+
+%Package

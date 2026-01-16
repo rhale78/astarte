@@ -1,0 +1,254 @@
+Package grammar
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+This package implements the following grammar as a
+logic grammar.
+
+     <Expression> ::= <Term>
+                  |   <Term> + <Expression>
+                  |   <Term> - <Expression>
+                  
+     <Term>       ::= <Factor>
+                  |   <Factor> * Term
+     
+     <Factor>     ::= <atom>
+                  |   ( <Expression> )
+
+For this grammar, the input is a sequence of tokens.  That
+is, it is a list of strings.  An atom is a string of letters
+and digits.  For example, ["(", "two", "+", "4", ")"] is something
+that would be accepted as an expression.
+
+Each nonterminal has a predicate associated with it.  Each such
+predicate has three parameters.  Expression(L,E,R) is true if
+L = E ++ R and E is an expression.
+
+There are many ways to present this program.  We choose
+a way that is very close to what would be used in Prolog, except
+in a few places where we revert to a functional style for 
+ease.
+
+Note: Where in Prolog you would use symbols, such as abc, here 
+we use strings, such as "abc".
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Import 
+  "logic/unify";
+  "collect/string";
+  "collect/denseset"
+%Import
+
+Let letters = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ").
+Let digits  = set("0123456789").
+Let lettersAndDigits = letters \/ digits.  %% The union.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Append, Append3
+%%
+%%  Append(x,y,z) means z = x ++ y.
+%%
+%%  Append3(x,y,z,w) means z = x + y + z + w.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Define Append by all
+  case Append([],     ?x, ?x).     <- ()
+  case Append(?h::?t, ?x, ?h::?y). <- Append(t,x,y).
+%Define
+
+Let Append3(?a,?b,?c,?d). =
+  Var{logic} z.
+  Append(a,b,z).
+  Append(z,c,d).
+%Let
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Here is the grammar.  The expectations will allow
+%% us to do mutual recursion, and will also force
+%% assumptions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Expect 
+  Expression : ([String], [String], [String]) -> ()
+
+             %" Expression(l,e,r). is true if e is an <Expression>
+	     %" and l = e ++ r.  It is intended to be used
+	     %" with l an input, and e and r as outputs.
+             %"
+             %" Example: 
+	     %"
+	     %"   Expression(["two", "+", "four", "*", "eight"], 
+             %"              ["two", "+", "four"],
+             %"              ["*", "eight"])
+             %"
+             %" is true.
+	     ;
+
+  Term	     :([String], [String], [String]) -> ()
+
+             %" Term(l,t,r). is true if t is a <Term>
+	     %" and l = t ++ r.  It is intended to be used
+	     %" with l an input, and e and r as outputs.
+	     ;
+
+  Factor     : ([String], [String], [String]) -> ()
+
+             %" Factor(l,f,r). is true if f is a <Factor>
+	     %" and l = f ++ r.  It is intended to be used
+	     %" with l an input, and e and r as outputs.
+	     ;
+
+  Get        : ([String], String, [String]) -> ()
+
+	     %" Get(l,s,r) is true if l is the list s :: r.
+	     %"
+	     %" Example:
+             %"
+             %"   Get(["+", "four", "*"], 
+	     %"       "+", 
+	     %"       ["four", "*"]) 
+	     %"
+	     %" is true.
+	     ;
+
+  GetOne     : ([String], [String], String, [String]) -> ()
+
+             %" GetOne(l,possibilities,s,r) is true if l is s :: r,
+             %" and s is a member of list possibilities.
+	     %"
+	     %" Example:
+	     %"
+	     %"   GetOne(["+", "four", "*"], 
+	     %"          ["+","*"], 
+	     %"          "+", 
+	     %"          ["four", "*"])
+	     %"
+	     %" is true.
+	     ;
+
+  Atom	     : ([String], [String], [String]) -> ()
+  
+    	     %" Atom(l,s,r) is true if l = s ++ r and s is
+             %" a singleton list containing an atom.
+	     %"
+	     %" Example:
+	     %"
+	     %"   Atom(["two", "+", "three"], 
+	     %"        ["two"], 
+	     %"        ["+", "three"])
+	     %"
+	     %" is true.
+%Expect
+
+=================================================
+%% Expression
+
+Define Expression by all
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% <Expression> ::= <Term>
+
+  case Expression(?l,?e,?r). <- Term(l,e,r).
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% <Expression> ::= <Term> + <Expression>
+  %% <Expression> ::= <Term> - <Expression>
+
+  case Expression(?l,?e,?r). <-
+    Var{logic} a, b, op, e1, t.
+
+    Term(l, t, a).		      %% Get term t, leaving a.
+    GetOne(a, ["+", "-"], op, b).     %% Get an addop, leaving b.
+    Expression(b, e1, r).             %% Get expression e1, leaving r.
+    Append3(t, [op], e1, e).
+
+%Define
+
+=================================================
+%% Term
+
+Define Term by all
+
+  %%%%%%%%%%%%%%%%%%%%%%%
+  %% <Term> ::= <Factor>
+
+  case Term(?triple). <- Factor(triple).
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% <Term> ::= <Factor> * <Term>
+
+  case Term(?l,?t,?r). <-
+    Var{logic} a, b, op, f, t1.
+
+    Factor(l, f, a).
+    GetOne(a, ["*"], op, b).
+    Term(b, t1, r).
+    Append3(f, [op], t1, t).
+
+%Define
+
+=================================================
+%% Factor
+
+Define Factor by all
+    
+  %%%%%%%%%%%%%%%%%%%%%%%
+  %% <Factor> ::= <atom>
+
+  case Factor(?triple). <- Atom(triple).
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% <Factor> ::= ( <Expression> )
+
+  case Factor(?l,?f,?r). <-
+    Var{logic} a, b, e.
+
+    Get(l, "(", a).
+    Expression(a, e, b).
+    Get(b, ")", r).
+    Append3(["("], e, [")"], f).
+
+%Define
+
+============================================
+%% Get
+
+Define Get by all
+  case Get([?s & ?r], ?s, ?r). <- ()
+%Define
+
+===========================================
+%% GetOne
+
+Define GetOne by all
+  case GetOne([?s & ?r], ?possibilities, ?s, ?r). <- 
+     {s _in_ possibilities}
+%Define
+
+==========================================
+%% Atom
+
+Let Atom by all
+  case Atom([?s & ?r], [?s], ?r). <- 
+    {allSatisfy (__ _in_ lettersAndDigits) s}
+%Let
+
+=============================================================
+=============================================================
+
+Execute
+  Var{logic} x.
+  Let expr = wsExplode("4 + ( two * three )").
+
+  Try
+    Expression(expr, x, []).
+  then
+    Writeln["Success: ", $x].
+  else
+    Writeln["Failure"].
+  %Try
+%Execute
+
+%Package
+
+

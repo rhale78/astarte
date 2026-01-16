@@ -1,0 +1,102 @@
+Package conv
+
+%% Test conversions among numbers
+
+Import "misc/check".
+
+%% //
+
+Execute
+  Let r = 3 // 2.
+  Line[$r].
+  Check["3/2"].
+%Execute
+
+%% _as_ (lossless)
+
+Execute
+  Let r = 3//4.
+  Let s = 6:Natural _as_ r.
+  Line[$s].
+  Check["6"].
+%Execute
+
+%% + (lossless)
+
+Execute
+  Let s = +(6:Natural):Rational.
+  Line[$s].
+  Check["6"].
+%Execute
+
+%% _as_ (real -> rational)
+
+Execute
+  Let r = 3//4.
+  Let s = 6.62 _as_ r.
+  Line[$s].
+  Check["331/50"].
+%Execute
+
+%% _as_ (lossy)
+
+Execute
+  Let r = 1: Natural.
+  Let s = 3.0 _as_ r.
+  Line[$s].
+  Check["3"].
+%Execute
+
+%% + (lossy - should get a warning)
+
+Execute
+  Untrap noDefX("") =>
+    Try
+      Let s = +3.0:Natural.
+      Line[$s].
+      Check["Should not get here"].
+    %Try
+  %Untrap
+%Execute
+  
+%% numerator, denominator
+
+Execute
+  Let r = 3//4.
+  Let n = numerator r.
+  Let d = denominator r.
+  Line[$n, " ", $d].
+  Check["3 4"].
+%Execute
+
+%% integer, natural, nabs
+
+Execute
+  Let n = 3: Natural.
+  Let i = integer n.
+  Let m = natural i.
+  Let j = -4: Integer.
+  Let k = nabs j.
+  Line[$n, " ", $i, " ", $m, " ", $j, " ", $k].
+  Check["3 3 3 -4 4"].
+%Execute
+
+%% rational
+
+Execute
+  Let n = 3: Natural.
+  Let r = rational n.
+  Line[$r].
+  Check["3"].
+%Execute
+
+%% natconst, ratconst
+
+Execute
+  Let r = natconst 3: Real.
+  Let s = ratconst 3: Real.
+  Line[$r, " ", $s].
+  Check["3 3"].
+%Execute
+
+%Package

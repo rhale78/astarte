@@ -1,0 +1,803 @@
+%% File: boxes.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%============================================================
+Package 		Astarte_Boxes
+
+			Interface
+==============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+==============================================================
+This package describes var declarations and expressions for
+creating arrays, and provides operations for lists and products
+of boxes.  Certain forms of var-expression or var-declaration
+use the functions provided here, so you will need to
+import this package to use them.
+
+The following hierarchy is created.
+
+                  BOXES
+                 /    \
+             ARRAY     NEW
+            /     \   /   \
+         List      Box     Pair (ordered pairs)
+
+ARRAY contains boxes, lists of boxes, lists of lists 
+      of boxes, etc.  Examples of species that belong
+      to ARRAY are
+        [<:Natural:>]
+        [[<:Natural:>]]
+        [[[<:Natural:>]]]
+
+NEW   contains boxes and products whose members are 
+      boxes or other products of boxes, etc.  Examples
+      of species that belong to NEW are
+        (<:Natural:>, <:Boolean:>)
+        (<:Natural:>, <:Boolean:>, <:Real:>)
+        ((<:[Natural]:>, <:Integer:>), (<:Real:>, <:[[Boolean]]:>))
+
+BOXES is a mixture of ARRAY and NEW containing lists 
+      and products, mixed in arbitrary ways.  All species
+      that are in ARRAY or NEW are also in BOXES.  Further
+      examples of species in BOXES are
+        ([<:Natural:>], <:Boolean:>)
+        [(<:Natural:>, <:Boolean:>)]
+
+See the descriptions below for operations.
+
+Note that some of the operations, those whose
+names end on !!, use secondary species.  They can lead to
+programs that pass type checking at compile time but fail 
+type checking at run-time.
+==============================================================
+
+==============================================================
+                   Var Expressions and Declarations
+==============================================================
+
+File lang/box.ast describes basic var expressions and declarations.
+Here, additional features are described.
+
+===============================================================
+Var x(n) holding T %Var	
+			Binds x to a list of n new, empty shared boxes.
+
+			Phrase holding T is optional.  Either a holding
+			phrase or a tag must be used if the species
+			of the boxes cannot be determined by other methods.
+			
+			The holding phrase can be used in all
+			Var expressions and declarations, but is not
+			shown in all cases below.
+
+===============================================================
+Var{nonshared} x(n) holding T %Var	
+			Binds x to a list of n new, empty nonshared boxes.
+			Otherwise it is the same as the preceding case.
+
+===============================================================
+Var x(*) %Var		Binds x to an infinite array of empty
+			boxes.
+			
+===============================================================
+Var x(n,m) %Var		Binds x to a two dimensional array
+			of n rows, each row having m columns.
+			Each member of the two dimensional
+			array is a new, empty box of type
+			<:T:>.
+			
+			You can have any number of
+			dimensions.
+			
+			Any of the components can be *, 
+			indicating that the array is
+			infinitely long in that dimension.
+
+===============================================================
+Var x(n) holding T all := a %Var
+			Similar to Var x(n) holding T %Var, but
+			intializes all of the boxes to hold
+			the value of expression a.
+			
+			This form can also be used for
+			multi-dimensional arrays.
+			
+			This can be used for infinite
+			arrays.
+			
+===============================================================
+Var x(n) := l %Var      Similar to Var x(n) %Var, but
+			initializes the array to hold the
+			contents of list l.  So the first
+			member of x holds the first member of
+			l, the second member of x holds the
+			second member of l, etc.  If l is
+			shorter than x, then remaining
+			boxes are left uninitialized.  If l
+			is longer than x, then only a prefix
+			of l is used.
+			
+			This can be used for infinite arrays.
+
+===============================================================
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=========================================
+Abbrev
+  {noExport}:
+
+  A		= `a;
+  B		= `b;
+  BxA		= <:A:>;
+  ArrayA	= [BxA];
+  
+  {}:
+  
+  Array(A) 	= ArrayA;
+
+%Abbrev
+===========================================
+Extension
+  Abstraction
+    ARRAY	%" ARRAY holds lists of boxes, lists of lists of boxes,
+    		%" etc., up to an arbitrarily high dimension.
+		;
+		
+    NEW		%" NEW holds pairs of boxes, pairs of pairs of boxes,
+    		%" etc., in any structure.
+		;
+		
+    BOXES	%" BOXES holds lists and pairs of boxes, nested
+    		%" in arbitrary ways.
+		;
+  %Abstraction
+  
+  Relate
+    <:`?:> | [ARRAY`?]      isKindOf ARRAY;
+    <:`?:> | (NEW`?, NEW`?) isKindOf NEW;
+    ARRAY  | NEW            isKindOf BOXES;
+  
+    ARRAY & NEW 	      = <:ANY:>;
+    ARRAY & TRANSPARENT       = [ARRAY];
+    ARRAY & TRANSPARENT_EQ    = [ARRAY];
+    ARRAY & TRANSPARENT_ORDER = [ARRAY];
+    ARRAY & OPAQUE            = <:ANY:>;
+    
+    NEW & OPAQUE              = <:ANY:>;
+
+    BOXES & TRANSPARENT       = [BOXES];
+    BOXES & TRANSPARENT_EQ    = [BOXES];
+    BOXES & TRANSPARENT_ORDER = [BOXES];
+    BOXES & OPAQUE            = <:ANY:>;
+
+    {ahead}:
+
+    COLLECTION & ARRAY	      = [ARRAY];
+    COLLECTION & BOXES	      = [BOXES];
+  %Relate
+
+%Extension
+
+=============================================================
+%% The following are primitive operations, or are provided by
+%% standard.ast.
+=============================================================
+
+Description
+  sharedArray	: Natural -> ArrayA
+
+		%" sharedArray(n) is an array of n empty shared boxes.  
+		%" This array is packed, so that subscripting into it
+		%" is fairly efficient.
+		;
+
+  nonsharedArray: Natural -> ArrayA
+
+		%" nonsharedArray(n) is an array of n empty nonshared 
+		%" boxes.  This array is packed, so that subscripting 
+		%" into it is fairly efficient.
+		;
+
+  array		: BoxFlavor -> Natural -> ArrayA
+  
+  		%" array flav n returns a list of n new empty
+		%" boxes.  The boxes are shared if flav = shared,
+		%" and nonshared if flav = nonshared.
+		;
+		
+  infiniteArray : BoxFlavor -> ArrayA
+
+		%" infiniteArray(flav) produces an infinite list of
+		%" new empty boxes.  The boxes are shared if
+		%" flav = shared, and nonshared if flav = nonshared.
+		%"
+		%" Subscripting into this array is fairly efficient 
+		%" -- the cost is logarithmic in the index.
+		;
+		
+  infiniteSharedArray: () -> ArrayA
+  
+  		%" infiniteSharedArray() is the same as
+		%" infiniteArray shared.
+		;
+		
+  infiniteNonsharedArray: () -> ArrayA
+  
+  		%" infiniteNonsharedArray() is the same as
+		%" infiniteArray nonshared.
+		;
+		
+  copy          : CopyFlavor -> `a -> `a
+
+		%" (copy flav x) is a copy of x, made from new boxes.
+		%" The flavor (shared, nonshared) of the new boxes
+		%" is determined by parameter flav.
+		%"
+		%"   flav	result
+		%"   ----	------
+		%"   shared	the new boxes are shared boxes
+		%"   nonshared  the new boxes are nonshared boxes
+		%"   same	the new boxes are of the same kind
+		%"              as the box that they are copies of
+		%"
+		%" For example, if a is created by
+		%"
+		%"   Var a(3) := [1,2,3].
+		%"
+		%" then (copy same a) is a new array of three boxes,
+		%" containing the values 1, 2, and 3.
+		;
+		
+  copy		: `a -> `a
+  
+  		%" copy(x) is the same as (copy same)(x).
+		;
+
+%Description
+============================================
+Anticipate
+  contents!!    : {BOXES`?} -> ANY
+
+		%" contents!!(x) is obtained by replacing each box
+		%" in (possibly multi-dimensional) array or structure
+		%" x by its content.  For example, if array aa 
+		%" is created by
+		%" 
+		%"   Var aa(3) := [1,2,3].
+		%"
+		%" then contents!!(aa) is the list [1,2,3].  (Note that
+		%" contents!!(aa) is not the same as aa, since aa is 
+		%" a list of boxes, not a list of numbers.)
+		%"
+		%" contents!! is eager, getting all of the box contents
+		%" right away.  It should only be used on finitely
+		%" long arrays.
+		;
+
+  Copy         	: pot__sideEffect ~>
+		  (destination  ~> {BOXES`a}, source  ~> {BOXES`a}) -> ()
+
+		%" Copy x := y %Copy copies y to x.  For example,
+		%" if a and b are defined by
+		%"
+		%"   Var a(3) := [1,2,3].
+		%"   Var b(4).
+		%"
+		%" then 
+		%"
+		%"   Copy b := a.
+		%"
+		%" sets b#1 := 1, b#2 := 2 and b#3 := 3.  The copy
+		%" only goes out to the smaller of the two array sizes.
+		%" You can copy any kind of structure into another of
+		%" the same type.
+		;
+
+  Move		: pot__sideEffect ~>
+		  (destination  ~> {BOXES`a}, source  ~> {BOXES`a}) -> ()
+
+		%" Move x := y. is the same as Copy x := y,
+		%" but it presumes that the boxes in lists/structures
+		%" x and y are disjoint.  That is, none of the boxes
+		%" in y also occur in x, and vice versa.
+		%"
+		%" If x and y are not disjoint, then the behavior
+		%" of Move x := y. is undefined.
+		;
+  
+  Fill!!        : pot__sideEffect ~>
+		  (destination  ~> {ARRAY`?}, source  ~> `?) -> ()
+
+		%" Fill!! a := x %Fill!! puts x in each member of
+		%" (possibly multi-dimensional) array a.  For example,
+		%"
+		%"   Fill!! a := 0.
+		%"
+		%" puts 0 in every box in array a.
+		%"
+		%" Fill! a := x. should only be used when array
+		%" a is finitely long.
+		%"
+		%" Fill!! is unsafe: the type checker cannot check its
+		%" uses.  It is recommended that safe version
+		%" Fill be used.  If an appropriate type is not
+		%" defined, then define one.
+		;
+
+  FillInit!!    : pot__sideEffect  ~>
+		  (destination  ~> {ARRAY`?}, source  ~> `?) -> ()
+
+		%" Same as Fill!!, but does an initial asignment.
+		%" This function is used by var expressions to
+		%" initialize an array.  It is normally not
+		%" used directly.
+		;
+
+  new  		: BoxFlavor -> {NEW`?}
+
+		%" new(flav) is a product of empty boxes.  
+		%" The form of the product is determined by the type 
+		%" of new, and the flavor (shared, nonshared) of 
+		%" the boxes is determined by parameter flav.
+		%"
+		%" For example, if new has species 
+		%" BoxFlavor -> (<:Natural:>, <:Boolean:>)
+		%" then expression (new shared) produces
+		%" a pair (a,b) where a is an empty shared box of type
+		%" <:Natural:> and b is an empty shared box of 
+		%" type <:Boolean:>.
+		%"
+		%" new can also build a single box.  For example,
+		%" (new nonshared): <:Natural:> produces a new
+		%" empty nonshared box of type <:Natural:>.
+		;
+		
+  optContents!! : {BOXES`?} -> ANY
+
+		%" optContents!!(x) is obtained by replacing each box
+		%" b in (possibly multi-dimensional) array x by
+		%"
+		%"   noValue   if b is empty
+		%"   value(v)  if b contains v
+		%"
+		%" For example, if array aa is created by
+		%" 
+		%"   Var aa(4) := [1,2,3].
+		%"
+		%" then optContents!!(aa) is the list 
+		%" [value(1),value(2),value(3),noValue].  
+		%"
+		%" optContents!! is eager, getting all of the box
+		%" contents right away.  It should only be used on 
+		%" finitely long arrays.
+		;
+
+  OptPut!!      : %%pot__sideEffect ~>
+		  (destination  ~> {BOXES`?},  source  ~> `?) -> ()
+
+		%" OptPut!! x := l %OptPut!! assigns boxes in possibly
+		%" multi-dimensional array or structure x according to
+		%" list (or list of lists, etc.) l.  The members of
+		%" l are of type Optional(...), with noValue indicating
+		%" that the box should be empty, and value(v) 
+		%" indicating that the content should be b.
+		%" For example, if aa is a linear array, then
+		%"
+		%"   OptPut!! aa := [value(1),noValue,value(3)].
+		%"
+		%" sets a#1 := 1, a#2 := empty and a#3 := 3.  If array a
+		%" has more members, those members will not be affected.
+		%" If the list is too long for the array, only a prefix
+		%" will be used.
+		%"
+		%" OptPut!! a := l. should only be used when either a or l
+		%" is finitely long.
+		%"
+		%" OptPut!! is unsafe: the type checker cannot check
+		%" its uses.  If you want to use it, you should
+		%" probably define safe versions of it, by giving
+		%" specific types.
+		;
+
+  Put!!         : %%pot__sideEffect ~>
+		  (destination  ~> {BOXES`?},  source  ~> `?) -> ()
+
+		%" Put!! a := l %Put!! assigns boxes in possibly
+		%" multi-dimensional array or structure a according to
+		%" list (or list of lists, etc.) l.  For example,
+		%" if a is a linear array, then
+		%"
+		%"   Put!! a := [1,2,3].
+		%"
+		%" sets a#1 := 1, a#2 := 2 and a#3 := 3.  If array a
+		%" has more members, those members will not be affected.
+		%" If the list is too long for the array, only a prefix
+		%" will be used.
+		%"
+		%" Put!! a := l. should only be used when either a or l
+		%" is finitely long.
+		%"
+		%" Put!! is unsafe: the type checker cannot check
+		%" its uses.  Consider using safe version Put.  If
+		%" no appropriate version of Put is defined, then
+		%" define one.
+		;
+
+  PutInit!!     : pot__sideEffect ~>
+		  (destination  ~> {BOXES`?},  source  ~> `?) -> ()
+
+		%" Same as Put!!, but does an initial assignment.
+		%" This function is used by var expressions to\
+		%" initialize arrays.
+		;
+
+%Anticipate
+============================================
+Operator @#(#); @#_(#).
+============================================
+Expect
+  @#_		: ([BxA], Natural) -> A
+
+		%" a @#_ i = @(a #_ i).
+		;
+
+  @#		: ([BxA], Natural) -> A
+
+		%" a @# i = @(a # i).
+		;
+
+  {override} $  : ArrayA -> String
+  
+  		%" #{array}
+		%"
+		%" If boxes.ast is imported, then $ for arrays
+		%" attempts to show arrays in shorthand.  You
+		%" get something like "(shareds 20..22)" rather
+		%" than "[(shared 20), (shared 21), (shared 22)]".
+		;
+
+  array   	: BoxFlavor -> [A] -> ArrayA
+
+		%" (array flav x) is a list of boxes that
+		%" are initialized to the members of list x.
+		%" The array has the same number of members 
+		%" as x. The flavor of the boxes is given by parameter
+		%" flav (either shared or nonshared).
+		%" For example, 
+		%"
+		%"   array shared [1,2,3]
+		%"
+		%" is an array of three shared boxes, initialized to
+		%" 1, 2 and 3.  List x must be finitely long.  For
+		%" an infinite array, see infiniteArray.
+		;
+
+  arrayInit	: BoxFlavor -> Natural -> [A] -> ArrayA
+  
+  		%" (arrayInit flav n x) produces an array of n
+		%" new boxes initialized from list x.  Each
+		%" box has flavor flav (shared or nonshared).
+		%"
+		%" For example, (arrayInit shared 3 [a,b,c]) =
+		%" [sharedBox(a), sharedBox(b), sharedBox(c)].
+		%"
+		%" If x has more than n members, then only a
+		%" prefix of x is used.  If x has fewer than n
+		%" members, then only a prefix of the array is
+		%" initialized, with all remaining boxes empty.
+		;
+		
+  arrayNoinit	: BoxFlavor -> Natural -> () -> ArrayA
+  
+  		%" (arrayNoinit flav n ()) = array flav n.
+		;
+  
+  {override}:
+
+  copy          : CopyFlavor -> <:`a:>	     	   -> <:`a:>;
+  copy          : CopyFlavor -> [BOXES`a]	   -> [BOXES`a];
+  copy          : CopyFlavor -> (BOXES`a, BOXES`b) -> (BOXES`a, BOXES`b);
+
+  {}:
+  
+  fullArray	: BoxFlavor -> A -> Natural -> ArrayA
+
+		%" (fullArray flav v n) is an array of n
+		%" boxes, all with initial value v.  The flavor
+		%" of the boxes is given by parameter flav.
+		;
+
+  infiniteArray : BoxFlavor -> [A] -> ArrayA
+  
+  		%" (infiniteArray flav l) produces an infinite list of
+		%" new nonshared boxes initialized with the members of
+		%" list l.  If l is infinite, all of the boxes are 
+		%" initialized.  If l is finite, only a prefix of 
+		%" the array is initialized, and the remaining 
+		%" boxes are empty.
+		;
+
+  infiniteArrayInit: BoxFlavor -> () -> [A] -> ArrayA
+  
+  		%" (infiniteArrayInit flav () x) = infiniteArray flav x.
+		;
+		
+  infiniteArrayNoinit: BoxFlavor -> () -> () -> ArrayA
+  
+  		%" (infiniteArrayInit flav () ()) = infiniteArray flav.
+		;
+  
+  infiniteNonsharedArray : [A] -> ArrayA
+  
+  		%" infiniteNonsharedArray is the same as 
+		%" infiniteArray, but produces an array 
+		%" of nonshared boxes.
+		;
+		
+  infiniteSharedArray : [A] -> ArrayA
+  
+  		%" infiniteSharedArray is the same as 
+		%" infiniteArray, but produces an array 
+		%" of shared boxes.
+		;
+		
+  fullInfiniteArray : BoxFlavor -> A -> () -> ArrayA
+
+		%" (fullInfiniteArray flav v ()) is an infinite 
+		%" array of boxes, all of whose boxes are 
+		%" initialized to hold v.  The flavor of the
+		%" boxes (shared or nonshared) is given by
+		%" parameter flav.
+		;
+
+  infiniteUnknownArray: BoxFlavor  -> [A]
+
+		%" infiniteUnknownArray(flav) is an infinite list
+		%" of unprotected unknowns.  The flavor (shared
+		%" or nonshared) is given by parameter flav.
+		;
+
+  infiniteNonsharedUnknownArray : () -> [A]
+
+  		%" infiniteNonsharedUnknownArray is the same as 
+		%" infiniteUnknownArray, but produces an array 
+		%" of nonshared unknowns.
+		;
+		
+  infiniteSharedUnknownArray : () -> [A]
+
+  		%" infiniteSharedUnknownArray is the same as 
+		%" infiniteUnknownArray, but produces an array 
+		%" of shared unknowns.
+		;
+		
+  infVarDup     : (A -> B) -> A -> () -> [B]
+
+		%" (infVarDup f n ()) = [f(n), f(n), ...] (an infinite
+		%" list of f(n)'s.  Each f(n) is computed by a
+		%" separate call to f.  The members of the result are
+		%" computed from left to right.
+		;
+
+  infVarDupInit	: (A -> B, () -> B) -> () -> [A] -> [B]
+  
+  		%" (varDupInit (f,g) () x) produces an infinite
+		%" list.  The first length(x) members of the result
+		%" list are the members of (map f x).  The
+		%" remaining members (if any) are g(), where each g()
+		%" is calculated by a separate evaluation.  If
+		%" x is infinite, then all members of the result list
+		%" are obtained from (map f x).
+		%"
+		%" For example, (infVarDupInit (f,g) () [a,b,c]) =
+		%" [f(a), f(b), f(c), g(), g(), g(), ...].
+		;
+
+  infVarDupNoinit : (() -> B) -> () -> [B]
+  
+  		%" (infVarDupNoinit f ()) = [f(), f(), ...] where
+		%" the list is infinitely long, and the f() calls
+		%" are done in the order in which they occur
+		%" in the result list.
+		;
+
+  infFdup	: (() -> B) -> [B]
+  
+  		%" infFdup(f) = [f(),f(),f(),...] where the list
+		%" is infinitely long, and the f() calls are done
+		%" in the order in which they occur in the
+		%" result list.
+		;
+  
+  nonemptyPrefix: [BxA] -> [BxA]
+
+		%" nonemptyPrefix(l) is the longest prefix of l that
+		%" consists entirely of nonempty boxes.
+		;
+
+  nonsharedUnknownArray : Natural -> [A]
+
+  		%" nonsharedUnknownArray is the same as 
+		%" unknownArray, but produces an array 
+		%" of nonshared unknowns.
+		;
+		
+  sharedUnknownArray : Natural -> [A]
+
+  		%" sharedUnknownArray is the same as 
+		%" unknownArray, but produces an array 
+		%" of shared unknowns.
+		;
+		
+  unknownArray 	: BoxFlavor -> Natural -> [A]
+
+		%" (unknownArray flav n) is a list of n unprotected
+		%" unknowns.  The box flavor is determined by
+		%" parameter flav.
+		;
+
+  varDup        : (A -> B) -> A -> Natural -> [B]
+
+		%" (varDup f n m) = [f(n),f(n),...,f(n)], where there
+		%" are m copies of f(n) in the list.  Each f(n) is
+		%" computed by a separate call to f, so varDup can be
+		%" used with a function f that involves state.
+		%" The copies of f(n) are computed from left to right
+		;
+		
+  varDupInit	: (A -> B, () -> B) -> Natural -> [A] -> [B]
+  
+  		%" (varDupInit (f,g) n x) produces a list of length
+		%" n.  The first length(x) members of the result
+		%" list are the members of (map f x).  The
+		%" remaining members (if any) are g(), where each g()
+		%" is calculated by a separate evaluation.  If
+		%" x has more than n members, then only a prefix
+		%" of x is used.
+		%"
+		%" For example, (varDupInit (f,g) 5 [a,b,c]) =
+		%" [f(a), f(b), f(c), g(), g()].
+		;
+		
+  varDupNoinit	: (() -> B) -> Natural -> [B]
+  
+  		%" (varDupNoinit f n) = [f(), f(), ..., f()], where
+		%" there are n members in the result list, and the
+		%" values are computed in the order in which
+		%" they occur in the list.
+		;
+
+  contents!!    : <:`?:>		-> ANY;
+  contents!!    : [BOXES`?]		-> ANY;
+  contents!!	: (BOXES`?, BOXES`?)	-> ANY;
+
+  contents      : [BxA]			-> [A];
+  contents      : [[BxA]]		-> [[A]];
+  contents      : [[[BxA]]]		-> [[[A]]];
+
+  optContents!! : <:`?:>		-> ANY;
+  optContents!! : [BOXES`?]		-> ANY;
+  optContents!!	: (BOXES`?, BOXES`?)	-> ANY;
+
+  optContents   : [BxA]			-> [Optional A];
+  optContents   : [[BxA]]		-> [[Optional A]];
+  optContents   : [[[BxA]]]		-> [[[Optional A]]];
+
+  Move, Copy 	: pot__sideEffect ~>
+		  (destination  ~> <:`a:>, 
+		   source       ~> <:`a:>) -> ();
+  Move, Copy	: pot__sideEffect ~>
+		  (destination  ~> [BOXES`a], 
+		   source       ~> [BOXES`a]) -> ();
+  Move, Copy	: pot__sideEffect ~>
+		  (destination  ~> (BOXES`a, BOXES`b),
+		   source       ~> (BOXES`a, BOXES`b)) -> ();
+  Move, Copy	: pot__sideEffect ~>
+		  (destination  ~> BOXES``a,
+		   source       ~> BOXES``a) -> ();
+
+  Fill!!,
+  FillInit!!    : pot__sideEffect ~>
+		  (destination  ~> <:`?:>, source  ~> `?) -> ();
+
+  Fill!!,
+  FillInit!!    : pot__sideEffect ~>
+		  (destination  ~> [ARRAY`a], source  ~> `?) -> ();
+
+  Fill         	: pot__sideEffect ~>
+		  (destination  ~> [BxA], source  ~> A) -> ();
+  Fill         	: pot__sideEffect ~>
+		  (destination  ~> [[BxA]], source  ~> A) -> ();
+  Fill         	: pot__sideEffect ~>
+		  (destination  ~> [[[BxA]]], source  ~> A) -> ();
+
+  new 		: BoxFlavor -> (NEW`?,NEW`?);
+  new 		: BoxFlavor -> NEW;
+
+  OptPut!!     	: %%pot__sideEffect ~>
+		  (destination  ~> <:`?:>, 
+		   source ~> `?)                -> ();
+
+  OptPut!!     	: %%pot__sideEffect ~>
+		  (destination  ~> [BOXES`?], 
+		   source  ~> [`?])	        -> ();
+
+  OptPut!!     	: %%pot__sideEffect ~>
+		  (destination  ~> (BOXES`?,BOXES`?), 
+		   source ~> (`?,`?))           -> ();
+
+  OptPut        : pot__sideEffect ~>
+		  (destination  ~> [BxA], 
+		   source  ~> [Optional A])	-> ();
+  OptPut        : pot__sideEffect ~>
+		  (destination  ~> [[BxA]], 
+		   source  ~> [[Optional A]])	-> ();
+  OptPut        : pot__sideEffect ~>
+		  (destination  ~> [[[BxA]]], 
+		   source  ~> [[[Optional A]]]) -> ();
+
+  Put!!,
+  PutInit!!     : %%pot__sideEffect ~>
+		  (destination  ~> <:`?:>, source ~> `?) -> ();
+
+  Put!!,
+  PutInit!!     : %%pot__sideEffect ~>
+		  (destination  ~> [BOXES`?], source  ~> [`?])	-> ();
+
+  Put!!,
+  PutInit!!     : %%pot__sideEffect ~>
+		  (destination  ~> (BOXES`?,BOXES`?), source ~> (`?,`?)) -> ();
+
+  Put          	: pot__sideEffect ~>
+		  (destination  ~> [BxA], source  ~> [A])		-> ();
+  Put          	: pot__sideEffect ~>
+		  (destination  ~> [[BxA]], source  ~> [[A]])	-> ();
+  Put          	: pot__sideEffect ~>
+		  (destination  ~> [[[BxA]]], source ~> [[[A]]])  -> ();
+
+%Expect
+=============================================
+Missing 
+  Put!!, 
+    PutInit!!,
+    OptPut!!    : (BOXES`?, `?) -> ();
+  Fill!!, 
+    FillInit!!	: (ARRAY`?, `?) -> ();
+%Missing
+=============================================
+Expand ?a @#_ ?i => @(a #_ i).
+Expand ?a @#  ?i => @(a # i).
+=============================================
+Description
+  contents	%" contents(x) is a list of the contents of the boxes
+		%" in array x.  For example, contents(array[1,2,3])
+		%" = [1,2,3].
+		;
+		
+  OptPut	%" OptPut a := l %OptPut copies list l into array a.
+  		%" If a member of l is value(v), then the corresponding
+		%" box is assigned v.  If a member of l is noValue, then
+		%" the corresponding box is made empty.  If list l is
+		%" shorter than array a, then only a prefix of a is
+		%" modified.  If array a is shorter than list l, then
+		%" only a prefix of l is used.
+		;
+
+  Put		%" Put a := l %Put copies l to array a, setting the
+		%" first box of a to the first member of l, the second
+		%" box of a to the second member of l, etc.  If list l is
+		%" shorter than array a, then only a prefix of a is
+		%" modified.  If array a is shorter than list l, then
+		%" only a prefix of l is used.
+		;
+
+  Fill		%" Fill a := x %Fill puts x in each member box of array a.
+		;
+%Description
+===============================================================
+%Package
+

@@ -1,0 +1,74 @@
+Package rolesel2 
+
+%% Test role selectors and modifiers
+
+Import "misc/check".
+
+Extension
+  Species TestFam1(`a) = (r1~> (Integer, `a), r2~> Natural, r3~> Integer).
+%Extension
+
+Execute
+  Let a = testFam1((1,"a"),2,3).
+
+  Match {: r1~> ?x:} = a.
+  Line[$x].
+  Check["(1,\"a\")"].
+
+  Match {: r2~> ?y, r3~> ?z :} = a.
+  Line[y$$3, z$$3].
+  Check["  2  3"].
+%Execute
+
+Extension
+  Species TestFam2(`a) = tt2a | tt2b(r1~> Natural, r2~>(Integer,`a), r3~>Integer).
+%Extension
+
+Execute
+  Let a = tt2b(1,(2,6),3).
+
+  Match {: r1~> ?x:} = a.
+  Line[$x].
+  Check["1"].
+
+  Match {: r2~> ?y, r1~> ?z :} = a.
+  Line[$y, " ", $z].
+  Check["(2,6) 1"].
+
+  Match {: r3~> ?q, r2~> ?p, r1~> ?pp:} = a.
+  Line[$q, $p, $pp].
+  Check["3(2,6)1"].
+%Execute
+
+Extension
+  Species{noEqual} TestFam3(`a,`c) = (r31~> (`a,ANY), r32~> (`c,`a)).
+%Extension
+
+Execute
+  Let a = testFam3((1,<<2>>),(3,4)).
+
+  Match {:r31~> ?x:} = a.
+  Line[$x].
+  Check["(1,2)"].
+%Execute
+
+Extension
+  Species{noEqual} 
+    TestFam4(`a) = tt4a | tt4b(r41~> (`a,ANY), r42~> (ANY,`a))
+  %Species
+%Extension
+
+Execute
+  Let a = tt4b((1,<<2>>),(<<3>>,4)).
+
+  Match {:r41~> ?x:} = a.
+  Line[$x].
+  Check["(1,2)"].
+
+  Match {:r42~> ?y, r41~> ?z :} = a.
+  Line[$y, $z].
+  Check["(3,4)(1,2)"].
+%Execute
+
+%Package
+

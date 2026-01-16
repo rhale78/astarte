@@ -1,0 +1,13 @@
+Package private2
+
+%% Part of private1 and priv1a tests.
+
+Export
+
+Expect{private} priv: Natural.
+
+Implementation
+
+Let priv = 2.
+
+%Package

@@ -1,0 +1,292 @@
+<HTML>
+<head>
+<title>Astarte: Boolean and comparisons</title>
+</head>
+<body>
+<center>
+<a href="library.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="char.html">Next</a>
+</center>
+<hr>
+<font color=mediumblue>
+<center>
+<h1> L2. Boolean Operations and Comparisons </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#species> Species Boolean and Comparison</a>
+  <li> <a href=#compare> Comparisons</a>
+  <li> <a href=#max> Maximum and minimum</a>
+  <li> <a href=#bool> Boolean operations</a>
+  <li> <a href=#predicate> Predicates</a>
+</menu>
+
+<a name="species"></a>
+<hr>
+<h2><font color=mediumblue> Species Boolean and Comparison </font></h2>
+
+Species Boolean and Comparison are enumerated species.  Their members
+are as follows.
+<p><table cellspacing=10>
+<tr><td bgcolor=lightgrey>Species</td>    
+    <td bgcolor=lightgrey>Members</td>
+  <tr> <td>Boolean</td>    
+       <td><font color=#D00090>false</font>
+       &nbsp;&nbsp;<font color=#D00090>true</font></td>
+  <tr> <td>Comparison</td> 
+       <td><font color=#D00090>equal</font>
+       &nbsp;&nbsp;<font color=#D00090>greater</font>
+       &nbsp;&nbsp;<font color=#D00090>less</font></td>
+</table>
+
+<a name=conversion>
+<p>The following operations can be used to convert between Boolean or
+Comparison and natural numbers.
+<dl>
+<p><dt><font color="red"> boolean </font>
+<dd>: Natural -&gt; Boolean
+<p> boolean(0) = false and boolean(1) = true.
+
+<p><dt><font color="red"> comparison</font>
+<dd>: Natural -&gt; Comparison
+<p> Function <i>comparison</i> converts from a natural number to
+species Comparison (the species of the result of function compare).
+comparison(0) = equal, comparison(1) = greater and
+comparison(2) = less.
+
+<a name=rank></a>
+<p><dt>
+<font color="red">rank</font>
+<dd>: RANKED`a -&gt; Natural
+<p> Function <i>rank</i> converts from an enumerated species to
+a natural number.  rank(false) = 0, rank(true) = 1, rank(equal) = 0,
+rank(greater) = 1 and rank(less) = 2.
+
+</dl>
+
+<a name="compare"></a>
+<hr>
+<h2><font color=mediumblue> Comparisons </font></h2>
+
+Comparisons are described in more detail in
+<a href="ast/lang/compare.ast">lang/compare.ast</a>.
+They are standard, and do not require an import.
+All species in genus ORDER support order comparisons 
+such as &lt; and &gt;.  Species in genus EQ support
+equality and inequality comparisons.
+
+<dl>
+<p><dt><font color="red"> <tt>==</tt></font>
+<dd>: (EQ`a, EQ`a) -&gt; Boolean
+<p> x <tt>==</tt> y is true just when x and y are the same data item.  
+Equality tests are
+available for most standard species.  Functions and boxes are exceptions.
+No equality test is available for functions because equality of functions
+is undecidable.  No equality test is available for boxes to prevent
+confusion. For boxes, use _eq_.
+
+<P>When you create a
+new species, a definition of <tt>==</tt> will be provided for you.
+The standard definition says that two values are
+equal if they have equal representations.  
+You can suppress this by using
+option noEqual.  
+For example, to define your own equality checker, 
+you would use something like this.
+<font color=#D00090>
+<b><pre>
+    Species{noEqual} MySpecies = Natural.
+</pre></b>
+</font>
+
+<a name=neq></a>
+<p><dt><font color="red"> =/= </font>
+<dd>: (EQ`a, EQ`a) -&gt; Boolean
+<p> x =/= y if x and y are not equal.  This is defined as
+the negation of <tt>==</tt>, and should not be redefined.  
+Redefine <tt>==</tt> instead.
+
+<a name=eqeqq></a>
+<p><dt><font color="red"> <tt>==</tt>? </font>
+<dd>: (EQ`a, EQ`b) -&gt; Boolean
+<p> When you write x <tt>==</tt> y, the compiler assumes that x and
+y must have the same (extrinsic) species.  x <tt>==</tt>? y is similar to 
+x <tt>==</tt> y, but
+it allows the possibility that x and y have different species.
+
+<P>In most cases, two values of different species are not equal.
+The numeric species are special.  Two numeric values can be equal
+even when they have different species.  
+For example, 2 <tt>==</tt>? 2.0 is true.
+
+<a name=neqq></a>
+<p><dt><font color="red"> <tt>=/=</tt>? </font>
+<dd>: (EQ`a, EQ`b) -&gt; Boolean
+<p> x <tt>=/=</tt>? y is the same as not(x <tt>==</tt>? y).
+
+<p><dt><font color="red"> _eq_, _neq_ </font>
+<dd>: (&lt;:`a:&gt;, &lt;:`a:&gt;) -&gt; Boolean
+<p> These are the equality and inequality tests
+for boxes (<a href="boxexpr.html">boxes</a>).  
+Operators <tt>==</tt> and <tt>=/=</tt>
+are not defined for boxes because it is likely that their meaning
+will be misunderstood.  x _eq_ y is true if x and y are the same box,
+not if they have the same content.
+
+<a name=comparef></a>
+<p><dt><font color="red"> compare </font>
+<dd>: (ORDER`a, ORDER`a) -&gt; Comparison
+<p> compare(x,y) compares x and y, and produces value
+<i>less</i> if x &lt; y, value <i>equal</i> if x <tt>==</tt> y and value 
+<i>greater</i> if x &gt; y.
+
+<p>Operations &lt;, &lt;=, &gt; and &gt;= all use 
+compare to perform their tests.
+If you need to add a new ordered
+species, define compare for it, and add your species to genus
+ORDER.  Operations &lt;, &gt;, &lt;= and &gt;= will
+be defined automatically in terms of compare.
+
+<p>Operation <tt>==</tt> does not use compare.  It must be written separately.
+
+<p>Example: 
+<font color="D00090">compare(2,5)</font> = less.
+
+<a name=cmp></a>
+<p><dt><font color="red"> &lt; </font>
+<dd>: (ORDER`a, ORDER`a) -&gt; Boolean
+<p> x &lt; y if x is less than y.
+
+<p><dt><font color="red"> &lt;= </font>
+<dd>: (ORDER`a, ORDER`a) -&gt; Boolean
+<p> x &lt;= y if x is less than or equal to y.
+
+<p><dt><font color="red"> &gt; </font>
+<dd>: (ORDER`a, ORDER`a) -&gt; Boolean
+<p> x &gt; y if x is greater than y.
+
+<p><dt><font color="red"> &gt;= </font>
+<dd>: (ORDER`a, ORDER`a) -&gt; Boolean
+<p> x &gt;= y if x is greater than or equal to y.
+
+</dl>
+
+<a name="max"></a>
+<hr>
+<h2><font color=mediumblue> Maximum and minimum </font></h2>
+
+<dl>
+<p><dt><font color="red"> max </font>
+<dd>: [ORDER`a] -&gt; ORDER`a
+<p> max(x) is the largest value in list x.
+<p>Example: 
+<font color="#D00090">max[2,4,6,3]</font> = 6.
+
+<p><dt><font color="red"> min </font>
+<dd>: [ORDER`a] -&gt; ORDER`a
+<p> min(x) is the smallest value in list x.
+<p>Example: 
+<font color="#D00090">min[2,4,6,3]</font> = 2.
+
+<a name=maxminf></a>
+<p><dt><font color="red"> maxmin </font>
+<dd>: ((`a,`a) -&gt; Boolean) -&gt; [`a] -&gt; `a
+<p> (maxmin cmp x) is an extremal value in list x, where
+the nature of the extreme is determined by comparison function cmp.
+For example, 
+<font color=#D00090>maxmin(>=) x</font> is the maximum value in list x, and
+maxmin(<=) x is the minimum value in list x.  The comparison function
+should be a total order.
+<p>Example: 
+<font color="#D00090">maxmin(>=)[2,4,6,3]</font> = 6.
+</dl>
+
+<a name="bool"></a>
+<hr>
+<h2><font color=mediumblue> Boolean operations </font></h2>
+
+Boolean operations are described in
+<a href="ast/lang/boolean.ast">lang/boolean.ast</a>.  That
+package does not need to be imported.
+
+<dl>
+
+<a name=and></a>
+<p><dt><font color="red"> _and_ </font>
+<dd> x _and_ y abbreviates 
+<font color="blue">If x then y else false %If</font>.
+It is a short-circuited &quot;and&quot; operation.
+
+<p><dt><font color="red"> _andf_ </font>
+<dd>: (Boolean, Boolean) -&gt; Boolean
+<p> x _andf_ y is the &quot;and&quot; of boolean values x and y.
+_andf_ is a function, and is not short-circuited.
+
+<a name=or></a>
+<p><dt><font color="red"> _or_ </font>
+<dd> x _or_ y abbreviates 
+<font color="blue">If x then true else y %If</font>.
+It is a short-circuited &quot;or&quot; operation.
+
+<p><dt><font color="red"> _orf_ </font>
+<dd>: (Boolean, Boolean) -&gt; Boolean
+<p> x _orf_ y is the &quot;or&quot; of boolean values x and y.
+_orf_ is a function, and is not short-circuited.
+
+<a name=implies></a>
+<p><dt><font color="red"> _implies_ </font>
+<dd> x _implies_ y abbreviates 
+<font color="blue">If x then y else true %If</font>.
+It is a short-circuited &quot;implies&quot; operation.
+
+<a name=arrow></a>
+<p><dt><font color="red"> <tt>==&gt;</tt> </font>
+<dd>: (Boolean, Boolean) -&gt; Boolean
+<p> x <tt>==&gt;</tt> y is true if either x is false or y is true.
+<tt>==&gt;</tt> is a function, and is not short-circuited.
+
+<a name=not></a>
+<p><dt><font color="red"> not </font>
+<dd>: Boolean -&gt; Boolean
+<p> not(true) = false and not(false) = true.
+
+</dl>
+
+<a name=predicate></a>
+<hr>
+<h2><font color=mediumblue> Predicates</font></h2>
+
+A <font color=blue><i>predicate</i></font> is a function that returns
+a boolean result.  Most predicates in the library have names that
+end on a question mark.  For example, 
+predicate prime? returns true
+on a prime number and false on a nonprime number.  
+
+<p> You can apply a predicate just as any other function, or you can
+use the standard operator _is_.  Expressions 
+<font color=#D00090>prime?(n)</font> and
+<font color=#D00090>n _is_ prime?</font> have the same meaning.
+So you might write something like this.
+<font color=#D00090><b>
+<pre>
+    If n _is_ prime? then
+      <font color=black>...</font>
+    else
+      <font color=black>...</font>
+    %If
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="library.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="char.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,351 @@
+%% File: math.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================================
+Package			Astarte_math
+
+			Interface
+=======================================================================
+
+%% This package extends the numeric hierarchy upwards, making
+%% more general numeric types available.
+%% It also provides assorted mathematical functions.
+%%
+%% The extended numeric hierarchy is as follows.
+%%
+%%                                                    Natural
+%%                                                  /
+%%                                           INTEGER
+%%                                          /       \
+%%          _____________ORDER       RATIONAL         Integer
+%%         /                  \     /       \       /
+%%        /                    _REAL__       RATRING
+%%       /                    /       \     /       \
+%%      /               NUMBER       __RRING        _ Rational
+%%     /               /      \     /       \      /
+%%   EQ        SEMIRING      _ NRING        _RFIELD
+%%     \      /        \    /       \      /       \
+%%      SEMIGROUP    ___RING       _ NFIELD        _  Real
+%%            \     /       \     /        \      /
+%%             GROUP         FIELD          APPROX
+%%                             
+
+=================================================================
+Operator ^~(^).
+=================================================================
+Extension
+  Abstraction
+    APPROX	%" APPROX is a genus of numberic species whose members
+ 		%" are represented approximately.
+		;
+		
+    FIELD	%" FIELD is a genus of fields, supporting operations
+ 		%" +. -, * and /, and constants 0 and 1.
+		;
+
+    GROUP	%" GROUP is a genus of groups.  Operations are
+ 		%" + and -, with constant 0.
+		;
+
+    NFIELD	%" NFIELD is a genus of numeric fields.  It is the
+ 		%" intersection of FIELD and NUMBER.
+		;
+ 
+    NRING 	%" NRING is a genus of numeric rings.  It is the
+ 		%" intersection of RING and NUMBER.
+		;
+ 
+    NUMBER	%" NUMBER is a genus of numeric species.  These represent
+ 		%" some reasonable subset of the complex numbers.
+		%" Every member species should at least be a semiring
+		%" with identity, supporting +, *, 0 and 1.
+		;
+ 
+    RING	%" RING is a genus of rings, supporting operations
+ 		%" +, - and *, and constants 0 and 1.
+		;
+ 
+    SEMIGROUP	%" SEMIGROUP is a genus of semigroups with identity.  
+ 		%" The operation of addition is supported, as well
+		%" as the constant zero (0).
+		;
+ 
+    SEMIRING	%" SEMIRING is a genus of semirings with identity.  The
+ 		%" operations include + and *, with constants zero (0) and 
+		%" unit (1).
+		;
+
+  %Abstraction
+
+  Relate
+    Real             isKindOf APPROX;
+    APPROX | RFIELD  isKindOf NFIELD;
+    NFIELD           isKindOf FIELD;
+    NFIELD | RRING   isKindOf NRING;
+    FIELD | NRING    isKindOf RING;
+    NRING | REAL     isKindOf NUMBER;
+    RING | NUMBER    isKindOf SEMIRING;
+    RING             isKindOf GROUP;
+    SEMIRING | GROUP isKindOf SEMIGROUP;
+    
+    {noExpect} SEMIGROUP isKindOf EQ;
+  
+    APPROX & RFIELD   	= Real;
+    APPROX & RRING    	= Real;
+    APPROX & REAL  	= Real;
+    NFIELD & RRING    	= RFIELD;
+    NFIELD & REAL  	= RFIELD;
+    NFIELD & RATIONAL 	= Rational;
+    NFIELD & RATRING  	= Rational;
+    NRING & REAL   	= RRING;
+    NRING & RATIONAL  	= RATRING;
+    NRING & INTEGER   	= Integer;
+    FIELD & NUMBER    	= NFIELD;
+    FIELD & NRING     	= NFIELD;
+    FIELD & REAL   	= RFIELD;
+    FIELD & RRING     	= RFIELD;
+    FIELD & RATIONAL  	= Rational;
+    FIELD & RATRING   	= Rational;
+    RING & NUMBER     	= NRING;
+    RING & REAL    	= RRING;
+    RING & RATIONAL   	= RATRING;
+    RING & INTEGER    	= Integer;
+    GROUP & SEMIRING  	= RING;
+    GROUP & NUMBER    	= NRING;
+    GROUP & REAL   	= RRING;
+    GROUP & RATIONAL  	= RATRING;
+    GROUP & INTEGER   	= Integer;
+    ORDER & SEMIGROUP 	= REAL;
+    ORDER & GROUP     	= RRING;
+    ORDER & SEMIRING  	= REAL;
+    ORDER & NUMBER    	= REAL;
+    ORDER & RING      	= RRING;
+    ORDER & NRING     	= RRING;
+    ORDER & FIELD     	= RFIELD;
+    ORDER & NFIELD    	= RFIELD;
+    ORDER & APPROX    	= Real;
+    RANKED & NUMBER   	= Natural;
+    RANKED & SEMIRING 	= Natural;
+    RANKED & SEMIGROUP 	= Natural;
+  %Relate
+%Extension
+
+=================================================================
+Abbrev {noExport}:
+  APPROXfun  = {APPROX`x} -> {APPROX`x};
+  Realfun    = Real -> Real;
+  WAPPROXfun = APPROX``x -> APPROX``x; 
+%Abbrev
+=================================================================
+Anticipate
+  zero		: {SEMIGROUP`a}
+  
+  		%" zero is the number 0, or the additive identity.
+		;
+		
+  unit		: {SEMIRING`a}
+  
+  		%" unit is the number 1, or the multiplicative identity.
+		;
+		
+  +		: ({SEMIGROUP`a},{SEMIGROUP`a}) -> {SEMIGROUP`a};
+  -		: ({GROUP`a},{GROUP`a}) -> {GROUP`a};
+  -		: {GROUP`a} -> {GROUP`a};
+  *		: ({SEMIRING`a},{SEMIRING`a}) -> {SEMIRING`a};
+  /		: ({FIELD`a},{FIELD`a}) -> {FIELD`a};
+  /		: {FIELD`a} -> {FIELD`a};
+  $$		: ({SEMIGROUP`a}, Natural) -> String;
+  $$		: ({NUMBER`a}, (Natural, Natural)) -> String;
+  $$		: ({NUMBER`a}, (Natural, Natural, Natural)) -> String;
+
+  ^		: ({SEMIRING`a},Natural) -> {SEMIRING`a}
+
+		%" x^y  is x to the y power.  It fails with exception
+		%" domainX("0^0") if x and y are both zero.
+		;
+
+  ^/		: ({FIELD`a},Integer) -> {FIELD`a}
+  
+		%" x^/y  is x to the y power.  It fails with exception
+		%" domainX("0^0") if x and y are both zero, and
+		%" with exception domainX("divide by zero") if
+		%" x = 0 and y < 0.
+		;
+
+  ^~		: (APPROX`a, APPROX`a)     -> APPROX`a
+  
+		%" x^~y  is the principal value of x to the y power.
+		%" It requires that x >= 0.
+		%" It fails with exception domainX("0^0") if
+		%" x and y are both zero, and with exception
+		%" domainX("negative number to real power") if x < 0.
+		;
+
+  +             : NUMBER`a -> NUMBER`b;
+  
+  _as_		: (SEMIGROUP`a, SEMIGROUP`b) -> SEMIGROUP`b;
+
+  cos		: APPROXfun
+  
+		%" cos(x) is the (approximate) cosine of x, where x
+		%" is in radians.
+                ;
+
+  exp		: APPROXfun
+  
+		%" exp(x) is (approximately) e to the power x.
+                ;
+		
+  ln		: APPROXfun
+
+		%" ln(x) is (approximately) the natural log of x.  
+		%" It fails with exception 
+		%" domainX("ln of a nonpositive number") if x <= 0.
+                ;
+
+  magnitude	: {NUMBER`x} -> Real
+  
+  		%" magnitude(x) is the distance from x to the origin
+		%" of the complex plane.
+		;
+		
+  sin		: APPROXfun
+
+		%" sin(x) is the (approximate) sine of x, where x
+		%" is in radians.
+		;
+		
+  sqrt		: APPROXfun
+
+		%" sqrt(x) is (approximately) the square root of x.
+		;
+
+ zero?		: {SEMIGROUP`a} -> Boolean
+%Anticipate
+========================================================
+Expect 
+  ^~		: (Real, Real) -> Real;
+  cos		: Realfun;
+  cos		: WAPPROXfun;
+  exp		: Realfun;
+  exp		: WAPPROXfun;
+  invtan	: Realfun
+
+		%" invtan(x) is (approximately) the inverse tangent of x,
+		%" in radians.
+                ;
+
+  ln		: Realfun;
+  ln		: WAPPROXfun;
+  log		: APPROX`a -> APPROX`a -> APPROX`a
+  
+  		%" log b x  is the logarithm base b of x.
+		%" For species Real, b and x must both be
+		%" positive.  For species Complex, b and x
+		%" must both be nonzero.
+		;
+
+  magnitude	: REAL`x 	-> Real;
+  magnitude	: NUMBER``x     -> Real;
+  sin		: Realfun;
+  sin		: WAPPROXfun;
+  sqrt		: Realfun;
+  sqrt		: WAPPROXfun;
+  tan		: APPROXfun
+
+		%" tan(x) is (approximately) the tangent of x,
+		%" where x is in radians.
+		;
+		
+  pi		: () -> Real;
+
+  {underride}:
+
+  zero		: SEMIGROUP``a constraint (SEMIGROUP``a >= Rational);
+  zero		: SEMIGROUP``a constraint (SEMIGROUP``a >= Real);
+  unit		: SEMIRING``a constraint (SEMIGROUP``a >= Rational);
+  unit		: SEMIRING``a constraint (SEMIGROUP``a >= Real);
+  ^		: (SEMIRING`a,Natural) -> SEMIRING`a;
+  ^/		: (FIELD`a,Integer) -> FIELD`a;
+  zero?		: SEMIGROUP``x	 		-> Boolean;
+  
+  +		: (SEMIGROUP``x, SEMIGROUP``x) 	-> SEMIGROUP``x;
+  -		: (GROUP``x, GROUP``x) 	     	-> GROUP``x;
+  -		: GROUP``x 			-> GROUP``x;
+  *		: (SEMIRING``x, SEMIRING``x)   	-> SEMIRING``x;
+  /		: (FIELD``x, FIELD``x)   	-> FIELD``x;
+  /		: FIELD``x 			-> FIELD``x;
+  ^~		: (APPROX``a, APPROX``a) -> APPROX``a;
+  
+  _as_		: (SEMIGROUP`*a, SEMIGROUP``b)   -> SEMIGROUP``b
+  		    constraint (SEMIGROUP``b >= SEMIGROUP`*a);
+  _as_		: (SEMIGROUP``a, SEMIGROUP`b)   -> SEMIGROUP`b;
+  _as_		: (Natural, SEMIGROUP``b) -> SEMIGROUP``b;
+  _as_		: (NUMBER`*a, NUMBER``b) -> NUMBER``b;
+  _as_		: (INTEGER`*a, FIELD``a) -> FIELD``a;
+
+  +		: NUMBER``a -> NUMBER`b;
+  +		: NUMBER`*a -> NUMBER``b 
+  		    constraint (NUMBER``b >= NUMBER`*a);
+  +		: Natural -> NUMBER``b
+  		    constraint (NUMBER``b >= Integer);
+  +		: INTEGER`*a -> NFIELD``a 
+  		    constraint (NFIELD``a >= Rational);
+  +		: RATIONAL`*a -> APPROX``a 
+  		    constraint (NFIELD``a >= Real);
+		   
+  natconst	: Natural  -> NUMBER`a;
+  ratconst	: Rational -> NFIELD`a;
+
+  {irregular}
+  compatify	: (NUMBER`a, NUMBER`b) -> (NUMBER`c, NUMBER`c);
+
+  {default,override}:
+  
+  ==?		: (SEMIGROUP`a, SEMIGROUP`b) -> Boolean;
+
+%Expect
+
+Missing +: NUMBER`a -> NUMBER`b.
+
+=======================================================================
+Import "-math".
+
+=======================================================================
+Description
+  reNormalSqrt	: Real -> Real
+  
+  		%" reNormalSqrt(x) is a normal precision approximation
+		%" to the square root of x.
+		;
+		
+  reNormalExp	: Real -> Real
+  
+  		%" reNormalExp(x) is a normal precision approximation
+		%" to exp(x).
+		;
+
+  reNormalLn	: Real -> Real
+  
+  		%" reNormalLn(x) is a normal precision approximation
+		%" to ln(x).
+		;
+
+  reNormalSin	: Real -> Real
+  
+  		%" reNormalSin(x) is a normal precision approximation
+		%" to sin(x).
+		;
+
+  reNormalInvtan: Real -> Real
+  
+  		%" reNormalInvtan(x) is a normal precision approximation
+		%" to invtan(x).
+		;
+%Description
+
+%Package
+

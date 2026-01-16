@@ -1,0 +1,256 @@
+<HTML>
+<head>
+<title>Astarte: let and define declarations</title>
+</head>
+<body>
+<center>
+<a href="missingdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="teamdcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D7. Let and Define Declarations </font></h1>
+</center>
+
+<menu>
+  <li><a href=#outer>Binding identifiers in the outer environment</a>
+  <li><a href=#polymorphism>Polymorphism</a>
+  <li><a href=#overload>Overloading and multiple definitions</a>
+  <li><a href=#override>Overriding definitions</a>
+  <li><a href=#infer>Type inference</a>
+  <li><a href=#species>Specifying the species</a>
+  <li><a href=#description>Giving a description</a>
+</menu>
+
+<a name=outer></a>
+<hr>
+<h2><font color=mediumblue>Binding identifiers in the outer environment</font></h2>
+
+The <i>outer environment</i> (or global environment) is a table shared
+by all parts of a program.  A key in the table is a pair consisting
+of an identifier and a species.  The value associated with pair
+(id,T) must be a value of species T.
+
+<p>For example, there is a binding
+in the outer environment of all programs that associates the 
+value 0:Natural with the pair (zero, Natural).  So all programs can
+use the name zero as a name for the number 0.
+
+<p>Let and define declarations are called <i>binding declarations</i>.
+They are used to create bindings in the outer environment.
+
+<p>Binding declarations have forms that are similar to
+<a href="naming.html">let and define expressions</a>.
+There are a few important additions, however.
+
+<a name=polymorphism></a>
+<hr>
+<h2><font color=mediumblue> Polymorphism</font></h2>
+
+Binding declarations can be polymorphic.  
+For example
+<font color=#D00090>
+<b><pre>
+      Define f(?x) = (x,x).
+</pre></b>
+</font>
+defines f: `a -&gt; (`a,`a).  That is, there is a definition of f for
+each species T -&gt; (T,T).  See
+<a href="types.html">type system</a>.
+
+<a name=overload></a>
+<hr>
+<h2><font color=mediumblue> Overloading and multiple definitions</font></h2>
+
+Overloading is discussed under 
+<a href="expectdcl.html#overloading">expect declarations</a>.
+If a binding declaration uses an overloaded identifier, then it can
+lead to more than one definition being made.  
+For example,
+<font color=#D00090>
+<b><pre>
+      Define two: Natural = 2.
+      Define two: String  = &quot;two&quot;.
+      Define duo = two.
+</pre></b>
+</font>
+provides two different definitions of two.  The binding of duo
+implicitly provides two different definitions of duo, one for each
+definition of two.
+
+<p> Occasionally, this causes a binding declaration to 
+produce two conflicting definitions.  If this happens, you will need
+to restrict the types using assumptions or tags.  
+For example,
+if you write
+<font color=#D00090>
+<b><pre>
+      Define two: Natural = 2.
+      Define two: String  = &quot;two&quot;.
+      Define twoname = $(two).
+</pre></b>
+</font>
+you get two different definitions of twoname, both of species String.
+This can be avoided by
+<font color=#D00090>
+<b><pre>
+      Define twoname = $(two: Natural).
+</pre></b>
+</font>
+if that is what is desired.
+
+<a name=override></a>
+<hr>
+<h2><font color=mediumblue> Overriding definitions </font></h2>
+
+You can override definitions in the outer environment.
+Use modes <em>default</em>, <em>override</em> and <em>underride</em>.
+
+<p>A binding declaration marked by mode <i>default</i> can be overridden.  A
+declaration that overrides it must have option <i>override</i>.  
+For example, you can write
+<font color="#D00090">
+<b><pre>
+      Define{default} f(?x) = x.
+      Define{override} f(?x) = reverse x.
+</pre></b>
+</font>
+Notice that the default definition in the above example 
+has a higher amount of polymorphism
+than the overriding definition.  The default definition can be used
+for any species of parameter at all, but the overriding definition
+can only be used on lists.
+So f(2) = 2, by the default definition.  But f[2,3,4] = [4,3,2], by
+the overriding definition, which takes precedence when the parameter
+is a list.
+
+<p> You can also make a definition that defers to prior definitions,
+and only provides cases that earlier definitions did not cover.
+Mode <em>underride</em> is used for that.  So
+<font color="#D00090">
+<b><pre>
+      Define{underride} f(?x) = x.
+</pre></b>
+</font>
+will provide additional definitions of f, which are used only
+if prior definitions are not available.  The prior definitions
+are not required to have option <em>override</em> in order to
+override an underriding definition.
+
+<a name=infer></a>
+<hr>
+<h2><font color=mediumblue>Type inference </font></h2>
+
+Type inference is done slightly differently for let
+declarations as for define declarations.
+  <ol>
+  <p><li> In a let declaration that defines <i>X</i>, 
+  each occurrence of <i>X</i> is assumed
+  to refer to an expectation or definition that was made earlier.  
+  Each occurrence
+  of <i>X</i> can have a different species.  You can write a recursive
+  definition using let, but only if a prior expectation is given.
+  For example,
+  <font color="#D00090">
+  <b><pre>
+      Expect factorial: Natural -&gt; Natural.
+      Let factorial by
+        case factorial(0)    = 1
+        case factorial(?n+1) = (n+1)*factorial(n)
+      %Let</pre></b>
+  </font>
+  is allowed.  See <a href="expectdcl.html">expect declarations</a>.
+
+  <p><li> In a define declaration of <i>X</i>, 
+  each occurrence of <i>X</i> is
+  assumed to have the same species as the <i>X</i> that is being defined.
+  No earlier expectations are consulted for them.  So you can write the
+  factorial function without an expect declaration using define.  But
+  if you try to define $ for ordered pairs using define, you get into
+  trouble.  An obvious definition is 
+  <font color=#D00090>
+  <b><pre>
+     Define $(?a,?b) = &quot;(&quot; ++ $(a) ++ &quot;,&quot; ++ $(b) ++ &quot;)&quot;.</pre></b>
+  </font>
+  But this causes a type error, since the uses of $ in the body of
+  the function are not of the same species as the $ that is being defined.
+  You need to use a let declaration for this kind of definition.
+  </ol>
+</ol>
+
+<a name=species></a>
+<hr>
+<h2><font color=mediumblue> Specifying the species </font></h2>
+
+You can specify one or more species for the identifier being 
+defined in a binding declaration.  Declaration
+<font color=#D00090>
+<b><pre>
+     Define species T
+       <font color=black><i>id</i></font> = <font color=black><i>val</i></font>
+     %Define
+</pre></b>
+</font>
+indicates that id has species T.  You can request that more than
+one species be tried, as in
+<font color=#D00090>
+<b><pre>
+     Define species T1
+            species T2
+       <font color=black><i>id</i></font> = <font color=black><i>val</i></font>
+     %Define
+</pre></b>
+</font>
+If there is a mode, it occurs before the word species, as in
+<font color=#D00090>
+<b><pre>
+     Define{override} 
+         species T1
+         species T2
+       <font color=black><i>id</i></font> = <font color=black><i>val</i></font>
+     %Define
+</pre></b>
+</font>
+
+Normally, expectations made in the current package are used as
+tags in a binding declaration (see 
+<a href=expectdcl.html#infer>local expectations</a>).  
+If you use one or more species phrases, then the compiler does
+not use expectations as tags, but instead uses the explicitly given
+species as tags.
+
+<a name=description></a>
+<hr>
+<h2><font color=mediumblue> Giving a description </font></h2>
+
+You can provide a description with a binding declaration.
+Write the word <i>description</i>, followed by the description, after the
+initial word <i>let</i> or <i>define</i> 
+(or after the mode if there is a mode).
+For example,
+<font color=#D00090>
+<b><pre>
+     Define 
+       description &quot;Compute the smaller of a and b&quot;
+
+       min(?a,?b) = If a &lt; b then a else b %If.
+     %Define
+</pre></b>
+</font>
+You can have both description and species phrases.  They can occur
+in any order.
+
+<hr>
+<center>
+<a href="missingdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="teamdcl.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,9 @@
+Package secimp4 export
+
+%% Test second imports.  The top level is secimp0.ast.
+
+Import "secimp3".
+
+Let tst4 = tst.
+
+%Package

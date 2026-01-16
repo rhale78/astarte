@@ -1,0 +1,26 @@
+Package dothen
+
+%% Test using the identifiers defined in a do phrase in a 
+%% then phrase of a definition by cases.
+
+Import "misc/check".
+
+Let f by
+  do f ?x =>
+    Let y = 1.
+    
+  case f(0) = 0
+  case f(?n+1) = n
+  
+  then ?res =>
+    Line["res = ", $res, " x = ", $x, " y = ", $y].
+%Let
+
+Execute
+  Let z = f(2).
+  Check["res = 1 x = 2 y = 1"].
+  Line["z = ", $z].
+  Check["z = 1"].
+%Execute
+
+%Package

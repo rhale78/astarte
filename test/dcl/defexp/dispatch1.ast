@@ -1,0 +1,23 @@
+Package dispatch1
+
+%% Test automatic definition of dispatchers
+
+Extension
+  Abstraction G.
+%Extension
+
+Anticipate 
+  f: {G`a} -> Boolean;
+  g: {G`a} -> {G`a};
+%Anticipate
+
+Extension
+  Species{noEqual} MyNat = Natural.
+  Relate MyNat isKindOf G.
+%Extension
+
+Let f(myNat(?x)) = true.
+Let g(myNat(?x)) = myNat(x+x).
+
+%Package
+

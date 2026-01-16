@@ -1,0 +1,18 @@
+Package hat
+
+%% Test ^ operator handling.
+
+Import "math/math".
+Import "misc/check".
+
+Execute
+  Let a = 2^4.
+  Let b = 2^~4.0.
+  Let c = ~2.
+  Let d = c^2.
+  Let e = 2^/(-4).
+  Line[$a, " ", $b, " ", $c, " ", $d, " ", $e].
+  Check["16 16 2 4 1/16"].
+%Execute
+
+%Package

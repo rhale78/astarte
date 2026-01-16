@@ -1,0 +1,2299 @@
+%% File: standard.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%% DO NOT RENAME THIS PACKAGE.
+
+%%==============================================================
+%%                       NOTE
+%% If you are looking for examples, this is not the best
+%% place to look, since it uses some unusual ways to solve
+%% some problems.  Better packages include collect/search.asi
+%% and collect/listfun.asi, or any of the other packages in
+%% the library.
+%%==============================================================
+
+%%=========================================================
+Package 		Standardimp 
+		
+			Implements "standard"
+==========================================================
+
+====================================================================
+%%		 	_orf_
+====================================================================
+
+Let ?a _orf_ ?b = a _or_ b.
+
+====================================================================
+%% 			_andf_
+====================================================================
+
+Let ?a _andf_ ?b = a _and_ b.
+
+====================================================================
+%% 			==>
+====================================================================
+
+Let ?a ==> ?b = a _implies_ b.
+
+====================================================================
+%%			== (for wrapped species)
+%% 			==?
+%%			=/=?
+====================================================================
+
+Let 
+  {underride} <<?a>> == <<?b>>   = a ==? b;
+
+  {default}   ==?(?)             = false;
+
+  {default, 
+   override}  ?a     ==?  ?b     = a == b;
+   
+  {default,
+   override}  ?a     ==? ?b      = wrappedNumberEqual(<<a>>,<<b>>)
+%Let
+
+Let ?a =/=? ?b = not(a ==? b).
+
+====================================================================
+%% 			max, min and maxmin
+====================================================================
+%% max(l) is the maximum value in list l.
+%% min(l) is the minimum value in list l.
+%% maxmin(<=) l = min(l) and maxmin(>=) l = max(l).
+====================================================================
+
+Let maxmin ?cmp_f ?l =
+  If nil? l then fail(emptyListX) else
+
+    Loop (?m, ?p) = listToPair(l) first matching p
+
+      exitcase []           => m
+
+      case [?h & ?t] =>
+	Subcases
+	  loopcase cmp_f(m,h) => continue (m, t)
+	  loopcase else       => continue (h, t)
+	%Subcases
+    %Loop
+  %If
+%Let
+
+%%----------------------------------------------------------
+
+Let max = maxmin(>=).
+Let min = maxmin(<=).
+
+====================================================================
+%% 			compare for secondary species
+====================================================================
+%% The default is that individuals of different species cannot
+%% be compared.  For numeric species, try to compatify.
+====================================================================
+ 
+Let  
+  {default}   compareHelp(?)          = fail compareX;
+
+  {default,override}
+  	      compareHelp(?a,?b)      = compare(<<a>> - <<b>>, 0);
+
+  {default,override}
+  	      compareHelp(?a,?b)      = compare(<<integer a>> - <<b>>, 0);
+
+  {default,override}
+  	      compareHelp(?a,?b)      = compare(<<a>> - <<integer b>>, 0);
+
+  {override}  compareHelp(?a, ?b)     = compare(a,b);
+  
+  
+  {underride} compare(<<?a>>, <<?b>>) = compareHelp(a, b)
+%Let
+
+====================================================================
+%% 			compare for lists.  
+====================================================================
+%% The order is lexicographic.
+====================================================================
+
+Let{default} compare(?x, ?y) =
+
+  Loop (?a, ?b) = (x, y) first
+
+    exitcase nil? b =>
+	Choose first
+
+	   %%---------------------------------------
+	   %% If a = b = [], then a and b are equal.
+	   %%---------------------------------------
+
+	   case nil? a           => equal
+
+	   %%------------------------------------------------------
+	   %% If b is [] and a is not, then b is a prefix of a, and
+	   %% so a is considered greater than b.
+	   %%------------------------------------------------------
+
+	   else                  => greater
+	%Choose
+
+    %%--------------------------------------------------------------
+    %% We won't get here if b = []. So if a = [], then a is a prefix
+    %% of b.  So a is less than b.
+    %%--------------------------------------------------------------
+
+    exitcase nil? a                 => less
+
+    do Let headCompare = compare(head a, head b).
+
+    %%--------------------------------------------------------------
+    %% If the heads are not equal, then the result is the same as
+    %% the result from the heads.
+    %%--------------------------------------------------------------
+
+    exitcase headCompare =/= equal  => headCompare
+
+    %%--------------------------------------------------------------
+    %% If the heads are equal, then compare the tails.
+    %%--------------------------------------------------------------
+
+    loopcase else                   => continue (tail a, tail b)
+  %Loop
+%Let
+
+====================================================================
+%% 			compare for pairs
+====================================================================
+%% The order is lexicographic.
+====================================================================
+
+%%------------------------------------------------------------------
+%% First the left-parts are compared.  If they are not equal, then
+%% they determine which is greater.  If the left-hand parts are
+%% equal, then compare the right-hand parts.
+%%------------------------------------------------------------------
+
+Let compare((?a, ?b), (?c, ?d)) =
+  Let c1 = compare(a,c).
+  Choose first
+    case c1 =/= equal  => c1
+    else               => compare(b,d)
+  %Choose
+%Let
+
+====================================================================
+%% 			<, >, <=, >=
+====================================================================
+%% These are underrides since some definitions are provided as
+%% primitives.
+====================================================================
+
+Let{underride}:
+   ?x < ?y  = compare (x, y) == less;
+   ?x > ?y  = compare (x, y) == greater;
+   ?x <= ?y = compare (x, y) =/= greater;
+   ?x >= ?y = compare (x, y) =/= less
+%Let
+
+====================================================================
+%% 			=/=
+====================================================================
+%% This is an underride since some definitions are provided
+%% as primitives.
+====================================================================
+
+Let {underride} ?a =/= ?b = not(a == b).
+
+====================================================================
+%% 			Equality for lists
+====================================================================
+
+Let{default} ?x == ?y =
+  Loop (?a,?b) = (x,y) first
+    exitcase nil? a            => nil? b
+    exitcase nil? b            => false
+    exitcase head a =/= head b => false
+    loopcase else              => continue(tail a, tail b)
+  %Loop
+%Let
+
+====================================================================
+%% 			Equality for pairs
+====================================================================
+
+Let (?a,?b) == (?c,?d)  =  (a == c _and_ b == d).
+
+====================================================================
+%% 			succ
+====================================================================
+
+Let succ ?x = 
+    Untrap conversionX => unrank(rank(x) + 1).
+  _butIfFail_
+    fail (domainX "successor of largest")
+%Let
+
+====================================================================
+%% 			$'
+====================================================================
+
+Let $'(?x) =
+  Let p = @putCommasInNumbers!.
+  Assign putCommasInNumbers! := true.
+  Let result = $x.
+  Assign putCommasInNumbers! := p.
+  Value result.
+%Let
+
+====================================================================
+%% 			eagerCharToString
+====================================================================
+%% This is a tool for $(c) where c is a character.
+====================================================================
+
+Let eagerCharToString ?c =
+  Choose
+    case c == '\n' => "'\\n'"
+    case c == '\t' => "'\\t'"
+    case c == '\\' => "'\\\\'"
+    else           => "'" ++ [c] ++ "'"
+  %Choose
+%Let
+
+====================================================================
+%% 			$ for basic species
+====================================================================
+
+Let makeDollar ?fun ?x = lazyDollar(x) _butIfFail_ fun(x).
+
+Let 						%% Numbers
+  species REAL`*a -> String
+  
+  $ = makeDollar(eagerNumToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% Boolean
+  species Boolean -> String
+  
+  $ = makeDollar(eagerBooleanToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% Char
+  species Char -> String
+  
+  $ = makeDollar(eagerCharToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% ExceptionSpecies
+  species ExceptionSpecies -> String
+  
+  $ = makeDollar(eagerExceptionToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% Comparison
+  species Comparison -> String
+  
+  $ = makeDollar(eagerComparisonToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% FileMode
+  species FileMode -> String
+  
+  $ = makeDollar(eagerFileModeToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% BoxFlavor
+  species BoxFlavor -> String
+  
+  $ = makeDollar(eagerBoxFlavorToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% CopyFlavor
+  species CopyFlavor -> String
+  
+  $ = makeDollar(eagerCopyFlavorToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% UnknownKey
+  species UnknownKey -> String
+  
+  $(?k) = "(unknown key " ++ $(zz__cast(k):Natural) ++ ")"
+%%  $ = makeDollar(eagerUnknownKeyToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% Functions
+  species (`a -> `b) -> String
+  
+  $(?f) = lazyDollar(f) _butIfFail_ (eagerFunctionToString f ++ ")")
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% Boxes
+  species <:`a:> -> String
+  
+  $ = makeDollar(eagerBoxToString)
+%Let
+
+%%----------------------------------------------------------
+
+Let						%% Outfile(-)
+  species Outfile(`a) -> String
+  
+  $ = makeDollar(eagerOutfileToString)
+%Let
+
+====================================================================
+%% 		$ for lists and strings
+====================================================================
+
+%%------------------------------------------------------------------
+%% A list is converted to a string as "[...]", where the dots 
+%% are replaced by the contents of the list.  bareDollar(l) prints 
+%% what occurs after the "[".  For example, bareDollar([1,2,3]) =
+%% "1,2,3]".
+%%
+%% If bareDollar wants to get out of the brackets and indicate that
+%% things are being concatenated, it places "]++" at the start.
+%%------------------------------------------------------------------
+
+Define bareDollar ?l =
+  Await l then
+    Choose first
+
+      %%------------------------------------------------------
+      %% If l is lazy, and we are doing a view, then just add 
+      %% lazyDollar(l) to the end.
+      %%------------------------------------------------------
+
+      case do Let s = lazyDollar(l). => "]++" ++ s
+
+      %%------------------------------------------------------
+      %% At nil, terminate the list.
+      %%------------------------------------------------------
+
+      case nil? l => "]"
+
+      %%------------------------------
+      %% Compute dollar of the head.
+      %%------------------------------
+    
+      do Match [?h & ?t] = l.
+         Let headstr = $ h.
+
+      %%------------------------------------------------------
+      %% If the tail is lazy, and we are doing a view, then 
+      %% just add it to the end, using lazyDollar.
+      %%------------------------------------------------------
+
+      case do Let s = lazyDollar(t). => headstr ++ "]++" ++ s
+
+      %%------------------------------------------------------
+      %% If the tail is empty, then just add "]" to finish.
+      %%------------------------------------------------------
+
+      case nil? t => headstr ++ "]"
+
+      %%------------------------------------------------------
+      %% Otherwise, we need a comma.  Leave the rest lazy,
+      %% to prevent a deep recursion into a long list.
+      %%------------------------------------------------------
+
+      else        => Let sepr = If @putCommasInNumbers! then ", " else ","..
+                     Value headstr ++ sepr ++ bareDollar t.
+    %Choose
+  %Await
+%Define
+
+%%---------------------------------------------------------------
+
+Let{default} 
+  species [`a] -> String
+  
+  $(?l) = lazyDollar(l)  _butIfFail_  ("[" ++ bareDollar(l))
+%Let
+
+%%---------------------------------------------------------------
+%% $ for strings is done in a different way, since we don't want
+%% to see string "abc" shown as ['a','b','c']. 
+%%
+%% $(s) normally starts with a quote, then add restDollar(s), which
+%% returns the rest, including the quote at the end.  If
+%% restDollar(s) needs to get out of the quoted part to show
+%% a lazy part (when doing a view), it inserts "++ to stop the
+%% quoted part and start the lazy part.
+%%---------------------------------------------------------------
+
+Define restDollar(?s) =
+  Try
+      Let ds = lazyDollar(s).
+    then
+      "\"++" ++ ds
+    else
+      Await s then
+        Choose first matching s
+          case [] => "\""
+	  case ?h :: ?t =>
+	    Subcases
+	      case do Let dh = lazyDollar(h). =>
+	        "\"++" ++ dh ++ "++\"" ++ restDollar(t)
+	      case h == '\\' => "\\\\" ++ restDollar(t)
+	      case h == '\"' => "\\\"" ++ restDollar(t)
+	      else => h :: restDollar(t)
+	    %Subcases
+        %Choose
+      %Await
+  %Try 
+%Define
+
+%%----------------------------------------------------------
+
+Let{override}
+  species String -> String
+  
+  $(?s) = lazyDollar(s) _butIfFail_ ('"' :: restDollar(s))
+%Let
+	   
+
+====================================================================
+%% 			parenthesize
+====================================================================
+%% Wrap parentheses around x.
+====================================================================
+
+Let parenthesize(?x) = "(" ++ x ++ ")".
+
+====================================================================
+%%			parenthesizeDollar
+====================================================================
+%% Wrap parentheses around $(x), but don't parenthesize an ordered
+%% pair, since it will already get parentheses around it.
+====================================================================
+
+Expect parenthesizeDollar: `a -> String.
+
+Let{default} parenthesizeDollar(?x) = parenthesize($x).
+Let{override} parenthesizeDollar: (`a,`b) -> String = $.
+
+====================================================================
+%% 			$ for pairs
+====================================================================
+
+%%------------------------------------------------------
+%% Function pairDollar is an eager form of $ that does
+%% not put parentheses around the pair.
+%%------------------------------------------------------
+
+Let{default}
+  species (`a,`b) -> String
+
+  pairDollar(?a,?b) =  $a ++ "," ++ $b
+%Let
+
+%%------------------------------------------------------
+	     
+Let{override}
+  species (`a,`b,`c) -> String
+  
+  pairDollar(?a,?b) =
+    $a ++ "," ++ (lazyDollar(b) _butIfFail_ pairDollar(b))
+%Let
+
+%%------------------------------------------------------
+
+Let $(?pr) = lazyDollar(pr) _butIfFail_ parenthesize(pairDollar(pr)).
+
+
+====================================================================
+%% 			$ for secondary species
+====================================================================
+
+Let{underride}
+  species ``a -> String
+  
+  $ ?w =   lazyDollar(w) 
+         _butIfFail_ 
+           Match <<?x>> = w.
+           If @showIntrinsic!
+             then "<<" ++ $x ++ ":" ++ $(speciesOf(x)) ++ ">>"
+             else $x
+           %If
+%Let
+
+====================================================================
+%% 			showApply
+====================================================================
+%% showApply is used by the definitions of $ for programmer-defined
+%% species.  It shows f applied to argument a, where f is the name
+%% of a constructor.
+====================================================================
+
+Let showApply(?f,?a) = f ++ parenthesizeDollar(a).
+
+====================================================================
+%% 			showCurriedApply
+====================================================================
+%% showCurriedApply is used by the definitions of $ for
+%% programmer-defined species that have curried constructors.
+%% Parameter k is one less than the number of parameters that
+%% the constructor has. 
+%%
+%% Function showCurriedArgs shows the arguments.  They are given
+%% to it as a tuple.  For example, if a species is defined by
+%%    Species S = con A B C.
+%% and x is set to (con a b c), then when $(x) is computed,
+%% the arguments will be shown by (showCurriedArgs 2 (a,b,c)).
+%% Function showCurriedArgs is designed to show the arguments
+%% separately, without commas between them.
+================================================================
+
+Expect showCurriedArgs: Natural -> `a -> String.
+
+%%--------------------------------------------------------
+%% The default handles species that are not ordered pairs.
+%% It should only be used with k = 0.
+%%--------------------------------------------------------
+
+Let{default} showCurriedArgs 0 ?a = parenthesizeDollar(a).
+
+%%--------------------------------------------------------
+%% When the parameter is a pair, check k to see how to
+%% print it.
+%%--------------------------------------------------------
+
+Let{override} showCurriedArgs by
+  case showCurriedArgs 0 ?a = parenthesizeDollar(a)
+  case showCurriedArgs (?k+1) (?x,?y) = 
+     parenthesizeDollar(x) ++ showCurriedArgs k y
+%Let
+
+%%--------------------------------------------------------
+
+Let showCurriedApply ?k (?f,?a) = f ++ showCurriedArgs k a.
+
+====================================================================
+%% 			enumToStringF
+====================================================================
+%% enumToStringF is a tool that is used by the definition of $
+%% for enumerated species.  It looks up the definition in an
+%% array of constructor names.
+====================================================================
+
+Let enumToStringF ?names ?x  =  
+  lazyDollar(x) _butIfFail_ names#_(rank x)
+%Let
+
+====================================================================
+%% 			$$ for numbers
+====================================================================
+%% The definition of $$ for species Real is primitive.  Here, we
+%% extend it to other standard numeric species by converting to
+%% Real.
+====================================================================
+
+Let{underride} ?r $$ (?n,?k) = result |
+  Let    oldPrecision = @precision!.
+  Assign precision!  := n+1.
+  Let    result       = (~r) $$ (n,k).
+  Assign precision!  := oldPrecision.
+%Let
+
+====================================================================
+%% 			$$ for strings
+====================================================================
+
+Let ?s $$ ?n =
+  Let len = length s.
+  If len >= n
+    then s
+    else (dup (n -- len) ' ') ++ s
+  %If
+%Let
+
+====================================================================
+%% 			$$'
+====================================================================
+
+Let ?x $$' ?f = 
+  Let p = @putCommasInNumbers!.
+  Assign putCommasInNumbers! := true.
+  Let result = x $$ f.
+  Assign putCommasInNumbers! := p.
+  Value result.
+%Let
+
+====================================================================
+%% 			leftin
+====================================================================
+
+Let ?s _leftin_ ?k =
+  Let l = length s.
+  If l >= k
+    then s
+    else s ++ (dup (k -- l) ' ')
+  %If
+%Let
+
+====================================================================
+%% 			Character sets
+====================================================================
+%% The following character sets are used in functions below.
+%% They are not exported.  They build denses sets (represented as
+%% bit vectors) whose species is Integer, using primitive
+%% makeCharSetPrim, which is only available in the standard
+%% package.  
+====================================================================
+
+Let 
+  whiteSpaceSet       = makeCharSetPrim (0, " \t\n\{13}",            true);
+  symbolicIdChars     = makeCharSetPrim (0, "!@#$^&*-+/_'?<>=~\\",   true);
+  digitsSet           = makeCharSetPrim (0, "0123456789",            true);
+  digitsPointSet      = makeCharSetPrim (0, "0123456789.eE+-",       true);
+  hexDigitsSet        = makeCharSetPrim (0, "0123456789abcdefABCDEF",true);
+  backslashQuoteSet   = makeCharSetPrim (0, "\\\"",                  true);
+  ordinaryIdChars     = makeCharSetPrim
+   (0,
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'?!",
+    true)
+%Let
+
+====================================================================
+%% 			skipWS
+====================================================================
+%% Note: This function and some below use functions makeCharSetPrim
+%% and scanForCharPrim, which are only available in the standard
+%% package.  They use character sets that are dense sets, but 
+%% whose type is Integer.  This is to make it unnecessary to import
+%% the set manipulation packages into every program.  To use
+%% sets elsewhere, go ahead and import the set manipulation packages.
+%% Use denseSet and scanForChar in other packages.
+====================================================================
+
+Let skipWS ?s = r |
+  Match(?,?r,?) = scanForCharPrim(s, ' ', whiteSpaceSet, false).
+%Let
+
+====================================================================
+%%			showTagged
+====================================================================
+
+Let showTagged ?x = ($x) ++ [':' & $(speciesOf x)].
+
+====================================================================
+%%			speciesOf
+%%			intrinsicSpeciesOf
+====================================================================
+
+Let speciesOf           (?:`a)  = speciesAsValue `a.
+Let intrinsicSpeciesOf <<?x>>   = speciesOf x.
+Let intrinsicSpeciesOf (?x:`*a) = speciesOf x.
+
+====================================================================
+%%	 		WriteTo
+====================================================================
+
+Let WriteTo ?f. = Assign stdout! := forceAll(f)..
+
+====================================================================
+%% 			pipe
+====================================================================
+
+%%------------------------------------------------------------
+%% This definition uses function zz__cast, which is only available
+%% to the standard package.  It changes the species of an
+%% item without changing its representation.
+%%
+%% A pipe is implemented using protected shared unknowns.  Writing
+%% to a pipe is done by binding the unknown.
+%%------------------------------------------------------------
+
+Let pipe() = (unk, theFile) |
+  Match (?unk,?) _also_ ?f  =  protectedSharedUnknown().
+  Let theFile = (zz__cast: `? -> Outfile(`?))(sharedBox(f)).
+%Let
+
+====================================================================
+%% 			FWrite
+%%			CloseFile
+====================================================================
+
+%%------------------------------------------------------------
+%% These definitions uses zz__acquireBox, ZZ__ExternalFWrite and
+%% ZZ__ExternalFClose, all of which are defined only for the
+%% standard package.
+%%------------------------------------------------------------
+
+Assume zz__acquireBox: Outfile(`a) -> (Box([`a], UnknownKey), Boolean).
+
+%%------------------------------------------------------------
+%% InternalFWrite writes into a box that is a pipe.  It works
+%% by binding an unknown, and creating a new unknown to
+%% represent the part that will be written later.
+%%------------------------------------------------------------
+
+Let InternalFWrite(?bx!,?l). =
+  If unknown?(@bx!) then
+    Match (?newUnk,?) _also_ ?newf = protectedSharedUnknown().
+    BindProtectedUnknown(@bx!, (flatten l) ++ newUnk).
+    Assign bx! := newf.
+  else
+    Fail closedPipeX.
+  %If
+%Let
+
+%%------------------------------------------------------------
+%% InternalFClose closes the write end of a pipe by binding the 
+%% unknown to nil.
+%%------------------------------------------------------------
+
+Let InternalFClose(?bx). =
+  BindProtectedUnknown(@bx, nil).
+%Let
+
+%%------------------------------------------------------------
+
+Let failFileOp(?) = Fail domainX("Bad internal file")..
+
+%%------------------------------------------------------------
+%% fileOp2 writes list l onto file f.  It makes the determination
+%% of whether f is an internal or external file.  Function
+%% l_internal is the function that is used to write onto
+%% an internal file (a pipe) and l_external is the function
+%% to use to write to an external file.
+%%------------------------------------------------------------
+
+Let fileOp2 (?l_internal, ?l_external) ?f ?l =
+  Try Let bx = left(zz__acquireBox(f)).
+    then l_internal(bx,l)
+    else l_external(f,l)
+  %Try
+%Let
+
+%%------------------------------------------------------------
+%% Function fileOp1 is used to close a file f.  It determines
+%% whether f is internal or external.  l_internal is the function
+%% to use to close an internal file, and l_external is the
+%% function to close an external file.
+%%------------------------------------------------------------
+
+Let fileOp1(?l_internal, ?l_external) ?f =
+  Try Let bx = left(zz__acquireBox(f)).
+    then l_internal(bx)
+    else l_external(f)
+  %Try
+%Let
+
+%%------------------------------------------------------------
+%% The first definition of each of the following pairs is for 
+%% arbitrary Outfile species.  It is only used on pipes.
+%%
+%% The second definition is for Outfile(Char). It can be used
+%% on pipes or external files.
+%%------------------------------------------------------------
+
+Let{default}  (FWrite: Outfile(`a) -> [[`a]] -> ()) = 
+  fileOp2(InternalFWrite, failFileOp)
+%Let
+Let{override} FWrite    = fileOp2(InternalFWrite, ZZ__ExternalFWrite).
+
+Let{default}  CloseFile = fileOp1(InternalFClose, failFileOp).
+Let{override} CloseFile = fileOp1(InternalFClose, ZZ__ExternalFClose).
+
+====================================================================
+%% 			FPut
+====================================================================
+
+Let FPut ?f, ?c. = FWrite f, [[c]]..
+
+====================================================================
+%% 			infile
+====================================================================
+
+Let infile ?mode_p ?name_p = basicInfile (name_p, mode_p).
+Let infile ?name_p         = basicInfile (name_p, []).
+
+====================================================================
+%% 			outfile
+====================================================================
+
+Let outfile ?mode_p ?name_p = basicOutfile (name_p, mode_p).
+Let outfile ?name_p         = basicOutfile (name_p, []).
+
+====================================================================
+%% 			WriteFile
+%%			AppendToFile
+====================================================================
+%% The first definition of WriteFile is for the case where there
+%% is an explicit mode parameter.  The second definition uses
+%% the default mode, [].
+====================================================================
+
+Let WriteFile ?mode_p, ?file_p, ?content_p. =
+  Let f = basicOutfile(file_p, mode_p).
+  FWrite f, [content_p].
+  CloseFile(f).
+%Let
+
+Let WriteFile = WriteFile []..
+
+Let AppendToFile = WriteFile [appendMode]..
+
+====================================================================
+%% 			Write
+%%			Writeln
+%%			FWriteln
+====================================================================
+
+Let FWriteln ?f, ?l. = 
+  FWrite f, l ++ ["\n"].
+%Let
+
+Let Write ?l.   = FWrite @stdout!, l..
+Let Writeln ?l. = FWriteln @stdout!, l..
+
+====================================================================
+%%		 	FWrite
+%%		   for lists of files
+====================================================================
+%% Write l onto each file in list p_files.
+====================================================================
+
+Let FWrite ?p_files, ?l. =
+  For ?f from p_files do
+    FWrite f, l.
+  %For
+%Let
+
+====================================================================
+%% 			View
+====================================================================
+
+%%------------------------------------------------------------
+%% This definition uses ZZ__BeginView and ZZ__EndView, which are only
+%% available in the standard package.  They set a flag telling
+%% lazyDollar how to compute.  
+%%
+%% The computation is atomic, both to ensure that view gets a
+%% snapshot of x and to take into account that a global variable
+%% is being used to tell lazyDollar how to behave.  The current
+%% implementation gives a thread exclusive access to the interpreter
+%% when it is running atomically.  If that is changed, then handling
+%% of view and lazyDollar must also be changed.
+%%------------------------------------------------------------
+
+Let view ?x = s |
+  Open Atomic
+    ZZ__BeginView().
+    FreezeBoxRanks(true).
+    Let s = pack($x).
+    FreezeBoxRanks(false).
+    ZZ__EndView().
+  %Atomic
+%Let
+  
+====================================================================
+%% 			Show
+====================================================================
+
+Let Show ?f, ?x. = FWrite f, [view x]..
+
+====================================================================
+%% 			Increment
+%%			Decrement
+%%			AddTo
+====================================================================
+
+Let Increment ?n!. = Assign n! := @n! + 1..
+
+%%------------------------------------------------------------
+
+Let Decrement ?i!. = Assign i! := @i! - 1..
+
+%%------------------------------------------------------------
+%% We need to be careful when decrementing a natural number.
+%% The result might be -1.
+%%------------------------------------------------------------
+
+Let
+  species <:Natural:>     -> ()
+  
+  Decrement ?n!. =
+    Let atn = @n!.
+    If atn > 0
+      then Assign n! := atn -- 1.
+      else Fail domainX("decrement of 0").
+    %If
+%Let
+
+%%----------------------------------------------------------
+
+Let
+  species <:INTEGER:> -> ()
+
+  Decrement ?b! _also_ <:?<<?x>>?:>. = 
+    Assign b! := <<(integer x) - 1>>.
+%Let
+
+%%------------------------------------------------------------
+
+Let AddTo(?n!, ?k). = Assign n! := @n! + k..
+
+====================================================================
+%% 			copy default
+====================================================================
+%% The default is not do to anything.  To get copy to work, you 
+%% must import collect/boxes.ast.
+====================================================================
+
+Let{default} copy (?:CopyFlavor) = idf.
+Let copy = copy same.
+
+====================================================================
+%% 			largenum
+====================================================================
+
+Let largenum = 100000000000000000000.
+
+====================================================================
+%%			zero
+%%			unit
+====================================================================
+
+Let zero = 0.
+Let unit = 1.
+
+====================================================================
+%% 			absFloor
+%%			absCeiling
+====================================================================
+
+Let absFloor(?x) = nabs(floor(x)).
+Let absCeiling(?x) = nabs(ceiling(x)).
+
+====================================================================
+%% 			naturalToHex
+====================================================================
+%% Function naturalToHexHelp is primitive.  It tends to put extra
+%% 0's at the front of the number.  We remove them here.  Yes,
+%% this is awkward, but oh well.
+====================================================================
+
+Let naturalToHex(?n,?k) =
+  Let s = naturalToHexHelp(n).
+  While head s == '0' do
+    Relet s = tail s.
+  %While
+  Value If nil? s then "0" else s %If $$ k.
+%Let
+
+====================================================================
+%% 			round
+====================================================================
+
+Let            round ?x     = floor(x + 0.5).
+Let            round ?n     = integer n.
+Let{underride} round <<?x>> = round(x).
+
+====================================================================
+%% 			_monus_
+====================================================================
+
+Let ?x _monus_ ?y = If x > y then x -- y else 0..
+
+====================================================================
+%% 			_upto_   (infinity)
+%%			_downto  (minusInfinity)
+====================================================================
+
+Let _upto_ by
+  case ?n _upto_ infinity      = n _upto_ (n + largenum)
+  case ?  _upto_ minusInfinity = []
+%Let
+
+Let _downto_ by
+  case ?  _downto_ infinity      = []
+  case ?n _downto_ minusInfinity = n _downto_ (n - largenum)
+%Let
+
+====================================================================
+%% 			## (infinity)
+====================================================================
+
+Let ## by
+  case ?a ## (?n, infinity)     = a ## (n, n + largenum)
+  case ?  ## (?, minusInfinity) = []
+%Let
+
+====================================================================
+%% 			#
+====================================================================
+%% Operator #_ is primitive.  The definition of # is here.
+====================================================================
+
+Let ?x # ?n = 
+  {n > 0 else subscriptX} 
+  Value x #_ (n--1).
+%Let
+
+====================================================================
+%% 			dup
+====================================================================
+%% Dup makes 2n dupicates of a value x by making n duplicates and
+%% concatenating it with itself.  This takes advantage of the
+%% internal implementation of concatenation, which will not make
+%% copies.  It shares the two equal lists.
+====================================================================
+
+Define dup ?n ?x =
+  Choose first
+    case zero? n => []
+    case odd?(n) => [x & dup (n -- 1) x]
+    else         => y ++ y |
+		      Let y = dup (n _div_ 2) x.
+  %Choose
+%Define
+
+====================================================================
+%% 			infiniteDup
+====================================================================
+
+Define infiniteDup ?x = result |
+  Define result = x :: result.
+%Define
+
+====================================================================
+%% 			eagerMap
+====================================================================
+
+Define eagerMap by
+  case eagerMap ?  []        = []
+  case eagerMap ?f [?h & ?t] = [f(h) & eagerMap f (t)]
+%Define
+
+====================================================================
+%%			 map  
+====================================================================
+
+Define map ?f ?l = 
+  Await l then 
+    Choose first matching l
+      case nil               => []
+      case [?h & ?t]         => shortApply(f, h)  ::  map f t
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%%			 lazyMap  
+====================================================================
+
+Define lazyMap ?f ?l = 
+  Await then 
+    Choose first matching l
+      case nil               => []
+      case [?h & ?t]         => (:f h:)  ::  lazyMap f t
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%%			 mapSuccesses
+====================================================================
+
+Define mapSuccesses ?f ?l = 
+  Await l then 
+    Choose first matching l
+      case nil          => []
+      case [?h & ?t]    => ((f(h) :: rest_l) _butIfFail_ rest_l) |
+        			Let rest_l = mapSuccesses f t.
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			MapProc
+====================================================================
+
+Let MapProc ?P, ?x. =
+  Loop ?r = x
+    exitcase nil? r => ()
+    loopcase else   => P(head(r)).
+    		       continue tail(r)
+  %Loop
+%Let
+		             
+====================================================================
+%% 			rfold
+====================================================================
+
+Define rfold by 
+  Await then
+    case rfold (?init_p, ?)  []        = init_p
+    case rfold (?init_p, ?f) [?h & ?t] = f (h, rfold (init_p, f) t)
+  %Await
+%Define
+
+====================================================================
+%% 			lfold
+====================================================================
+
+Let lfold (?init, ?f) ?l =
+  Loop (?result, ?rest) = (init, l) first matching rest
+    exitcase []        => result
+    loopcase [?h & ?t] => continue (f(result, h), t)
+  %Loop
+%Let
+
+====================================================================
+%% 			fold
+====================================================================
+
+Let fold = lfold.
+
+====================================================================
+%% 			flatten
+====================================================================
+
+Let flatten = rfold (nil,++).
+
+====================================================================
+%% 			each
+====================================================================
+
+Let each ?l =
+  Loop ?r = l first matching r
+    exitcase []       => fail testX
+    case [?h & ?t] =>
+      Subcases all
+	exitcase true => h
+	loopcase true => continue t
+      %Subcases
+  %Loop
+%Let
+
+====================================================================
+%% 			eachMixed
+====================================================================
+
+Let eachMixed ?l =
+  Loop ?r = l first matching r
+    exitcase []       => fail testX
+    case [?h & ?t] =>
+      Subcases all mixed
+	exitcase true => h
+	loopcase true => continue t
+      %Subcases
+  %Loop
+%Let
+
+====================================================================
+%% 			_eagerCutBy_
+====================================================================
+
+Let ?l _eagerCutBy_ ?f =  (l##(0, k), p) |
+
+  open Loop (?p, ?k) = (l, 0) first
+    exitcase nil? p _or_ f(head p) => ()
+    loopcase else                  => continue(tail p, k + 1)
+  %Loop
+  
+%Let
+
+====================================================================
+%% 			constf
+====================================================================
+
+Let constf ?k ? = k.
+
+====================================================================
+%% 			__
+====================================================================
+
+Let __ ?f ?x ?y = f(y,x).
+
+====================================================================
+%% 			__/-
+====================================================================
+
+Let __/- ?f (?a,?b) = f b a.
+
+====================================================================
+%% 			curry
+====================================================================
+
+Let curry ?f ?x ?y = f(x,y).
+
+====================================================================
+%% 			uncurry
+====================================================================
+
+Let uncurry ?f (?a,?b) = f a b.
+
+====================================================================
+%% 			_bar_
+====================================================================
+
+Let ?x _bar_ ?f = f x.
+
+====================================================================
+%% 			_is_
+====================================================================
+
+Let ?x _is_ ?p = p(x).
+
+====================================================================
+%% 			_o_
+%%			_o3_
+====================================================================
+
+Let (?f _o_ ?g) ?x = f(g x).
+
+%%----------------------------------------------------------
+
+Let _o3_(?f,?g,?h) ?x = f(g(h(x))).
+
+====================================================================
+%% 			||
+====================================================================
+
+Let (?f || ?g) ?x = g(f(x)).
+
+====================================================================
+%% 			succeedsf
+====================================================================
+
+Let succeedsf ?f ?x =
+  Try Ignore(f x).
+    then true
+    else false
+  %Try
+%Let
+
+====================================================================
+%% 			optionalf
+====================================================================
+
+Let optionalf ?f ?x = value(f x) _butIfFail_ noValue.
+
+====================================================================
+%% 			lazy
+====================================================================
+
+Let lazy ?f ?x = (:f x:).
+
+====================================================================
+%%			sharedBox
+%%			nonsharedBox
+%%			makebox
+%%			box
+%%			new
+%%			newUnknown
+%%			newProtectedUnknown
+====================================================================
+
+Let sharedBox(?x) = b |
+  Var{shared} b.
+  AssignInit b := x.
+%Let
+
+Let nonsharedBox(?x) = b |
+  Var{nonshared} b.
+  AssignInit b := x.
+%Let
+
+Let makebox = sharedBox.
+
+Let box ?p_flav ?x = b |
+  Let b = If p_flav == shared then <:# #:> else <:% %:> %If.
+  Assign b := x.
+%Let
+
+Let new ?p_flav =
+  If p_flav == shared 
+    then emptySharedBox()
+    else emptyNonsharedBox()
+  %If
+%Let
+
+Let newUnknown ?p_flav = 
+  If p_flav == shared 
+    then sharedUnknown() 
+    else nonsharedUnknown()
+  %If
+%Let
+
+Let newProtectedUnknown ?p_flav = 
+  If p_flav == shared 
+    then protectedSharedUnknown() 
+    else protectedNonsharedUnknown()
+  %If
+%Let
+
+====================================================================
+%% 			defaultAt
+====================================================================
+
+Let defaultAt ?l_default ?b =
+  testAt b  _butIfFail_  l_default
+%Let
+
+===============================================================
+%% 			optAt
+====================================================================
+
+Let optAt ?b = value(testAt b)  _butIfFail_ noValue.
+
+====================================================================
+%%			optAssign
+====================================================================
+
+Let OptAssign by one
+  case OptAssign ?b! := noValue.   = EmptyBox b!.
+  case OptAssign ?b! := value(?x). = Assign b! := x.
+%Let
+
+
+====================================================================
+%% 			Swap
+====================================================================
+
+Let Swap(?x!, ?y!). =
+  Atomic
+    Let cx = optAt(x!).
+    Let cy = optAt(y!).
+    OptAssign x! := cy.
+    OptAssign y! := cx.
+  %Atomic
+%Let
+
+====================================================================
+%%			array
+%% 			infiniteArray
+%% 			infiniteSharedArray
+%% 			infiniteNonsharedArray
+====================================================================
+
+Let array ?p_flav =
+  If p_flav == shared then sharedArray else nonsharedArray %If
+%Let
+
+Define infarray ?p_flav ?i = 
+  (: array p_flav i ++ infarray p_flav (i+i) :)
+%Define
+
+Let infiniteArray ?p_flav    = infarray p_flav 4.
+Let infiniteSharedArray()    = infiniteArray shared.
+Let infiniteNonsharedArray() = infiniteArray nonshared.
+
+====================================================================
+%% 			list
+====================================================================
+
+Let list ?x = [x].
+
+====================================================================
+%% 			pack
+%% 			eagerPack
+====================================================================
+
+Let{default} pack = lazyPack.
+Let{override} pack(?s:[ENUMERATED`a]) = force(lazyPack(forceAll(s))).
+Let eagerPack(?x) = force(lazyPack x).
+
+====================================================================
+%% 			forceList
+====================================================================
+
+Let forceList ?x = x |
+  Ignore length x.
+%Let
+
+====================================================================
+%%			 _lminus_
+====================================================================
+
+Let ?x _lminus_ ?y =
+  Loop (?restx,?resty) = (x,y) first
+    exitcase nil? resty => restx
+    exitcase nil? restx => fail testX
+    exitcase head restx =/= head resty => fail testX
+    loopcase else       => continue (tail restx, tail resty)
+  %Loop
+%Let
+
+====================================================================
+%%			 _rminus_
+====================================================================
+
+Let ?x _rminus_ ?y =
+  Let lx = length x.
+  Let ly = length y.
+  If lx < ly then fail testX.
+  If x##(lx--ly, largenum) == y
+    then x##(0, lx--ly)
+    else fail testX
+  %If
+%Let
+
+====================================================================
+%% 			last
+====================================================================
+
+Let last by first
+  case last [] = fail emptyListX
+  case last ?x = x#_(length x -- 1)
+%Let
+
+====================================================================
+%% 			allButLast
+====================================================================
+
+Let allButLast by first
+  case allButLast [] = fail emptyListX
+  case allButLast ?x = x##(0,length(x) -- 1)
+%Let
+	
+====================================================================
+%% 			splitAtEnd
+====================================================================
+
+Let splitAtEnd by first
+  case splitAtEnd [] = fail emptyListX
+  case splitAtEnd ?x = (x##(0,n), x#_n) | 
+  			  Let n = length(x) -- 1.
+%Let
+
+====================================================================
+%% 			+/
+====================================================================
+
+Let ?x +/ ?a = x ++ [a].
+
+====================================================================
+%% 			rewrap
+%%			concrete
+====================================================================
+
+Let rewrap ?<< ?x >>? = <<x>>.
+
+Let{irregular}:
+  concrete ?<< ?x >>? = x;
+  concrete ?x         = x
+%Let
+
+
+====================================================================
+%% 			reform
+====================================================================
+%% There are lots of cases depending on how the reform
+%% is being done.
+====================================================================
+
+Let
+  {default}:
+
+  reform(?) = fail speciesX;
+
+  {default,override}:
+  
+  species [`a] -> `b
+    reform(?x) = ^^(map reform x);
+  
+  species Optional(`a) -> `b 
+    reform by one
+     case reform(noValue)   = ^^(noValue)
+     case reform(value(?a)) = ^^(value(reform a));
+	
+  species (`a,`b) -> `c
+    reform(?x,?y) = ^^(reform x, reform y);
+    
+  species ``a -> `b
+    reform(?x) = reform(unsafeUnwrap(x));
+  
+  species `a -> `b constraint (`b >= `a)
+    reform = ^^;
+    
+  species REAL`a -> REAL`b
+    reform(?x) = x _as_ zero;
+
+  species `a -> `b
+    reform = idf;
+%Let
+    
+====================================================================
+%% 			^^
+====================================================================
+
+Let
+  {default}:
+  
+  species [`a] -> [`b]             
+    ^^(?x) = map(^^)(x);
+  
+  {default,override}:
+  
+  species Optional(`a) -> Optional(`b) 
+    ^^ by one
+     case ^^(noValue)   = noValue
+     case ^^(value(?a)) = value(^^ a);
+	
+  species (`a -> `b) -> (`c -> `d)
+    ^^(?f)(?x) = ^^(f(^^(x)));
+  
+  species (`a,`b) -> (`c,`d)
+    ^^(?x,?y) = (^^(x), ^^(y));
+  
+  species `a -> ``b
+    ^^ = wrap;
+  
+  species `a -> `a
+    ^^ = idf;
+    
+%Let
+
+====================================================================
+%%			downcast
+====================================================================
+
+Let
+  {default}:
+  
+    species ``a -> ``b constraint (``a >= ``b)
+      downcast = rewrap;
+      
+    species ``a -> `*b constraint (``a >= `*b)
+      downcast ?<< ?x >>? = x;
+
+    species [`a] -> [`b] constraint (`a >= `b)
+      downcast ?x = map downcast x;
+      
+    species (`a,`b) -> (`c,`d) constraint (`a >= `c, `b >= `d)
+      downcast (?x,?y) = (downcast x, downcast y);
+
+    species (`a -> `b) -> (`c -> `d) constraint (`a -> `b >= `c -> `d)
+      downcast ?f ?x = downcast(f(downcast x));
+
+    species Optional(`a) -> Optional(`b) constraint (`a >= `b)
+      downcast by
+        case downcast noValue    = noValue
+	case downcast (value ?x) = value(downcast x);
+	
+  {override}: 
+    species `a -> `a
+      downcast = idf
+%Let
+
+====================================================================
+%% 			handleDemons
+====================================================================
+
+%%------------------------------------------------------------
+%% handleDemons is used to handle onAssigns.  It applies each function
+%% that has been attached to a box.  Its implementation uses function  
+%% zz__cast, which converts from one species to another in
+%% an unsafe way, and is only available to the standard package.
+%% It also uses mode implicitPop, which is only available
+%% in the standard package.
+%%
+%% DO NOT USE THIS FUNCTION DIRECTLY. IT IS DESIGNED TO BE CALLED
+%% FROM THE INTERPRETER UNDER SPECIAL CIRCUMSTANCES.  IT REMOVES
+%% ITS OWN RESULT FROM THE STACK, WHICH FUNCTIONS DO NOT DO.
+%%------------------------------------------------------------
+
+Expect handleDemons : (Optional(`a), Optional(`a), [ANY]) -> ().
+
+%%------------------------------------------------------------
+
+Let{implicitPop} 
+  handleDemons(?oldContent, ?newContent, ?l) =
+    For (?<< ?Fun >>?) from reverse l do
+      Fun(zz__cast(oldContent), zz__cast(newContent)).
+    %For
+%Let
+
+====================================================================
+%% 			OnAssign
+====================================================================
+
+%%------------------------------------------------------------
+%% This function uses primitive function ZZ__BasicOnAssign, which is
+%% only defined for the standard package.
+%%------------------------------------------------------------
+
+Let OnAssign(?bx, ?fun). =
+  ZZ__BasicOnAssign(bx, <<fun>>:ANY).
+%Let
+
+====================================================================
+%%			lazy?
+====================================================================
+
+Let lazy?(?x) = not(notLazy?(x)).
+
+====================================================================
+%%			ChooseCommit
+%%			ChooseTest
+====================================================================
+%% These functions are used in the implementation of choice
+%% with modes all and all mixed.
+
+Let ChooseCommit(?b). = Assign b := ()..
+Let ChooseTest(?b).   = {emptyBox? b}.
+
+====================================================================
+%%			PULL IMPLEMENTATIONS
+====================================================================
+
+%% The implementation of versions of pull is quite ugly.  I
+%% apologize for that.  
+
+====================================================================
+%% 			pullId
+====================================================================
+%% Get an identifier, and return its value, along with the
+%% rest of the string.
+====================================================================
+
+Let isletter(?c) = ('a' <= c _and_ c <= 'z') _or_ ('A' <= c _and_ c <= 'Z').
+
+Let pullId(?s) =
+  Let ss = skipWS(s).
+  Choose first
+  
+    case nil? ss => fail listExhaustedX
+    
+    %%--------------------------
+    %% Check for an ordinary id.
+    %%--------------------------
+
+    case isletter(head ss) =>
+      Try
+        open Untrap noDefX("") =>
+	  Match (?n,?rest,?) = 
+	    scanForCharPrim(ss, ' ', ordinaryIdChars, false)
+	  %Match
+          Let result = (outerBinding(ss##(0,n)), rest).
+	%Untrap
+        then result
+        else fail conversionX
+      %Try
+      
+    %%---------------------------
+    %% Check for a symbolic id.
+    %%---------------------------
+
+    do Match (?n,?rest,?) = 
+	 scanForCharPrim(ss, ' ', symbolicIdChars, false)
+       %Match
+
+    case n > 0 =>
+      Try
+        open Untrap noDefX("") => 
+	  Let result = (outerBinding(ss##(0,n)), rest).
+        %Untrap
+	then result
+	else fail conversionX
+      %Try
+      
+    %%---------------------------------------
+    %% Fail if no ordinary id or symbolic id.
+    %%---------------------------------------
+
+    else => fail conversionX
+
+  %Choose
+%Let
+
+====================================================================
+%%			maybeParens
+====================================================================
+
+%%-----------------------------------------------------------
+%% maybeParens is not a general purpose function.  It and other
+%% helper functions implemented here are specific to implementing
+%% versions of the pull function.
+%%
+%% maybeParens puller s returns the result of using puller 
+%% to extract a prefix of a string, but it allows the prefix
+%% to be enclosed in parentheses.  For example, if puller is
+%% pull: String -> (Natural, String) and s holds "(32) rest", 
+%% then maybeParens puller s returns (32, " rest").
+%%
+%% maybeParens presumes that puller is some version of the
+%% pull function, and it can substitute pull for it.  The
+%% main purpose of the puller parameter is just to get its species.
+%%
+%% There is a special case when the value being pulled is an
+%% ordered pair.  pull for ordered pairs requires parentheses.
+%% Since the parentheses are being stripped away here, we use
+%% the ordered pair puller (pullParts) that does not need parentheses.
+%%
+%% To manage this, maybeParens uses helper function maybeParensHelp,
+%% which has a parameter telling the context in which it is used.
+%% The parameter is
+%%     false   for an outer call - no special information.
+%%     true    for a call that is already inside parentheses.
+%%
+%% There are two definitions of maybeParensHelp, one for non-pairs,
+%% the other for pairs.
+%%------------------------------------------------------------
+
+Expect pullParts: String -> ((`?,`?), String).
+
+Define{default} maybeParensHelp ? ?puller ?s =
+  Let ss = skipWS(s).
+  If head ss == '(' then
+    Match (?a,?r) = maybeParensHelp true puller (tail ss).
+    Let rr = skipWS(r).
+    {head rr == ')'}
+    (a,tail rr)
+  else
+    puller ss
+  %If
+%Define
+
+Define{override} maybeParensHelp ?cntxt ?puller ?s =
+  Let ss = skipWS(s).
+  Choose first
+    case head ss == '(' =>
+      Match (?a,?r) = maybeParensHelp true puller (tail ss).
+      Let rr = skipWS(r).
+      {head rr == ')'}
+      (a,tail rr)
+    case cntxt =>
+      pullParts ss
+    else =>
+       puller ss
+  %Choose
+%Define
+
+Define maybeParens = maybeParensHelp false.
+
+====================================================================
+%%			pullHelp
+====================================================================
+
+%%-------------------------------------------------------------
+%% pullHelp is used by the pull function that is automatically
+%% created for a new species.  
+%%----------------------------------------------------------------
+
+%%-------------------------------------------------------------
+%% pullHelp2(r, puller) extracts a value from string r using
+%% pull function puller.  It insists that r begins with
+%% white space or a left paren or bracket.  This is the 
+%% argument of the constructor.
+%%-------------------------------------------------------------
+
+Define pullHelp2(?r,?puller) =
+  Let h = head r.
+  {h == '(' _or_ h == '[' _or_ h == ' ' _or_ h == '\t' _or_ h == '\n'}
+  Value maybeParens puller r.
+%Define
+
+%%----------------------------------------------------------------
+%% pullHelp1(p,puller) s first removes prefix p from s.  p is the
+%% name of the constructor.  Then it gets the argument, using
+%% puller to pull the argument.
+%%----------------------------------------------------------------
+
+Define pullHelp1(?p,?puller) ?s = pullHelp2(skipWS(s) _lminus_ p, puller).
+
+%%-------------------------------------------------------------
+%% pullHelp(s,p,puller) implements pull(s) for a species or 
+%% cases of a species where the constructor is called p and 
+%% the parameter of the constructor can be pulled using function 
+%% puller.
+%%-------------------------------------------------------------
+
+Define pullHelp(?s,?p,?puller) = 
+  Untrap conversionX =>
+    Let ss = skipWS(s).
+    Choose
+      case nil? ss => fail listExhaustedX
+      case do Let r = maybeParens(pullHelp1(p,puller)) ss. => r
+      else =>  fail conversionX
+    %Choose
+  %Untrap
+%Define
+
+====================================================================
+%%			pullCurriedHelp
+====================================================================
+
+%%--------------------------------------------------------------------
+%% pullCurriedHelp is used by the pull function that is automatically
+%% built when a new species is created that has a curried constructor.
+%%--------------------------------------------------------------------
+
+%%--------------------------------------------------------------------
+%% pullCurriedHelp1 k (s,puller) reads an argument of a curried
+%% constructor from the front of string s.  The argument is in k+1 parts.  
+%% The types of the parts are given by the type of puller.  If
+%% k = 2 and puller: String -> ((A,B,C), String), then there are
+%% 3 parts to be pulled, the first of type A, the second of type B,
+%% and the third of type C.
+%%
+%% The return value of pullCurriedHelp1 is the pair (x,rest) where
+%% x is the value pulled (of species (A,B,C) in the example) and
+%% rest is the suffix of s that follows the description of x.
+%%
+%% Parameter puller is only used when k = 0.  For positive k, it
+%% is presumed that function pull should be used to get the
+%% first item.
+%%
+%% The first definition of pullCurriedHelp is for pulling species
+%% that are not cartesian products.  It should only be used
+%% when k = 0.  The second definition is for cases where the
+%% thing to be pulled is a product.  It must inspect k to 
+%% tell how much to pull first.
+%%
+%% The parts that are pulled are packaged together into a single
+%% tuple.
+%%--------------------------------------------------------------------
+
+Expect pullCurriedHelp1:
+  Natural -> (String, (String -> (`a, String))) -> (`a, String)
+%Expect
+
+Let{default} pullCurriedHelp1 0 ?a = pullHelp2 a.
+
+Let{override} pullCurriedHelp1 ?k (?s,?puller: String -> ((`a,`b), String)) = 
+  If k == 0 then
+    pullHelp2(s,puller)
+  else
+    Match (?y,?r)  = pullHelp2(s, pull: String -> (`a,String)).
+    Match (?z,?rr) = pullCurriedHelp1 (k--1) (r, pull: String -> (`b,String)).
+    Value ((y,z),rr).
+  %If
+%Let
+
+%%--------------------------------------------------------------------
+%% pullCurriedHelp2(k,p,puller) s removes prefix p from string s
+%% and returns the result of pullCurriedHelp1 k (ss,puller) where
+%% ss is what follows prefix p in s.
+%%--------------------------------------------------------------------
+
+Define pullCurriedHelp2 (?k, ?p, ?puller) ?s =
+  pullCurriedHelp1 k (s _lminus_ p, puller)
+%Define
+
+%%--------------------------------------------------------------------
+%% pullCurriedHelp k (s,p,puller) reads a value of a
+%% programmer-defined species with a curried constructor.
+%% It gets a prefix of string s consisting of prefix p
+%% (the name of the constructor) followed by k parts.  Parameter
+%% puller mainly gives the species of items to pull.  See
+%% pullCurriedHelp1.
+%%
+%% Any parentheses surrounding the value in s are
+%% handled, and leading white space is skipped.
+%%--------------------------------------------------------------------
+
+Define pullCurriedHelp ?k (?s,?p,?puller) =
+  Untrap conversionX =>
+    Let ss = skipWS(s).
+    If nil? ss 
+      then fail listExhaustedX
+      else maybeParens (pullCurriedHelp2(k,p,puller)) ss
+    %If
+  %Untrap
+%Define
+
+====================================================================
+%% 			pull  (default)
+====================================================================
+
+Let{default} pull = pullId.
+
+====================================================================
+%% 			pull (for ())
+====================================================================
+
+Let{override} pull ?s =
+  Let ss = skipWS(s).
+  Choose
+    case nil? ss                         => fail listExhaustedX
+    case do Let rest = ss _lminus_ "()". => ((), rest)
+    else                                 => fail conversionX
+  %Choose
+%Let
+
+====================================================================
+%% 			pull (for Char)
+====================================================================
+
+%%---------------------------------------------------------------------
+%% getcharcode finds a character description at the front of string x,
+%% and returns pair (c,r) where c is the character described and
+%% r is the suffix of x that follows the character description.  
+%% The character description forms that are handled are
+%%    simple character
+%%    \n, \t, \\, \", \{12}
+%% For example, getcharcode("\n'abc") = ('\n', "'abc").
+%%---------------------------------------------------------------------
+
+Let getcharcode(?x) =
+  Choose first
+    case nil? x           => fail testX
+    
+    do Match ?h::?t = x.
+    case h =/= '\\'       => (h, t)
+
+    do Match ?ht::?tt = t.
+    case ht == 'n'        => ('\n', tt)
+    case ht == 't'        => ('\t', tt)
+    case ht == '\\'       => ('\\', tt)
+    case ht == '"'        => ('"', tt)
+
+    case ht == '{'        =>
+      Match (?n, ?r, ?) = scanForCharPrim(tt, ' ', digitsSet, false).
+      Match ['}' & ?rr] = r.
+      Let nn = stringToNatural(tt##(0,n)).
+      {nn < 256}
+      Value (char(nn), rr).
+      
+    else => fail testX
+  %Choose
+%Let
+
+============
+
+Let{override} pull ?s =
+  Let ss = skipWS(s).
+  Choose
+    case nil? ss => fail listExhaustedX
+    case do Match [''' & ?r] = ss.
+            Match (?c, [''' & ?rest]) = getcharcode(r).
+         => (c,rest)
+    else => fail conversionX
+  %Choose
+%Let
+
+====================================================================
+%% 			pull (for numeric types)
+====================================================================
+
+%%--------------------------------------------------------------------
+%% pullNum (f, comp) s pulls a number from the front of s, where
+%% comp is a set of the characters that can occur in the number
+%% (as a string) and f is a function that converts the string
+%% into the internal representation of the number.
+%%--------------------------------------------------------------------
+
+Let pullNum (?f,?components_p) ?s = 
+
+  %%----------------------------------------------------
+  %% Skip over white space.
+  %% If only white space is left, fail with exception
+  %% listExhaustedX.
+  %%----------------------------------------------------
+
+  Let rest1 = skipWS(s).
+  {not(nil? rest1) else listExhaustedX}
+
+  %%----------------------------------------------------
+  %% Get the sign, if there is one.  nadj is the number of sign
+  %% characters read, and rest1adj is the part after the sign.
+  %%----------------------------------------------------
+
+  Let firstchar = head rest1.
+  open If firstchar == '-' _or_ firstchar == '+' then
+    Let nadj = 1.
+    Let rest1adj = tail rest1.
+  else
+    Let nadj = 0.
+    Let rest1adj = rest1.
+  %If
+
+  %%----------------------------------------------------
+  %% Get the string that represents the number.
+  %%----------------------------------------------------
+
+  Match (?n,?rest2,?) = scanForCharPrim(rest1adj, ' ', components_p, false).
+  
+  Match (?numstr,?rest) =
+    Choose first
+      case nil? rest2 => (rest1,nil)
+      else            => (rest1##(0,n+nadj), rest2)
+    %Choose
+  %Match
+
+  %%----------------------------------------------------
+  %% Convert the number, or fail.
+  %%----------------------------------------------------
+  
+  {not nil? numstr else conversionX}
+  (f numstr, rest)
+%Let
+
+================
+
+Let{override}:
+  pull    = pullNum(stringToNatural,  digitsSet);        %% Natural
+  pull    = pullNum(stringToInteger,  digitsSet);        %% Integer
+  pull    = pullNum(stringToRational, digitsPointSet);   %% Rational
+  pull    = pullNum(stringToReal,     digitsPointSet)    %% Real
+%Let
+
+====================================================================
+%% 			pullHex
+====================================================================
+
+Let pullHex = pullNum(hexToNatural,  hexDigitsSet).
+
+====================================================================
+%% 			pull (for lists)
+====================================================================
+
+%%--------------------------------------------------------------------
+%% pullListMems gets the individual members of the list, separated
+%% by commas.  It does not look for the brackets around the list.
+%%--------------------------------------------------------------------
+
+Define pullListMems ?s =
+  Let ss = skipWS(s).
+  Choose first
+  
+    %%----------
+    %% []
+    %%----------
+    
+    case do Match [']' & ?rest] = ss. => ([], rest)
+    
+    %%----------
+    %% Not []
+    %%----------
+    
+    case do Match (?h,?r) = pull(ss). =>
+      Subcases matching skipWS(r)
+
+	case [',' & ?rrest] => ([h & t], rest) |
+	                       Match (:?t, ?rest:) = pullListMems(rrest).
+      
+        case [']' & ?rrest] => ([h], rrest)
+
+        else => fail conversionX
+      %Subcases
+    
+    else => fail conversionX
+  %Choose
+%Define
+
+============
+
+Let{default,override} pull ?s = 
+  Let ss = skipWS(s).
+  Choose 
+    case nil? ss => fail listExhaustedX
+    case do Let r = pullListMems(ss _lminus_ "["). => r
+    else         => fail conversionX
+  %Choose
+%Let
+
+====================================================================
+%% 			pull (for quoted strings)
+====================================================================
+
+Let{override} pull(?s:String): (String, String) =
+  Let ss = skipWS(s).
+  Choose
+    case nil? ss => fail listExhaustedX
+    
+    case do Match ['"' & ?strbody] = ss. =>
+      Loop (?current,?result) = (strbody, nil) first
+
+        do Match (?n,?rest,?) = 
+             scanForCharPrim(current, ' ', backslashQuoteSet, true)
+	   %Match
+	   Let z = current##(0,n).
+      
+        exitcase nil? rest => fail conversionX
+
+        do Match [?h & ?t] = rest.
+           Let newresult = result ++ z.
+
+        exitcase h == '"' => (newresult, t)
+
+        exitcase nil? t => fail conversionX
+
+        loopcase else =>
+	  Match (?c,?tt) = getcharcode(t).
+	  continue (tt, newresult ++ [c])
+      %Loop
+  
+    else => fail conversionX
+  %Choose
+%Let
+
+====================================================================
+%% 			pull (for ordered pairs)
+====================================================================
+
+Expect pullSpecial: String -> (`a, String).
+
+%%------------------------------------------------------------
+%% pullParts reads a tuple a,b,c,... with or without parentheses
+%% around it.
+%%------------------------------------------------------------
+
+Let{default} pullParts ?s = ((a,b),rest) |
+  Match (?a,?r)     = pull(s).
+  Match [',' & ?rr] = skipWS(r).
+  Match (?b,?rest)  = pullSpecial(rr).
+%Let
+
+%%------------------------------------------------------------
+%% pullSpecial is a helper that does the same, but can also
+%% do kinds of pulls that are not ordered pairs.
+%%------------------------------------------------------------
+
+Let{default} pullSpecial = pull.
+
+Let{override} pullSpecial ?s = maybeParens pullParts s.
+
+%%------------------------------------------------------------
+
+Let{override} pull ?s = 
+  Let ss = skipWS(s).
+  Choose first
+    case nil? ss        => fail listExhaustedX
+    case head ss == '(' => maybeParens pullParts ss
+    else                => fail conversionX
+  %Choose
+%Let
+
+====================================================================
+%% 			pull (for wrapped species)
+====================================================================
+
+Let{override} 
+ species String -> (``a,String)
+
+ pull ?s = 
+  Let ss = skipWS(s).
+  
+  Choose first matching ss
+    case []        => fail listExhaustedX
+    
+    %%-------------------------------------------------------
+    %% Check for a list.
+    %%-------------------------------------------------------
+    
+    case ['[' & ?] => Match (?a,?r) = pull(ss):([ANY],String).
+		      (reform a, r)
+		      
+    %%-------------------------------------------------------
+    %% Check for a quoted string.
+    %%-------------------------------------------------------
+
+    case ['"' & ?] => Match (?a,?r) = pull(ss):(String,String).
+		      (reform a, r)
+
+    %%-------------------------------------------------------
+    %% Check for a number.
+    %%-------------------------------------------------------
+
+    case [?c & ?] _where_ c == '-' _or_ ('0' <= c _and_ c <= '9') =>
+    		      Match (?a,?r) = pull(ss):(Rational,String).
+  		      (reform a, r)
+
+    %%-------------------------------------------------------
+    %% Check for a character constant.
+    %%-------------------------------------------------------
+
+    case [''' & ?] => Match (?a,?r) = pull(ss):(Char,String).
+    		      (reform a, r)
+
+    %%-------------------------------------------------------
+    %% Look for other things by using the pullers in
+    %% pullWrappedBox.
+    %%-------------------------------------------------------
+
+    else =>
+
+      %%----------------------------------------------------------
+      %% The body of the let for result can produce a stream of
+      %% values.  We select the first one that is successful.
+      %% The success is determined not only by the success of
+      %% the puller itself, but also by whether the value 
+      %% returned by the puller has an acceptable species, so
+      %% that it can be stored into result.
+      %%----------------------------------------------------------
+
+      Open Try
+        Let result = 
+          Unique
+            %%-----------------------------------------------------
+            %% Try each puller in list @pullWrappedBox.  This loop
+            %% produces a stream of the successful results of
+            %% those pull functions.
+            %%-----------------------------------------------------
+
+            Loop ?pullers = @pullWrappedBox 
+              first matching pullers
+
+              exitcase [] => fail conversionX
+
+              case [?puller & ?t] => 
+	        Subcases all
+                  exitcase do
+                    Open Untrap conversionX =>
+	              Let r = puller(ss).
+                    %Untrap
+                  =>
+                    r
+
+                  loopcase true => continue t
+                %Subcases
+            %Loop
+          %Unique
+        %Let
+      else 
+        fail conversionX
+      %Try
+    
+      Match (?a,?r) = result.
+      (reform a, r)
+  %Choose
+%Let
+
+====================================================================
+%% 			wrapPuller
+====================================================================
+
+Let wrapPuller ?puller ?s = (<<here>>, rest) |
+  Match (?here,?rest) = puller s.
+%Let
+
+====================================================================
+%% 			InstallWrapper
+====================================================================
+
+Let InstallPull(?puller). =
+  Assign pullWrappedBox := wrapPuller(puller) :: @pullWrappedBox.
+%Let
+
+====================================================================
+%Package

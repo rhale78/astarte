@@ -1,0 +1,110 @@
+<HTML>
+<head>
+<title>Astarte: polymorphism</title>
+</head>
+<body>
+<center>
+<a href="specexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdgenus.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T5. Polymorphism </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#expoly> Examples of polymorphism</a>
+  <li> <a href=#kinds> Kinds of polymorphism in programming languages</a>
+  <li> <a href=#natureast> The nature of polymorphism in Astarte</a>
+</menu>
+
+<hr>
+Astarte allows for polymorphic definitions.  The types of such
+definitions involve type variables, such as `a and `b.  A type
+variable stands for an arbitrary species.
+
+<a name=expoly></a>
+<hr>
+<h2><font color=mediumblue> Examples of polymorphism </font></h2>
+
+<dl>
+<p><dt> <font color=red>`a -&gt; `a</font>
+<dd> This is the type of a function that can have 
+species <i>T</i> -&gt; <i>T</i> for any species <i>T</i>.  
+For example, the identity function f(x) = x has
+this polymorphic type.
+
+<p><dt> <font color=red>(`a,`b) -&gt; (`b,`a)</font>
+<dd> An example of a function of this polymorphic type is the
+function f(x,y) = (y,x).  
+For example, if the parameter of f has
+species (String, Boolean), then its result has species (Boolean, String).
+
+<p><dt> <font color=red>(`a -&gt; `b, `a) -&gt; `b</font>
+<dd> An example of a function of this polymorphic type is the
+fuction apply(f,x) = f(x).  It takes an ordered pair (f,x) where
+f is a function and x is some item.  It returns the result of
+applying function f to item x.  
+
+<p>For example, if f has species
+(Boolean -&gt; String), then x must have species Boolean, and the
+result of apply(f,x) must have species String.  So in this case,
+apply has the species (Boolean -&gt; String, Boolean) -&gt; String.
+Since apply is polymorphic, it can have any species that looks
+like (<i>A</i>-&gt;<i>B</i>, <i>A</i>) -&gt; <i>B</i>.
+</dl>
+
+<a name="kinds"></a>
+<hr>
+<h2><font color=mediumblue> Kinds of polymorphism in programming languages </font></h2>
+
+There are generally two forms of polymorphism that are used in
+programming languages: 
+
+<ol>
+<p><li>true polymorphism, in which the data items
+themselves are polymorphic, and 
+<p><li>ad-hoc polymorphism, or overloading,
+in which it is the <i>names</i> that are polymorphic.  
+</ol>
+
+<p>For example, under
+true polymorphism, there is a single item called nil (the empty
+list) that can be any kind to list.  That is, nil is a polymorphic
+object of type [`a].
+Under overloading, identifier nil names
+infinitely many different items, one for each species.
+So there is an empty list of species [Boolean], an empty list of 
+species [String], etc., and all of them have the same name nil.
+
+<a name=natureast></a>
+<hr>
+<h2><font color=mediumblue> The nature of polymorphism in Astarte </font></h2>
+
+<p>Most functional programming languages use true polymorphism.  
+Object-oriented languages use overloading.
+Astarte is in between; it uses overloading, not true polymorphism, but it looks
+more like a functional language than an object-oriented language.
+This allows Astarte to provide the basics of both functional and
+object-oriented programming.
+
+<p> So when you create a polymorphic function, what you are really
+doing is creating many different definitions of the same name.
+When you use a name with a given species, the system finds the
+appropriate definition for it.
+
+<hr>
+<center>
+<a href="specexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdgenus.html">Next</a>
+</center>
+</body>
+</HTML>
+

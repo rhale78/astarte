@@ -1,0 +1,14 @@
+Package read
+
+Directory standard.  
+Import "collect/string".
+Import "misc/check".
+
+Execute
+  Assign stdin! := "39 40".
+  Let l: Natural = read().
+  Line[$l].
+  Check["39"].
+%Execute
+
+%Package

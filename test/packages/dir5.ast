@@ -1,0 +1,7 @@
+Package dir5 export
+
+%% Test directory dcls.  This file is imported by subdir/dir3.ast.
+
+Import "subdir/dir4".
+
+%Package

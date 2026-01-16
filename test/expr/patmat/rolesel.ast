@@ -1,0 +1,72 @@
+Package rolesel 
+
+%% Test role selectors and modifiers
+
+Import "misc/check".
+
+Extension
+  Species TestType1 = (r1~> Integer, r2~> Natural, r3~> Integer).
+%Extension
+
+Execute
+  Let a = testType1(1,2,3).
+
+  Match {: r1~> ?x:} = a.
+  Line[$x].
+  Check["1"].
+
+  Match {: r2~> ?y, r1~> ?z :} = a.
+  Line[y$$3, z$$3].
+  Check["  2  1"].
+%Execute
+
+Extension
+  Species TestType2 = tt2a | tt2b(r1~> Natural, r2~>Integer, r3~>Integer).
+%Extension
+
+Execute
+  Let a = tt2b(1,2,3).
+
+  Match {: r1~> ?x:} = a.
+  Line[$x].
+  Check["1"].
+
+  Match {: r2~> ?y, r1~> ?z :} = a.
+  Line[y$$3, z$$3].
+  Check["  2  1"].
+
+  Match {: r3~> ?q, r2~> ?p, r1~> ?pp:} = a.
+  Line[q$$3, p$$3, pp$$3].
+  Check["  3  2  1"].
+%Execute
+
+Extension
+  Species{noEqual} TestType3 = (r31~> ANY, r32~> ANY).
+%Extension
+
+Execute
+  Let a = testType3(<<1>>,<<2>>).
+
+  Match {:r31~> ?x:} = a.
+  Line[$x].
+  Check["1"].
+%Execute
+
+Extension
+  Species{noEqual} TestType4 = tt4a | tt4b(r41~> ANY, r42~> ANY).
+%Extension
+
+Execute
+  Let a = tt4b(<<1>>,<<2>>).
+
+  Match {:r41~> ?x:} = a.
+  Line[$x].
+  Check["1"].
+
+  Match {:r42~> ?<<?y>>?, r41~> ?<<?z>>? :} = a.
+  Line[(y:Natural)$$3, (z:Natural)$$3].
+  Check["  2  1"].
+%Execute
+
+%Package
+

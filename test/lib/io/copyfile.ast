@@ -1,0 +1,24 @@
+Package copy 
+
+%% Copy files
+
+Let copy ?a ?b =
+  FWrite outfile [binaryMode] b, [infile [binaryMode] a].
+%Let
+
+Let usageErr() = Writeln["Usage: copy a b"]..
+
+Execute
+  Let args = tail commandLine.
+  If length(args) =/= 2 
+    then usageErr()
+    else 
+     copy (args#_0) (args#_1)
+     Writeln["Have copied:"].
+     Write[infile(args#_0)].
+  %If
+%Execute
+
+%Package
+
+    

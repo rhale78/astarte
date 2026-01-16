@@ -1,0 +1,100 @@
+<HTML>
+<head>
+<title>Astarte: constants</title>
+</head>
+<body>
+<center>
+<a href="parentheses.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="sequence.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E3. Constants </font></h1>
+</center>
+
+<dl>
+<a name=hermit></a>
+<dt> <font color="red">()</font> 
+<dd> () is a special value called the hermit.  
+This value is the only member of its species, called
+the <i>unit species</i>, since this species has only one value
+in it.  The unit species is also called ().
+
+<a name=numeric></a>
+<P><dt><font color="red">24</font> 
+<dd> Integer constants, using decimal notation, are allowed.
+An integer constant can have any numeric species.
+
+<font color=brown>
+<a name=natconst></a>
+<p>When you write 2, the compiler substitutes natconst(2); when you write
+234, the compiler substitutes natconst(234).
+You can add definitions to function natconst to
+generalize integer constants to other species.
+See <a href="numconv.html#natconst">natconst</a>.
+</font>
+
+<P><dt><font color="red">2.0</font> 
+<dd> These are rational number constants.  You must have at least one
+digit on each side of the decimal point, and can optionally have
+an exponent of 10, as in 
+<font color=#D00090>2.5E40</font> or <font color=#D00090>2.5e40</font>.
+
+<a name=ratconst></a>
+<P><font color=brown> When you write 2.0, you implicitly mean ratconst(2.0).
+See <a href="numconv.html#ratconst">ratconst</a>.</font>
+
+<a name=char></a>
+<P><dt><font color="red">'a'</font> 
+<dd> This is a character constant.  See 
+<a href="char.html">characters</a>
+
+<a name=string></a>
+<P><dt><font color="red">&quot;abc&quot;</font> 
+<dd> This is a string constant.  A string is a list of characters.
+String &quot;abc&quot; is the
+same thing as the list of three characters ['a', 'b', 'c'].  
+
+<p>To include a double quote in a
+string constant, precede it with a backslash, as in &quot;\&quot;&quot;.
+
+<a name=longstring></a>
+<P><dt><font color="red">%&quot;long string<br>%&quot;constant</font> 
+<dd> A long string constant begins
+with %&quot;.  Successive lines whose first non-white characters are 
+%&quot; are concatenated together, each followed by a newline character,
+to form the long string constant.  <font color=BLACK>For example:</font>
+<font color="#D00090">
+<b><pre>
+      %&quot; This is a long string constant.
+      %&quot; All consective lines that begin with %&quot;
+      %&quot; form a single multi-line string.
+</pre></b>
+</font>
+If a line ends on \, no newline character will be added to
+the end of that line.  So, while the above string constant has
+three newline characters in it, the following has none.
+<font color="#D00090">
+<b><pre>
+      %&quot; This is a long string constant.\
+      %&quot; All consective lines that begin with %&quot;\
+      %&quot; form a single multi-line string.\
+</pre></b>
+</font>
+
+</dl>
+
+<hr>
+<center>
+<a href="parentheses.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="sequence.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,39 @@
+Package testopen
+
+%% Test open If with empty environment cells
+
+Import "misc/check"; "math/math".
+
+Execute
+   Let x = 1.
+   Let y = 2.
+   Assign precision! := 24.
+   open If x == y then
+     Let a = ~1.0.
+     Let b = ~2.0.
+     Let c = ~3.0.
+     Let d = ~4.0.
+   else
+     Let f = exp(~0.1).
+     Line["f = ", f $$ 30].
+     Check["f =  1.1051709180756476248117E+000"].
+     Let e = ln(f).
+     Line["e = ", e $$ 30].
+     Check["e =  1.0000000000000000000000E-001"].
+     Let d = e*e.
+     Let a = ln(d).
+     Let b = exp(a).
+     Let c = exp(b).
+   %If
+
+   Line["a = ", a $$ 30].
+   Check["a = -4.6051701859880913680360E+000"].
+   Line["b = ", b $$ 30].
+   Check["b =  1.0000000000000000000000E-002"].
+   Line["c = ", c $$ 30].
+   Check["c =  1.0100501670841680575422E+000"].
+   Line["d = ", d $$ 30].
+   Check["d =  1.0000000000000000000000E-002"].
+%Execute
+
+%Package

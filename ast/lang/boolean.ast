@@ -1,0 +1,183 @@
+%% File: boolean.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================
+Package 		Astarte_Boolean
+=======================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package describes species Boolean and operations for
+boolean values.  These things are available to all packages.
+
+'_and_', '_implies_' and '_or_' are reserved words.  They are used
+as binary operators.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=====================================================================
+			Export
+=====================================================================
+
+Description
+
+ Boolean	%" Species Boolean has two members, false and true.
+ 		%" Some operations are as follows.
+		%"
+		%"   $		$(false) = "false"
+		%"		$(true)  = "true"
+		%"
+		%"   rank	rank(false) = 0
+		%"         	rank(true)  = 1
+		%"
+		%"   boolean  	boolean(0) = false
+		%"	      	boolean(1) = true
+		%"
+		%"   _and_   	(x _and_ y)  abbreviates 
+		%"
+		%"		  If x then y else false %If
+		%"
+		%"	   	'_and_' is a reserved word.  See 
+		%"		documentation for '_and_'.
+		%"
+		%"   _andf_  	(x _andf_ y) is the same as (x _and_ y), 
+		%"		but _andf_ is a function.
+		%"
+		%"   _or_    	(x _or_ y) abbreviates 
+		%"
+		%"		  If x then true else y %If
+		%"
+		%"         	'_or_' is a reserved word.  See 
+		%"		documentation for '_or_'.
+		%"
+		%"   _orf_   	(x _orf_ y) is the same as (x _or_ y), 
+		%"		but _orf_ is a function.
+		%"
+		%"   _implies_ 	(x _implies_ y) abbreviates 
+		%"
+		%"           	  If x then y else true %If.  
+		%"
+		%"	     	'_implies_' is a reserved word.  See
+		%"	     	documentation for '_implies_'.
+		%"
+		%"   ==>     	(x ==> y) is the same as (x _implies_ y), 
+		%"		but ==> is a function.
+		%"
+		%"   not     	not(true)  = false, 
+		%"	     	not(false) = true.
+ 		;
+
+ ==>		: (Boolean, Boolean) -> Boolean
+
+		%" @{implies}
+		%"
+		%" x ==> y is true when either x is false or y
+		%" is true.  ==> is the function version of 'implies'.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ "_and_"	%%: (Boolean, Boolean) -> Boolean
+
+		%" This is not really a function, but a reserved word.
+		%" Expression x _and_ y abbreviates
+		%"
+		%"    If x then y else false %If
+		%"
+		%" If you use '_and_' in a context where it is not being
+		%" used as a binary operator, the compiler will substitute
+		%" '_andf_' for it.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ _andf_		: (Boolean, Boolean) -> Boolean
+
+		%" @{_and_}
+		%"
+		%" x _andf_ y is true if both x and y are true, and false
+		%" otherwise.  _andf_ is the function version of '_and_'.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+                ;
+
+ boolean	: Natural -> Boolean
+
+		%" boolean(0) = false and boolean(1) = true.
+		%" boolean(x) fails with exception conversionX
+		%" when x > 1.
+		;
+
+ false		: Boolean
+
+		%" The constant false.
+		;
+
+ "_implies_"	%%: (Boolean, Boolean) -> Boolean
+
+		%" This is not really  a function, but a reserved word.
+		%" x _implies_ y abbreviates
+		%"
+		%"     If x then y else true %If.
+		%"
+		%" If you use '_implies_' in a context where it is not being
+		%" used as a binary operator, the compiler will substitute
+		%" '==>' for it.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ _is_		: (`a, `a -> Boolean) -> Boolean
+
+		%" (x _is_ f) = f(x).  For example, if you have a predicate
+		%" prime that tests for primality, you can write
+		%" (x _is_ prime) for (prime(x)).
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+                ;
+
+ not		: Boolean -> Boolean
+
+		%" not(true)  = false,
+		%" not(false) = true.
+		%"
+		%" not is a unary operator.  See lang/operator.ast.
+		;
+
+ "_or_"		%%: (Boolean, Boolean) -> Boolean
+
+		%" _or_ is not really a function, but is a reserved word.
+		%" x _or_ y abbreviates
+		%"
+		%"    If x then true else y %If.
+		%"
+		%" If you use '_or_' in a context where it is not being
+		%" used as a binary operator, the compiler will substitute
+		%"'_orf_' for it.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ _orf_		: (Boolean, Boolean) -> Boolean
+
+		%" @{_or_}
+		%"
+		%" x _orf_ y is true if x is true or y is true, and is
+		%" false if both x and y are false.  _orf_ is
+		%" the function version of '_or_'.
+		%"
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ true		: Boolean
+
+		%" The constant true.
+		;
+
+%Description
+
+%Package
+

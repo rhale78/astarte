@@ -1,0 +1,147 @@
+<HTML>
+<head>
+<title>Astarte: advise declaration</title>
+</head>
+<body>
+<center>
+<a href="expanddcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="ifdcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D17. Advise Declarations </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Advise declarations</a>
+  <li><a href=#advisories>Advisories</a>
+  <li><a href=#example>Examples</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Advise declarations</font></h2>
+
+Advise declarations are used to advise the compiler on how
+to compile a package or declaration.  An advise declaration
+has the form
+<font color=#D00090>
+<b><pre>
+     Advise <font color=black><i>advisory</i></font> %Advise
+</pre></b>
+</font>
+Different kinds of advisories
+are listed below.  After each, you can write <i>one</i> or <i>all</i>.
+If you write <i>one</i>, then the advisory holds only for the
+next declaration (not counting other intervening advisories).  If you 
+write <i>all</i> or nothing, then the advisory applies to all
+subsequent declarations, until it is replaced by another advisory.
+
+<a name=advisories></a>
+<hr>
+<h2><font color=mediumblue>Advisories</font></h2>
+
+<p> Available advisories are as follows.
+<dl>
+<p><dt><font color=red> "string"</font>
+<dd> If a listing is not being done at this point, then print string
+"string" into the error-message/listing file.
+
+<a name=overloads></a>
+<p><dt><font color=red> overloads <i>k</i></font>
+<dd> Allow let/define declarations to do up to <i>k</i> different
+definitions.
+
+<a name=noshow></a>
+<p><dt><font color=red> noshow</font>
+<dd> Do not show results of type inference.
+
+<a name=notro></a>
+<p><dt><font color=red> notro</font>
+<dd> Do not use tail-recursion improvement at all.
+
+<p>Tail recursion improvement allows a tail recursive call to avoid
+creating a new stack frame.  Instead, it just overwrites the stack
+frame of its caller.  This can save a lot of memory, but it can also be
+confusing when you are debugging a program.
+
+<p><dt><font color=red> notro f,g,h</font>
+<dd> Do not use tail-recursion improvement when compiling calls
+to functions f, g and h.  You can list as many or few functions
+as you like.  The functions are given only by name.
+
+<a name=show></a>
+<p><dt><font color=red> show</font>
+<dd> Show the results of type inference.
+
+<a name=tro></a>
+<p><dt><font color=red> tro</font>
+<dd> Use tail-recursion improvement, except for functions that
+are explicitly noted not to use tail recursion improvement
+via notro f,g,h.
+
+<a name=warn></a>
+<p><dt><font color=red> warn <br> nowarn</font>
+<dd> Turn on (off) all warnings.
+
+<p><dt><font color=red> warn a,b,c<br> nowarn a,b,c</font>
+<dd> Turn on (off) selected warnings.  You can list any number
+of warnings to turn on or off, separated by commas.  The warnings
+are listed in the following cases.
+
+<a name=defaults></a>
+<p><dt><font color=red> warn defaults <br> nowarn defaults</font>
+<dd> Warn (do not warn) about dangerous defaults that are done
+during type inference.
+
+<a name=indent></a>
+<p><dt><font color=red> warn indent <br> nowarn indent</font>
+<dd> Warn (do not warn) about suspicious indentations.
+
+<a name=missingDefinition></a>
+<p><dt><font color=red> warn missingDefinition <br> nowarn missingDefinition</font>
+<dd> Warn (do not warn) about missing definitions.
+
+<a name=notExhaustive></a>
+<p><dt><font color=red> warn notExhaustive <br> nowarn notExaustive</font>
+<dd> Warn (do not warn) about collections of patterns that are not
+exhaustive at pattern-matching choices.
+
+<a name=unused></a>
+<p><dt><font color=red> warn unused <br> nowarn unused</font>
+<dd> Warn (do not warn) about unused identifiers.
+<b>Note:</b> Any identifier that begins or ends with "unused" (or
+any case-variant of that, such as "Unused") will
+not be reported as unused at any time, regardless of whether this
+warning is turned on or off.
+
+</dl>
+
+<a name=example</a>
+<hr>
+<h2><font color=mediumblue> Examples </font></h2>
+
+<font color=#D00090>
+<b><pre>
+     Advise notro.
+     Advise nowarn indent.
+     Advise "Compiling package gopher.ast".
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="expanddcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="ifdcl.html">Next</a>
+</center>
+</body>
+</HTML>

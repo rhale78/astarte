@@ -1,0 +1,11 @@
+Package private1
+
+%% Test that a private import is not seen.
+
+Import "private2".
+
+Execute
+  Writeln[$priv].
+%Execute
+
+%Package

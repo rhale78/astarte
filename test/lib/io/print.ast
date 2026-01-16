@@ -1,0 +1,54 @@
+Package testprint 
+
+%% Test Writeln
+
+Let DoPrint(). =
+  Writeln["lines should be in matching pairs\n"].
+
+  %% basic
+
+  Writeln["hello"].
+  Writeln["hello\n"].
+
+  %% appended list
+
+  Writeln["hello" ++ " and hello again"].
+  Writeln["hello and hello again\n"].
+
+  %% list
+
+  Writeln[['a','b','c']].
+  Writeln["abc\n"].
+  Let x = ['c'].
+  Let y = ['b' & x].
+  Let z = ['a' & y].
+  Writeln[z].
+  Writeln["abc\n"].
+
+  %% constructed string
+
+  Writeln[pack(['a','b','c','d','e','f','g'])].
+  Writeln["abcdefg\n"].
+
+  %% lazy list
+
+  Let a = nonsharedBox([]).
+  For ?c from "abcdef" do Assign a := (:[c & @a]:)..
+  Writeln[@a].
+  Writeln["fedcba\n"].
+%Let
+
+Let originalStdout = @stdout!.
+
+Execute
+  DoPrint().
+  Let f = outfile [] "test.out".
+  WriteTo(f).
+  DoPrint().
+  CloseFile(f).
+  WriteTo(originalStdout).
+  Write[infile [] "test.out"].
+%Execute
+
+%Package
+

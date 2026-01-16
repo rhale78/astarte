@@ -1,0 +1,257 @@
+%% File: compare.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=============================================================
+Package 		Astarte_Compare
+===============================================================
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+This package describes genera ORDER and EQ, and related
+individuals.  All of the things described here are available
+to all packages.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+=====================================================================
+			Export
+=====================================================================
+
+Description
+ EQ		%" @{= == equal}
+ 		%"
+ 		%" EQ is an extensible genus holding species for which
+		%" equality tests are available.  Operations are
+		%"
+		%"   ==		test for equality
+		%"   =/=	test for inequality
+		%"
+		%" If you extend EQ, provide a definition of ==.  
+		%" Do not define =/=, since that is defined in terms 
+		%" of ==.  
+		%"
+		%" See lang/hierarch.ast for relationship to 
+		%" other genera.
+		;
+
+ ORDER		%" @{< > <= >= compare comparison}
+ 		%"
+ 		%" ORDER is an extensible genus holding species that have
+		%" a total order defined on them.  Operations are
+		%"
+		%" compare	compare values, returning one of the
+		%"		values less, equal, greater.
+		%"
+		%" <		less than
+		%"
+		%" <=		less than or equal
+		%"
+		%" >		greater than
+		%"
+		%" >=		greater than or equal
+		%"
+		%" If you extend ORDER, define function compare for the
+		%" new species.  Do not define <, >, <= or
+		%" >=, since they are defined in terms of compare.
+		%"
+		%" See lang/hierarch.ast for relationship to 
+		%" other genera.
+		;
+
+ Comparison	%" @{compare}
+ 		%"
+ 		%" Species Comparison has three members: less, equal and 
+		%" greater.  It has operations including $, comparison
+		%" and rank, where
+		%"    $(equal)   = "equal"      rank(equal)   = 0
+		%"    $(greater) = "greater"    rank(greater) = 1
+		%"    $(less)    = "less"       rank(less)    = 2
+		%"
+		%"    comparison(0) = equal,
+		%"    comparison(1) = greater,
+		%"    comparison(2) = less.
+		%"
+		%" See lang/hierarch.ast for position in the hierarchy.
+ 		;
+
+ ==		: (EQ`a, EQ`a) -> Boolean
+
+		%" @{= equal}
+		%"
+		%" x == y is true if x is the same individual as y.
+		%" == needs to be defined for each species that is
+		%" put into genus EQ.
+		%"
+		%" Note: When a new species is defined, by default
+		%" a definition of == is given.  That definition says
+		%" that two values are equal if their representations
+		%" are equal.  If that is not desired, use option
+		%" noEqual, as in
+		%"
+		%"    Species{noEqual} S = T.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ =/=		: (EQ`a, EQ`a) -> Boolean
+
+		%" @{= == equal}
+		%"
+		%" x =/= y is true if x and y are not the same individual.
+		%" 
+		%" This is defined in terms of ==.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+		;
+		
+ ==?		: (EQ`a, EQ`b) -> Boolean
+ 
+ 		%" ==? performs an equality check, just as == does,
+		%" but it does not insist that its two arguments
+		%" have the same species.  Normally, two things of
+		%" different species are not equal.  For the
+		%" numeric types, the values are compared, even if
+		%" the species are different.  The definition of
+		%" ==? can be overridden if desired.
+		%"
+		%" Note: When two wrapped individuals are compared
+		%" using ==, their contents are compared using ==?.
+		;
+		
+ =/=?		: (EQ`a,EQ`b) -> Boolean
+ 
+ 		%" =/=? performs an inequality check, just as =/=
+		%" does, but it does not insist that its two arguments
+		%" have the same species.  See ==?.
+		;
+
+ <		: (ORDER`a, ORDER`a) -> Boolean
+
+		%" x < y is true if x is less than y.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ <=		: (ORDER`a, ORDER`a) -> Boolean
+
+		%" x <= y is true if x is less than or equal to y.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ >		: (ORDER`a, ORDER`a) -> Boolean
+
+		%" x > y is true if x is larger than y.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ >=		: (ORDER`a, ORDER`a) -> Boolean
+
+		%" x >= y is true if x is larger than or equal to y.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+		;
+
+ compare	: (ORDER`a, ORDER`a) -> Comparison
+
+		%" compare(a,b) produces one of the following.
+		%"   less	if a < b
+		%"   equal	if a = b
+		%"   greater	if a > b
+		%" Function compare needs to be defined for each 
+		%" primary species that is put into genus ORDER.
+                ;
+		
+ compareHelp	: (ORDER`a, ORDER`b) -> Comparison
+ 
+ 		%" compareHelp compares values of different species.
+		%" It only works for numeric species, failing with
+		%" exception compareX when general species are
+		%" mixed.  However, it can be overridden to
+		%" change that behavior.
+		%"
+		%" Note: when two wrapped individuals are compared
+		%" using compare, their contents are compared using
+		%" function compareHelp.
+		;
+
+ comparison	: Natural -> Comparison
+
+		%" comparison(0) = equal,
+		%" comparison(1) = greater,
+		%" comparison(2) = less.
+		%"
+		%" comparison(x) fails with exception conversionX
+                %" if x > 2.
+ 		;
+
+ _eq_		: (<:`a:>, <:`a:>) -> Boolean
+
+		%" @{= == equal box}
+		%"
+		%" a _eq_ b is true if a and b are the same box.  See _neq_.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+                ;
+
+ equal		: Comparison
+
+		%" See compare, Comparison.
+                ;
+
+ greater	: Comparison
+
+		%" See compare, Comparison.
+                ;
+
+ less		: Comparison
+
+		%" See compare, Comparison.
+                ;
+
+ max		: [ORDER`a] -> ORDER`a
+
+		%" @{maximum largest}
+		%"
+		%" max(l) is the largest member of list l.  For example,
+		%" max[3,5,2] = 5.  max(l) fails with exception 
+		%" emptyListX if l is empty.
+		;
+
+ maxmin		: ((`a,`a) -> Boolean) -> [`a] -> `a
+
+		%" @{maximum minimum max min}
+		%"
+		%" maxmin f l is the extremal value in list l according
+		%" to total order relation f.  For example,
+		%"
+		%"   maxmin(<=)(l) is the smallest member of list l.
+		%"   maxmin(>=)(l) is the largest member of list l.
+                ;
+
+ min		: [ORDER`a] -> ORDER`a
+
+		%" @{minimum smallest}
+		%"
+		%" min(l) is the smallest member of list l.  For example,
+		%" min[3,5,2,6] = 2.  min(l) fails with exception 
+		%" emptyListX if l is empty.
+		;
+
+ _neq_		: (<:`a:>, <:`a:>) -> Boolean
+
+		%" @{= == =/= equal eq}
+		%"
+		%" a _neq_ b is true if a and b are the different boxes.
+		%" See _eq_.
+		%" 
+		%" See lang/operator.ast for precedence and associativity.
+                ;
+%Description
+
+%Package
+

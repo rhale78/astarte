@@ -1,0 +1,11 @@
+Package listform 
+
+Import "misc/check".
+
+Execute
+  Let a = [:Stream 1 then 2 %stream:].
+  Line[$a].
+  Check["[1,2]"].
+%Execute
+
+%Package

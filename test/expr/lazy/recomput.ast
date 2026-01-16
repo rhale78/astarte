@@ -1,0 +1,19 @@
+Package recompute 
+
+%% Test Await& and [:&.
+
+Execute
+  Let a = Await& then Writeln["computing a"]. [1]..
+  Let b = [:& Stream 
+		Writeln["computing b(1)"]. [1] 
+	      then
+		Writeln["computing b(2)"]. [2]
+	      %Stream:]
+  %Let
+  Writeln[$a].
+  Writeln[$a].
+  Writeln[$b].
+  Writeln[$b].
+%Execute
+
+%Package

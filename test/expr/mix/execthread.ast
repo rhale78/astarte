@@ -1,0 +1,37 @@
+Package execthread
+
+%% Test handling of threads in executes.
+
+%% No threads
+
+Execute
+  Writeln["Should print four \"Should print this\" lines (1,2,3,4)"].
+%Execute
+
+Execute
+  Stream
+    Writeln["Should print this 1"].
+  then
+    Writeln["Should print this 2"].
+  %Stream
+%Execute
+
+Execute
+  Mix
+    Writeln["Should print this 3"].
+  with
+    Writeln["Should print this 4"].
+  %Mix
+%Execute
+
+Execute
+  Mix
+    Fail testX.
+  with
+    Writeln["Should print this 5"].
+  with
+    Fail testX.
+  %Mix
+%Execute
+
+%Package

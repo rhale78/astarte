@@ -1,0 +1,133 @@
+<HTML>
+<head>
+<title>Astarte: list of known bugs</title>
+</head>
+<body>
+<center>
+<a href="contrib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="scheme.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> List of Known Bugs </font></h1>
+</center>
+
+<menu>
+  <li><a href=#semcomp>Semantic bugs: compiler</a>
+  <li><a href=#coscomp>Cosmetic bugs: compiler</a>
+  <li><a href=#semint>Semantic bugs: interpreter</a>
+  <li><a href=#cosint>Cosmetic bugs: interpreter</a>
+</menu>
+
+<hr>
+These are most of the known bugs.  This does not include
+things that have not been completed and are not documented,
+or things that appear to work according to the documentation,
+but need to be improved, except for a few cases.
+
+<a name=semcomp></a>
+<hr>
+<h2><font color=mediumblue> Semantic bugs: compiler</font></h2>
+
+These are bugs in the compiler that have an effect on the semantics
+of the programming language.
+
+<ol>
+<p><li>Advise declarations are imported sideways.  That is, if package
+A imports package B and then imports package C, any advise declarations
+made in B are visible in C.
+
+<p><li>There is a mistake in the standard definition of downcast
+that shows up when compiling collect/linset.ast.
+
+<p><li>The standard definition of equality for new families contains
+a mistake.  The definition works, but its polymorphic type is not quite right.
+
+<p><li>In some contexts, the scope of local assumptions does not
+agree with the scope of identifiers.
+
+<p><li>A nonrestrictable variable is currently allowed to accept
+a new constraint.
+
+<p><li>Asthelp shows some types as too general.  (This is
+probably a compiler bug since the compiler writes the information
+that asthelp uses.)
+
+</ol>
+
+<a name=coscomp></a>
+<hr>
+<h2><font color=mediumblue> Cosmetic bugs: compiler</font></h2>
+
+These bugs result in unpleasant and possibly incorrect messages, but
+do not affect the language implementation.
+
+<ol>
+
+<p><li>The exhaustiveness checker for pattern matching is not
+implemented correctly.  It does not catch missing cases that it
+should catch.
+
+<p><li>Circular light constraints `a &gt;&gt;= `a are shown when they
+should not be.
+
+<p><li>There is a mistake in the type-constraint checker regarding
+handling of fictitious species.  It does not affect most programs.
+
+<p><li>A nonrestrictable variable is currently allowed to get a
+new constraint on it.  That should not be allowed.
+
+<p><li>A pattern match rule that uses an irregular function in
+a bad context is not reported until the rule is used.
+
+<p><li>When the results of type inference are shown, an expectation
+that is generated as a result of processing the current definition is
+shown as a prior expectation.
+
+<p><li>Overloading a function name where one definition is regular
+and the other is irregular gives a message that there is a bad
+overlap in types, but does not explain the problem.
+
+</ol>
+
+<a name=semint></a>
+<hr>
+<h2><font color=mediumblue> Semantic bugs: interpreter</font></h2>
+
+<ol>
+<p><li>Function outerBinding currently allows access to things that
+should be inaccessible because they are private or protected.  It
+also disallows access to some things to which it should allow access.
+
+<p><li>The implementation of threads is not finished.  Functions for
+detaching and managing threads have not been implemented.
+
+<p><li>RawShow only prints on external files.
+</ol>
+
+<a name=cosint></a>
+<hr>
+<h2><font color=mediumblue> Cosmetic bugs: interpreter</font></h2>
+
+These are unpleasant bugs, but they do not affect the correctness of
+the language implementation.
+
+<ol>
+<p><li>The debugger is incomplete and undocumented.
+
+<p><li>If a trap occurs inside a lazy primitive, you can't see
+what the lazy primitive was doing by inspecting ast.rts.
+</ol>
+
+<hr>
+<center>
+<a href="contrib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="scheme.html">Next</a>
+</center>
+</body>
+</HTML>

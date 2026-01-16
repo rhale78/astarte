@@ -1,0 +1,305 @@
+<HTML>
+<head>
+<title>Astarte: loops</title>
+</head>
+<body>
+<center>
+<a href="pauseexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="lazyexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E13. Loops </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#while> While loops</a>
+  <li> <a href=#for> For loops</a>
+  <li> <a href=#loop> General loops</a>
+  <li> <a href=#exgenloops> Examples of general loops</a>
+</menu>
+<hr>
+There are three kinds of loop.  
+
+<a name="while"></a>
+<hr>
+<h2><font color=mediumblue> While loops </font></h2>
+
+Statement
+<font color=#D00090>
+<b><pre>
+      While <font color=black><i>c</i></font> do
+        <font color=black><i>s</i></font>
+      %While
+</pre></b>
+</font>
+repeatedly evaluates statement <i>s</i> until condition
+<i>c</i> is  found to be true.  If <i>c</i> is true
+initially, then <i>s</i> is not evaluated at all.
+<font color=BLACK>For example</font>, 
+here is a factorial function written using a 
+while loop.
+<font color=#D00090>
+<b><pre>
+     Let factorial(?n) =
+       Let result = 1.
+       Let k = 0.           %% invariant: result = factorial(k)
+       While k =/= n do
+         Relet k = k + 1.
+         Relet result = result * k.
+       %While
+       Value result.
+     %Let
+</pre></b>
+</font>
+
+<p>The body of a while-loop (expression <i>s</i> in the general form)
+must have species (), and the while-loop itself also has species ().
+
+<a name="for"></a>
+<hr>
+<h2><font color=mediumblue> For loops </font></h2>
+
+A for loop has the form
+<font color=#D00090>
+<b><pre>
+      For <font color=black><i>p</i></font> from <font color=black><i>x</i></font> do
+        <font color=black><i>s</i></font>
+      %For
+</pre></b>
+</font>
+Here, <i>x</i> is an expression that computes a list 
+and <i>p</i> is a pattern.  
+For each member <i>m</i> of list <i>x</i>,
+in order, pattern <i>p</i> is matched against <i>m</i>.  If the match is
+successful, then statement <i>s</i> is evaluated.  If the match is
+unsuccessul, then nothing is done for <i>m</i>, and the loop moves to the
+next value.
+Here is a factorial function written using a for loop.  Expression
+(2 _upto_ n) produces list [2,3,...,n].
+<font color=#D00090>
+<b><pre>
+     Let factorial(?n) =
+       Let result = 1.
+       For ?k from 2 _upto_ n do
+         Relet result = result * k.
+       %For
+       Value result.
+     %Let
+</pre></b>
+</font>
+
+<p>The body of a for-loop (expression <i>s</i> in the general form)
+must have species (), and the for-loop itself also has species ().
+
+<a name="loop"></a>
+<hr>
+<h2><font color=mediumblue> General loops </font></h2>
+
+Loop expressions provide a very general way of constructing loops.
+Unlike while loops and for loops, a loop expression can have a value
+different from ().  Its form is
+<font color=#D00090>
+<b><pre>
+     Loop <font color=black><i>p</i></font> = <font color=black><i>i</i> <i>choice-mode</i>
+       <i>cases</i></font>
+     %Loop
+</pre></b>
+</font>
+where <i>p</i> is a pattern whose identifiers are the loop control variables
+and <i>i</i> is an initial value for those variables.
+When the loop starts, pattern <i>p</i> is matched against <i>i</i>.  
+Then the cases are tried.
+
+<p>Each case either indicates that the
+loop is finished (and tells the value of the loop expression) or indicates
+that the loop needs to go for another iteration, and indicates a new
+value for the loop control variables.  Each time around the loop, pattern
+<i>p</i> is matched against the current value of the loop control variables.
+(If the match fails, then the loop fails.)
+
+<p>You can omit <i>p</i> = <i>i</i> if you want a loop without 
+control variables.
+
+<p><i>choice-mode</i> tells how the cases are tried.
+The choice modes are exactly as for
+<a href="conditional.html">choose expressions</em></a>.
+When mode <em>perhaps</em> is used, the default else-case
+exits the loop with value ().  
+
+<font color=brown>
+<p>If the choice mode is not
+<i>perhaps</i>, and there is no explicit else case, 
+and none of the cases succeeds, then
+the loop fails.  The exception is noCaseX for choice
+modes <em>first</em>, <em>one</em> and <em>one mixed</em>, 
+and is testX for choice modes <em>all</em> and <em>all mixed</em>.
+</font>
+
+<P> The cases can have the following forms.
+<dl>
+<a name=exitcase></a>
+<dt> <font color="red">exitcase <i>a</i> => <i>v</i></font>
+<dd> This case succeeds if <i>a</i> is true.  When it is tried and succeeds,
+the loop exits, and the value of the loop expression is <i>v</i>.
+
+<p><dt> <font color="red">exitcase <i>p</i> => <i>v</i> 
+when <i>c</i> </font>
+<dd> This case is similar to the preceding form, but it is used
+when the choice-mode has a matching phrase.  It succeeds if
+pattern <i>p</i> matches the target that is given after the word
+<i>matching</i>, and if <i>c</i> is true.  Phrase <em>when c</em> can
+be omitted.
+
+<p><dt> <font color="red">exitcase do <i>s</i> => <i>v</i></font>
+<dd> Here, <i>s</i> must have species ().  This case succeeds if evaluation
+of <i>s</i> does not fail.
+
+<p><dt> <font color="red">exitcase else => <i>v</i></font>
+<dd> This must be the last case.  It is taken if no other
+cases are successful.  It causes the loop to terminate, and 
+the value of the loop expression to be <i>v</i>.
+
+<p><dt> <font color="red">exitcase <i>a</i>
+<br> exitcase <i>b</i> => <i>v</i></font>
+<dd> Same as 
+<b><pre>
+    exitcase <i>a</i> => <i>v</i>
+    exitcase <i>b</i> => <i>v</i>
+</pre></b>
+You can have any number of cases.
+
+<a name=loopcase></a>
+<p><dt> <font color="red">loopcase <i>a</i> => <i>s</i> 
+continue <i>w</i></font>
+<dd> This case succeeds if <i>a</i> is true.  When this case is tried and
+succeeds, statement <i>s</i> is evaluated.  Then control passes to the
+top of the loop.  Pattern <i>p</i> from the loop heading is 
+matched against <i>w</i>, and the cases
+are tried again.  Statement <i>s</i> can be omitted.
+
+<p><dt> <font color="red">loopcase <i>a</i> => <i>s</i> continue</font>
+<dd> This form is used when <i>p</i> = <i>i</i> is omitted from the loop
+heading.
+
+<p><dt> <font color="red">loopcase <i>p</i> => <i>s</i> continue <i>w</i> 
+when <i>c</i></font>
+<dd> This is similar to the preceding form, but is used with
+a matching phrase in the choice-mode.
+
+<p><dt> <font color="red">loopcase do <i>a</i> => <i>s</i> 
+continue <i>w</i></font>
+<dd> This is similar to the preceding form, but succeeds if 
+evaluation of <i>a</i> does not fail.
+
+<p><dt> <font color="red">loopcase else => <i>s</i> continue <i>w</i></font>
+<dd> This must be the last case.  It is taken if no other cases
+are successful. 
+
+<p><dt> <font color="red">loopcase <i>a</i> =>
+<br> loopcase <i>b</i> => <i>s</i> continue <i>w</i></font>
+<dd> Same as
+<b><pre>
+     loopcase <i>a</i> => <i>s</i> continue <i>w</i>
+     loopcase <i>b</i> => <i>s</i> continue <i>w</i>
+</pre></b>
+
+<a name=subcases></a>
+<p><dt> <font color="red">case <i>a</i> =>
+<br> &nbsp;&nbsp; Subcases <em>choice-mode</em>
+<br> &nbsp;&nbsp;&nbsp;&nbsp; <em>cases</em>
+<br> &nbsp;&nbsp; %Subcases</font>
+<dd> This case succeeds when <i>a</i> is true.  When it succeeds, it tries
+the given subcases.  If choice-mode is omitted after subcases, the 
+choice mode is the same as for the enclosing loop or subcases,
+except that any matching phrase is omitted.
+
+<p><dt> <font color="red">case do <i>a</i> =>
+<br> &nbsp;&nbsp; Subcases <em>choice-mode</em>
+<br> &nbsp;&nbsp;&nbsp;&nbsp; <em>cases</em>
+<br> &nbsp;&nbsp; %Subcases</font>
+<dd>This is similar to the preceding form, but the case succeeds if
+evaluation of <i>a</i> does not fail.  Expression <i>a</i> must have
+species ().
+
+<p><dt> <font color="red">do <i>s</i></font>
+<dd> When this case is encountered, <i>s</i> is evaluated.  It must have
+species ().  Any bindings done by <i>s</i> are visible in subsequent cases.
+
+<p><dt><font color="red"> do p => s</font>
+<dd> This can only be used with a matching phrase.  When this
+case is encountered, pattern p is matched against the target of
+the matches, and then statement <i>s</i> is evaluated.
+
+</dl>
+
+<a name=exgenloops></a>
+<hr>
+<h2><font color=mediumblue> Examples of general loops </font></h2>
+
+Here is a loop that computes factorials.  It uses two control
+variables, one to accumulate the result and one to keep track
+of where the computation is.  Notice that no relets are required
+here.
+<font color="#D00090">
+<b><pre>
+      Let factorial(?n) =
+       
+        %% Invariant: r = k! 
+
+        Loop (?r,?k) = (1,0) first
+          exitcase k == n => r             %% If k == n, the loop expression
+                                           %% has value r.
+          loopcase else   => continue (r*(k+1), k+1)
+        %Loop
+      %Let
+</pre></b>
+</font>
+
+Here is a definition of a binary operator _in_, where x _in_ L
+is true if x is a member of list L.
+<font color=#D00090>
+<b><pre>
+    Let ?x _in_ ?lst =
+      Loop ?r = lst first matching r
+        exitcase []       => false
+        exitcase [x &amp; ?]  => true
+        loopcase [? &amp; ?t] => continue t
+      %Loop
+    %Let
+</pre></b>
+</font>
+
+Here is an implementation of library function 
+<a href="listlib.html#findMemberAfter">findMemberAfter</a>.  This is a
+more involved loop, employing subcases.
+<font color=#D00090>
+<b><pre>
+Let findMemberAfter (?s,?sense) ?c ?lst =
+  Loop (?n,?rest,?cc) = (0, lst, c) 
+    first matching rest
+      exitcase []   => fail testX
+      case ?h :: ?t =>
+        Subcases
+	  exitcase (h _in_ s) == sense => (n, rest, cc)
+	  loopcase else                => continue (n+1, t, h)
+	%Subcases
+  %Loop
+%Let
+</pre></b>
+</font>
+
+<hr>
+<center>
+<a href="pauseexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="lazyexpr.html">Next</a>
+</center>
+</body>
+</HTML>

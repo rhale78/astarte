@@ -1,0 +1,46 @@
+Package sym
+
+%% Test symbols.
+
+Import "logic/symbol".
+Import "misc/check".
+
+%% #, ==
+
+Execute
+  Let a = #"abc".
+  Let b = #"def".
+  Let c = #"abc".
+  Line[$a," ", $b, " ", $c].
+  Check["#\"abc\" #\"def\" #\"abc\""].
+  If a == b then Writeln["Error: a == b"]..
+  If a =/= c then Writeln["Error: a =/= c"]..
+%Execute
+
+%% #, ==
+
+Execute
+  Let a = #['a', 'b', 'c'].
+  Let b = #['a', 'b', 'c'].
+  Line[$a," ", $b].
+  Check["#\"abc\" #\"abc\""].
+  If a =/= b then Writeln["Error: a =/= b"]..
+%Execute
+
+%% pull, $
+
+Execute
+  Match (?s,?r) = pull(" #\"xyz\" rest"): (Symbol, String).
+  Line[$s, " ", r].
+  Check["#\"xyz\"  rest"].
+%Execute
+
+%% symlist
+
+Execute
+  Let a = symlist "abc def ghi".
+  Line[$a].
+  Check["[#\"abc\",#\"def\",#\"ghi\"]"].
+%Execute
+
+%Package

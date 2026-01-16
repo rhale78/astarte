@@ -1,0 +1,20 @@
+Package context4
+
+%% Test handling of a context at a definition.
+
+Let f ?x ?y  = x + y.
+
+Context Natural
+  case bring f
+%Context
+
+Define Ask Natural ? => g ?m. =
+  my f m
+%Define
+
+Execute
+  Writeln[$(Ask 5 => g 6.)].
+%Execute
+
+
+%Package

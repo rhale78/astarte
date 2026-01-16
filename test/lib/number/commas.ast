@@ -1,0 +1,21 @@
+Package commas 
+
+%% Test commas in numbers
+
+Import "misc/check".
+
+Execute
+  Line[$1234567890].
+  Check["1234567890"].
+  Assign putCommasInNumbers! := true.
+  Line[$1234567890].
+  Check["1,234,567,890"].
+  Line[$123456789].
+  Check["123,456,789"].
+  Assign putCommasInNumbers! := false.
+  Line[$1234567890].
+  Check["1234567890"].
+%Execute
+
+%Package
+  

@@ -1,0 +1,40 @@
+Package bigarr
+
+%% Test operations on big arrays.
+
+Import "misc/check".
+
+Execute
+  Let a = forceAll(pack (1 _upto_ 5000)).
+  
+  %% Split
+  
+  Let b = a.
+  For ?i from 1 _upto_ 4999 do
+    Line[$(head b)].
+    Check[$i].
+    Relet b = tail b.
+  %For
+  
+  %% Length
+  
+  Let l = length a.
+  Line[$l].
+  Check["5000"].
+  
+  %% Subscript
+  
+  For ?i from 1 _upto_ 4999 do
+    Line[$(a#_i)].
+    Check[$(i+1)].
+  %For
+
+  %% Subslist
+  
+  For ?i from 1 _upto_ 4998 do
+    Line[$(a##(i,2))].
+    Check["[", $(i+1), ",", $(i+2), "]"].
+  %For
+%Execute
+
+%Package

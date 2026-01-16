@@ -1,0 +1,39 @@
+Package teststate 
+
+%% Test implementation of state (for nonshared boxes).
+
+Import "misc/check".
+
+Execute
+  Let a = emptyNonsharedBox().
+  Assign a := 5.
+  Let b = @a.
+  Line[b $$ 4].
+  Check["   5"].
+  Let c = emptyNonsharedBox().
+  Assign c := 16.
+  Let d = @c.
+  Line[d $$ 4].
+  Check["  16"].
+  Let e = nonsharedBox 33.
+  Let f = nonsharedBox 44.
+  Let g = nonsharedBox 55.
+  Line[@e $$ 4, @f $$ 4, @g $$ 4].
+  Check["  33  44  55"].
+  Let h = nonsharedBox 66.
+  Let i = nonsharedBox 77.
+  Let j = nonsharedBox 88.
+  Let k = nonsharedBox 99.
+  Line[@h $$ 4, @i $$ 4, @j $$ 4, @k $$ 4].
+  Check["  66  77  88  99"].
+  Let l = emptyNonsharedBox(): Box().
+  Line[$(emptyBox? l), "   ", $(emptyBox? k)].
+  Check["true   false"].
+  EmptyBox k.
+  Line[$(emptyBox? l), "   ", $(emptyBox? k)].
+  Check["true   true"].
+  
+%Execute
+
+%Package
+

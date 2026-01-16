@@ -1,0 +1,301 @@
+%% File: io.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%======================================================================
+Package 		Astarte_Io 
+========================================================================
+
+========================================================================
+%% This package describes basic input and output functions.
+%% For more on input, see package collect/string.ast.
+========================================================================
+
+========================================================================
+			Export
+========================================================================
+
+Description
+
+ FileMode	%" FileMode is the species of modes used in opening files
+		%" using infile and outfile.
+		;
+
+ Outfile	%" Outfile(`a) is the species of a file that can be written
+		%" to, and that holds a sequence of individuals of species `a.
+		%" The file can be external, associated with a system
+		%" file, or internal, stored only within the run-time
+		%" support.  External files have species Outfile(Char).
+		;
+
+ appendMode	: FileMode
+
+		%" See outfile.
+		;
+
+ AppendToFile	: String -> String -> ()
+ 
+ 		%" AppendToFile f, s %AppendToFile adds string s
+		%" to the end of file f.
+		%"
+		%" Do not overuse this.  It opens the file, does the
+		%" write, and closes the file.  If you want to
+		%" do several writes to a file, open it using
+		%" outfile, write to it using FWrite or FWriteln,
+		%" and then close it using CloseFile.
+		;
+ 
+ {imported}
+ badInputX	: ExceptionSpecies
+
+		%" Exception badInputX occurs when a program gets
+		%" inadmissable input from the user or from a file.
+		%" This exception is not used by any of the standard
+		%" functions, but is available for application functions.
+		%" This exception is normally not trapped.
+		;
+
+ binaryMode	: FileMode
+
+		%" See infile and outfile.
+		;
+
+ {imported}
+ cannotSeekX	: ExceptionSpecies
+
+		%" Exception cannotSeekX occurs if a nonvolatile
+		%" file is found to be unseekable.  It can only occur
+		%" if you have opened an unseekable file in nonvolatile
+		%" mode, and might occur when attempting to view part
+		%" of that file.  This exception is normally trapped.
+                ;
+
+ {imported}
+ closedFileX	: ExceptionSpecies
+
+		%" Exception closedFileX occurs at an attempt to write
+		%" to a closed file.  This exception is normally 
+		%" not trapped.
+		;
+
+ CloseFile	: Outfile(`a) -> ()
+
+		%" CloseFile(f) %CloseFile closes file f, so that nothing
+		%" further can be written on it.  For a file created
+		%" by outfile, this is not necessary unless you reread
+		%" the file, since the garbage collector will close files
+		%" automatically.  For pipes (created by function pipe), 
+		%" CloseFile terminates the output list with a nil.
+		; 
+
+ FlushFile	: Outfile(`a) -> ()
+
+		%" Values written to files can be buffered, so that they
+		%" are not sent immediately to the file.  FlushFile(f) 
+		%" %FlushFile forces anything in the buffer for f to
+		%" be written out to the file.
+		;
+
+ FWrite		: Outfile(`a) -> [[`a]] -> ()
+
+		%" FWrite f, l %FWrite prints all of the members of
+		%" all of the lists in list l on file f.  See FWriteln,
+		%" Write, Writeln.  You can create an outfile using
+                %" outfile or pipe.
+                ;
+
+ FWrite		: [Outfile(`a)] -> [[`a]] -> ()
+
+		%" FWrite l, z %FWrite does FWrite f, z %FWrite
+		%" for each member f of list l.
+		; 
+
+ FWriteln	: Outfile(Char) -> [String] -> ()
+
+		%" FWriteln f, l %FWriteln prints all of the strings
+		%" in list l on file f, followed by a newline character.
+		%" See FWrite, Write, Writeln. 
+                ;
+
+ FWriteln	: [Outfile(Char)] -> [String] -> ()
+
+		%" FWriteln l, strs %FWriteln does FWriteln f, strs
+		%" %FWriteln for each member f of list l.
+                ;
+
+ FPut		: Outfile(`a) -> `a -> ()
+
+		%" FPut f, x %FPut writes x on file f.
+                ;
+
+ infile		: [FileMode] -> String -> String
+
+		%" (infile m s) opens the file named s for reading, with
+		%" mode m, and returns the contents of that file as a
+		%" string.  Parameter m is a list containing zero or more
+		%" of the following.
+		%"
+		%"  binaryMode	  Open the file for reading as a binary
+		%"		  file.  If this mode is not included, the
+		%"		  file is opened as a text file.  On some
+		%"		  systems, the mode makes no difference.  On
+		%"		  some, translations are made in text mode
+		%"		  that are not made in binaryMode.
+		%"
+		%"  volatileMode  Assume that the file can change during
+		%"		  the course of the execution of this program.
+		%"		  When a file is volatile, any part of the
+		%"		  file that is read is remembered until
+		%"		  it becomes inaccessible.
+		%"		  If volatileMode is not specified, then 
+		%"		  it is presumed that the file does not
+		%"		  change, and that parts of the file can
+		%"		  be reread if necessary to save memory.
+		;
+
+ infile		: String -> String
+ 
+ 		%" infile(s) is the same as (infile [] s).  That is, it
+		%" produces the content of the file named s, where the
+		%" file is opened in the default mode.
+		;
+
+ {imported}
+ noFileX	: String -> ExceptionSpecies
+
+		%" Exception noFileX(s) occurs when an attempt is
+		%" made to read a nonexistent file s, or when a
+		%" file is expected, but s is a Directory.  This exception
+		%" is normally not trapped.
+		;
+
+ outfile	: [FileMode] -> String -> Outfile(Char)
+
+		%" (outfile m s) is an Outfile that is associated with file
+		%" named s on the system.  The file is opened for writing
+		%" and has modes indicated by list m, which must be a list
+		%" of zero or more of the following.
+		%"
+		%"  appendMode	If this mode is used, anything written to
+		%"		the file is added to the end of what was
+		%"		previously in the file, if the file already
+		%"		existed.  If this mode is not present, then
+		%"		the file is emptied.
+		%"
+		%"  binaryMode  If this mode is used, then the file is
+		%"		opened for writing in binary mode.  If this
+		%"		mode is absent, then the file is written
+		%"		in text mode.  On some systems, writing in
+		%"		text mode causes some translations to be
+		%"		done.
+		;
+
+ outfile	: String -> Outfile(Char)
+ 
+ 		%" outfile(s) is the same as (outfile [] s).  It opens
+		%" a file for output in the default mode.
+		;
+
+ pipe		: () -> ([`a], Outfile(`a))
+
+		%" A pipe has an end that is written to and an end that
+		%" is read from.  The end that is written to is an
+		%" Outfile, and the end that is read from is a list.
+		%" The values that are written into the pipe are
+		%" placed in the list that forms the output of the pipe.
+		%"
+		%" pipe() creates a pipe and returns a pair (a,b) where 
+		%" a is end that is read from and b is the end that is
+		%" written to.  This pipe is internal to the Astarte 
+		%" system, and is not connected with the operating system.
+		%" 
+		%" Use FWrite and FPut to write to b, and CloseFile to end 
+		%" the list at a.  Any attempts to see what is in the list
+		%" beyond what has been written will cause the reading
+		%" thread to pause.
+		;
+
+ stderr!	: <:Outfile(Char):>
+
+		%" @stderr! is the standard error file, where error messages
+		%" can be written.  It is initially the screen, but can
+		%" be redirected by putting a new file in stderr!.  
+		%" See also stdout!, outfile.
+		;
+
+ stdin!		: <:String:>
+
+		%" stdin! is a box that initially contains the standard
+		%" input (a lazy string).  By default, the standard
+		%" input comes from the keyboard.  It can be redirected
+		%" by assigning a string to stdin!.  See also trueStdin!,
+		%" infile.
+		;
+
+ stdout!	: <:Outfile(Char):>
+
+		%" @stdout! is the standard output file.  It is initially
+		%" the screen, but can be redirected.  See function
+		%" WriteTo.  See also stderr!, outfile.
+		;
+
+ {imported}
+ tooManyFilesX	: ExceptionSpecies
+
+		%" Exception tooManyFilesX occurs when there are
+		%" too many open files.  This exception is normally
+		%" trapped.
+		;
+
+ trueStdin!	: <:String:>
+
+		%" trueStdin! is similar to stdin!, but will remain associated
+		%" with the keyboard when stdin! is changed.  If truestdin!
+		%" and stdin! are both associated with the keyboard, then
+		%" the keyboard input will be sent to either stdin! or 
+		%" truestdin!, depending on which is being evaluated.
+		;
+
+ volatileMode	: FileMode
+
+		%" See infile.
+		;
+
+ Write		: [String] -> ()
+
+		%" Write l %Write writes the strings in list l, one
+		%" after another, on file @stdout!.  See Writeln, FWrite,
+		%" FWriteln.
+		;
+		
+ WriteFile	: [FileMode] -> String ->  String -> ()
+ 
+ 		%" WriteFile mode, fileName, fileContent %WriteFile 
+		%" writes string  fileContent into the file named fileName.  
+		%" It opens the file with the given mode.
+		;
+		
+ WriteFile	: String -> String -> ()
+ 
+ 		%" WriteFile fileName, fileContent %WriteFile 
+		%" writes string  fileContent into the file named fileName.  
+		%" It opens the file with the default mode, [].
+		;
+
+ Writeln	: [String] -> ()
+
+		%" Writeln l %Writeln writes the strings in list l,
+		%" one after another, then prints a newline character,
+		%" all on file @stdout!.  See Write, FWrite, FWriteln.
+		;
+
+ WriteTo	: Outfile(Char) -> ()
+
+		%" WriteTo(f). sets @stdout! to file f.  Subsequent
+		%" writes to the standard output will go to file f.
+		;
+%Description
+
+%Package

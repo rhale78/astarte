@@ -1,0 +1,48 @@
+%% File: check.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%========================================================
+Package 	Astarte_Check 
+=========================================================
+
+=========================================================
+%% This package is only used for the test suite of the
+%% Astarte implementation.  You probably don't want 
+%% to use it.
+=========================================================
+
+Export
+
+Expect Line, Moreline, Check: [String] -> ().
+
+========================================================
+Implementation
+
+Advise nowarn behavior all.
+Var{shared} checkPlace holding String.
+
+Let flat ?x =
+  Loop (?c,?r) = (x,[]) first
+    exitcase nil? c => r
+    loopcase else => continue (tail c, r ++ head c)
+  %Loop
+%Let
+
+Let Line(?l). = Assign checkPlace := flat l..
+
+Let Moreline(?l). = Assign checkPlace := @checkPlace ++ flat l..
+
+Let Check(?l). =
+  If @checkPlace =/= flat l then
+    Writeln["\n******************Mismatch******************\n"].
+    Writeln[@checkPlace].
+    Writeln l.
+    Writeln[].
+  %If
+%Let
+
+%Package
+ 

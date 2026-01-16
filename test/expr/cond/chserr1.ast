@@ -1,0 +1,26 @@
+Package chooseErr1 
+
+%% Test compile errors of Choose exprs
+
+Execute
+  Choose one
+
+    %% Should not complain about this
+
+    do Let a = "good".
+
+    case true => ()
+
+    %% Should complain about do in Choose one expr
+
+    do Let g = "bad".
+
+    %% Should not complain about else in Choose one expr
+
+    else => ()
+  %Choose
+%Execute
+
+%Package
+
+

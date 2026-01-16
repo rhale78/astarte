@@ -1,0 +1,20 @@
+Package streamrelet 
+
+Execute
+  Writeln["Should print 2, 1 on separate lines.\n"].
+  Try
+    Let x = 1.
+    Let y =
+       Stream
+         Relet x = 2.
+         x
+       then
+         x
+       %Stream
+    %Let
+    Writeln[$y].
+    {false}
+  %Try
+%Execute
+
+%Package

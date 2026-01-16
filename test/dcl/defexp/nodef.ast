@@ -1,0 +1,12 @@
+Package nodef 
+
+%% Test handling of nodef
+
+Execute
+  Writeln["\n Should fail with exception noDefX\n"].
+
+  Let x = forceAll(outerBinding("nonsense"): ()).
+  Writeln[$x].
+%Execute
+
+%Package

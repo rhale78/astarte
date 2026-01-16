@@ -1,0 +1,33 @@
+Package lazyleft 
+
+%% Test lazyLeft, lazyRight
+
+Directory standard.  Import "misc/check".
+
+Execute
+  Let l = (:(:1,2:), (:3,4:):).
+  Let a = lazyLeft l.
+  Let b = lazyRight l.
+  Let c = lazyLeft a.
+  Let d = lazyRight a.
+
+  %% evaluate a.
+  Line[$a].
+  Check["(1,2)"].
+
+  %% force a garbage collection.
+  For ? from 1 _upto_ 5000 do Let x_unused = (1,2)..
+
+  %% check a now.
+  Line[$a].
+  Check["(1,2)"].
+
+  %% eval b,c,d
+  Line[$b, c$$4, d$$4].
+  Check["(3,4)   1   2"].
+%Execute
+
+%Package
+
+
+

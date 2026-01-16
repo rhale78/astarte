@@ -1,0 +1,32 @@
+Package testteam
+
+%% Test Team declarations
+
+  Team
+    ========================================
+    Description{ahead}
+      myodd "myodd(x) is true just when x is odd.";
+      myeven "myeven(x) is true just when x is even."
+    %Description
+    ========================================
+    Define{default} myodd ?n =
+      If n == 0 then false else myeven(n--1).
+    %Define
+    ========================================
+    Define{default} myeven ?n =
+      If n == 0 then true else myodd(n--1).
+    %Define
+    ========================================
+  %Team
+  =========================================
+  Execute
+    If myeven(2) 
+      then Write["\n2 is even\n"].
+      else Write["\n2 is odd!!!!!!!!!!!\n"].
+    %If
+    If myeven(5) 
+      then Write["\n5 is even!!!!!!!!!!\n\n"].
+      else Write["\n5 is odd\n"].
+    %If
+  %Execute
+%Package

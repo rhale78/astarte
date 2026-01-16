@@ -1,0 +1,9 @@
+Package irrovl
+
+%% Test overlap testing with an irregular function.
+
+Let{irregular} f1({|?x|}) = x.
+
+Let f1(?x:{|Natural|}) = x.
+
+%Package

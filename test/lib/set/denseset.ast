@@ -1,0 +1,119 @@
+Package TestSet 
+
+Import "misc/trace".
+
+%% Test Package denseset.ast, operations:
+%%    emptySet
+%%    emptySet?
+%%    +/       
+%%    -/      
+%%    _in_         
+%%    extractMin 
+%%    extractMax 
+%%    toList     
+%%    \/
+%%    /\
+%%    -
+%%    _subset?_
+
+Directory standard.
+Import "collect/denseset"; "misc/check".
+Default SET => DenseSet.
+Assume s: DenseSet(RANKED`a).
+
+Define PrintSet(?extractor,?s). =
+  Var d.
+  Line["["].
+  Assign d := s.
+  Loop first 
+    loopcase not(emptySet?(@d)) =>
+      Match (?x,?d') = extractor(@d).
+      Moreline[$x].
+      Assign d := d'.
+      If not(emptySet?(@d)) then Moreline[","]..
+    exitcase else => ()
+  %Loop
+  Moreline["]"].
+%Define
+
+Execute
+  Let a = emptySet +/ 1.
+  Let b = a +/ 2.
+  Let c = b -/ 1.
+  If not(1 _in_ a) then Writeln["**a does not contain 1!"]..
+  If not(1 _in_ b) then Writeln["**b does not contain 1!"]..
+  If not(2 _in_ b) then Writeln["**b does not contain 2!"]..
+  If not(2 _in_ c) then Writeln["**b does not contain 2!"]..
+  If 2 _in_ a then Writeln["**a contains 2!"]..
+  If 3 _in_ b then Writeln["**b contains 3!"]..
+  If 1 _in_ c then Writeln["**c contains 1!"]..
+
+  PrintSet(extractMin,b).
+  Check["[1,2]"].
+  PrintSet(extractMax,b).
+  Check["[2,1]"].
+
+  Var d.
+  Assign d := b.
+  For ?i from 0 _upto_ 20 do Assign d := (@d) +/ i..
+  PrintSet(extractMin, @d).
+  Check["[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"].
+  PrintSet(extractMax, @d).
+  Check["[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]"].
+  Line[$(toList (@d))].
+  Check["[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]"].
+    
+  For ?i from 6 _upto_ 12 do Assign d := (@d) -/ i..
+  PrintSet(extractMin, @d).
+  Check["[0,1,2,3,4,5,13,14,15,16,17,18,19,20]"].
+%Execute
+
+Execute
+  Var d.
+  Assign d := emptySet.
+  For ?i from 10 _downto_ 1 do Assign d := @d +/ i..
+  For ?i from 13 _upto_ 17 do Assign d := @d +/ i..
+  PrintSet(extractMin, @d).
+  Check["[1,2,3,4,5,6,7,8,9,10,13,14,15,16,17]"].
+  PrintSet(extractMax, @d).
+  Check["[17,16,15,14,13,10,9,8,7,6,5,4,3,2,1]"].
+  Line[$(toList (@d))].
+  Check["[1,2,3,4,5,6,7,8,9,10,13,14,15,16,17]"].
+%Execute
+
+Let tf(?b) = If b then "T" else "F"..
+
+Execute
+  Let a = set[1,2,3,4].
+  Let b = set[3,4,5,6].
+  Let c = a \/ b.
+  Line[$c].
+  Check["[1,2,3,4,5,6]"].
+  Let d = a /\ b.
+  Line[$d].
+  Check["[3,4]"].
+  Let e = a - b.
+  Line[$e].
+  Check["[1,2]"].
+
+  Line[tf(1 _in_ a), tf(2 _in_ a), tf(3 _in_ a), 
+	   tf(4 _in_ a), tf(0 _in_ a), tf(5 _in_ a)]
+  %Line
+  Check["TTTTFF"].
+
+  Let f = set[4,20,30].
+  Line[tf(1 _in_ f), tf(4 _in_ f), tf(6 _in_ f), 
+	   tf(20 _in_ f), tf(25 _in_ f), tf(30 _in_ f),
+	   tf(50 _in_ f)]
+  %Line
+  Check["FTFTFTF"].
+
+  Line[tf(a _subset?_ b), tf(b _subset?_ a), tf(a _subset?_ c), 
+	   tf(b _subset?_ c), tf(c _subset?_ a), tf(c _subset?_ b),
+	   tf(a _subset?_ a), tf(b _subset?_ b), tf(c _subset?_ c)]
+  %Line
+  Check["FFTTFFTTT"].
+%Execute
+
+%Package
+

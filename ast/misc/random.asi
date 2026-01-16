@@ -1,0 +1,362 @@
+%% File: random.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_RandomImp 
+
+			implements "random"
+=========================================================
+
+==========================================================
+Directory standard.
+Import "thread/semaphor".
+Import "system/system".
+Import "math/prime".
+
+===================================================================
+%% The algorithm is based on the difficulty of taking square roots
+%% mod a product of two Blum primes.  Starting with a seed s0,
+%% we successively compute numbers
+%%
+%%   s0, s1, s2, s3, ...
+%%
+%% where s(n+1) = f(s(n)) and
+%%
+%%    f(x) = min(x^2 mod N, N - x^2 mod N)
+%%
+%% where N is the modulus that is the product of two Blum primes.
+%% (That is, two primes that are congruent to 3 mod 4).
+%%
+%% Only part of each s(n) is actually used as a pseudo-random
+%% quantity.  We get one bit at a time, and get only 5 bits
+%% from the low order end of each number s(n) before getting
+%% the next number in the sequence.
+%%
+%% It is unsafe to get too many numbers from one seed.  After
+%% getting enough, we get another seed.  The seed is extracted
+%% from a string of digits that is provided for that purpose.
+%% That string of digits should be obtained by some random
+%% process.  When this generator changes the seed, it also
+%% changes the modulus, since the modulus itself can influence
+%% the appearance of the pseudo-random digits.
+==================================================================
+
+=====================================================================
+Var{shared}:
+
+  randomModulus! holding Natural; 
+  				%% Current modulus.  This is the number
+  				%% N above.
+  
+  randomCurrent! holding Natural := 1;  
+  				%% Current number in sequence.  This is
+  				%% one of the s(n) above.
+
+  randomAvail! holding  Natural := 0;	 
+  				%% How many remaining numbers
+				%% that can be generated in 
+				%% current sequence before we
+				%% should reseed.
+
+  randomBits! holding Natural := 1;	 
+  				%% Current bits, from low order
+				%% end of randomCurrent.  These
+				%% bits will be used to get
+				%% pseudo-random bits.
+
+  randomBitsAvail! holding Natural := 0; 
+  				%% Number of bits that can be
+				%% taken from randomBits before
+				%% getting the next s(n) in the
+				%% sequence.
+
+  randomSeed! holding String := "12345678901234567890123456789012345678901234";
+				%% Seed digits, chosen randomly.
+				%% This initial value should be
+				%% replaced by a string of at
+				%% least 4 digits, plus 44
+				%% more for each one million
+				%% bits needed.
+
+  randomizeSilently! holding Boolean := false;
+  				%% randomizeSilently! is set true
+				%% if there should be no complaint
+				%% printed when the random number
+				%% generator runs out of seed digits.
+  
+  {nonshared}:
+  
+  normalMode! holding Boolean := true	
+  				%% normalMode! holds true normally,
+  				%% and holds false when the random
+				%% number generator is reseeding.
+				%% It is used to allow the thread that
+				%% is doing the reseeding to get
+				%% some random bits, while locking
+				%% out other threads.
+  
+%Var
+
+=====================================================================
+%%		randomSemaphore					   %%
+=====================================================================
+%% randomSemaphore protects updates of the variables, in case
+%% the random number generator is being used by more than one
+%% thread.
+=====================================================================
+
+Let randomSemaphore = unblockedSemaphore().
+
+=====================================================================
+%%		nextBlumPrime					   %%
+=====================================================================
+
+Let
+  description
+    %%---------------------------------------------------------
+    %" nextBlumPrime(n) returns the smallest Blum prime that is
+    %" not smaller than n.
+    %%---------------------------------------------------------
+
+  nextBlumPrime(?n) = n |
+  
+    While n _mod_ 4 =/= 3 do 
+      Relet n = n + 1.
+    %While
+    
+    While not prime?(n) do
+      Relet n = n + 4.
+    %While
+%Let
+  
+
+=====================================================================
+%%		NextRandomBlock					   %%
+=====================================================================
+
+Let 
+  description
+    %%---------------------------------------------------------
+    %" NextRandomBlock(). alters the random number generation 
+    %" parameters by getting a block of digits from the seed.
+    %" It is called when amplification of the old seed is too high.
+    %%---------------------------------------------------------
+
+NextRandomBlock. =
+  Let rs = @randomSeed!.
+
+  %%---------------------------------------------------%%
+  %% If the seed has run out, use the clock to get     %%
+  %% a new seed.  Let the user know that this is       %%
+  %% happening, unless this is suppressed via	       %%
+  %% randomizeSilently!.			       %%
+  %%---------------------------------------------------%%
+
+  If length(rs) < 44 then 
+    If not @randomizeSilently! then
+      FWrite @stderr!, 
+        [%"
+	 %"
+	 %"The random number generator has run out of seed digits!
+	 %"  -- proceeding using Randomize.
+	]
+      %FWrite
+    %If
+    Let s = $secondsSinceTimeZero().
+    Assign randomizeSilently! := true.
+    Relet rs = s.
+    While length(rs) < 44 do
+      Relet rs = rs ++ s.
+    %While
+  %If
+
+  %%------------------------------------------------------------%%
+  %% If there are enough seed digits left, pull off two blocks  %%
+  %% of 11 digits.  Place a 1 in front of each, and treat it as %%
+  %% a decimal integer.  Find the next Blum prime from each.    %%
+  %% The product of those two primes is the modulus.  Then take %%
+  %% the next 22 digits after that.  They form the start point  %%
+  %% for the next block of pseudo-random numbers.		%%
+  %%								%%
+  %% We must be careful here.  The primality checker wants      %%
+  %% random numbers, but we are not currently set up to deliver %%
+  %% any.  So set up in special mode for the primality checker. %%
+  %% Set normalMode! to false to allow the primality checker    %%
+  %% to use the random number generator, even though we have    %%
+  %% the semaphore locked.					%%
+  %%------------------------------------------------------------%%
+
+  Assign
+    randomModulus!   := 238196731 * 192746111;
+    randomCurrent!   := 193781485721;
+    randomAvail!     := 200000;
+    randomBitsAvail! := 0;
+    normalMode!      := false
+  %Assign
+  Let 
+    p = nextBlumPrime(stringToNatural(['1' & rs##(0,11)]));
+    q = nextBlumPrime(stringToNatural(['1' & rs##(11,11)]));
+    s = stringToNatural(rs##(22,22))
+  %Let
+  Assign
+    normalMode!      := true;
+    randomModulus!   := p*q;
+    randomCurrent!   := s;
+    randomBits!      := s _mod_ 32;
+    randomSeed!      := rs##(44,largenum);
+    randomAvail!     := 200000;
+    randomBitsAvail! := 5
+  %Assign 
+%Let
+
+=====================================================================
+%%		SetRandomSeed					   %%
+=====================================================================
+
+Let SetRandomSeed ?s. =
+  SemProtect randomSemaphore over
+    Let ss = s.
+    While length(ss) < 44 do
+      Relet ss = s ++ ss.
+    %While
+    Assign randomSeed! := ss.
+    NextRandomBlock.
+  %SemProtect
+%Let
+
+=====================================================================
+%%		Randomize					   %%
+=====================================================================
+
+Let Randomize. =
+  Let s = $secondsSinceTimeZero().
+  Let sd = s.
+  While length(sd) < 44 do
+    Relet sd = sd ++ s.
+  %While
+  SetRandomSeed (pack sd).
+  Assign randomizeSilently! := true.
+%Let
+
+=====================================================================
+%%		coinToss					   %%
+=====================================================================
+
+Let coinToss() =  result |
+  kill__act__sideEffect ~>
+    Atomic
+      If @normalMode! then SemWait(randomSemaphore). %If
+    %Atomic
+
+    open Try catchingTermination
+    
+      %%-----------------------------------------------------
+      %% If there is not a bit available from randomAvail, %%
+      %% then get another group of bits.		   %%
+      %%---------------------------------------------------%%
+
+      If @randomBitsAvail! == 0 then 
+
+        %%--------------------------------------------------%%
+        %% Get a new block of seed digits if this block has %%
+        %% become stale.				    %%
+        %%--------------------------------------------------%%
+
+        If @randomAvail! == 0 then NextRandomBlock..
+
+        %%---------------------------------------------------%%
+        %% This is the heart of the pseudo-random number     %%
+        %% generator.  Roughly, it squares the current value %%
+        %% mod a product of two primes.  		     %%
+        %%---------------------------------------------------%%
+
+        Let 
+          rc = @randomCurrent!;
+	  rm = @randomModulus!;
+	  x  = (rc * rc) _mod_ rm;
+          z  = min[x, rm -- x]
+        %Let
+
+        %%--------------------%%
+        %% Update the counts. %%
+        %%--------------------%%
+
+        Assign 
+          randomCurrent!   := z;
+          randomAvail!     := @randomAvail! -- 1;
+	  randomBits!      := z _mod_ 32;
+          randomBitsAvail! := 5
+        %Assign
+      %If   
+
+      %%--------------------------------%%
+      %% Extract a bit from randomBits. %%
+      %%--------------------------------%%
+
+      Match (quotient ~> ?q, remainder ~> ?result) = divide(@randomBits!, 2).
+      Assign 
+        randomBits!      := q;
+        randomBitsAvail! := @randomBitsAvail! -- 1
+      %Assign 
+
+      Atomic
+        If @normalMode! then SemSignal(randomSemaphore). %If
+      %Atomic
+    else
+      If @normalMode! then SemSignal(randomSemaphore). %If
+      Fail exception.
+    %Try
+%Let
+
+=====================================================================
+%%		random						   %%
+=====================================================================
+
+Let random ?n =
+  kill__act__sideEffect ~>
+
+  %%-------------------------------------------------------------%%
+  %% Get a value that is uniformly distributed from 0 to 2^k-1,  %%
+  %% where' 2^k is the smallest power of two that is not smaller %%
+  %% than n.  Reject the chosen value if it is greater than      %%
+  %% or equal to n.  Keep trying until an acceptable value	 %%
+  %% is chosen.							 %%
+  %%-------------------------------------------------------------%%
+
+  Loop first
+
+    %%-----------------------------------------------------------%%
+    %% Get the pseudo-random number uniformly distributed	 %%
+    %% from 0 to 2^k - 1.					 %%
+    %%-----------------------------------------------------------%%
+
+    do Let r =
+         Loop (?r, ?m) = (0, 1) first
+	   exitcase m >= n => r
+	   loopcase else   => continue (r + r + coinToss(), m + m)
+         %Loop
+       %Let
+
+    %%---------------------------------%%
+    %% Check whether r is acceptable.  %%
+    %%---------------------------------%%
+
+    exitcase r < n => r
+    loopcase else  => continue
+  %Loop
+%Let
+
+=====================================================================
+%%		randomRange					   %%
+=====================================================================
+
+Let randomRange(?m,?n) = random((n -- m) + 1) + m |
+  {m <= n else domainX "Null range for randomRange"}
+%Let
+
+=====================================================================
+%Package
+

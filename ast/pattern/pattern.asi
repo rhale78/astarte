@@ -1,0 +1,42 @@
+%% File: pattern.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=========================================================
+Package 		Astarte_PatternImp
+
+			Implements "pattern"
+===========================================================
+
+
+===========================================================
+%%			const_P
+===========================================================
+
+Define const_P ?c = patternConstant(?x => {x == c}).
+
+===========================================================
+%%			constList_P
+===========================================================
+
+Define constList_P ?c = listPatternConstant(?x => x _lminus_ c).
+
+===========================================================
+%%			span_P
+%%			spanOthers_P
+===========================================================
+
+Define span_P ?c       = listPatternFunction(pullSpan c).
+Define spanOthers_P ?c = listPatternFunction(pullSpanOthers c).
+
+===========================================================
+%%			theN_P
+%%			theUpToN_P
+===========================================================
+
+Define theN_P ?n     = listPatternFunction(pullN n).
+Define theUpToN_P ?n = listPatternFunction(pullUpToN n).
+
+%Package

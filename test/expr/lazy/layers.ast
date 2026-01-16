@@ -1,0 +1,15 @@
+Package layers 
+
+%% Test several layers of laziness.
+
+Directory standard.  Import "misc/check".
+
+Execute
+  Define a = (:1,(:(:2:):):).
+  Line[$left a].
+  Check["1"].
+  Line[$right a].
+  Check["2"].
+%Execute
+
+%Package

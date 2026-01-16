@@ -1,0 +1,20 @@
+Package tostring
+
+Import "misc/check".
+
+Execute
+  Line[$true].
+  Check["true"].
+  Line[$false].
+  Check["false"].
+  Line[$()].
+  Check["()"].
+  Line[$equal].
+  Check["equal"].
+  Line[$greater].
+  Check["greater"].
+  Line[$less].
+  Check["less"].
+%Execute
+
+%Package

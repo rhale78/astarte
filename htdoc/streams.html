@@ -1,0 +1,374 @@
+<HTML>
+<head>
+<title>Astarte: backtracking and multiple threads</title>
+</head>
+<body>
+<center>
+<a href="failure.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="boxexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E17. Backtracking and Multiple Threads </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#forking> Forking threads</a>
+  <li> <a href=#listcomp> From threads to lists</a>
+  <li> <a href=#atomic> Atomicity</a>
+  <li> <a href=#cut> Cutting collections of threads</a>
+  <li> <a href=#cases> Modifying definitions by cases</a>
+  <li> <a href=#patmat> Pattern matching and threads</a>
+</menu>
+
+<a name=forking></a>
+<hr>
+<h2><font color=mediumblue> Forking threads </font></h2>
+
+The <i>stream</i> and <i>mix</i> constructs provide two mechanisms
+for creating threads.  <i>Stream</i> creates a thread that is similar
+to a thread created by a try-expression; it waits to run until another
+thread has failed.  <i>Mix</i> creates a thread that does not wait, but
+runs immediately.
+
+<dl>
+<a name=Stream></a>
+<p><dt><font color="red"> Stream <em>a</em> then <em>b</em> %Stream</font>
+<dd> This expression forks the current thread into two.  One thread
+evaluates <em>a</em>.  It continues running.  
+The other thread evaluates <em>b</em>.
+It does not run until the thread that computes <em>a</em> fails.
+
+<P> <b>Note:</b> 
+Thread <em>b</em> remains in place even after thread <em>a</em> 
+exits the stream expression.  
+When <em>a</em> fails, thread <em>b</em> runs, even if <em>a</em> fails
+after exiting the stream expression.  This is where <i>Stream</i>
+differs from <i>Try</i>.  In a try-expression, the waiting thread is
+destroyed when a thread successfully completes the condition.
+
+<p>When a stream fails, its exception is that of the last thread to fail.
+
+<p>For example,
+<font color=#D00090>
+<b><pre>
+   Open Stream
+     Let x = 1.
+   then
+     Let x = 2.
+   %Stream
+   Writeln[$x].
+   {false}
+</pre></b>
+</font>
+prints
+<b><pre>
+   1
+   2
+</pre></b>
+and then fails with exception testX.  (The first thread prints 1, then fails,
+causing the second thread to start.  That thread prints 2 and then fails.
+So no threads complete this expression successfully, 
+although the side-effects that they cause before failing are visible.)
+You can avoid getting the failure at the end
+by wrapping the entire thing in a try.  
+For example,
+<font color=#D00090>
+<b><pre>
+   Try
+     Open Stream
+       Let x = 1.
+     then
+       Let x = 2.
+     %Stream
+     Writeln[$x].
+     {false}
+   %Try
+</pre></b>
+</font>
+also prints
+<b><pre>
+   1
+   2
+</pre></b>
+but does not fail, since the failure of the second thread is caught 
+(and ignored) by the try.  Notice that both the then- and else-parts
+have been omitted from the try, so both default to ().
+
+<p>Notice that a stream expression can have a value.  An alternative way of
+writing the previous example is
+<font color=#D00090>
+<b><pre>
+   Try
+     Let x = Stream 1 then 2 %Stream.
+     Writeln[$x].
+     {false}
+   %Try
+</pre></b>
+</font>
+
+<p><dt><font color="red"> Stream <em>a</em> then <em>b</em> then <em>c</em> %Stream</font>
+<dd> This abbreviates Stream <em>a</em> then Stream <em>b</em> then <em>c</em> %Stream %Stream.
+You can have any number of parts.
+
+<a name=Mix></a>
+<p><dt><font color="red"> Mix <em>a</em> with <em>b</em> %Mix </font>
+<dd> This expression forks the current thread into two.  One thread
+evaluates <em>a</em>, and the other evaluates <em>b</em>.  Both threads run
+in parallel.
+
+<p>When a mix expression fails, 
+its exception is that of the last thread to fail.
+
+<p>For example,
+<font color=#D00090>
+<b><pre>
+   Try
+     Let x = Mix 1 with 2 %Mix.
+     Writeln[$x].
+     {false}
+   %Try
+</pre></b>
+</font>
+prints either
+<b><pre>
+   1
+   2
+</pre></b>
+or
+<b><pre>
+   2
+   1
+</pre></b>
+or can even print other things, such as
+<b><pre>
+   21
+
+</pre></b>
+(with a blank line after it)
+since the printing of the numbers and the end-of-line markers can
+be interleaved in arbitrary ways.
+
+<p><dt><font color="red"> Mix <em>a</em> with <em>b</em> with <em>c</em> %Mix</font>
+<dd> This abbreviates Mix <em>a</em> with Mix <em>b</em> with <em>c</em> %Mix %Mix.
+You can have any number of parts.
+
+<a name=each></a>
+<p><dt><font color="red"> each(x)</font>
+<dd> Function <i>each</i> takes a list as a parameter and produces each member
+of that list, where each member is produced by a separate thread.  The threads
+are produced using <i>stream</i>, so each runs only when the prior one
+fails.
+<p>Example:
+<font color="#D00090">
+<b><pre>
+      Let x = each [a,b,c].
+</pre></b>
+</font>
+is equivalent to
+<font color="#D00090">
+<b><pre>
+      Let x = Stream a then b then c %Stream.
+</pre></b>
+</font>
+
+<a name=eachMixed></a>
+<p><dt><font color="red"> eachMixed(x)</font>
+<dd> Function <i>eachMixed</i> is similar to each, but produces threads
+that run in parallel.
+<p>Example:
+<font color="#D00090">
+<b><pre>
+      Let x = eachMixed [a,b,c].
+</pre></b>
+</font>
+is equivalent to
+<font color="#D00090">
+<b><pre>
+      Let x = Mix a with b with c %Mix.
+</pre></b>
+</font>
+
+</dl>
+
+<a name="listcomp"></a>
+<hr>
+<h2><font color=mediumblue>From threads to lists</font></h2>
+
+A stream generally produces several different values, but produces
+each one on a separate thread.  There is a way to get a list of all
+of the values produced by a stream, where the list is produced by
+just one thread.  If expression <i>e</i> produces a stream of values, then
+expression [:<i>e</i>:] produces a list of those values.  
+For example,
+<font color=#D00090>[:Stream 1 then 2 then 3 %Stream:]</font> = [1,2,3].
+
+<p>If a mixed stream is used, then the values are put into the list in
+the order in which they are obtained.  That order is not defined, but
+depends on how the implementation runs the threads.  
+For example,
+<font color=#D00090>[:Mix 1 with 2 with 3 %Mix:]</font> <i>might</i> produce
+list [3,2,1].
+
+<p>This feature can be used for
+<a href=listexpr.html#listcomp>list comprehensions</a>, as well
+as in more general things.  
+
+<a name="atomic"></a>
+<hr>
+<h2><font color=mediumblue> Atomicity </font></h2>
+
+Normally, a thread can be interrupted at any point during its
+execution, to allow other threads to run.  You can partially prevent
+such interrupts by indicating that a section of the program is
+atomic.  The implementation might forbid stopping a thread inside
+an atomic segment, but it might also simply guarantee that no two 
+sections that are marked atomic can be interleaved with one another.  
+Use expression
+<font color=#D00090>
+<b><pre>
+   Atomic
+     <font color=black><em>... (expression to be done atomically)</em></font>
+   %Atomic
+</pre></b>
+</font>
+Do not overuse this.  Keep atomic sections short.
+If you have long atomic sections, you will cripple the
+thread manager.
+
+<a name="cut"></a>
+<hr>
+<h2><font color=mediumblue> Cutting collections of threads </font></h2>
+
+Because a thread can fork into several threads, it is possible
+for a single thread to enter a block of code, and for many 
+threads to come out of that same block.  CutHere and Unique expressions
+provide a mechanism for allowing only one thread to get out
+of the block.  Imagine that expression
+<font color=#D00090>
+<b><pre>
+    CutHere
+      <font color=black><em>e</em></font>
+    %CutHere
+</pre></b>
+</font>
+is entered by a thread, and that this thread forks into several different
+thread within this block.  If any of those threads performs
+statement
+<font color=#D00090>
+<b><pre>
+    Cut.
+</pre></b>
+</font>
+then all other threads that were created inside this CutHere
+block are destroyed. A thread is destroyed by causing it to fail 
+with exception terminateX.
+
+<p> A thread can be destroyed even if it has made
+it out of the CutHere block, as long as some other thread that
+is still in that block performs a cut.
+
+<p> A Cut statement applies to the most recently entered
+CutHere block.  It does not need to be enclosed within
+that block in the static structure of the program, only 
+in the dynamic structure.
+
+<p> Expression
+<font color=#D00090>
+<b><pre>
+    Unique
+      <font color=black><em>body</em></font>
+    %Unique
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+    CutHere
+      <font color=black><em>body</em></font>
+      Cut.
+    %CutHere
+</pre></b>
+</font>
+It only allows one thread to exit the CutHere block for each
+thread that enters the block, regardless
+of how many are created inside the block.
+
+<a name=cases></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Modifying definition by cases </font></h2>
+
+You can put a CutHere, Unique or Atomic construct around the
+cases in a definition by cases.  
+For example, the following function
+computes the larger of two box contents atomically.
+<font color=#D00090>
+<b><pre>
+     Define largerContent by
+       Atomic
+         case largerContent(?a,?b) = @a when @a >= @b
+         else largerContent(?a,?b) = b
+       %Atomic
+     %Define
+</pre></b>
+</font>
+
+The choice mode <i>one mixed</i> is implemented using cut.  Definition
+<font color=#D00090>
+<b><pre>
+     Define f by one mixed
+       case f <i>p1</i> = <i>v1</i>
+       case f <i>p2</i> = <i>v2</i>
+     %Define
+</pre></b>
+</font>
+is translated by the compiler into
+<font color=#D00090>
+<b><pre>
+     Define f by all mixed
+       CutHere
+         case f <i>p1</i> = Cut. <i>v1</i>
+         case f <i>p2</i> = Cut. <i>v2</i>
+       %CutHere
+     %Define
+</pre></b>
+</font>
+</font>
+
+<a name=patmat></a> 
+<hr>
+<h2><font color=mediumblue> Pattern matching and threads </font></h2>
+
+The following pattern forms are available for creating
+threads within patterns.
+<dl>
+<a name=orthen></a>
+<dt><font color="red"> ?x _orthen_ ?y </font>
+<dd> This creates two threads, one matching
+?x against the target, the other matching ?y against the target.
+The threads are created using Stream, so the thread that uses pattern
+?y only runs when the thread that uses pattern ?x fails.
+
+<a name=orwith></a>
+<p><dt><font color="red"> ?x _orwith_ ?y </font>
+<dd> This creates two threads, one matching
+?x against the target, the other matching ?y against the target.
+The threads are created using Mix, so the threads run simultaneously.
+</dl>
+
+<hr>
+<center>
+<a href="failure.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="boxexpr.html">Next</a>
+</center>
+</body>
+</HTML>
+

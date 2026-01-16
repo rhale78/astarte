@@ -1,0 +1,539 @@
+%% File: standard.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==============================================================%%
+%%              DO NOT RENAME THIS PACKAGE.			%%
+%%==============================================================%%
+%% DO NOT DO ANY IMPORTS IN THIS PACKAGE.  THEY WILL NOT BE	%%
+%% PROCESSED CORRECTLY.						%%
+%%==============================================================%%
+
+%%=================================================================
+Package 		standard 
+
+			interface
+====================================================================
+%% This package is read by every package.  Don't try to compile it --
+%% you will get complaints of duplicate definitions, as it tries to
+%% read itself.  You can compile standard.asi.  If you really
+%% want to compile standard.ast by itself, use option -ns to astc.  
+%% You will get a parse error at the end, but ignore it.
+====================================================================
+
+=========================================================
+Abbrev {noExport}:
+  A	    = `a;
+  B	    = `b;
+  C	    = `c;
+  D         = `d;
+  Alist     = [A];
+  Blist     = [B];
+  AOutfile  = Outfile(A);
+  ABox      = <:A:>;
+  Oa	    = ORDER`a;
+  Opair     = (ORDER`a, ORDER`b);
+%Abbrev
+=========================================================
+Operator 
+    ==?		(==);
+    =/=?	(==);
+    _orelse_	(_also_);
+    _orthen_	(_also_);
+    _orwith_	(_also_);
+    _eagerCutBy_(#_);
+    _leftin_	($$);
+    $$'         ($$);
+    _is_	(==);
+    +/	        (+);
+    _monus_	(-);
+    _lminus_	(-);
+    _rminus_	(-);
+    #		(#_);
+    $'
+%Operator
+=========================================================
+Exception 
+  compareX       "Comparison of individuals of incompatible species";
+  closedPipeX    "Attempt to write to a closed pipe";
+%Exception
+=========================================================
+Anticipate
+  ^^		: `a -> `b constraint (`b >= `a);
+  downcast	: `a -> `b constraint (`a >= `b)
+%Anticipate
+=========================================================
+Expect
+
+    %%--------------------
+    %% Boolean, Comparison
+    %%--------------------
+
+    ==>,
+      _orf_,
+      _andf_	: (Boolean, Boolean)	     -> Boolean;
+    compare	: ([Oa],[Oa])	   	     -> Comparison;
+    compare	: (Opair,Opair)              -> Comparison;
+    compare	: (ORDER``a, ORDER``a)       -> Comparison;
+    =/=?	: (EQ`a, EQ`b)		     -> Boolean;
+
+    {underride}:
+
+    <,>,<=,>=	: (Oa,Oa)		     -> Boolean;
+    =/=		: (EQ`a,EQ`a)                -> Boolean;
+
+    {default}:
+
+    compareHelp : (ORDER`a, ORDER`b)	     -> Comparison;
+    ==?		: (EQ`a, EQ`b)		     -> Boolean;
+    ==		: ([EQ`a],[EQ`a])	     -> Boolean;
+
+    {underride}:
+    
+    ==		: (EQ``a,EQ``a)	     	     -> Boolean;
+
+    {}:
+
+    ==		: ((EQ`a,EQ`b), (EQ`a,EQ`b))  	-> Boolean;
+    maxmin	: ((A,A) -> Boolean) -> Alist 	-> A;
+    max,min	: [Oa]			  	-> Oa;
+
+    %%--------------------
+    %% RANKED, Numbers
+    %%--------------------
+    
+    absFloor,
+      absCeiling: REAL`a			-> Natural;
+    succ	: RANKED`a			-> RANKED`a;
+    largenum	: INTEGER`a;
+    round	: REAL`a			-> Integer;
+    _monus_	: (Natural, Natural)		-> Natural;
+    naturalToHex: (Natural, Natural)		-> String;
+    zero,unit	: REAL`a;
+
+    %%------------------------
+    %% Conversion to string, $
+    %%------------------------
+
+    {default} $	: Alist				-> String;
+    $		: REAL`a			-> String;
+    $		: Boolean			-> String;
+    $		: Char				-> String;
+    $		: ()				-> String;
+    $		: ExceptionSpecies		-> String;
+    $		: Comparison			-> String;
+    $		: FileMode			-> String;
+    $		: BoxFlavor			-> String;
+    $		: CopyFlavor			-> String;
+    $		: UnknownKey			-> String;
+    $		: ABox				-> String;
+    $		: AOutfile			-> String;
+    $		: (A -> B)			-> String;
+    $		: (A, B)			-> String;
+    $'		: A				-> String;
+    {default} $	: ``a				-> String;
+    $$, $$',
+      _leftin_	: (String,Natural)		-> String;
+    {underride} 
+      $$,$$'    : (REAL`a, Natural, Natural)    -> String;
+    {underride} 
+      $$,$$'    : (REAL`a, Natural, Natural, Natural) -> String;
+    showTagged	: A				-> String;
+    showApply	: (String,A)			-> String;
+    showCurriedApply: Natural -> (String, `a)	-> String;
+    enumToStringF:[String] -> RANKED`x		-> String;
+    eagerCharToString: Char			-> String;
+    view	: A				-> String;
+    speciesOf	: A				-> ASpecies;
+    intrinsicSpeciesOf: A			-> ASpecies;
+
+    %%--------------------
+    %% Pull operations
+    %%--------------------
+
+    {default} pull 	: String -> (`a, String);
+    pull		: String -> (Natural, String);
+    pull		: String -> (Integer, String);
+    pull		: String -> (Rational, String);
+    pull		: String -> (Real, String);
+    pull		: String -> (Char, String);
+    pull		: String -> ((), String);
+    pull		: String -> ([`a], String);
+    pull		: String -> ((`a,`b), String);
+    pull		: String -> (`a -> `b, String);
+    pull		: String -> (ANY, String);
+    pull		: String -> (Char, String);
+    pullId		: String -> (`a, String);
+    pullHex		: String -> (Natural, String);
+    pullHelp		: (String, String, String -> (`a, String)) 
+    				  -> (`a, String);
+    pullCurriedHelp	: Natural -> (String, String, String -> (`a, String)) 
+    			          -> (`a, String);
+    maybeParens		: (String -> (`a, String)) -> String -> (`a, String);
+    wrapPuller		: (String -> (`a, String)) -> (String -> (``b, String))
+			  constraint (``b >= `a);
+    InstallPull		: (String -> (`a, String)) -> ();
+
+    %%--------------------
+    %% List operations
+    %%--------------------
+
+    #		: (Alist, Natural)		-> A;
+    list	: A				-> Alist;
+    last	: Alist				-> A;
+    allButLast	: Alist				-> Alist;
+    +/	        : (Alist, A)			-> Alist;
+    splitAtEnd	: Alist				-> (Alist, A);
+    pack,
+     eagerPack  : Alist				-> Alist;
+    forceList	: Alist				-> Alist;
+    dup		: Natural -> A			-> Alist;
+    infiniteDup	: A				-> Alist;
+    _eagerCutBy_: (Alist, (A -> Boolean))    	-> (Alist, Alist);
+    _lminus_,
+     _rminus_   : ([EQ`a], [EQ`a]) 		-> [EQ`a];
+    eagerMap	: (A -> B) 			-> Alist -> Blist;
+    MapProc	: (A -> ()) 			-> Alist -> ();
+    map		: (A -> B) 			-> Alist -> Blist;
+    lazyMap	: (A -> B) 			-> Alist -> Blist;
+    mapSuccesses: (A -> B) 			-> Alist -> Blist;
+  
+    each,
+    eachMixed	: pot__produceStream ~>
+		  pot__fail ~>
+		  Alist -> A;
+
+    rfold	: (nil ~> B, :: ~> (A,B)->B) -> Alist  -> B;
+    lfold	: (nil ~> B, :: ~> (B,A)->B) -> Alist  -> B;
+    fold	: (nil ~> A, :: ~> (A,A)->A) -> Alist  -> A;
+    flatten	: [Alist] -> Alist;
+    skipWS	: String -> String;
+
+    %%--------------------
+    %% Printing, files
+    %%--------------------
+
+    WriteTo	: pot__sideEffect ~>
+		  Outfile(Char)			-> ();
+    pipe	: () 				-> (Alist, AOutfile);
+    Write, 
+     Writeln    : pot__sideEffect ~>
+		  [String]			-> ();
+    FWrite	: pot__sideEffect ~>
+		  AOutfile -> [Alist] 		-> ();
+    FWriteln	: pot__sideEffect ~>
+    		  Outfile(Char) -> [String]	-> ();
+    FPut	: pot__sideEffect ~>
+		  AOutfile -> A 		-> ();
+    FPut	: pot__sideEffect ~>
+		  [AOutfile] -> A		-> ();
+    FWrite	: pot__sideEffect ~>
+		  [AOutfile] -> [Alist]		-> ();
+    FWriteln	: pot__sideEffect ~>
+		  [Outfile(Char)] -> [String]	-> ();
+    CloseFile	: pot__sideEffect ~>
+		  AOutfile			-> ();
+    WriteFile	: [FileMode] -> String -> String -> ();
+    WriteFile,
+     AppendToFile: String -> String		-> ();
+    infile	: [FileMode] -> String		-> String;
+    infile	: String 			-> String;
+    outfile	: [FileMode] -> String		-> Outfile(Char);
+    outfile	: String			-> Outfile(Char);
+    Show	: Outfile(Char) -> `a 		-> ();
+
+    %%--------------------
+    %% Boxes, Unknowns
+    %%--------------------
+
+    sharedBox,
+     nonsharedBox,
+     makebox		: A			-> ABox;
+    box			: BoxFlavor -> A	-> ABox;
+    newUnknown		: BoxFlavor 		-> A;
+    newProtectedUnknown	: BoxFlavor		-> (A,UnknownKey);
+    new			: BoxFlavor 		-> ABox;
+    defaultAt		: A -> ABox          	-> A;
+    Swap		: (ABox, ABox) 		-> ();
+    array		: BoxFlavor -> Natural  -> [ABox];
+    infiniteArray	: BoxFlavor 	 	-> [ABox];
+    infiniteSharedArray,
+     infiniteNonsharedArray: ()			 -> [ABox];
+    Increment,
+     Decrement		: pot__sideEffect ~>
+			  <:INTEGER`a:>		 	-> ();
+    AddTo		: pot__sideEffect~>
+			  (<:REAL`a:>, REAL`a)   	-> ();
+    {default}  
+    copy          	: CopyFlavor -> `a -> `a;
+    copy		: `a -> `a;
+
+    %%--------------------
+    %% General functionals
+    %%--------------------
+
+    constf	: A 				-> B -> A;
+    __		: ((A,B) -> C) -> B 		-> A -> C;
+    __/-	: (B -> A -> C)			-> ((A,B) -> C);
+    curry	: ((A,B) -> C)			-> A -> B -> C;
+    uncurry	: (A -> B -> C)			-> (A,B) -> C;
+    _bar_	: (A, (A -> B))			-> B;
+    _is_	: (A, A -> Boolean)		-> Boolean;
+    _o_		: (B -> C, A -> B)          	-> A -> C;
+    _o3_	: (C -> D, B -> C, A -> B)	-> A -> D;
+    ||		: (A -> B, B -> C)		-> A -> C;
+    succeedsf	: (A -> B)			-> A -> Boolean;
+    lazy	: (A -> B)			-> (A -> B);
+
+    %%--------------------
+    %% Secondary species
+    %%--------------------
+
+    rewrap	: ``a -> ``b;
+    reform	: `a  -> `b;
+    {irregular}
+      concrete	: `a -> `*b		 constraint (`a >= `*b);
+      
+    ^^		: [A] -> [B]             constraint (B >= A);
+    ^^		: (A -> B) -> (C -> D)   constraint ((C -> D) >= (A -> B));
+    ^^		: (A,B) -> (C,D)         constraint ((C,D) >= (A,B));
+    ^^		: `a -> ``b              constraint (``b >= `a);
+    ^^		: A -> A;
+
+    downcast	: ``a -> ``b		 constraint (``a >= ``b);
+    downcast	: ``a -> `*b		 constraint (``a >= `*b);
+    downcast	: [A] -> [B]		 constraint (A >= B);
+    downcast	: (A,B) -> (C,D)	 constraint ((A,B) >= (C,D));
+    downcast	: (A -> B) -> (C -> D)	 constraint ((A -> B) >= (C -> D));
+    downcast	: A -> A;
+    
+    %%--------------------
+    %% Misc
+    %%--------------------
+    
+    lazy?	: `a -> Boolean;
+    ChooseCommit: <:():> -> ();
+    ChooseTest	: <:():> -> ();
+    
+%Expect
+=========================================================
+Var pullWrappedBox holding [String -> (ANY, String)] :=
+    [
+     wrapPuller(pull : (String -> (Boolean, String))),
+     wrapPuller(pull : (String -> (Comparison, String))),
+     wrapPuller(pull : (String -> ((ANY,ANY), String)))
+    ]
+%Var
+=========================================================
+Missing{strong} largest: ENUMERATED``a.
+=========================================================
+Var{nonshared} showIntrinsic! := false.
+=========================================================
+Expect{missing,pattern}:
+    @!		: <:A:> -> A;
+    escape	: (`a,`a) -> `b;
+%Expect
+=========================================================
+Assume 
+  sharedBox, nonsharedBox, makebox,
+  emptyBox, emptySharedBox, emptyNonsharedBox, ++,
+  _orthen_, _orwith_, _orelse_: pattern
+%Assume
+=========================================================
+Missing
+  _orelse_, _orthen_, _orwith_: (A,A) -> A
+%Missing
+=========================================================
+  
+Pattern
+    %% ---- forget ----
+
+    forget ?x => 
+      Match ?x = forget target.;
+
+
+    %% ---- _also_ ----
+
+    ?a _also_ ?b =>
+      Match ?a = target.
+      Match ?b = target.;
+
+
+    %% ---- _orelse_ ----
+
+    {special} ?a _orelse_ ?b =>
+      open Try 
+        Match ?a = target.
+      else
+        Match ?b = target.
+      %Try;
+
+
+    %% ---- _orthen_ ----
+
+    {special} ?a _orthen_ ?b =>
+      open Stream
+        Match ?a = target.
+      then
+        Match ?b = target.
+      %Stream;
+
+
+    %% ---- _orwith_ ----
+
+    {special} ?a _orwith_ ?b =>
+      open Mix
+        Match ?a = target.
+      with
+        Match ?b = target.
+      %Mix;
+
+
+    %% ---- + ----
+
+    (?n:Natural) + c => 
+      {target >= c}
+      Match ?n = target -- c.;
+
+    c + (?n:Natural) => 
+      {target >= c}
+      Match ?n = target -- c.;
+
+
+    %% --- * ---
+
+    (?n:Natural) * c =>
+      Match (?n, 0) = divide(target,c).;
+
+    c * (?n:Natural) =>
+      Match (?n,0) = divide(target,c).;
+
+
+    %% ---- :: ----
+
+    {tag ::} ::(?x) => 
+       Match ?x = listToPair(target).;
+
+
+    %% ---- nil ----
+
+    {tag nil} nil => {nil? target};
+
+
+    %% ---- +/ ----
+    
+    +/ (?x) =>
+       Match ?x = splitAtEnd(target).;
+    
+
+    %% ---- emptyBox -------
+    
+    emptyBox() => {emptyBox?(target)};
+
+
+    %% ---- emptySharedBox ----
+
+    emptySharedBox() => {emptyBox?(target) _and_ flavor(target) == shared};
+
+
+    %% ---- emptyNonsharedBox ----
+
+    emptyNonsharedBox() => {emptyBox?(target) _and_ 
+    			    flavor(target) == nonshared};
+
+
+    %% ---- makebox ----
+
+    makebox ?x => 
+      Match ?x = testAt target.;
+
+
+    %% ---- nonsharedBox ----
+
+    nonsharedBox ?x => 
+      {flavor(target) == nonshared}
+      Match ?x = testAt target.;
+
+
+    %% ---- sharedBox ----
+
+    sharedBox ?x => 
+      {flavor(target) == shared}
+      Match ?x = testAt target.;
+    
+
+    %% ---- @! -----
+    
+    @!(x) => Assign x := target.;
+    
+
+    %% ---- unknown ----
+
+    unknown() => {unknown?(target)};
+
+
+    %% ---- idf ----
+    
+    idf(?x) => Match ?x = target.;
+    
+
+    %% ---- wrap ----
+    %% ---- unsafeWrap -----
+
+    <<?x>>   => Match ?x = safeUnwrap target.;
+    ?<<?x>>? => Match ?x = unsafeUnwrap target.;
+    
+
+    %% ---- ^^ ---- (downcast to secondary)
+  
+    ^^(?x) => Match ?x = downcast(target).;
+  
+
+    %% ---- ^^ ---- (downcast to primary)
+  
+    ^^(?x) => Match ?x = concrete(target).;
+
+    %% ---- escape ------
+    
+    escape(?p,v) => Match ?p = v.;
+
+%Pattern
+=========================================================
+Extension
+  Species
+    {transparent} Optional(`a)  = noValue | value(`a);
+                  Infinity      = minusInfinity | infinity
+  %Species
+%Extension
+=============================================================
+Expect
+    ##		: (Alist, Natural, Infinity)	-> Alist;
+    _upto_	: (INTEGER`a, Infinity)		-> [INTEGER`a];
+    _downto_	: (Integer, Infinity)		-> [Integer];
+
+    OptAssign	: pot__sideEffect ~>
+		  (destination ~> ABox,
+		   source      ~> Optional(A))  -> ();
+    optAt	: ABox			 	-> Optional(A);
+    OnAssign	: (ABox, (Optional(A),Optional(A)) -> ()) -> ();
+    optionalf	: (A -> B)			-> A -> Optional(B);
+    ^^		: Optional(A) -> Optional(B) constraint (B >= A);
+    downcast	: Optional(A) -> Optional(B) constraint (A >= B)
+%Expect
+=============================================================
+Let noExpand = idf.
+ 
+Expand
+    max[?a,?b]         => If a > b then a else b %If;
+    min[?a,?b]         => If a < b then a else b %If;
+    (?f _o_ ?g _o_ ?h) => _o3_(f,g,h);
+    (?f _o_ ?g) ?x     => f(g(x));
+    (?f || ?g || ?h)   => _o3_(h,g,f);
+    (?f || ?g) ?x      => g(f(x));
+    ?x _is_ ?f         => f(x);
+    ?x^2	       => x*x;
+%Expand
+============================================================
+%Package

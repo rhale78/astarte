@@ -1,0 +1,68 @@
+Package testrtvar 
+
+%% Test run-time bound vars
+
+Import "misc/check".
+
+%% Escape
+
+Define escape1(?<<?x>>?,?y) =
+  If x == y then y else idf(y).
+%Define
+
+%% Bound on one branch, not on the other
+
+Define halfBound(?c,?x) =
+  If c then 
+    Match ?<<?y>>? = x.
+    (y + y)
+  else
+    0
+  %If
+%Define
+
+Define hb(?c, ?x, ?z) = idf(a) |
+  Let a =
+    If c then 
+      Match ?<<?y>>? = x.
+      (y + y)
+    else
+      z
+    %If
+  %Let
+%Define  
+
+%% Bound on both branches
+
+Define bothbound(?c,?x, ?s) =
+  If c then 
+    Match ?<<?y>>? = x.
+    Value ?<<y + y>>?.
+  else
+    Let z = 4.
+    Match(?<<?r>>?) = s.
+    Value <<r + z>>.
+  %If
+%Define
+
+Execute
+  Line[$(escape1(<<2>>, 3))].
+  Check["3"].
+  Line[$(halfBound(false,<<2>>))].  
+  Check["0"].
+  Line[$(halfBound(true,<<2>>))].
+  Check["4"].
+  Line[$(hb(false,<<2>>,3))].
+  Check["3"].
+  Line[$(hb(true,<<2>>,3))].
+  Check["4"].
+  Assign showIntrinsic! := true.
+  Line[$(bothbound(true, <<2>>, <<5>>))].
+  Check["<<4:Natural>>"].
+  Line[$(bothbound(false, <<2>>, <<5>>))].
+  Check["<<9:Natural>>"].
+  Line[$(bothbound(true, <<2.0>>, <<5>>))].
+  Check["<<4:Rational>>"].
+%Execute
+
+%Package

@@ -1,0 +1,17 @@
+Package pulltest3
+
+%% Test pull to a secondary species.
+
+Import "collect/string".
+
+Var data! := "16.5 [2,3,4] [[2],[3,4]]".
+
+Execute
+  Extract [$(?a:ANY)] from data!.
+  Extract [$(?b:ANY)] from data!.
+  Writeln[$a, " ", $b].
+  Extract[$(?c:ORDER)] from data!.
+  Writeln[$c].
+%Execute
+
+%Package

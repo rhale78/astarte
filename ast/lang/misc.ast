@@ -1,0 +1,152 @@
+%% File: misc.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==========================================================
+Package 		Astarte_Misc 
+============================================================
+
+============================================================
+%% This package describes miscellaneous primitive functions.
+============================================================
+
+============================================================
+			Export
+============================================================
+
+Description
+
+ ANY		%" ANY is the genus that holds all species.
+		;
+
+ callerName     : () -> String
+ 
+ 		%" This provides the name of the function that 
+		%" called the current function.  See misc/trace.ast for
+		%" a use.
+		;
+
+ CloseScope	: `a -> `a
+
+		%" Close(x). = x.  Use
+		%"    Close
+		%"      ...
+		%"    %Close
+		%" to hide bindings.
+		;
+
+ getHeapLimit	: () -> Natural
+
+		%" getHeapLimit() returns the current soft limit on the
+		%" number of bytes in the heap.
+		; 
+
+ getStackDepth	: () -> Natural
+ 
+ 		%" getStackDepth() returns the current depth of the
+		%" run-time stack in the current thread.  The depth
+		%" does not include the currently running function.
+		%" It is the number of frames that are deferred.
+		;
+ 
+ getStackLimit	: () -> Natural
+
+		%" getStackLimit() returns the current soft limit on the
+		%" number of frames in the run-time stack.
+		; 
+
+ Ignore		: `a -> ()
+
+		%" Ignore(x) %Ignore evaluates x, and returns ().  Use it
+		%" to compute an expression and ignore its result.
+                ;
+
+ intrinsicSpeciesOf: `a -> ASpecies
+ 
+ 		%" intrinsicSpeciesOf(x) is the intrinsic species of x,
+		%" as a value.
+		;
+ 
+ LoadPackage	: String -> ()
+
+		%" LoadPackage(s) %LoadPackage loads file s.  If s
+		%" has no extension, extension ".aso" will be added.
+                ;
+
+ outerBinding	: String -> `a
+
+		%" outerBinding(s) is the value of identifier s in the
+		%" outer environment.  The species of s comes from the
+		%" species of outerIdVal.
+		;
+
+ Profile	: Boolean -> ()
+
+		%" Profile(true) %Profile turns on profiling. A primitive
+		%" execution profile will be written to file ast.prof.
+		%" Profile(false) %Profile turns off profiling.
+		;
+
+ RawShow	: (Outfile(Char), `a) -> ()
+
+		%" RawShow(f,x) %RawShow writes an indication of the
+		%" internal representation of individual x on file f.
+		%" f cannot be an internal file.  You should only use
+		%" this when you are having trouble getting $ or view
+		%" to work.
+		;
+
+ SetHeapLimit   : Natural -> ()
+
+		%" SetHeapLimit(n) %SetHeapLimit sets the soft limit
+		%" on the number of bytes in the heap to n. If n is very
+		%" large, a standard large number will be used, indicating
+		%" no limit.
+		;
+
+ SetStackLimit  : Natural -> ()
+
+		%" SetStackLimit(n) %SetStackLimit sets the soft limit
+		%" on the number of frames in the run-time stack to n.
+		%" If n is very large, a standard large number will
+		%" be used, indicating no limit.
+		;
+
+ ShowConfiguration: Outfile(Char) -> ()
+
+		%" ShowConfiguration!(). performs a dump on file f,
+		%" in the same form as is done at a trap onto file
+		%" ast.rts.  File f must be an external file, not a 
+		%" pipe.
+		;
+
+ ShowEnvironment : Outfile(Char) -> ()
+
+		%" ShowEnvironment(). dumps the current identifier
+		%" bindings on file f.  File f must be an external
+		%" file, not a pipe.
+		;
+		
+ speciesOf	: `a -> ASpecies
+ 
+ 		%" speciesOf(x) is the (extrinsic) species of x,
+		%" as a value.
+		;
+ 
+ Value		: `a -> `a
+ 
+ 		%" Value is the identity function.  It is used
+		%" as a convenenient way of parenthesizing an
+		%" expression whose value is the value of a
+		%" larger expression.  For example, write
+		%"
+		%"    Let x = f(y).
+		%"    Value x+x.
+		;
+
+
+%Description
+
+%Package

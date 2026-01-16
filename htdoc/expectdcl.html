@@ -1,0 +1,447 @@
+<HTML>
+<head>
+<title>Astarte: expectations and anticipations</title>
+</head>
+<body>
+<center>
+<a href="descriptiondcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="missingdcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> D5. Expectations and Anticipations </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Polymorphism</a>
+  <li><a href=#expectdcl>Expect and anticipate declarations</a>
+  <li><a href=#promise>What do expectations and anticipations promise?</a>
+  <li><a href=#infer>Expectations and type inference</a>
+  <li><a href=#import>Importing expectations</a>
+  <li><a href=#overloading>Overloading</a>
+  <li><a href=#anticipate>Anticipations and virtual functions</a>
+  <li><a href=#noexpect>Suppressing automatic expectations</a>
+  <li><a href=#description>Adding descriptions to expectations and anticipations</a>
+  <li><a href=#reneg>Reneging on your promises</a>
+</menu>
+
+<a name=main>
+<hr>
+<h2><font color=mediumblue>Polymorphism and overloading</font></h2>
+
+Polymorphism in Astarte is via overloading.  That is, you 
+can give many bindings of an identifier.  Identifier <i>zero</i>, for 
+example, has a binding for species Natural, one for species Integer,
+one for species Rational and another for species Real (plus definitions
+for secondary species such as REAL).  (In all
+cases, it names the number 0.)
+
+The compiler must keep track of this overloading somehow.  Two
+methods are used.
+<ol>
+  <p><li>The different species of an identifier can be 
+  collected together into a single
+  polymorphic type called an <i>expectation</i>.  
+  This is what is done, for example, with
+  identifier zero.  The polymorphic type of zero is REAL`a.
+
+  <p><li>The different species of an identifier can be
+  kept separate.  For example, it would be permissible to
+  tell the compiler that zero has definitions of species
+  Natural, Integer, Rational and Real, with no connection
+  between them.  In this case, there would be four different
+  expectations for zero.  This is not the preferred method, but it
+  is sometimes useful.
+</ol>
+The two ways of keeping track of overloading can be combined.
+There can be several unrelated polymorphic expectations.
+For example, function (-) has two expectations, one for
+the unary negation operator (RRING`a -&gt; RRING`a) and another
+for the binary subtraction operator ((RRING`a, RRING`a) -&gt; RRING`a).
+
+<p>Expectations are controlled using expect and anticipate declarations.
+Such a declaration not only indicates how to keep track of
+overloading, but it makes a promise that
+definitions of a particular name will be given for each species
+in a polymorphic type that is indicated.
+
+<p>Expect and anticipate declarations also allow you to use
+what has been promised before the definitions appear, and to 
+separate the promise that the definitions exist from the
+details of their implementations.
+
+<a name=expectdcl></a>
+<hr>
+<h2><font color=mediumblue> Expect and anticipate declarations </font></h2>
+
+Declaration
+<font color=#D00090>
+<b><pre>
+       Expect <font color=black><i>id</i></font>: <font color=black><i>T</i></font> %Expect
+</pre></b>
+</font>
+creates an expectation of identifier <i>id</i>, and 
+promises that identifier <i>id</i> will be defined for each species
+in polymorphic type <i>T</i>.  The definitions that fulfill this
+promise can be given all at once
+in a single polymorphic definition, or in separate pieces.
+How you fulfill the expectation does not affect how the 
+compiler keeps track of the expectation.
+
+<p>For example,
+the following promises that <i>rover</i> will be defined for species Natural,
+Integer and INTEGER, but fulfills the definition with three separate
+definitions.
+<font color="#D00090">
+<b><pre>
+  Expect rover: INTEGER`a.
+  Define rover: Natural = 2.
+  Define rover: Integer = 3.
+  Define rover: INTEGER = &lt;&lt;rover:Natural&gt;&gt;.
+</pre></b>
+</font>
+Now rover:Integer is 3, but rover:Natural is 2.  Of course, this is rather
+bizarre, but it illustrates that you can have different definitions for
+different species if you like.  Typically, an expectation is fulfilled with
+just one definition, as in
+<font color="#D00090">
+<b><pre>
+  Expect rover: INTEGER`a.
+  Define rover = 2.
+</pre></b>
+</font>
+which defines rover to be 2 for all three species Natural, Integer
+and INTEGER.
+
+<a name=virtual></a>
+<p>Declaration
+<font color=#D00090>
+<b><pre>  Anticipate <font color=black><i>id</i></font>: <font color=black><i>T</i></font> %Anticipate
+</pre></b>
+</font>
+is similar to an expect declaration, but there are important
+differences, noted below.  Briefly, anticipations are used
+to introduce <i>virtual</i> functions.
+
+<a name=promise></a>
+<hr>
+<h2><font color=mediumblue> What do expectations and anticipations promise? </font></h2>
+
+Anticipate declaration
+<font color=#D00090>
+<b><pre>
+        Anticipate <font color=black><i>id</i></font>: <font color=black><i>T</i></font>.
+</pre></b>
+</font>
+promises that 
+<ol>
+<p><li> Somewhere in the program (possibly in other packages)
+definitions of <i>id</i> will be given for every species in 
+polymorphic type <i>T</i>.
+
+<p><li> These definitions are only guaranteed to cover all types
+in polymorphic type <i>T</i> if no further extensions are made
+to data abstractions.
+That is, the anticipation promises to cover only what exists.  Later,
+when extensions are done, those extensions must also be covered by
+some definitions of <i>id</i>.  
+Thus, anyone who extends an abstraction might take on
+the responsibility to provide more definitions of <i>id</i>.
+</ol>
+On the other hand, declaration
+<font color=#D00090>
+<b><pre>
+       Expect <font color=black><i>id</i></font>: <font color=black><i>T</i></font> %Expect
+</pre></b>
+</font>
+makes the following promises.
+<ol>
+<p><li> Definitions of <i>id</i> will be given in this package (or in
+a package that this package imports) for
+every species in polymorphic type <i>T</i>.
+
+<p><li> These definitions will continue to cover all species in
+polymorphic type <i>T</i> even after data abstractions are
+extended.  No other package needs to take on responsibility for
+providing definitions of <i>id</i>.
+</ol>
+
+<a name=infer></a>
+<hr>
+<h2><font color=mediumblue> Expectations and type inference </font></h2>
+
+A <i>local</i> expectation is an expectation (not an anticipation)
+that was made in the current package, not in a package that was
+imported.
+
+<p>When the compiler encounters a let or define declaration
+<font color=#D00090>
+<b><pre>
+     Define id = <font color=black>...</font> %Let
+</pre></b>
+</font>
+it looks for local expectations.  If there are none, then it allows
+the most general polymorphic type of id to be defined.  But if there
+is at least one local expectation,
+then the compiler presumes that this definition
+is intended to meet at least one of those expectations.  
+The compiler tries the type of each of the local expectations,
+one after another, as a tag on id.
+For example, if there are two expectations
+<font color=#D00090>
+<b><pre>
+     Expect id: A.
+     Expect id: B.
+</pre></b>
+</font>
+the compiler first tries
+<font color=#D00090>
+<b><pre>
+     Define id:A = <font color=black>...</font> %Let
+</pre></b>
+</font>
+and then tries
+<font color=#D00090>
+<b><pre>
+     Define id:B = <font color=black>...</font> %Let
+</pre></b>
+</font>
+Consequently, if you give any expectations for an identifier, you must
+give <i>all</i> expectations that you intend to satisfy.   
+
+<a name=import></a>
+<hr>
+<h2><font color=mediumblue> Importing expectations </font></h2>
+
+When an expect declaration is seen while importing a package <i>P</i>, it is
+presumed that the expect declaration describes something that is
+defined in the implementation of <i>P</i>.  The implementation itself is not
+read.  So the expect declaration is treated somewhat like the 
+definition that it describes.  You can provide modes that are
+attached to these phantom definitions.  
+For example,
+<font color=#D00090>
+<b><pre>
+       Expect{default} <font color=black><i>id</i></font>: <font color=black><i>T</i></font>.
+</pre></b>
+</font>
+indicates that the definition has mode <i>default</i>, and so the
+phantom declaration will also have mode <i>default</i>.
+
+<p> This does not happen with an anticipate declaration, since
+an anticipation does not indicate that anything is defined
+in the current package.
+
+<p> If a package gives an anticipation, and partially defines what
+is anticipated, then its interface should have both an anticipation
+and an expectation.
+
+<a name=overloading></a>
+<hr>
+<h2><font color=mediumblue> Overloading </font></h2>
+
+The compiler keeps track of the expectations and anticipations that
+you have given as a set of polymorphic types.  It is required that
+no two of these types overlap unless one contains the other.
+For example, it is allowed to say
+<font color=#D00090>
+<b><pre>
+      Expect munch: `a -&gt; Natural.
+      Expect munch: (`a, Natural) -&gt; Natural.
+</pre></b>
+</font>
+since the two types of munch have no species in common.  It is also
+allowed to say
+<font color=#D00090>
+<b><pre>
+      Expect crunch: `a -&gt; Natural.
+      Expect crunch: Natural -&gt; Natural.
+</pre></b> 
+</font>
+since one of these types is included in the other.  But it is not
+allowed to write
+<font color=darkorange>
+<b><pre>
+      Expect scrunch: `a -&gt; Natural.
+      Expect scrunch: Natural -&gt; `a.
+</pre></b>
+</font>
+since neither of these types is contained in the other.
+
+<p> It is only the polymorphic types that the compiler is keeping
+that must not overlap.  In the example of crunch, the compiler 
+only keeps the more general type `a -&gt; Natural.  So it is allowed
+to write
+<font color=#D00090>
+<b><pre>
+      Expect crunch: `a -&gt; Natural.
+      Expect crunch: RATRING`a -&gt; Natural.
+      Expect crunch: INTEGER`a -&gt; Natural.
+</pre></b> 
+</font>
+since the compiler is only interested in type `a -&gt; Natural.  But
+<font color=darkorange>
+<b><pre>
+      Expect crunch: RATRING`a -&gt; Natural.
+      Expect crunch: INTEGER`a -&gt; Natural.
+</pre></b> 
+</font>
+is not allowed, since neither of INTEGER and RATRING contains the other.
+
+<a name="anticipate"></a>
+<hr>
+<h2><font color=mediumblue> Anticipations and virtual functions</font></h2>
+
+Where an expectation indicates that the current package is
+taking on some responsibilities, an anticipation puts 
+responsibilities on other packages.  Consider the following
+anticipation.
+<font color=#D00090>
+<b><pre>
+      Anticipate f: MyGenus`a -&gt; MyGenus`a.
+</pre></b>
+</font>
+This indicates that, if species S is added to MyGenus, then a definition
+of f: S -&gt; S should be provided.  It is usually the responsibility
+of the package that adds S to MyGenus to provide the definition of f as well.
+Since function f has not been defined where the anticipation is made,
+it is called a <font color=blue><i>virtual</i></font> function.
+
+<P> When you add a species to a genus, you typically need
+to do an expectation of the functions that will be provided as part
+of the obligation from an anticipation.  
+For example, if you add species
+S to MyGenus, you would need to announce that you will define f.
+You can write
+<font color=#D00090>
+<b><pre>
+      Relate S isKindOf MyGenus.
+      Expect f: S -&gt; S.
+</pre></b>
+</font>
+
+<a name=brace></a>
+<p>You can request that such an expectation be provided automatically when
+a new species is added to an abstraction.  To do that, enclose variables 
+in {...} in the anticipate declaration.  
+For example,
+<font color=#D00090>
+<b><pre>
+       Anticipate f: {MyGenus`a} -&gt; {MyGenus`a}.
+</pre></b>
+</font>
+indicates that, if species S is added to MyGenus, then declaration
+<font color=#D00090>
+<b><pre>
+       Expect f: S -&gt; S.
+</pre></b>
+</font>
+should automatically be issued.  You do not need to enclose all
+variables in {...}.  If you write
+<font color=#D00090>
+<b><pre>
+       Anticipate f: {MyGenus`a} -&gt; MyGenus`a.
+</pre></b>
+</font>
+then what is automatically created when species S is added to MyGenus is
+<font color=#D00090>
+<b><pre>
+       Expect f: S -&gt; MyGenus`a.
+</pre></b>
+</font>
+Generally, any variable that is enclosed in braces is replaced with
+the newly added species.
+
+<p> If MyGenus has a subgenus MySubgenus, then adding a species S
+to MySubgenus implicitly adds S to MyGenus as well.  This will be
+noticed by the compiler, and the above expectation will be generated
+automatically.
+
+<p>These automatic expectations have some limitations.  An expectation
+will only be created for you if there are not two different variables
+in {...} whose domains are being extended.  
+For example, if you write
+<font color=#D00090>
+<b><pre>
+       Anticipate f: ({MyGenus`a}, {MyGenus`b}) -&gt; ().
+</pre></b>
+</font>
+then no automatic expectation will be created when species S is added to
+genus MyGenus.  
+
+<a name=noexpect></a>
+<hr>
+<h2><font color=mediumblue> Suppressing Automatic Expectations </font></h2>
+
+When you extend an abstraction, normally expectations are
+automatically created from anticipations, where they have been
+indicated.  If you do not want that
+to happen, use mode noExpect.  
+For example, you can write
+<font color=#D00090>
+<b><pre>
+    Relate{noExpect} MySpecies isKindOf MyGenus.
+</pre></b>
+</font>
+This suppresses all expectations that would normally be created
+from anticipations.
+If you like, you can selectively suppress expectations.  Write
+<font color=#D00090>
+<b><pre>
+    Relate{noExpect{f,g,h}} MySpecies isKindOf MyGenus.
+</pre></b>
+</font>
+to suppress only expectations for f, g and h, but allow others.
+
+<a name=description></a>
+<hr>
+<h2><font color=mediumblue> Adding descriptions to expectations and anticipations</font></h2>
+
+You can provide a description with an expect or anticipate 
+declaration.  Place it immediately after the type.  
+For example,
+<font color=#D00090>
+<b><pre>
+       Expect f: T "description of f",
+</pre></b>
+</font>
+is equivalent to
+<font color=#D00090>
+<b><pre>
+       Expect f: T.
+       Description f: T "description of f".
+</pre></b>
+</font>
+
+<font color=brown>
+<a name=reneg></a>
+<hr>
+<h2><font color=mediumblue> Reneging on your promises </font></h2>
+
+At the end of a compilation, the compiler will check to see if
+all expectations and anticipations have been met.  
+If they have not, the compiler
+will let you know, for each incomplete expectation, at least
+one species that is missing from the definitions.
+
+Occasionally (but not often), you must give an 
+expectation that promises more than
+you intend to deliver.  You can indicate this using
+<a href=missingdcl.html>missing declarations</a>, which
+tell what you intend to leave out.
+</font>
+
+<hr>
+<center>
+<a href="descriptiondcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="missingdcl.html">Next</a>
+</center>
+</body>
+</HTML>

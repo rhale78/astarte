@@ -1,0 +1,219 @@
+<HTML>
+<head>
+<title>Astarte: identifiers</title>
+</head>
+<body>
+<center>
+<a href="listexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="naming.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E8. Identifiers </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#normident> Normal identifiers</a>
+  <li> <a href=#symbolident> Symbolic identifiers</a>
+  <li> <a href=#reserved> Reserved words and symbols</a>
+  <li> <a href=#suppreshand> Suppressing special handling</a>
+</menu>
+<hr>
+An identifier is a name for something.  Identifiers have the
+following forms.
+
+<a name=normident></a>
+<hr>
+<h2><font color=mediumblue> Normal identifiers </font></h2>
+
+A normal identifier begins with a letter or the special symbol _ (underscore),
+and can contain letters, digits and the special symbols 
+<table>
+ <tr><td>&nbsp;&nbsp;<td>   _  <td>!  <td>?  <td>'
+</table>
+For example, each of the following is a
+normal identifier.
+<font color=#D00090>
+<b><pre>
+    NormalIdentifier
+    normalIdentifier_with_underscores
+    normal'
+    normal?
+    normal!
+</pre></b>
+</font>
+
+Normal identifiers are used to name values, species, etc.
+
+<a name=symbolident></a>
+<hr>
+<h2><font color=mediumblue> Symbolic identifiers </font></h2>
+
+A symbolic identifier is any sequence of the special symbols
+<b><pre>
+  #  +  -  *  /  ^ 
+  !  =  <  >  @  &amp;
+  ~  $  _  \  ?  ' 
+</pre></b>
+that does not begin with symbol ? or '.  Additionally, there is one more
+symbolic identifier, ::.  The following are all symbolic
+identifiers.
+<font color=#D00090>
+<b><pre>
+    +
+    ++/
+    $_$@'
+</pre></b>
+</font>
+
+<a name="reserved"></a>
+<hr>
+<h2><font color=mediumblue> Reserved words and symbols </font></h2>
+
+Some words and symbols are reserved, and cannot be used as
+identifiers.  They are as follows. 
+Each is reserved in lower case form (such as abbrev) and in
+upper case form (such as Abbrev).  Reserved words that start
+with underscore are only reserved in the exact form shown.
+
+<p><center>
+<table>
+  <tr>
+  <td>abbrev
+  <td>abstraction
+  <td>advise
+  <td>all
+  <td>_and_
+  <td>anticipate
+  <tr>
+  <td>ask
+  <td>assume
+  <td>atomic
+  <td>await
+  <td>bring
+  <td>_butIfFail_
+  <tr>
+  <td>by
+  <td>case
+  <td>catchingEachThread
+  <td>catchingTermination
+  <td>choose
+  <td>class
+  <tr>
+  <td>const
+  <td>constraint
+  <td>constructor
+  <td>context
+  <td>continue
+  <td>cutHere
+  <tr>
+  <td>default
+  <td>define
+  <td>description
+  <td>directory
+  <td>do
+  <td>else
+  <tr>
+  <td>exception
+  <td>execute
+  <td>exitcase
+  <td>expand
+  <td>expect
+  <td>export
+  <tr>
+  <td>extension
+  <td>extract
+  <td>first
+  <td>for
+  <td>from
+  <td>holding
+  <tr>
+  <td>if
+  <td>import
+  <td>implementation
+  <td>implements
+  <td>_implies_
+  <td>interface
+  <tr>
+  <td>isKindOf
+  <td>let
+  <td>loop
+  <td>loopcase
+  <td>match
+  <td>matching
+  <tr>
+  <td>missing
+  <td>mix
+  <td>mixed
+  <td>my
+  <td>one
+  <td>open
+  <tr>
+  <td>operator
+  <td>_or_
+  <td>package
+  <td>pattern
+  <td>perhaps
+  <td>relate
+  <tr>
+  <td>relet
+  <td>species
+  <td>speciesAsValue
+  <td>stream
+  <td>subcases
+  <td>target
+  <tr>
+  <td>team
+  <td>then
+  <td>trap
+  <td>try
+  <td>unique
+  <td>untrap
+  <tr>
+  <td>var
+  <td>when
+  <td>with 
+  <td>_where_
+  <td>while
+</table>
+</center>
+
+<p>Any sequence of four or more consecutive = signs or &lt; signs is
+reserved (for comments).  The following symbolic identifiers are
+reserved.
+
+<b><pre>
+  =     &lt;&lt;     -&gt;      &lt;--?
+  ?     &gt;&gt;     =&gt;      &lt;&lt;&lt;&lt;....
+  |     ?&lt;&lt;    =&gt;&gt;     ====....
+  &     &gt;&gt;?    &lt;--
+</pre></b>
+
+<a name=suppreshand></a>
+<hr>
+<h2><font color=mediumblue> Suppressing special handling </font></h2>
+
+Some identifiers are handled in special ways in the sytax.  For
+example, + is a binary operator.  If you want to suppress this
+special handling, enclose the identifier in parentheses.
+For example, 
+(+) is the addition function, and is not treated
+as a binary operator.  See <a href=applyexpr.html#suppress>special handling</a>
+for details on this.
+
+<hr>
+<center>
+<a href="listexpr.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="naming.html">Next</a>
+</center>
+</body>
+</HTML>
+
+

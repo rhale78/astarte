@@ -1,0 +1,179 @@
+<HTML>
+<head>
+<title>Astarte: type inference</title>
+</head>
+<body>
+<center>
+<a href="polyexample.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="typeerror.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T9. Type Inference </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#assume> Controlling type inference</a>
+  <li> <a href=#monorestrict> Monomorphism restrictions</a>
+  <li> <a href=#default> Defaults</a>
+  <li> <a href=#define> Type inference and recursion</a>
+  <li> <a href=#error> Error detection</a>
+</menu>
+
+<hr>
+The compiler performs type inference.  Typically, you do not need
+to provide any type information in the program.  The compiler will
+choose the most general polymorphic type that is consistent
+with each definition.
+
+<a name=assume></a>
+<hr>
+<h2><font color=mediumblue> Controlling type inference</font></h2>
+
+<P>You can control type inference using 
+<a href="tagexpr.html">tags and assumptions</a>.  Assumptions can
+be local, within a declaration, or can be declarations themselves.
+For example, declaration
+<font color=#D00090>
+<b><pre>
+      Assume n:Natural.
+</pre></b>
+</font>
+indicates that each occurrence of identifier n should be 
+presumed to have species Natural.  If the type in an assumption
+has variables, then those variables are copied at each use.
+For example,
+<font color=#D00090>
+<b><pre>
+      Assume x: [`a].
+</pre></b>
+</font>
+indicates that each occurrence of identifier x should be presumed to
+be a list.  A different copy of variable `a is used at each occurrence
+of x, so that the occurrences of x need not be the same kind of list.
+
+<a name=monorestrict></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue>Monomorphism restriction</font></h2>
+
+Each <i>local</i> identifier within a declaration is presumed to have
+the same species at each occurrence.  You cannot declare a local
+identifier and use it with more than one species.  So
+<font color=darkorange>
+<b><pre>
+      Execute
+        Let f(?x) = x.
+        Let a = f(&quot;abc&quot;).
+        Let b = f(2).
+      %Execute
+</pre></b>
+</font>
+is not allowed, since the two occurrences of f have different species.
+Globally defined indentifiers can be used with different species, however.
+So
+<font color=#D00090>
+<b><pre>
+      Let f(?x) = x.
+      Execute
+        Let a = f(&quot;abc&quot;).
+        Let b = f(2).
+      %Execute
+</pre></b>
+</font>
+is allowed.
+
+<a name=default></a>
+<hr>
+<h2><font color=mediumblue>Defaults</font></h2>
+
+Due to the monomorphism restriction, it is sometimes necesssary for
+the type inference mechanism to supply some information that is
+not present in a program.  
+For example, suppose that you write
+the following execute declaration.
+<font color=#D00090>
+<b><pre>
+    Execute
+      Writeln[$ []].
+    %Execute
+</pre></b>
+</font>
+The constant [] is polymorphic.  It can be any kind of list at all.
+The compiler assigns it a type of [`a].  But the type of [] cannot be
+left polymorphic.  What the compiler does is select a <i>default</i>
+species.  Unless you say otherwise, a variable whose domain is ANY
+defaults to species ().  So you end up printing [] of species [()].
+
+<p>You can control how defaults are selected.  See
+<a href=defaultdcl.html>default declarations</a>.
+
+<a name="define"></a>
+<hr>
+<h2><font color=mediumblue>Type inference and recursion </font></h2>
+
+When you make a recursive definition as a declaration, 
+the compiler needs to know whether
+you intend for the embedded (recursive) uses of the identifier being 
+defined to have the same species or possibly different species.
+
+<p>If you use a define declaration, then the compiler assumes that all
+recursive uses have the same species as the identifier being defined.
+So it treats the identifier being defined as if it is a locally
+defined identifier.  For example, the declaration
+<font color=#D00090>
+<b><pre>
+      Define factorial (?n) =
+        If n == 0 
+          then 1
+          else n * factorial(n--1)
+        %If
+      %Define
+</pre></b>
+</font>
+indicates that the two occurrences of factorial (one in the heading, one
+in the body) must have the same species.
+
+<P>A let declaration indicates that each embedded occurrence of
+the identifier being defined should be treated like any other
+globally defined identifier, and should get its expectations from
+prior 
+<a href="expectdcl.html">expectations</a>, 
+<a href="expectdcl.html">anticipations</a> and definitions.
+For example, 
+here is a definition of $ for ordered pairs.  Notice
+that the uses of $ do not have the same species as the definition of $.
+For example, 
+if you use this definition with $ having species
+(Natural, Integer) -&gt; String, then the two uses of $ have
+species Natural -&gt; String and Integer -&gt; String, respectively.
+<font color=#D00090>
+<b><pre>
+      Let $(?a,?b) = &quot;(&quot; $(a) ++ &quot;,&quot; ++ $(b) ++ &quot;)&quot;.
+</pre></b>
+</font>
+</font>
+
+<a name=error></a>
+<hr>
+<h2><font color=mediumblue> Error detection </font></h2>
+
+If your program cannot be well-typed, the type inference mechanism
+will give an error.  See 
+<a href=typeerror.html> understanding type errors</a> for a discussion of
+how to understand the error reports.
+
+<hr>
+<center>
+<a href="polyexample.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="typeerror.html">Next</a>
+</center>
+</body>
+</HTML>

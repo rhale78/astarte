@@ -1,0 +1,318 @@
+%% File: listfun.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================================
+Package 		Astarte_Listfunimp 
+
+			Implements "listfun"
+==================================================================
+			
+====================================================================
+%%			 _prefix?_
+====================================================================
+
+Let _prefix?_ (?x,?y) = succeedsf (kill__pot__fail ~> _lminus_) (y,x).
+
+====================================================================
+%%			 _suffix?_
+====================================================================
+
+Let _suffix?_(?x, ?y) = _prefix?_(reverse x, reverse y).
+
+===================================================================
+%%			 lengthAtLeast
+====================================================================
+
+Let lengthAtLeast ?n ?x =
+  Loop (?l_n, ?l_x) = (n,x)
+    exitcase zero? l_n => true
+    exitcase nil?  l_x => false
+    loopcase else      => continue (l_n -- 1, tail x)
+  %Loop
+%Let
+    
+====================================================================
+%%			 take
+====================================================================
+
+Let take ?n ?l = l##(0,n).
+
+====================================================================
+%%			 drop
+====================================================================
+
+Let drop ?n ?l = l##(n,largenum).
+
+====================================================================
+%%			 #=
+%%			 #_=
+====================================================================
+
+Let ?l #_= (?n,?v) =
+  If length(l) < n
+    then fail subscriptX
+    else l##(0,n) ++ [v] ++ l##(n+1,infinity)
+  %If
+%Let
+
+Let ?l #= (?n,?v) = 
+  If zero? n 
+    then fail subscriptX
+    else l #_= (n--1,v)
+  %If
+%Let
+
+====================================================================
+%%			 allSuffixes
+====================================================================
+
+Let allSuffixes(?x) =
+  Await x then
+    If nil? x then [] else [x & allSuffixes(tail x)] %if
+  %Await
+%Let
+
+====================================================================
+%% 			_quickZip_
+====================================================================
+
+Define ?x _quickZip_ ?y =
+  Await x,y then
+    Choose first matching x
+      case nil =>
+	Subcases
+	  case nil? y => nil
+	  else 	      => fail sizeX
+	%Subcases
+
+      case [?hx & ?tx] => 
+        Subcases matching y
+	  case nil         => fail sizeX
+	  case [?hy & ?ty] => (hx, hy) :: (tx _quickZip_ ty)
+	%Subcases
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			pzip
+====================================================================
+
+Define pzip ?dflts (?x, ?y) =
+  Await x,y then
+    Choose first matching x
+      case nil =>
+	Subcases
+	  case nil? y => nil
+	  else        => insertLeft (left dflts) y
+	%Subcases
+
+      case [?hx & ?tx] => 
+        Subcases matching y
+	  case nil         => insertRight (right dflts) x
+	  case [?hy & ?ty] => (hx, hy) :: pzip dflts (tx, ty)
+	%Subcases
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%% 			_zip_
+%%			zip
+====================================================================
+
+Let ?x _zip_ ?y =
+  If length x =/= length y
+    then fail sizeX
+    else x _quickZip_ y
+  %If
+%Let
+
+Let zip ?x ?y = x _zip_ y.
+
+====================================================================
+%%			 unzip
+====================================================================
+
+Define unzip ?x =
+  Await x then
+    Choose one matching x
+      case [] => ([],[])
+      case [(?hl,?hr) & ?t] =>
+        Let rec = unzip t.
+        ([hl & lazyLeft rec], [hr & lazyRight rec])
+    %Choose
+  %Await
+%Define
+	     
+====================================================================
+%%			 insertLeft
+====================================================================
+
+Define insertLeft ?x ?l =
+  Await l then
+    Choose one matching l
+      case nil       => nil
+      case [?h & ?t] => [(x,h) & insertLeft x t]
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%%			 insertRight
+====================================================================
+
+Define insertRight ?x ?l =
+  Await l then
+    Choose one matching l
+      case nil       => nil
+      case [?h & ?t] => [(h,x) & insertRight x t]
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%%			 indexedList
+====================================================================
+
+Let indexedList ?deflt ?l =
+  If nil? l then nil else
+    Let maxIndex = 0.
+    Var{shared} a(*).
+    For (?i, ?x) from l do
+      Assign a#i := x.
+      If i > maxIndex then Relet maxIndex = i..
+    %For
+    Value eagerMap (defaultAt deflt) (a##(0,maxIndex)).
+  %If
+%Let
+
+====================================================================
+%%			 bfold
+====================================================================
+
+Define bfold (nil ~> ?init, :: ~> ?f) ?l =
+  If nil? l
+    then init
+    else left(bfoldHelp(l, length l)) |
+
+      %%----------------------------------------------------------
+      %% bfoldHelp(x,k) returns a pair (result,rest) where result
+      %% is the result of folding the first k members of x by
+      %% function f, and rest is the remainder of x (the result
+      %% of deleting the first k members of x).
+      %%----------------------------------------------------------
+
+      Define bfoldHelp(?x,?k) =
+        If k == 1 then
+          listToPair x
+	else
+	  Let half = k _div_ 2.
+	  Match (?r1,?rest1) = bfoldHelp(x,half).
+	  Match (?r2,?rest2) = bfoldHelp(rest1,k--half).
+	  (f(r1,r2), rest2)
+	%If
+      %Define
+  %If
+%Define
+	    
+====================================================================
+%%			 fdup
+====================================================================
+
+Let fdup ?n ?f = 
+  Loop (?r,?c) = ([],0) first
+    exitcase c == n => r
+    loopcase else => continue ([f() & r], c+1)
+  %Loop
+  | reverse | pack
+%Let
+
+=====================================================================
+%%			 _separateBy_
+====================================================================
+
+Define ?l _separateBy_ ?s =
+  Await l then
+    Choose first
+      case nil? l => nil 
+      do Match [?h & ?t] = l.
+      case nil? t => h
+      else        => h ++ s ++ (t _separateBy_ s)
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%%			 unfold
+====================================================================
+
+Define unfold ?f ?init_p =
+  Await then 
+    Try 
+      Let nextInit_l = f init_p.
+    then 
+      [init_p & unfold f nextInit_l]
+    else
+      [init_p]
+    %Try
+  %Await
+%Define
+
+====================================================================
+%%			 lunfold
+====================================================================
+
+Define lunfold (?tst_pf, ?f) ?init_p =
+  Await then 
+    Choose
+      case tst_pf init_p =>
+        Match (?a,?r) = f init_p.
+        Value a :: lunfold (tst_pf, f) r.
+      else => []
+    %Choose
+  %Await
+%Define
+
+====================================================================
+%%			 runfold
+====================================================================
+
+Let runfold (?tst_pf, ?f) ?init_p =
+
+  Loop (?rest_l, ?result_l) = (init_p, [])
+  
+    loopcase tst_pf rest_l => 
+      Match (?r,?a) = f rest_l.
+      continue (r, a::result_l)
+
+    exitcase else => result_l
+    
+  %Loop
+%Let  
+
+====================================================================
+%%			 fairMerge
+====================================================================
+
+Let fairMerge(?a,?b) =
+  [:Mix each a with each b %Mix:]
+%Let
+
+====================================================================
+%%			 unwrappingEagerMap
+====================================================================
+
+Define{irregular} unwrappingEagerMap by
+  case unwrappingEagerMap ?  [] = []
+  
+  case unwrappingEagerMap ?f [?h & ?t] = 
+    [unsafeUnwrap(f(h)) & unwrappingEagerMap f (t)]
+%Define
+
+====================================================================
+%Package
+

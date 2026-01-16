@@ -1,0 +1,152 @@
+<HTML>
+<head>
+<title>Astarte: package hierarchy</title>
+</head>
+<body>
+<center>
+<a href="pausedcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="contextdcl.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue>D12. The Package Hierarchy and Visibility</font></h1>
+</center>
+
+<menu>
+  <li><a href=#hierarchy>The package hierarchy</a>
+  <li><a href=#visibility>Visibility and protected mode</a>
+  <li><a href=#private>Private mode</a>
+  <li><a href=#impl>Interface and implementation packages</a>
+</menu>
+
+<a name=hierarchy></a>
+<hr>
+<h2><font color=mediumblue>The package hierarchy</font></h2>
+
+The compiler maintains a relationship among packages called the
+<i>subpackage</i> relation.  You declare a package to be a subpackage another
+package in the heading by including an &quot;isKindOf&quot; phrase.  
+For example,
+<font color=#D00090>
+<b><pre>
+  Package Fox isKindOf Mammal
+    ...
+  %Package
+</pre></b>
+</font>
+indicates that package Fox is a subpackage of package Mammmal.  
+The <i>subpackage</i>
+relation is transitive.  That is, if Fox is a subpackage of Mammal and Mammal
+is a subpackage of Animal, then Fox is automatically a subpackage of Animal.
+
+<p>A subpackage in not written in the same file as another package.  The
+subpackage relationship goes across files.
+
+<p>You can use several isKindOf phrases.  
+For example,
+<font color=#D00090>
+<b><pre>
+  Package Fox isKindOf Mammal isKindOf Carnivore
+    ...
+  %Package
+</pre></b>
+</font>
+indicates that Fox is both a subpackage of Mammal and a subpackage 
+of Carnivore.  Alternatively, you can write
+<font color=#D00090>
+<b><pre>
+  Package Fox isKindOf Mammal, Carnivore
+    ...
+  %Package
+</pre></b>
+</font>
+
+<a name=visibility></a>
+<hr>
+<h2><font color=mediumblue>Visibility and protected mode</font></h2>
+
+When a package makes a definition or expectation, 
+it can control which other packages
+can see that definition or expectation.
+Mode <i>protected{A,B,C}</i> indicates that a definition or 
+expectation is visible only to packages A, B and C, or to any
+of their subpackages.  You can have any
+positive number of package names in the braces.  
+The current package name is always implicitly in the list.
+For example, suppose that expectation
+<font color=#D00090>
+<b><pre>
+  Expect{protected{Fox}} run: Natural -&gt; Natural.
+</pre></b>
+</font>
+occurs in package Rabbit.
+Then this expectation can only be seen by package
+Fox or Rabbit, or by any subpackage of Fox or
+Rabbit.  When another package imports package Rabbit, it
+will ignore this expectation if it is not a subpackage of Fox or Rabbit.
+
+<p>Mode <i>protected</i> indicates visibility only to the current
+package and its subpackages.
+For example, if
+<font color=#D00090>
+<b><pre>
+  Expect{protected} Go: Natural -&gt; ().
+</pre></b>
+</font>
+occurs in package Rabbit, then 
+this expectation of Go is only visible in package Rabbit or
+another package that imports Rabbit and is a subpackage of Rabbit.
+
+<p>Protected mode can be used with Let, Define, Bring, Expect and
+Anticipate declarations.  You cannot control which packages see
+a species or abstraction.
+
+<a name=private></a>
+<hr>
+<h2><font color=mediumblue>Private mode</font></h2>
+
+A definition or expectation can be marked private, indicating that it
+is visible <i>only</i> in the current package, not to any other package,
+including subpackages.
+Use mode <i>private</i> for this.
+
+<p>Private mode is used in the export part of a package in situations
+where you need to use something in the export part that 
+you do not want to export.  You can, for example, use it in a 
+<a href=patternmatch2.html#patterndcl>pattern
+declaration</a>.  For example,
+<font color=#D00090>
+<b><pre>
+   Expect{private} unzork: Zork -&gt; Natural. 
+   Pattern zork(?x) =&gt; 
+     Match ?x = unzork target.
+   %Pattern
+</pre></b>
+</font>
+allows another package to use zork in a pattern (and so implicitly
+to use unzork as the result of the pattern match) but not to use
+unzork explicitly.
+
+<a name=impl><a>
+<hr>
+<h2><font color=mediumblue>Interface and implementation packages</font></h2>
+
+If you break a package into separate interface and implementation packages,
+then the implementation part is considered to be part of the overall
+package.  So anything that is marked private in the interface part,
+for example, is visible in the implementation part.
+
+<hr>
+<center>
+<a href="pausedcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="contextdcl.html">Next</a>
+</center>
+</body>
+</HTML>

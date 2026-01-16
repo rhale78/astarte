@@ -1,0 +1,166 @@
+Package testreal2 
+
+%% Test addition and subtraction of rationals and reals.
+
+Import "misc/check".
+
+  %% Rational addition and subtraction on small numbers
+
+  Execute
+    Write ["\nRational Addition -- small numbers\n"].
+    Line [0/1 + 0/1    $$ 25].
+    Check["                        0"].
+    Line [0/1 + 1/1    $$ 25].
+    Check["                        1"].
+    Line [1/2 + 2/3    $$ 25].
+    Check["                      7/6"].
+    Line [3/4 + 1/4    $$ 25].
+    Check["                        1"].
+    Line [0/1 + (-1/1) $$ 25].
+    Check["                       -1"].
+    Line [-1/2 + 2/3   $$ 25].
+    Check["                      1/6"].
+    Line [3/4 + (-1/4) $$ 25].
+    Check["                      1/2"].
+    Line [-3/4 + 1/4   $$ 25].
+    Check["                     -1/2"].
+    
+    Write ["\nRational Subtraction -- small numbers\n"].
+    Line [0/1 - 0/1    $$ 25].
+    Check["                        0"].
+    Line [0/1 - 1/1    $$ 25].
+    Check["                       -1"].
+    Line [1/2 - 2/3    $$ 25].
+    Check["                     -1/6"].
+    Line [3/4 - 1/4    $$ 25].
+    Check["                      1/2"].
+    Line [0/1 - (-1/1) $$ 25].
+    Check["                        1"].
+    Line [-1/2 - 2/3   $$ 25].
+    Check["                     -7/6"].
+    Line [3/4 - (-1/4) $$ 25].
+    Check["                        1"].
+    Line [-3/4 - 1/4   $$ 25].
+    Check["                       -1"].
+
+    Write ["\nRational Absolute difference -- small numbers\n"].
+    Line [0/1 -- 0/1    $$ 25].
+    Check["                        0"].
+    Line [0/1 -- 1/1    $$ 25].
+    Check["                        1"].
+    Line [1/2 -- 2/3    $$ 25].
+    Check["                      1/6"].
+    Line [3/4 -- 1/4    $$ 25].
+    Check["                      1/2"].
+    Line [0/1 -- (-1/1) $$ 25].
+    Check["                        1"].
+    Line [-1/2 -- 2/3   $$ 25].
+    Check["                      7/6"].
+    Line [3/4 -- (-1/4) $$ 25].
+    Check["                        1"].
+    Line [-3/4 -- 1/4   $$ 25].
+    Check["                        1"].
+  %Execute
+
+  %% Rational addition and subtraction on larger numbers.
+
+  Execute
+    Write ["\nRational addition on larger numbers\n"].
+    Line [10000/22 + 1456/96     $$ 25].
+    Check["                 31001/66"].
+    Line [-10000/22 + 1456/96    $$ 25].
+    Check["                -28999/66"].
+    Line [10000/22 + (-1456/96)  $$ 25].
+    Check["                 28999/66"].
+    Line [-10000/22 + (-1456/96) $$ 25].
+    Check["                -31001/66"].
+
+    Write ["\nRational subtraction on larger numbers\n"].
+    Line [10000/22 - 1456/96     $$ 25].
+    Check["                 28999/66"].
+    Line [-10000/22 - 1456/96    $$ 25].
+    Check["                -31001/66"].
+    Line [10000/22 - (-1456/96)  $$ 25].
+    Check["                 31001/66"].
+    Line [-10000/22 - (-1456/96) $$ 25].
+    Check["                -28999/66"].
+  %Execute
+
+  %% Real addition and subtraction on small numbers
+
+  Execute
+    Write ["\nReal addition on small numbers\n"].
+    Line [~0.0 + ~0.0        $$ (25,1)].
+    Check["                      0.0"].
+    Line [~0.0 + ~0.1        $$ (25,1)].
+    Check["                      0.1"].
+    Line [~0.0 + ~(-0.1)     $$ (25,1)].
+    Check["                     -0.1"].
+    Line [~0.02 + ~5.4       $$ (25,2)].
+    Check["                     5.42"].
+    Line [~0.00000002 + ~5.4 $$ (25,8)].
+    Check["               5.40000002"].
+    Line [~1.2E15 + ~3.0E17  $$ 20].
+    Check[" 3.012000000000E+017"].
+
+    Write ["\nReal subtraction on small numbers\n"].
+    Line [~0.0 - ~0.0        $$ (25,1)].
+    Check["                      0.0"].
+    Line [~0.0 - ~0.1        $$ (25,1)].
+    Check["                     -0.1"].
+    Line [~0.0 - ~(-0.1)     $$ (25,1)].
+    Check["                      0.1"].
+    Line [~0.02 - ~5.4       $$ (25,2)].
+    Check["                    -5.38"].
+    Line [~0.00000002 - ~5.4 $$ (25,8)].
+    Check["              -5.39999998"].
+    Line [~1.2E15 - ~3.0E17  $$ 25].
+    Check["-2.98800000000000000E+017"].
+
+    Write ["\nReal absolute difference on small numbers\n"].
+    Line [~0.0 -- ~0.0        $$ (25,1)].
+    Check["                      0.0"].
+    Line [~0.0 -- ~0.1        $$ (25,1)].
+    Check["                      0.1"].
+    Line [~0.0 -- ~(-0.1)     $$ (25,1)].
+    Check["                      0.1"].
+    Line [~0.02 -- ~5.4       $$ (25,2)].
+    Check["                     5.38"].
+    Line [~0.00000002 -- ~5.4 $$ (25,8)].
+    Check["               5.39999998"].
+    Line [~1.2E15 -- ~3.0E17  $$ 25].
+    Check[" 2.98800000000000000E+017"].
+  %Execute
+
+  %% Real addition and subtraction on larger reals
+
+  Execute
+    Write ["\nReal addition and subtraction at higher precision\n"].
+    Assign precision! := 50.
+    Write ["Precision is ", @precision! $$ 0, "\n"].
+    Let x = ~1.23456789123456789123456789.
+    Line [x $$ (50,30)].
+    Check["                  1.234567891234567891234567890000"].
+    Line [x + x $$ (50,30)].
+    Check["                  2.469135782469135782469135780000"].
+    Line [x + x $$ 50].
+    Check[" 2.469135782469135782469135780000000000000000E+000"].
+    Line [x - x $$ 50].
+    Check[" 0.000000000000000000000000000000000000000000E+000"].
+    Let r = ~0.00000000000000002.
+    Line [x + r $$ 50].
+    Check[" 1.234567891234567911234567890000000000000000E+000"].
+    Line [x - r $$ 50].
+    Check[" 1.234567891234567871234567890000000000000000E+000"].
+    Line [~0.0 + r $$ 50].
+    Check[" 2.000000000000000000000000000000000000000000E-017"].
+    Line [~0.0 - r $$ 50].
+    Check["-2.000000000000000000000000000000000000000000E-017"].
+    Line [~1.0 + ~1.0E-40 $$ 50].
+    Check[" 1.000000000000000000000000000000000000000100E+000"].
+    Line [~1.0 - ~1.0E-40 $$ 50].
+    Check[" 9.999999999999999999999999999999999999999000E-001"].
+    Line [~1.0 + ~1.0E-100 $$ 50].
+    Check[" 1.000000000000000000000000000000000000000000E+000"].
+  %Execute
+%Package

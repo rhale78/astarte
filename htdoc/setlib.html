@@ -1,0 +1,460 @@
+<HTML>
+<head>
+<title>Astarte: sets</title>
+</head>
+<body>
+<center>
+<a href="matrix.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tablelib.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC8. Sets </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Sets</a>
+  <li><a href=#empty>Empty set</a>
+  <li><a href=#conv>Conversion to and from lists</a>
+  <li><a href=#member>Membership testing and getting members</a>
+  <li><a href=#card>Cardinality</a>
+  <li><a href=#insert>Inserting and deleting members</a>
+  <li><a href=#small>Getting the smallest and largest</a>
+  <li><a href=#bool>Boolean operations</a>
+  <li><a href=#compare>Comparing sets</a>
+  <li><a href=#checkselect>Checking and selecting members for properties</a>
+  <li><a href=#mapping>Mapping, filtering and folding</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue> Sets</font></h2>
+
+A set is an unordered collection without repetition.  The library
+supports sets using three different representations.
+
+<a name=linear></a>
+<P><strong>Linear sets:</strong> 
+(species <font color=red>LinSet(<i>T</i>)</font>) 
+These are sets stored as lists of their 
+members.  These
+can be used for any member species that supports equality tests.
+
+<a name="sparse"></a>
+<P><strong>Sparse sets:</strong> 
+(species <font color=red>SparseSet(<i>T</i>)</font>)
+These are sets stored as binary search trees.  
+These can be used for any member species that has an order relation (&lt;).
+
+<a name="dense"></a>
+<P><strong>Dense sets:</strong> 
+(species <font color=red>DenseSet(<i>T</i>)</font>)
+These are sets stored as bit vectors.  These can
+be used for any ranked species, such as Natural, Char, or enumerated
+species.
+
+<a name=SET></a>
+<p>All three families LinSet, SparseSet and DenseSet are members
+of community <font color=red>SET</font>, 
+which in turn belongs to the more general
+community <font color=red>COLLECTION</font>.  
+COLLECTION also contains family List.
+
+<P> To use sets, import one or more of the set implementations,
+<a href="ast/collect/linset.ast">collect/linset.ast</a>,
+<a href="ast/collect/sparsset.ast">collect/sparsset.ast</a> or
+<a href="ast/collect/denseset.ast">collect/denseset.ast</a>.
+The shared operations are described in 
+<a href="ast/collect/set.ast">collect/set.ast</a> and
+<a href="ast/collect/collect.ast">collect/collect.ast</a>,
+but you do not need to import those packages to use sets.
+
+To create a set, use constructor <i>set</i> on a list.  
+For example,
+<font color=#D00090>
+<b><pre>
+   Let s = set[1,2,3].
+</pre></b>
+</font>
+creates the set {1,2,3}.  Operations on sets are as follows.  Each
+shows the package that defines it.
+
+<a name="empty"></a>
+<hr>
+<h2><font color=mediumblue> Empty set </font></h2>
+
+<dl>
+<p><dt><font color="red"> emptySet </font>
+<dd>: SET`s(EQ`a)
+<p> <font color=#D00090>emptySet</font> is the empty set.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+
+<p><dt><font color="red"> emptySet? </font>
+<dd>: SET`s(EQ`a) -&gt; Boolean
+<p> <font color=#D00090>emptySet(s)</font> is true if s is the empty set.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+</dl>
+
+<a name="conv"></a>
+<hr>
+<h2><font color=mediumblue> Conversion to and from lists </font></h2>
+
+<dl>
+
+<a name=set></a>
+<p><dt><font color="red"> set </font>
+<dd>: [EQ`a] -&gt; SET`s(EQ`a)
+<p> <font color=#D00090>set(x)</font> is the set of all members of list x.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[2]</font> is the singleton set 2.
+
+<a name=linSet></a>
+<p><dt><font color="red"> linSet </font>
+<dd>: [EQ`a] -&gt; LinSet(EQ`a) 
+<p>Same as set, but makes a linear set.
+(<a href="ast/collect/linset.ast">collect/linset.ast</a>)
+
+<a name=sparseSet></a>
+<p><dt><font color="red"> sparseSet </font>
+<dd>: [ORDER`a] -&gt; SparseSet(ORDER`a) 
+<p>Same as set, but makes a sparse set.
+Sparse sets use order relations to keep track of the set.
+(<a href="ast/collect/sparsset.ast">collect/sparsset.ast</a>)
+
+<a name="denseSet"></a>
+<p><dt><font color="red"> denseSet </font>
+<dd>: [EQ`a] -&gt; DenseSet(EQ`a) 
+<p> Same as set, but makes a dense set.
+(<a href="ast/collect/denseset.ast">collect/denseset.ast</a>)
+
+<a name="toList"></a>
+<p><dt><font color="red"> toList </font>
+<dd>: SET`s(EQ`a) -&gt; [EQ`a]
+<p> <font color=#D00090>toList(s)</font> 
+is a list holding the members of set s.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">toList(set[3,2])</font> = [2,3].
+toList can be lazy (depending on the kind of set).
+
+<a name="eagerToList"></a>
+<p><dt><font color="red"> eagerToList </font>
+<dd>: SET`s(EQ`a) -&gt; [EQ`a]
+<p> <font color=#D00090>eagerToList</font> 
+is similar to toList, but is always eager.
+It computes the entire list before returning.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+
+</dl>
+
+<a name="member"></a>
+<hr>
+<h2><font color=mediumblue> Membership testing and getting members</font></h2>
+
+<dl>
+
+<a name=in></a>
+<p><dt><font color="red"> _in_ </font>
+<dd>: (EQ`a, SET`s(EQ`a)) -&gt; Boolean
+<p> <font color=#D00090>x _in_ s</font> is true if x is a member of set s.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="D00090">5 _in_ set[5,6,7])</font> = true.
+
+<a name=each></a>
+<p><dt><font color=red> each </font>
+<dd>: SET`s(EQ`a) -&gt; EQ`a
+<p> <font color=#D00090>each(s)</font> 
+returns each member of set s, in a stream.
+
+<a name="eachMixed"></a>
+<p><dt><font color=red> eachMixed </font>
+<dd>: SET`s(EQ`a) -&gt; EQ`a
+<p> <font color=#D00090>eachMixed(s)</font> 
+returns each member of set s, in a mixed stream.
+
+</dl>
+
+<a name="card"></a>
+<hr>
+<h2><font color=mediumblue> Cardinality </font></h2>
+
+<dl>
+<p><dt><font color="red"> size </font>
+<dd>: SET`s(EQ`a) -&gt; Natural
+<p> <font color=#D00090>size(s)</font> 
+is the number of members that s has.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">size(set[5,6,7])</font> = 3.
+
+<a name=sizeAtLeast></a>
+<p><dt><font color="red"> sizeAtLeast </font>
+<dd>: Natural -&gt; SET`s(EQ`a) -&gt; Boolean
+<p> <font color=#D00090>sizeAtLeast n s</font> is true if the size of set
+s is at least n.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">sizeAtLeast 5 (set[5,6,7]) </font>= false.
+
+</dl>
+
+<a name="insert"></a>
+<hr>
+<h2><font color=mediumblue> Inserting and deleting members </font></h2>
+<dl>
+
+<p><dt><font color="red"> +/ </font>
+<dd>: (SET`s(EQ`a), EQ`a) -&gt; SET`s(EQ`a)
+<p> <font color=#D00090>s +/ x</font> is the result of adding x to s.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[5,6,7] +/ 8</font> = set[5,6,7,8],
+<br><font color="#D00090"> set[5,6,7] +/ 5</font> = set[5,6,7].
+<p>You can use +/ in patterns.  Pattern ?x +/ v matches a set
+s that contains v.  It binds x to x -/ v.  Pattern
+?x +/ ?v binds v to each member of the target set s, returning each 
+in a stream, and binds x to s -/ v.
+
+<a name=minusslash></a>
+<p><dt><font color="red"> -/ </font>
+<dd>: (SET`s(EQ`a), EQ`a) -&gt; SET`s(EQ`a)
+<p> <font color=#D00090>s -/ x</font> is the result of deleting x from s.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[5,6,7] -/ 8</font> = set[5,6,7],
+<br><font color="#D00090"> set[5,6,7] -/ 6</font> = set[5,7].
+</dl>
+
+<a name=small></a>
+<hr>
+<h2><font color=mediumblue> Getting the smallest and largest </font></h2>
+
+<dl>
+
+<a name=min></a>
+<p><dt><font color="red"> min </font>
+<dd>: SET`s(ORDER`a) -&gt; ORDER`a
+<p> <font color=#D00090>min(s)</font> is the smallest member of set s.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">min(set[5,6,7])</font> = 5.
+
+<a name=max></a>
+<p><dt><font color="red"> max </font>
+<dd>: SET`s(ORDER`a) -&gt; ORDER`a
+<p> <font color=#D00090>max(s)</font> is the largest member of set s.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">max(set[5,6,7]) </font>= 7.
+
+<a name=extractMax></a>
+<p><dt><font color="red"> extractMax </font>
+<dd>: SET`s(ORDER`a) -&gt; (ORDER`a, SET`s(ORDER`a))
+<p> <font color=#D00090>extractMax(s)</font> 
+= (x,s') where x is the largest value
+in set s, and s' is s -/ x.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">extractMax(set[5,6,7]) </font>= (7, set[5,6]).
+
+<a name=extractMin></a>
+<p><dt><font color="red"> extractMin </font>
+<dd>: SET`s(ORDER`a) -&gt; (ORDER`a, SET`s(ORDER`a))
+<p> <font color=#D00090>extractMin(s)</font> 
+= (x,s') where x is the smallest value
+in set s, and s' is s -/ x.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">extractMin(set[5,6,7]) </font>= (5, set[6,7]).
+
+</dl>
+
+<a name="bool"></a>
+<hr>
+<h2><font color=mediumblue> Boolean operations </font></h2>
+
+<dl>
+
+<a name=union></a>
+<p><dt><font color="red"> \/ </font>
+<dd>: (SET`s(EQ`a), SET`s(EQ`a)) -&gt; SET`s(EQ`a)
+<p> <font color=#D00090>s \/ t</font> is the union of s and t.
+(Note: \/ is made by typing \ followed by /.)
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[5,6,7] \/ set[5,8,9]</font> = set[5,6,7,8,9].
+
+<a name=intersect></a>
+<p><dt><font color="red"> /\ </font>
+<dd>: (SET`s(EQ`a), SET`s(EQ`a)) -&gt; SET`s(EQ`a)
+<p> <font color=#D00090>s /\ t</font> is the intersection of s and t.
+(Note: /\ is made by typing / followed by \.)
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[5,6,7] /\ set[5,8,9] </font>= set[5].
+
+<a name=minus></a>
+<p><dt><font color="red"> - </font>
+<dd>: (SET`s(EQ`a), SET`s(EQ`a)) -&gt; SET`s(EQ`a)
+<p> <font color=#D00090>s - t</font> 
+is the difference of s and t.  That is, it is the set
+of all members of s that are not also members of t.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[5,6,7] - set[5,8,9] </font>= set[6,7].
+</dl>
+
+<a name="compare"></a>
+<hr>
+<h2><font color=mediumblue> Comparing sets </font></h2>
+
+<dl>
+<p><dt><font color="red"> <tt>==</tt> </font>
+<dd>: (SET`s(EQ`a), SET`s(EQ`a)) -&gt; Boolean
+<p> <font color=#D00090>s <tt>==</tt> t</font> 
+is true if sets s and t have the same members.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[5,6,7,7] <tt>==</tt> 
+set[5,6,7]</font> is true.
+
+<a name="subsetq"></a>
+<p><dt><font color="red"> _subset?_ </font>
+<dd>: (SET`s(EQ`a), SET`s(EQ`a)) -&gt; Boolean
+<p> <font color=#D00090>s _subset?_ t</font> 
+is true if s is a (not necessarily proper) subset of t.
+(<a href="ast/collect/set.ast">collect/set.ast</a>)
+<p>Example: 
+<font color="#D00090">set[5,6,7] _subset?_ set[5,8,9]</font> is false,
+<br><font color=#D00090>set[5,6,7] _subset?_ set[5,6,7,8,9]</font> is true.
+</dl>
+
+<a name=checkselect></a>
+<hr>
+<h2><font color=mediumblue> Checking and selecting members for properties </font></h2>
+
+<dl>
+
+<a name=someSatisfy></a>
+<p><dt><font color="red"> someSatisfy </font>
+<dd>: (EQ`a -&gt; Boolean) -&gt; SET`s(EQ`a) -&gt; Boolean
+<p> <font color=#D00090>someSatisfy f s</font> 
+is true if some member x of set
+s makes f(x) = true.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">someSatisfy (?x =&gt; x &gt; 6) 
+(set[5,6,7])</font>
+is true.
+
+<a name=allSatisfy></a>
+<p><dt><font color="red"> allSatisfy </font>
+<dd>: (EQ`a -&gt; Boolean) -&gt; SET`s(EQ`a) -&gt; Boolean
+<p> <font color=#D00090>allSatisfy f s</font> 
+is true if every member x of set
+s makes f(x) = true.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">allSatisfy (?x =&gt; x &gt; 6) (set[5,6,7])</font>
+is false.
+
+<a name=select></a>
+<p><dt><font color="red"> select </font>
+<dd>: (EQ`a -&gt; Boolean) -&gt; SET`s(EQ`a) -&gt; EQ`a
+<p> <font color=#D00090>select f s</font> is some member x of set s such that
+f(x) = true.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">select (?x =&gt; x &gt; 6) (set[5,6,7])</font> = 7
+
+</dl>
+
+<a name=mapping></a>
+<hr>
+<h2><font color=mediumblue> Mapping, filtering and folding </font></h2>
+
+<dl>
+
+<a name="map"></a>
+<p><dt><font color="red"> map </font>
+<dd>: (EQ`a -&gt; EQ`b) -&gt; SET`s(EQ`a) -&gt; SET`s(EQ`b)
+<p> <font color=#D00090>map f (set[a,b,c])</font> 
+= set[f(a), f(b), f(c)].
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">map (?x =&gt; x^2) (set[5,6,7]) </font>
+= set[25,36,49].
+</font>
+
+<a name="MapProc"></a>
+<p><dt><font color="red"> MapProc </font>
+<dd>: (EQ`a -&gt; ()) -&gt; SET`s(EQ`a) -&gt; ()
+<p> <font color=#D00090>MapProc (P) (s) %MapProc</font> applies procedure
+P to each member of set s.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+
+<a name="mapSuccesses"></a>
+<p><dt><font color="red"> mapSuccesses </font>
+<dd>: (EQ`a -&gt; EQ`b) -&gt; SET`s(EQ`a) -&gt; SET`s(EQ`b)
+<p> <font color=#D00090>mapSuccesses</font> is similar to map, but it does
+not include values f(x) where f(x) fails.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+</font>
+
+<a name="filter"></a>
+<p><dt><font color="red"> filter </font>
+<dd>: (EQ`a -&gt; Boolean) -&gt; SET`s(EQ`a) -&gt; SET`s(EQ`a)
+<p> <font color=#D00090>filter f s</font> 
+is the set of all member x of s such that
+f(x) is true.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">filter (?x =&gt; x &gt; 6) (set[5,6,7,8,4]) 
+</font>= set[7,8].
+
+<a name="bpartition"></a>
+<p><dt><font color="red"> bpartition </font>
+<dd>: (EQ`a -&gt; Boolean) -&gt; SET`s(EQ`a) -&gt; (SET`s(EQ`a), SET`s(EQ`a))
+<p> <font color=#D00090>bpartition f s</font> = (s1,s2) where s1 is the set
+of all members of s that make f return true, and s2 is the list
+of all members of s that make f return false.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: <font color="#D00090">
+bpartition (?x =&gt; x &gt; 5) (set [2,3,9,3,8,10,4])</font> 
+= (set[2,3,3,4], set[9,8,10]).
+
+<a name="fold"></a>
+<p><dt><font color="red"> fold </font>
+<dd>: (EQ`a,(EQ`a,EQ`a)-&gt;EQ`a) -&gt; SET`s(EQ`a) -&gt; EQ`a
+<p> <font color=#D00090>fold (i,+) (set[a,b,c])</font> 
+= a + b + c.  It is required
+that + be a commutative, associative binary operator, and that i be
+an identity for it.
+(<a href="ast/collect/collect.ast">collect/collect.ast</a>)
+<p>Example: 
+<font color="#D00090">fold (1,*) (set[5,6,7])</font> 
+= 5*6*7 = 210.
+
+</dl>
+
+<hr>
+<center>
+<a href="matrix.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="tablelib.html">Next</a>
+</center>
+</body>
+</HTML>
+

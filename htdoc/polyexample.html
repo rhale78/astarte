@@ -1,0 +1,62 @@
+<HTML>
+<head>
+<title>Astarte: polymorphism examples</title>
+</head>
+<body>
+<center>
+<a href="typevar.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="infer.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T8. More Examples of Polymorphism </font></h1>
+</center>
+
+Here are a few examples of functions with polymorphic types, and
+whose types use variables that do not range over ANY.  Other examples
+can be found in under <a href=polymorphism.html>T5. Polmorphism</a>.
+
+<dl>
+<p><dt><font color=red> / : SFIELD`a -&gt; SFIELD`a</font>
+<dd> /(x) is the reciprocal of x.  It can take a rational number
+and produce a rational number or it can take a real number
+and produce a real number.
+
+<p><dt><font color=red> + : (REAL`a, REAL`a) -&gt; REAL`a</font>
+<dd> The addition function takes a pair of numbers and produces their sum.
+
+<p><dt><font color=red> &lt; : (ORDER`a, ORDER`a) -&gt; Boolean</font>
+<dd> The less-than function takes a pair of values and produces a boolean
+result (telling if the first is smaller than the second).
+
+<p><dt><font color=red> <tt>==</tt> : (EQ`a, EQ`a) -&gt; Boolean</font>
+<dd> This function takes two values of the same species
+and tells whether they are equal.
+
+<p><dt><font color=red> <tt>==</tt>? : (EQ`a, EQ`b) -&gt; Boolean</font>
+<dd> This unconstrained equality function takes two values (possibly
+of different species) and tells whether they are equal.
+
+<p><dt><font color=red> 
+divide: (INTEGER`a, Natural) -&gt; (INTEGER`a, Natural)</font>
+<dd> The divide function takes a pair (i,n) and returns the pair
+(q,r), where q is the quotient when you divide i by n and r is
+the remainder.  Notice that n must be a natural number, but i can
+be either a natural number or an integer.  Also, q must have the
+same species as i.
+</dl>
+
+<hr>
+<center>
+<a href="typevar.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="infer.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,43 @@
+%% File: utils.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================================
+Package 		Astarte_LogicUtils 
+
+			Interface
+====================================================================
+
+====================================================================
+%% This package provides some basic logic programming utilities.
+====================================================================
+
+Expect
+  Append	: ([EQ`a], [EQ`a], [EQ`a]) -> ()
+  
+  		%" Append a := (b,c). succeeds if a = b ++ c.  It is
+		%" active, and can bind in several modes.
+		;
+
+  known?	: `a -> Boolean
+  
+  		%" known?(x) is true if x is not an unbound variable.
+		;
+		
+  ground?	: `a -> Boolean
+  
+  		%" ground?(x) is true if x has no variables.
+		;
+		
+  Sum		: (REAL`a, REAL`a, REAL`a) -> ()
+  
+  		%" Sum a := (b,c). succeeds if a = b + c.  It is
+		%" active, and can bind any of a, b or c, provided
+		%" the other two are known.
+		;
+%Expect
+
+%Package
+

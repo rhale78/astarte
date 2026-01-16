@@ -1,0 +1,28 @@
+Package printbox 
+
+%% Test printing of boxes, arrays.
+
+Import "collect/boxes".
+
+Execute
+  Var{nonshared} x,a(10) holding Natural.
+  Var{shared} y,b(20) holding Natural.
+  Writeln[$x].
+  Writeln[$a].
+  Writeln[$y].
+  Writeln[$b].
+
+  Var{nonshared} aa(10) holding Natural.
+  Var{shared} bb(10) holding Natural.
+  Let u = a ++ aa.
+  Let v = b ++ bb.
+  Writeln[$u].
+  Writeln[$v].
+
+  Let uu = [x & u].
+  Let vv = [y & v].
+  Writeln[$uu].
+  Writeln[$vv].
+%Execute
+
+%Package

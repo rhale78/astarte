@@ -1,0 +1,115 @@
+Package append 
+
+%% Test operations with appends.
+
+Import "misc/check".
+
+================================
+%% nils, left and right
+
+Execute
+  Let a = nil ++ [1,2,3].
+  Line[$a].
+  Check["[1,2,3]"].
+  Let b = [1,2,3] ++ nil.
+  Line[$b].
+  Check["[1,2,3]"].
+%Execute
+
+==============================
+%% Lazy nils, left and right
+
+Execute
+  Let a1 = (:nil:) ++ [1].
+  Let h1 = head a1.
+  Line[$h1].
+  Check["1"].
+
+  Let a2 = (:nil:) ++ [1].
+  Let t2 = tail a2.
+  Line[$t2].
+  Check["[]"].
+%Execute
+
+Execute
+  Let a1 = (:nil:) ++ [1] ++ (:nil:).
+  Let l1 = length(a1).
+  Line[$l1].
+  Check["1"].
+%Execute
+
+Execute
+  Let a = (:nil:) ++ (([1] ++ [2]) ++ [3]).
+  Line[$a].
+  Check["[1,2,3]"].
+%Execute
+
+=======================================
+%% Test a pair on the left
+
+Execute
+  Let a = [1,2,3] ++ [4,5,6].
+  Line[$a].
+  Check["[1,2,3,4,5,6]"].
+%Execute
+
+Execute
+  Let a = [1,2] ++ [3,4] ++ [5,6].
+  Let b = tail a.
+  Line[$b].
+  Check["[2,3,4,5,6]"].
+%Execute
+
+=======================================
+%% Test an array on the left
+
+Execute
+  Let p = pack([3000,24,1900]).
+  Let a = p ++ [2,3,4].
+  Line[$a].
+  Check["[3000,24,1900,2,3,4]"].
+%Execute
+
+=======================================
+%% Test left-associating appends
+
+Execute
+  Let a = ((([1] ++ [2]) ++ [3]) ++ [4]) ++ [5].
+  Line[$a].
+  Check["[1,2,3,4,5]"].
+%Execute
+
+=======================================
+%% Test a tree on the left
+
+Execute
+  Let a = (: [1,2] ++ [3,4] ++ [5] :).
+  Let b = a ++ [6].
+  Let c = b ++ [7].
+  Let d = c ++ [8].
+  Line[$d].
+  Check["[1,2,3,4,5,6,7,8]"].
+  Line[$c].
+  Check["[1,2,3,4,5,6,7]"].
+  Line[$b].
+  Check["[1,2,3,4,5,6]"].
+%Execute
+
+=============================================
+%% Head, tail tests
+
+Execute
+  Let a = [1,2] ++ [3,4].
+  Let b = [5,6] ++ [7,8].
+  Let c = [9,10] ++ [11,12] ++ [13,14].
+  Let d = a ++ b ++ c.
+  Let e = a ++ b ++ c.
+  Let f = d ++ e ++ e.
+  For ?x from f do Writeln[$x]..
+  For ?x from e do Writeln[$x]..
+  For ?x from a do Writeln[$x]..
+%Execute
+
+%Package
+
+

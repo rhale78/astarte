@@ -1,0 +1,442 @@
+<HTML>
+<head>
+<title>Astarte: tables</title>
+</head>
+<body>
+<center>
+<a href="setlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="array.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC9. Tables </font></h1>
+</center>
+
+<menu>
+  <li><a href=#tables>Tables</a>
+  <li><a href=#empty>Empty tables</a>
+  <li><a href=#conv>Conversion to and from lists and sets</a>
+  <li><a href=#look>Looking in tables</a>
+  <li><a href=#mod>Modifying tables</a>
+  <li><a href=#memo>Memoizing functions</a>
+  <li><a href=#misc>Miscellaneous operations</a>
+  <li><a href=#exception>Exceptions</a>
+</menu>
+
+<a name=tables></a>
+<hr>
+<h2><font color=mediumblue>Tables</font></h2>
+
+A table stores keys and associated values.  Two kinds of tables
+are provided: sparse tables, which are represented by binary
+search trees, and linear tables, which are represented by
+lists.  Species <font color=red>SparseTable(K,V)</font> 
+is used for sparse tables whose keys
+have species K and whose values have species V.  Species
+<font color=red>LinTable(K,V)</font> is similar, 
+but for tables represented as lists.
+
+<a name=TABLE></a>
+<p>Families SparseTable and LinTable are both members of community
+<font color=red>TABLE</font>.  
+Type TABLE`a(K,V) is a general kind of table that stores
+keys of species K and values of species V.
+Tables are described further in 
+<a href="ast/collect/table.ast">collect/table.ast</a>.  
+
+<p>To use sparse tables, import 
+<a href="ast/collect/sparstbl.ast">collect/sparstbl.ast</a>.  
+To use linear tables, import
+<a href="ast/collect/lintbl.ast">collect/lintbl.ast</a>.  
+
+The following are abbreviated descriptions.  See the containing file
+for details.
+
+<a name="empty"></a>
+<hr>
+<h2><font color=mediumblue> Empty tables </font></h2>
+
+<dl>
+<p><dt><font color="red"> emptyTable </font>
+<dd>: TABLE`*t(EQ`a,`b)
+<p> emptyTable is an empty table.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+
+<a name="emptySparseTable"></a>
+<p><dt><font color="red"> emptySparseTable </font>
+<dd>: SparseTable(ORDER`a,`b)
+<p> emptySparseTable is an empty sparse table.
+(<a href="ast/collect/table.ast">collect/sparsetbl.ast</a>)
+
+<a name="emptyLinTable"></a>
+<p><dt><font color="red"> emptyLinTable </font>
+<dd>: LinTable(EQ`a,`b)
+<p> emptyLinTable is an empty linear table.
+(<a href="ast/collect/table.ast">collect/lintbl.ast</a>)
+
+<a name="emptyTableq"></a>
+<p><dt><font color="red"> emptyTable? </font>
+<dd> TABLE`t(EQ`a,`b)
+<p><font color=#D00090>emptyTable?(t)</font> 
+is true if t is an empty table.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+
+</dl>
+
+<a name="conv"></a>
+<hr>
+<h2><font color=mediumblue> Conversion to and from lists and sets </font></h2>
+
+<dl>
+<a name="table"></a>
+<p><dt><font color="red"> table </font>
+<dd>: [(EQ`a,`b)] -&gt; TABLE`*t(EQ`a,`b)
+<p> <font color=#D00090>table([(k1,v1), (k2,v2), ...])</font> 
+is a table holding
+the given (key,value) pairs.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)]
+</font>
+produces a table with keys &quot;lion&quot; and &quot;lizard&quot;, and associated values
+&quot;mammal&quot; and &quot;reptile&quot;.
+
+<a name="sparseTable"></a>
+<p><dt><font color="red"> sparseTable </font>
+<dd>: [(ORDER`a,`b)] -&gt; SparseTable(ORDER`a,`b)
+<p> <font color=#D00090>sparseTable(x)</font> 
+is the same as table(x), but
+it is sure to create a sparse table.
+(<a href="ast/collect/sparstbl.ast">collect/sparstbl.ast</a>)
+
+<a name="linTable"></a>
+<p><dt><font color="red"> linTable </font>
+<dd>: [(EQ`a,`b)] -&gt; SparseTable(EQ`a,`b)
+<p> <font color=#D00090>linTable(x)</font> is the same as table(x), but
+it is sure to create a linear table.
+(<a href="ast/collect/lintbl.ast">collect/lintbl.ast</a>)
+
+<a name="listTable"></a>
+<p><dt><font color="red"> listTable </font>
+<dd>: [(EQ`a,`b)] -&gt; TABLE`*t(EQ`a,[`b])
+<p> listTable takes a list of ordered pairs, but
+associates with each key a list of the values that are given
+with that key in the list of pairs.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+
+<p><font color="#D00090">listTable[(&quot;lion&quot;,&quot;mammal&quot;), (&quot;lion&quot;,&quot;cat&quot;), (&quot;lizard&quot;,&quot;reptile&quot;)]</font> 
+<p>produces the same table as
+<p><font color=#D00090>table[(&quot;lion&quot;,[&quot;mammal&quot;,&quot;cat&quot;]), (&quot;lizard&quot;,[&quot;reptile&quot;])].</font>
+
+<a name="toList"></a>
+<p><dt><font color="red"> toList </font>
+<dd>: TABLE`t(EQ`a,`b) -&gt; [(EQ`a,`b)]
+<p> <font color=#D00090>toList(t)</font> produces a list of the (key,value) 
+pairs in table t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+
+<p><font color="#D00090">
+toList(table[(&quot;lion&quot;,&quot;mammal&quot;),(&quot;lizard&quot;,&quot;reptile&quot;)])</font>
+<p>= [(&quot;lion&quot;,&quot;mammal&quot;),(&quot;lizard&quot;,&quot;reptile&quot;)].
+
+<a name=eagerToList></a>
+<p><dt><font color="red"> eagerToList </font>
+<dd>: TABLE`t(EQ`a,`b) -&gt; [(EQ`a,`b)]
+<p> <font color=#D00090>eagerToList(t)</font> 
+is similar to toList(t), but is eager, where
+toList is not necessarily eager.
+
+</dl>
+
+<a name=look></a>
+<hr>
+<h2><font color=mediumblue> Looking in tables </font></h2>
+
+<dl>
+
+<a name="at"></a>
+<p><dt><font color="red"> _at_ </font>
+<dd>: (TABLE`t(EQ`a,`b), EQ`a) -&gt; `b 
+<p><font color=#D00090>t _at_ k</font> 
+is the value associated with key k in table t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)] _at_ &quot;lion&quot;</font> 
+= &quot;mammal&quot;.
+
+<a name="defaultAt"></a>
+<p><dt><font color="red"> _defaultAt_ </font>
+<dd>: (TABLE`t(EQ`a,`b), (EQ`a, `b)) -&gt; `b
+<p> <font color=#D00090>t _defaultAt_ (k,v)</font> 
+is the value associated with key k in
+table t, if there is such a value.  Otherwise, t _defaultAt_ (k,v) is v.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Examples:
+<font color="#D00090"> 
+<p>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)]
+_defaultAt_ (&quot;lion&quot;,&quot;cat&quot;)</font> = &quot;mammal&quot;.
+<p><font color=#D00090>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)] _defaultAt_ (&quot;snake&quot;,&quot;legless&quot;)</font> 
+= &quot;legless&quot;.
+
+<a name="in"></a>
+<p><dt><font color="red"> _in_ </font>
+<dd>: ((EQ`a,EQ`b), TABLE`t(EQ`a,EQ`b)) -&gt; Boolean
+<p> <font color=#D00090>(k,v) _in_ t</font> 
+is true if (key,value) pair (k,v) is
+in table t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Examples: 
+<font color="#D00090"> 
+<p>(&quot;lion&quot;,&quot;mammal&quot;) _in_ table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)]</font>
+is true.
+<p><font color=#D00090>(&quot;lion&quot;,&quot;cat&quot;) _in_ table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)])</font>
+is false.
+
+<a name="keyMemberq"></a>
+<p><dt><font color="red"> _keyMember?_ </font>
+<dd>: (EQ`a, TABLE`t(EQ`a,`b)) -&gt; Boolean
+<p><font color=#D00090>k _keyMember?_ t</font> 
+is true if k is a key in table t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Examples: <font color="#D00090"> 
+<p>&quot;lion&quot; _keyMember?_ table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)]</font>
+is true.
+<p><font color=#D00090>&quot;mammal&quot; _keyMember?_ table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)]</font>
+is false.
+
+<a name="memberWithKey"></a>
+<p><dt><font color="red"> memberWithKey </font>
+<dd>: (EQ`a, TABLE`t(EQ`a,`b)) -&gt; (EQ`a,`b)
+<p><font color=#D00090>memberWithKey(k,t)</font> is the (key,value) pair
+in table t that has key k.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p> memberWithKey(table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)], &quot;lion&quot;)</font>
+= (&quot;lion&quot;,&quot;mammal&quot;).
+
+<a name="tableKeys"></a>
+<p><dt><font color="red"> tableKeys </font>
+<dd>: TABLE`t(EQ`a,`b) -&gt; [EQ`a]
+<p><font color=#D00090>tableKeys(t)</font> is a list of the keys in table t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>tableKeys(table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)])</font>
+= [&quot;lion&quot;, &quot;lizard&quot;].
+
+<a name="tableVals"></a>
+<p><dt><font color="red"> tableVals </font>
+<dd>: TABLE`t(EQ`a,`b) -&gt; [`b]
+<p><font color=#D00090>tableKeys(t)</font> is a list of the keys in table t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>tableVals(table[(&quot;lion&quot;, &quot;mammal&quot;), 
+(&quot;lizard&quot;, &quot;reptile&quot;)])</font>
+= [&quot;mammal&quot;, &quot;reptile&quot;].
+</dl>
+
+<a name="mod"></a>
+<hr>
+<h2><font color=mediumblue> Modifying tables </font></h2>
+
+<dl>
+<a name=plusslash></a>
+<p><dt><font color="red"> +/ </font>
+<dd>: (TABLE`t(EQ`a,`b), (EQ`a, `b)) -&gt; TABLE`t(EQ`a,`b)
+<p> <font color=#D00090>t +/ (k,v)</font> 
+is the result of adding (key,value) pair
+(k,v) to table t.  However, if there is already a pair with key k,
+then the old pair is kept, and the result is the same as t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Examples: <font color="#D00090"> 
+<p>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)] +/ (&quot;snake&quot;,&quot;reptile&quot;)</font>
+<p>= table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;), (&quot;snake&quot;,&quot;reptile&quot;)].
+<p><font color=#D00090>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)] +/ (&quot;lion&quot;,&quot;cat&quot;)</font>
+<p>= table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)].
+
+<p> You can use +/ in patterns.  Pattern 
+<font color=#D00090>?t +/ (k,?v)</font> matches a table
+tbl that contains key k.  It binds v to the associated value, and
+t to the result of removing pair (k,v) from tbl.
+
+<p> Pattern <font color=#D00090>?t +/ (?k,?v)</font> 
+binds (k,v) in all possible ways, in
+a stream, to the pairs in the target table, and binds t to the result
+of removing pair (k,v) from that table.
+
+<a name=plusdblslash></a>
+<p><dt><font color="red"> +// </font>
+<dd>: (TABLE`t(EQ`a,`b), (EQ`a, `b)) -&gt; TABLE`t(EQ`a,`b)
+<p><font color=#D00090>t +// (k,v)</font> 
+is the result of adding (key,value) pair
+(k,v) to table t.  If there is already a pair with key k,
+then the new pair (k,v) replaces the old pair.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Examples: <font color="#D00090"> 
+<p>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)] +// (&quot;snake&quot;,&quot;reptile&quot;)</font>
+<p>= table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;), (&quot;snake&quot;,&quot;reptile&quot;)].
+<p><font color=#D00090>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)] +// (&quot;lion&quot;,&quot;cat&quot;)</font> 
+<p>= table[(&quot;lion&quot;, &quot;cat&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)].
+
+<a name="update"></a>
+<p><dt><font color=red>update</font>
+<dd>: (TABLE`t(EQ`a,`b), (EQ`a, `b), `b -&gt; `b) -&gt; TABLE`t(EQ`a,`b)
+<p><font color=#D00090>update(t,(k,v),f)</font> 
+returns the result of inserting
+pair (k,v) into table t, if key k is not present
+in t.  If key k is already present in t, with 
+associated value x, then the returned table
+associates f(x) with key k.
+
+<a name="minusKey"></a>
+<p><dt><font color="red"> _minusKey_ </font>
+<dd>: (TABLE`t(EQ`a,`b), EQ`a) -&gt; TABLE`t(EQ`a,`b)
+<p><font color=#D00090>t _minusKey_ k</font> 
+is the result of deleting any pair with
+key k from table t.  If there is none, then the result is just t itself.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)] _minusKey_ &quot;lizard&quot;</font>
+<p>= table[(&quot;lion&quot;, &quot;mammal&quot;)].
+
+<a name="mapContent"></a>
+<p><dt><font color="red"> mapContent </font>
+<dd>: (`b -&gt; `c) -&gt; TABLE`t(EQ`a,`b) -&gt; TABLE`s(EQ`a,`c)
+<p><font color=#D00090>mapContent f t</font> 
+is the table that results by
+replacing each content value v in t by f(v).
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>mapContent tail (table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)])</font> 
+<p>= [(&quot;lion&quot;, &quot;ammal&quot;), (&quot;lizard&quot;,&quot;eptile&quot;)].
+
+</dl>
+
+<a name="memo"></a>
+<hr>
+<h2><font color=mediumblue> Memoizing functions </font></h2>
+
+<dl>
+<p><dt><font color=red> memoize</font>
+<dd>: TABLE`t(EQ`a,`b) -&gt; (EQ`a -&gt; `b) -&gt; EQ`a -&gt; `b
+<p><font color=#D00090>(memoize tbl f)</font> is a function g that behaves
+like function f, except that each time a value g(x) is computed, pair
+(x, f(x)) is entered into a table.  If g(x) is computed again with the
+same argument, the result will be looked up in the table, and function
+f will not be used.
+
+<p> The intial table of values is tbl.  Use emptyTable as an
+initial table to start with no entries.
+(<a href="ast/collect/sparstbl.ast">collect/table.ast</a>)
+
+
+<a name="sparseMemoize"></a>
+<p><dt><font color="red"> sparseMemoize </font>
+<dd>: (EQ`a -&gt; `b) -&gt; (EQ`a -&gt; `b)
+<p> <font color=#D00090>(sparseMemoize f)</font> 
+= (memoize emptySparseTable f).
+(<a href="ast/collect/sparstbl.ast">collect/sparstbl.ast</a>)
+
+<a name="linMemoize"></a>
+<p><dt><font color="red"> linMemoize </font>
+<dd>: (EQ`a -&gt; `b) -&gt; (EQ`a -&gt; `b) 
+<p><font color=#D00090>(linMemoize f)</font> = (memoize emptyLinTable f).
+(<a href="ast/collect/lintbl.ast">collect/lintbl.ast</a>)
+</dl>
+
+<a name="misc"></a>
+<hr>
+<h2><font color=mediumblue> Miscellaneous operations </font></h2>
+
+<dl>
+<a name="size"></a>
+<p><dt><font color="red"> size </font>
+<dd>: TABLE`t(EQ`a,`b) -&gt; Natural
+<p> <font color=#D00090>size(t)</font> is the number of entries in table t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>size(table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)])</font> = 2.
+
+<a name="extractMin"></a>
+<p><dt><font color="red"> extractMin </font>
+<dd>: TABLE`t(ORDER`a,`b) -&gt; ((ORDER`a,`b), TABLE`t(ORDER`a,`b))
+<p> <font color=#D00090>extractMin(t)</font> 
+= ((k,v),t') where (k,v) is the (key,value)
+pair in table t that has the smallest key, and t' is the result of deleting
+that pair from t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>extractMin(table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)])</font>
+<p>= ((&quot;lion&quot;,&quot;mammal&quot;), table[(&quot;lizard&quot;,&quot;reptile&quot;)]).
+
+<a name="extractMax"></a>
+<p><dt><font color="red"> extractMax </font>
+<dd>: TABLE`t(ORDER`a,`b) -&gt; ((ORDER`a,`b), TABLE`t(ORDER`a,`b))
+<p> <font color=#D00090>extractMax(t)</font> 
+= ((k,v),t') where (k,v) is the (key,value)
+pair in table t that has the largest key, and t' is the result of deleting
+that pair from t.
+(<a href="ast/collect/table.ast">collect/table.ast</a>)
+<p>Example:
+<font color="#D00090">
+<p>extractMax(table[(&quot;lion&quot;, &quot;mammal&quot;), (&quot;lizard&quot;, &quot;reptile&quot;)])</font> 
+<p>= ((&quot;lizard&quot;,&quot;reptile&quot;), table[(&quot;lion&quot;,&quot;mammal&quot;)]).
+
+<a name="min"></a>
+<p><dt><font color=red>min</font>
+<dd>: TABLE`t(ORDER`a,`b) -&gt; (ORDER`a,`b)
+<p> <font color=#D00090>min(t)</font> 
+is the entry in table t with the smallest key.  
+For example,
+<font color=#D00090>min(table[(2,5),(3,4)])</font> = (2,5).
+
+<a name="max"></a>
+<p><dt><font color=red>max</font>
+<dd>: TABLE`t(ORDER`a,`b) -&gt; (ORDER`a,`b)
+<p> <font color=#D00090>max(t)</font> 
+is the entry in table t with the largest key.  
+For example, 
+<font color=#D00090>max(table[(2,5),(3,4)])</font> = (3,4).
+
+</dl>
+
+<a name=exception></a>
+<hr>
+<h2><font color=mediumblue>Exceptions </font></h2>
+
+<dl>
+<p><dt><font color=red>tableX</font>
+<dd>: ExceptionSpecies
+<p> When table operations fail, they generally fail with exception
+tableX.  Operations that can fail are memberWithKey and _at_ (no such member);
+ min, max, extractMin and extractMax (empty table).
+</dl>
+
+<hr>
+<center>
+<a href="setlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="array.html">Next</a>
+</center>
+</body>
+</HTML>
+

@@ -1,0 +1,125 @@
+                     What is this software?
+                     ----------------------
+
+Astarte is a multiparadigm programming language, and this 
+software is an implementation of Astarte.  Documentation on
+Astarte can be found at http://www.cs.ecu.edu/astarte.
+The documentation is also distributed with this software in
+the htdoc directory.
+
+This software is provided as source code.  It currently runs only
+under flavors of Unix, including Linux.  You will need a C
+compiler to install it.  The GNU C compiler is recommended.
+The C compiler should support ANSI C.
+You will also need an implementation of the Unix make command.
+
+This is a prerelease, not a finished product.  Modifications to both
+the documentation and the implementation are frequent.
+
+Please read the disclaimer and copyright in file COPYRIGHT.
+
+                        To install Astarte
+		     FOLLOW THESE INSTRUCTIONS!
+                     -------------------------
+
+1. Choose a directory to hold the installation.  A suggestion
+   is /usr/local/lib/astarte.  Move this file and all of the
+   directories that are with it to that directory.  You should
+   have subdirectories
+      ast/
+      htdoc/
+      messages/
+      src/
+      test/
+
+2. If you choose a directory other than /usr/local/lib/astarte,
+   then edit file src/misc/config.h.  Change the definition of 
+   BASE_DIR to be the directory that contains this file and the
+   directories ast, htdoc, messages, src and test.
+
+3. Edit file src/exec/Makefile.  Change the definitions of
+   TOPDIR and BINDIR if necessary.
+
+     TOPDIR is the src directory.  If you install in /usr/local/lib/astarte,
+            then TOPDIR should be /usr/local/lib/astarte/src.  
+
+     BINDIR is the directories where the binaries should be put.
+            For example, it might be /usr/local/bin.
+
+   Be sure that BINDIR is in your path, to make it possible to run
+   the compiler and interpreter.
+
+   Also edit the definitions of SHELL, RM, MV, TOUCH and CC if necessary.
+   Pay special attention to CC, which is the name of the C compiler that
+   you will use.
+
+4. Change to directory src/exec.  Type
+
+     make install
+
+   The compiler should be built.  
+
+   If the make tries to run bison or flex, and you do not have bison 
+   or flex, then touch files src/exec/parser.c and src/exec/lexer.c 
+   to make their modification times later than other files.  
+   For example, do
+      cd src/exec
+      touch parser.c lexer.c
+   Be sure your system clock is not so far off that the new modification
+   times are not later than the old ones.
+
+5. Change do directory ast.  Type
+
+     make all
+
+   This should build the standard library. If you get any warning
+   messages, ignore them.
+
+6. Change to directory test, and do
+
+     make all
+
+   The tests should run.  There will be a lot of output.  The tests
+   are currently not in very good shape, and you will get some complaints,
+   possibly some about mismatches.  Do not worry about them.
+   What you should NOT get is a compiler or interpreter abort/core dump.
+
+7. After a successful installation, you can delete the src and
+   test directories.  They are not used during execution.  Do not
+   delete the ast or messages directories.
+
+
+
+			INSTALLATION PROBLEMS
+			---------------------
+
+1. The makefile might try to rebuild the parser and lexer using bison
+   and flex.  If you have bison and flex, that is fine.  If you do 
+   not have them, then change directory to src/exec and touch
+   each of parser.c and lexer.c.  (Use the touch command to set their
+   modification times to the current time.)  The makefile should 
+   no longer try to build the parser and lexer.
+
+2. Some versions of make might terminate prematurely.  That is a
+   problem with the system.  Try restarting the make.
+
+3. If you get a link error complaining that alloca does not
+   exist, edit file src/misc/unixs.h.  Find the line
+
+   #define USE_ALLOCA
+
+   and comment it out.  That should get rid of that problem.
+
+4. If either the compiler or interpreter complain about being out
+   of memory, or if the interpreter seems to get a lot of errors,
+   try editing file src/misc/options.h.  
+
+   Comment out the line that includes file unixs.h and instead 
+   include unixl.h or unixm.h.  Those files set up memory 
+   allocation differently.  After editing those files, 
+   go to the src/exec directory, and type
+
+     make clean
+     make install
+   
+If you have any other problems, let me know by email (karl@cs.ecu.edu).

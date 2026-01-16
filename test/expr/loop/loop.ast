@@ -1,0 +1,113 @@
+Package testloop 
+
+%% Test loops
+
+Import "misc/check".
+
+Assume 0: Natural.
+
+%% Loop first with exitcase, loopcase
+
+Define factorial1 ?n =
+  Loop (?i, ?r) = (0, 1) first
+    exitcase i == n => r
+    do Let ip1 = i + 1.
+    loopcase else   => continue (ip1, ip1*r)
+  %Loop
+%Define
+
+Execute
+  Line[factorial1 0 $$ 10].
+  Check["         1"].
+  Line[factorial1 1 $$ 10].
+  Check["         1"].
+  Line[factorial1 2 $$ 10].
+  Check["         2"].
+  Line[factorial1 3 $$ 10].
+  Check["         6"].
+  Line[factorial1 4 $$ 10].
+  Check["        24"].
+%Execute  
+
+%% Loop first with exitcase, loopcase
+
+Define factorial2 ?n = @r |
+    Var r, i.
+    Assign r := 1.
+    Assign i := 2.
+    Loop first
+      loopcase @i <= n =>
+        Assign r := @r * @i.
+        Assign i := @i + 1.
+      exitcase else => ()
+    %Loop
+%Define
+
+Execute
+  Line[factorial2 0 $$ 10].
+  Check["         1"].
+  Line[factorial2 1 $$ 10].
+  Check["         1"].
+  Line[factorial2 2 $$ 10].
+  Check["         2"].
+  Line[factorial2 3 $$ 10].
+  Check["         6"].
+  Line[factorial2 4 $$ 10].
+  Check["        24"].
+%Execute  
+
+%% Loop with Subcases
+
+Define factorial3 ?n =
+  Loop (?i,?r) = (0,1) one
+    exitcase i == n => r
+    case i < n =>
+      Subcases
+        exitcase i == n--1 => r * n
+        loopcase else      => continue (i+1,r*(i+1))
+      %Subcases
+  %Loop
+%Define
+
+Execute
+  Line[factorial3 0 $$ 10].
+  Check["         1"].
+  Line[factorial3 1 $$ 10].
+  Check["         1"].
+  Line[factorial3 2 $$ 10].
+  Check["         2"].
+  Line[factorial3 3 $$ 10].
+  Check["         6"].
+  Line[factorial3 4 $$ 10].
+  Check["        24"].
+%Execute  
+
+
+%% Loop with Subcases at else
+
+Define factorial4 ?n =
+  Loop (?i,?r) = (0,1) first
+    exitcase i == n => r
+    else =>
+      Subcases
+        exitcase i == n--1 => r * n
+        loopcase else      => continue (i+1,r*(i+1))
+      %Subcases
+  %Loop
+%Define
+
+Execute
+  Line[factorial4 0 $$ 10].
+  Check["         1"].
+  Line[factorial4 1 $$ 10].
+  Check["         1"].
+  Line[factorial4 2 $$ 10].
+  Check["         2"].
+  Line[factorial4 3 $$ 10].
+  Check["         6"].
+  Line[factorial4 4 $$ 10].
+  Check["        24"].
+%Execute  
+
+%Package
+

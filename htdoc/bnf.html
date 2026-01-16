@@ -1,0 +1,4846 @@
+<HTML>
+<head>
+<title>Astarte: language syntax</title>
+</head>
+<body>
+<center>
+<a href="scheme.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="indx.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> Syntax of Astarte</font></h1>
+</center>
+
+<hr>
+<h2> <font color=mediumblue>Introduction and table of contents</font></h2>
+
+This page describes the syntax of Astarte in a notation similar to
+extended BNF.  The subsections are as follows.
+<menu>
+  <li><a href=#notation>Notation</a>
+  <li><a href=#period>Periods and semicolons</a>
+  <li><a href=#packages>Packages</a>
+  <li><a href=#declarations>Declarations</a>
+  <p><li><a href=#extension>Declarations that create or name species and abstractions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#abbrevdcl>Abbreviations: giving new names to old types</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#abstraction>Creating abstractions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#species>Creating species</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#expect-species>Expecting species</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#class>Creating classes</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#relate>Describing the abstraction hierarchy</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#default>Specifying defaults for abstractions</a>
+  <p><li><a href=#definitiondcls>Declarations that create, name or expect items</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#bringdcl>Bring declarations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#constdcl>Constant definitions (in classes only)</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#definedcl>Item definitions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#exceptiondcl>Creating new exceptions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#expectdcl>Expectations and anticipations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#teamdcl>Teams</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#vardcl>Creating variables and arrays</a>
+  <p><li><a href=#miscdcls>Miscellaneous declarations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#advisedcl>Advise declarations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#assumedcl>Assumptions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#contextdcl>Creating contexts</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#descriptiondcl>Descriptions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#execute>Execute declarations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#ifdcl>Conditional compilation</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#imports>Import and directory declarations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#missingdcl>Missing declarations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#operatordcl>Operator declarations</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#patterndcl>Creating pattern forms</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#expanddcl>Inline expansions</a>
+  <p><li><a href=#expressions>Expressions and expression lists</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#idmod>Identifier modifiers</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#apply>Applying functions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#atomic>Atomic expressions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#await>Lazy evaluation</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#boxes>Box expressions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#defineexpr>Expressions that name things</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#conditional>Conditional expressions and exception handling</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#contextexpr>Context expressions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#cuthereexpr>CutHere expressions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#functionexpr>Function expressions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#listexpr>List expressions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#loop>Loops</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#match>Pattern matching</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#open>Opening the scope</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#roleexpr>Using roles</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#stream>Stream expressions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#testexpr>Tests and assertions</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#trap>Controlling trapping</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#wrap>Wrapping expressions</a>
+  <p><li><a href=#typeexpr>Type expressions</a>
+  <li><a href=#miscrules>Miscellaneous</a>
+  <p><li><a href=#tokens>Identifiers and constants</a>
+  <li>&nbsp;&nbsp;&nbsp;<a href=#characters>Character classifications</a>
+</menu>
+
+<p>Here are the nonterminals of the grammar.
+<menu>
+  <li><a href="#ABBREV-DECLARATION">ABBREV-DECLARATION</a>
+  <li><a href="#ABBREVIATED-VALUE">ABBREVIATED-VALUE</a>
+  <li><a href="#ABBREVIATION">ABBREVIATION</a>
+  <li><a href="#ABBREV-OPTION">ABBREV-OPTION</a>
+  <li><a href="#ABSTRACTION-DECLARATION">ABSTRACTION-DECLARATION</a>
+  <li><a href="#ABSTRACTION-IDENTIFIER">ABSTRACTION-IDENTIFIER</a>
+  <li><a href="#ABSTRACTION-OPTION">ABSTRACTION-OPTION</a>
+  <li><a href="#ADVICE">ADVICE</a>
+  <li><a href="#ADVISE-DECLARATION">ADVISE-DECLARATION</a>
+  <li><a href="#ALL-OR-ONE">ALL-OR-ONE</a>
+  <li><a href="#APPLY-EXPRESSION">APPLY-EXPRESSION</a>
+  <li><a href="#ASK-EXPRESSION">ASK-EXPRESSION</a>
+  <li><a href="#ASSUME-DECLARATION">ASSUME-DECLARATION</a>
+  <li><a href="#ASSUME-OPTION">ASSUME-OPTION</a>
+  <li><a href="#ASSUMPTION">ASSUMPTION</a>
+  <li><a href="#ATOMIC-EXPRESSION">ATOMIC-EXPRESSION</a>
+  <li><a href="#AWAIT-EXPRESSION">AWAIT-EXPRESSION</a>
+  <li><a href="#BASIC-CHOOSE-MODE">BASIC-CHOOSE-MODE</a>
+  <li><a href="#BINARY-OPERATOR">BINARY-OPERATOR</a>
+  <li><a href="#BOX-EXPRESSION">BOX-EXPRESSION</a>
+  <li><a href="#BRING">BRING</a>
+  <li><a href="#BRING-EXPRESSION">BRING-EXPRESSION</a>
+  <li><a href="#BRING-DECLARATION">BRING-DECLARATION</a>
+  <li><a href="#CHARACTER">CHARACTER</a>
+  <li><a href="#CHARACTER-CONSTANT">CHARACTER-CONSTANT</a>
+  <li><a href="#CHOOSE-CASE">CHOOSE-CASE</a>
+  <li><a href="#CHOOSE-CASE-BODY">CHOOSE-CASE-BODY</a>
+  <li><a href="#CHOOSE-CASES">CHOOSE-CASES</a>
+  <li><a href="#CHOOSE-ELSE">CHOOSE-ELSE</a>
+  <li><a href="#CHOOSE-EXPRESSION">CHOOSE-EXPRESSION</a>
+  <li><a href="#CHOOSE-GUARD">CHOOSE-GUARD</a>
+  <li><a href="#CHOOSE-MODE">CHOOSE-MODE</a>
+  <li><a href="#CLASS-DECLARATION">CLASS-DECLARATION</a>
+  <li><a href="#CLASS-PART">CLASS-PART</a>
+  <li><a href="#CONST-DECLARATION">CONST-DECLARATION</a>
+  <li><a href="#CONSTRAINT">CONSTRAINT</a>
+  <li><a href="#CONSTRAINT-LIST">CONSTRAINT-LIST</a>
+  <li><a href="#CONSTRAINT-RELATION">CONSTRAINT-RELATION</a>
+  <li><a href="#CONTEXT-CASE">CONTEXT-CASE</a>
+  <li><a href="#CONTEXT-DECLARATION">CONTEXT-DECLARATION</a>
+  <li><a href="#CONTEXT-EXPRESSION">CONTEXT-EXPRESSION</a>
+  <li><a href="#CUTHERE-EXPRESSION">CUTHERE-EXPRESSION</a>
+  <li><a href="#DECLARATION">DECLARATION</a>
+  <li><a href="#DEFAULT">DEFAULT</a>
+  <li><a href="#DEFAULT-DECLARATION">DEFAULT-DECLARATION</a>
+  <li><a href="#DEFAULT-OPTION">DEFAULT-OPTION</a>
+  <li><a href="#DEFINE-BODY">DEFINE-BODY</a>
+  <li><a href="#DEFINE-BY-CASES">DEFINE-BY-CASES</a>
+  <li><a href="#DEFINE-CASE">DEFINE-CASE</a>
+  <li><a href="#DEFINE-DECLARATION">DEFINE-DECLARATION</a>
+  <li><a href="#DEFINE-ELSE">DEFINE-ELSE</a>
+  <li><a href="#DEFINE-EXPRESSION">DEFINE-EXPRESSION</a>
+  <li><a href="#DEFINE-EXTRA">DEFINE-EXTRA</a>
+  <li><a href="#DEFINE-OPTION">DEFINE-OPTION</a>
+  <li><a href="#DEFINE-THEN">DEFINE-THEN</a>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+  <li><a href="#DESCRIPTION-DECLARATION">DESCRIPTION-DECLARATION</a>
+  <li><a href="#DESCRIPTION-OPTION">DESCRIPTION-OPTION</a>
+  <li><a href="#DIGIT">DIGIT</a>
+  <li><a href="#DIMENSION">DIMENSION</a>
+  <li><a href="#DIMENSION-LIST">DIMENSION-LIST</a>
+  <li><a href="#DIRECTORY-DECLARATION">DIRECTORY-DECLARATION</a>
+  <li><a href="#EXCEPTION-DECLARATION">EXCEPTION-DECLARATION</a>
+  <li><a href="#EXCEPTION-OPTION">EXCEPTION-OPTION</a>
+  <li><a href="#EXECUTE-DECLARATION">EXECUTE-DECLARATION</a>
+  <li><a href="#EXPECT-DECLARATION">EXPECT-DECLARATION</a>
+  <li><a href="#EXPECT-OPTION">EXPECT-OPTION</a>
+  <li><a href="#EXPECT-SPECIES-DECLARATION">EXPECT-SPECIES-DECLARATION</a>
+  <li><a href="#EXPONENT">EXPONENT</a>
+  <li><a href="#EXPRESSION">EXPRESSION</a>
+  <li><a href="#EXPRESSION-LIST">EXPRESSION-LIST</a>
+  <li><a href="#EXTENSION">EXTENSION</a>
+  <li><a href="#EXTENSION-DECLARATION">EXTENSION-DECLARATION</a>
+  <li><a href="#FAMILY">FAMILY</a>
+  <li><a href="#FAMILY-IDENTIFIER">FAMILY-IDENTIFIER</a>
+  <li><a href="#FOR-EXPRESSION">FOR-EXPRESSION</a>
+  <li><a href="#FUNCTION-EXPRESSION">FUNCTION-EXPRESSION</a>
+  <li><a href="#IDENTIFIER">IDENTIFIER</a>
+  <li><a href="#IDENTIFIER-CHARACTER">IDENTIFIER-CHARACTER</a>
+  <li><a href="#IDENTIFIER-LIST">IDENTIFIER-LIST</a>
+  <li><a href="#IDENTIFIER-MODIFIER">IDENTIFIER-MODIFIER</a>
+  <li><a href="#IF-DECLARATION">IF-DECLARATION</a>
+  <li><a href="#IF-EXPRESSION">IF-EXPRESSION</a>
+  <li><a href="#IMPORT-DECLARATION">IMPORT-DECLARATION</a>
+  <li><a href="#INHERIT">INHERIT</a>
+  <li><a href="#IS">IS</a>
+  <li><a href="#LETTER">LETTER</a>
+  <li><a href="#LINE">LINE</a>
+  <li><a href="#LIST-EXPRESSION">LIST-EXPRESSION</a>
+  <li><a href="#LONG-STRING-CONSTANT">LONG-STRING-CONSTANT</a>
+  <li><a href="#LOOP-CASE">LOOP-CASE</a>
+  <li><a href="#LOOP-CASES">LOOP-CASES</a>
+  <li><a href="#LOOP-CONTINUE-GUARD">LOOP-CONTINUE-GUARD</a>
+  <li><a href="#LOOP-ELSE">LOOP-ELSE</a>
+  <li><a href="#LOOP-EXIT-GUARD">LOOP-EXIT-GUARD</a>
+  <li><a href="#LOOP-EXPRESSION">LOOP-EXPRESSION</a>
+  <li><a href="#LOOP-SUBCASES">LOOP-SUBCASES</a>
+  <li><a href="#LOOP-SUBCASES-GUARD">LOOP-SUBCASES-GUARD</a>
+  <li><a href="#LOWER-CASE-LETTER">LOWER-CASE-LETTER</a>
+  <li><a href="#MATCH-EXPRESSION">MATCH-EXPRESSION</a>
+  <li><a href="#MEET">MEET</a>
+  <li><a href="#MEET-OPTION">MEET-OPTION</a>
+  <li><a href="#MISSING-DECLARATION">MISSING-DECLARATION</a>
+  <li><a href="#MISSING-OPTION">MISSING-OPTION</a>
+  <li><a href="#MY">MY</a>
+  <li><a href="#NATURAL-CONSTANT">NATURAL-CONSTANT</a>
+  <li><a href="#OPEN-EXPRESSION">OPEN-EXPRESSION</a>
+  <li><a href="#OPERATOR-DECLARATION">OPERATOR-DECLARATION</a>
+  <li><a href="#OPERATOR-OPTION">OPERATOR-OPTION</a>
+  <li><a href="#OPTIONS">OPTIONS</a>
+  <li><a href="#OPTION-LIST">OPTION-LIST</a>
+  <li><a href="#ORDINARY-IDENTIFIER">ORDINARY-IDENTIFIER</a>
+  <li><a href="#PACKAGE">PACKAGE</a>
+  <li><a href="#PATTERN-DECLARATION">PATTERN-DECLARATION</a>
+  <li><a href="#PATTERN-OPTION">PATTERN-OPTION</a>
+  <li><a href="#PATTERN-VARIABLE">PATTERN-VARIABLE</a>
+  <li><a href="#PROCEDURE-APPLICATION">PROCEDURE-APPLICATION</a>
+  <li><a href="#PROCEDURE-IDENTIFIER">PROCEDURE-IDENTIFIER</a>
+  <li><a href="#REAL-CONSTANT">REAL-CONSTANT</a>
+  <li><a href="#RELATE-DECLARATION">RELATE-DECLARATION</a>
+  <li><a href="#RELATE-OPTION">RELATE-OPTION</a>
+  <li><a href="#ROLE-EXPRESSION">ROLE-EXPRESSION</a>
+  <li><a href="#SELECTOR-LIST">SELECTOR-LIST</a>
+  <li><a href="#SELECTOR-PART">SELECTOR-PART</a>
+  <li><a href="#SHORT-STRING-CONSTANT">SHORT-STRING-CONSTANT</a>
+  <li><a href="#SIMPLE-TYPE-EXPR">SIMPLE-TYPE-EXPR</a>
+  <li><a href="#SPECIES-DECLARATION">SPECIES-DECLARATION</a>
+  <li><a href="#SPECIES-IDENFITIER">SPECIES-IDENTIFIER</a>
+  <li><a href="#SPECIES-OPTION">SPECIES-OPTION</a>
+  <li><a href="#STRING-CONSTANT">STRING-CONSTANT</a>
+  <li><a href="#STREAM-EXPRESSIONON">STREAM-EXPRESSION</a>
+  <li><a href="#SYMBOLIC-ID-CHARACTER">SYMBOLIC-ID-CHARACTER</a>
+  <li><a href="#SYMBOLIC-IDENTIFIER">SYMBOLIC-IDENTIFIER</a>
+  <li><a href="#SYMBOLIC-ID-START-CHARACTER">SYMBOLIC-ID-START-CHARACTER</a>
+  <li><a href="#TEAM-DECLARATION">TEAM-DECLARATION</a>
+  <li><a href="#TEAM-EXPRESSION">TEAM-EXPRESSION</a>
+  <li><a href="#TEAM-PART">TEAM-PART</a>
+  <li><a href="#TEST-EXPRESSION">TEST-EXPRESSION</a>
+  <li><a href="#TRAPPABLE">TRAPPABLE</a>
+  <li><a href="#TRAPPING-EXPRESSION">TRAPPING-EXPRESSION</a>
+  <li><a href="#TRY-EXPRESSION">TRY-EXPRESSION</a>
+  <li><a href="#TRY-MODE">TRY-MODE</a>
+  <li><a href="#TYPE-CASE">TYPE-CASE</a>
+  <li><a href="#TYPE-CASES">TYPE-CASES</a>
+  <li><a href="#TYPE-EXPRESSION">TYPE-EXPRESSION</a>
+  <li><a href="#TYPE-EXPR-LIST">TYPE-EXPR-LIST</a>
+  <li><a href="#TYPE-VARIABLE">TYPE-VARIABLE</a>
+  <li><a href="#UNARY-OPERATOR">UNARY-OPERATOR</a>
+  <li><a href="#UPPER-CASE-LETTER">UPPER-CASE-LETTER</a>
+  <li><a href="#VAR-DECLARATION">VAR-DECLARATION</a>
+  <li><a href="#VAR-BODY">VAR-BODY</a>
+  <li><a href="#VARIABLE-MARKER">VARIABLE-MARKER</a>
+  <li><a href="#VAR-LIST">VAR-LIST</a>
+  <li><a href="#VAR-MEMBER">VAR-MEMBER</a>
+  <li><a href="#VAR-OPTION">VAR-OPTION</a>
+  <li><a href="#WARNING">WARNING</a>
+  <li><a href="#WHILE-EXPRESSION">WHILE-EXPRESSION</a>
+  <li><a href="#WRAP-EXPRESSION">WRAP-EXPRESSION</a>
+</menu>
+
+<a name=notation></a>
+<hr>
+<h2><font color=mediumblue>Notation</font></h2>
+
+<p>The notation is as follows.
+
+<p><center>
+<table border=2>
+<tr bgcolor=lightgrey align=center><td><u>Form</u></td>
+    <td><u>Meaning</u></td>
+</tr>
+<tr><td><font color=firebrick>ALL-UPPER-CASE</font></td> 
+    <td>a nonterminal or a class of tokens</td>
+</tr>
+<tr><td><font color=orange><b>lower-case</b></font></td> 
+    <td>a literal token</td>
+</tr>
+<tr><td><font color=orange><b>Capitialized</b></font></td> 
+    <td>a literal token</td>
+</tr>
+<tr><td> <font color=darkorange><b>+</b></font> </td>
+    <td> a literal token</td>
+</tr>
+<tr><td> &quot;<font color=darkorange><b>[</b></font>&quot; </td>
+    <td> a literal token (here a left bracket)</td>
+</tr>
+<tr><td> [ <i>stuff</i> ]</td> 
+    <td> optional <i>stuff</i></td>
+</tr>
+<tr><td> { <i>stuff</i> }</td> 
+    <td> zero or more repetitions of <i>stuff</i></td>
+</tr>
+<tr><td> <i>empty</i></td> 
+    <td>an empty string</td>
+</tr>
+<tr><td> OPTIONS(OPTION-KIND)</td> 
+    <td>A parameterized nonterminal</td>
+</tr>
+</table>
+</center>
+
+<a name=period></a>
+<hr>
+<h2> <font color=mediumblue>Periods and semicolons</font></h2>
+
+Quite a few constructs have matching begin- and end-words.  For example,
+you write Abbrev ... %Abbrev, with begin-marker Abbrev and end-marker
+%Abbrev.
+
+<p>A period can be used to replace %<i>X</i> for an appropriate <i>X</i>.  The 
+compiler ends whichever construct needs to be ended here.  This can
+only be used, however, if the matching end-marker is on the same line
+as the period.
+
+<p>A semicolon is similar to a period, but it ends the current
+construct and begins another one of the same kind.  So a semicolon
+stands for %<i>X</i> <i>X</i> for an appropriate <i>X</i>.  
+A semicolon is not required
+to be on the same line as the matching begin-marker.
+
+<p>Periods and semicolons are part of the lexical rules, and are
+not discussed among the syntactic rules.  For example, the syntactic
+rule for Abbrev declarations indicate that %Abbrev is required.
+You must understand that %Abbrev might be supplied by a period or semicolon.
+
+<a name=packages></a>
+<hr>
+<h2> <font color=mediumblue>Packages</font></h2>
+
+There are four kinds of package.
+<ol>
+  <li>A package that does not export anything.
+  <li>A package that describes both exports and implementations.
+  <li>An interface package that only describes what the package exports.
+  <li>An implementation package that only describes implementations.
+</ol>
+See
+<menu>
+  <li>D11. <a href=packages.html>Writing and importing packages</a>
+  <li>D12. <a href=packagehier.html>The package hierarchy and visibility</a>
+</menu>
+
+<a name="PACKAGE"></a>
+<p><font color=red>PACKAGE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+        <font color=darkorange><b>Package</b></font>
+        <font color=firebrick>IDENTIFIER</font> 
+        {<font color=firebrick>INHERIT</font>}<br>
+        &nbsp;{<font color=firebrick>DECLARATION</font>}</br>
+     <font color=darkorange><b>%Package</b></font>
+     </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+        <font color=darkorange><b>Package</b></font> 
+        <font color=firebrick>IDENTIFIER</font> 
+        {<font color=firebrick>INHERIT</font>}<br> 
+        &nbsp;<font color=darkorange><b>export</b></font> 
+        {<font color=firebrick>DECLARATION</font>}<br> 
+        &nbsp;<font color=darkorange><b>implementation</b></font> 
+        {<font color=firebrick>DECLARATION</font>}<br> 
+        <font color=darkorange><b>%Package</b></font>
+     </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td>
+    <td valign=top><font color=black>
+      <font color=darkorange><b>Package</b></font> 
+      <font color=firebrick>IDENTIFIER</font> 
+      {<font color=firebrick>INHERIT</font>} 
+      <font color=darkorange><b>interface</b></font><br> 
+      &nbsp;{<font color=firebrick>DECLARATION</font>}<br> 
+      <font color=darkorange><b>%Package</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>Package</b></font> 
+      <font color=firebrick>IDENTIFIER</font> 
+      {<font color=firebrick>INHERIT</font>} 
+      <font color=darkorange><b>implements</b></font> 
+      <font color=firebrick>STRING-CONSTANT</font><br>
+      &nbsp;{<font color=firebrick>DECLARATION</font>}<br> 
+      <font color=darkorange><b>%Package</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=INHERIT></a>
+<p><font color=red>INHERIT</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>isKindOf</b></font> 
+     <font color=firebrick>IDENTIFIER-LIST</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=declarations></a>
+<hr>
+<h2> <font color=mediumblue>Declarations</font></h2>
+
+See
+<menu>
+  <li>D1. <a href="declarations.html">Declarations and packages: overview</a>
+  <li>D2. <a href=modes.html>Declaration modes</a>
+</menu>
+
+<a name=DECLARATION></a>
+<p><font color=red>DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ABBREV-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ADVISE-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ASSUME-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>BRING-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DEFAULT-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DEFINE-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DESCRIPTION-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DIRECTORY-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXECUTE-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXCEPTION-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPECT-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXTENSION-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IF-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IMPORT-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LINE</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>MISSING-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>OPERATOR-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>PATTERN-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>TEAM-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>VAR-DECLARATION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=OPTIONS></a>
+<p><font color=red>OPTIONS(OPTION-KIND)</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     &quot;<font color=darkorange><b>{</b></font>&quot;
+     [<font color=firebrick>OPTION-LIST(OPTION-KIND)</font>] 
+     &quot;<font color=darkorange><b>}</b></font>&quot;
+     [<font color=darkorange><b>:</b></font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=OPTION-LIST></a>
+<p><font color=red>OPTION-LIST(OPTION-KIND)</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>OPTION-KIND</font> 
+     {&quot;<font color=darkorange><b>,</b></font>&quot; 
+     <font color=firebrick>OPTION-KIND</font>}
+    </font></td>
+  </tr>
+</table>
+
+
+<a name=extension></a>
+<hr>
+<h2> <font color=mediumblue>Declarations that create or name species and abstractions</font></h2>
+
+Declarations that create new species or abstractions must occur within
+an extension declaration.  See
+<menu>
+  <li>T14. <a href="extensiondcl.html">Extension declarations</a>.
+</menu>
+
+<a name=EXTENSION-DECLARATION></a>
+<p><font color=red>EXTENSION-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Extension</b></font><br>
+     &nbsp;&nbsp;{<font color=firebrick>EXTENSION</font>} <br>
+     <font color=darkorange><b>%Extension</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=EXTENSION></a>
+<p><font color=red>EXTENSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ABBREV-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ADVISE-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ABSTRACTION-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>CLASS-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DEFAULT-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DESCRIPTION-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPECT-SPECIES-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>RELATE-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>SPECIES-DECLARATION</font>
+    </font></td>
+  </tr>
+</table>
+</font>
+
+<a name=abbrevdcl></a>
+<hr>
+<h3> <font color=mediumblue>Abbreviations: giving new names to old types</font></h3>
+
+An abbrev declaration gives a new name to an old type.  See
+<menu>
+<li>T19. <a href=abbrev.html>Abbrev declarations</a> 
+</menu>
+
+<a name="ABBREV-DECLARATION"></a>
+<p><font color=red>ABBREV-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Abbrev</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>ABBREV-OPTION</font>)}<br> 
+     &nbsp;&nbsp;<font color=firebrick>ABBREVIATION</font> <br>
+     <font color=darkorange><b>%Abbrev</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name="ABBREVIATION"></a>
+<p><font color=red>ABBREVIATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <b><font color=darkorange>=</b></font> 
+     <font color=firebrick>ABBREVIATED-VALUE</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=firebrick>TYPE-EXPR</font> 
+     <font color=darkorange><b>=</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name="ABBREVIATED-VALUE"></a>
+<p><font color=red>ABBREVIATED-VALUE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>FAMILY-VARIABLE</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>FAMILY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>?</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ABBREV-OPTION></a>
+<p><font color=red>ABBREV-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noExport</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=abstraction></a>
+<hr>
+<h3> <font color=mediumblue>Creating abstractions</font></h3>
+
+An abstraction declaration creates a new abstraction.
+See
+<menu>
+ <li>T17. <a href="genusdcl.html">Creating new data abstractions</a>.
+ <li>T18. <a href="commdcl.html">Creating new parameterized data abstractions</a>
+</menu>
+
+<a name="ABSTRACTION-DECLARATION"></a>
+<p><font color=red>ABSTRACTION-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Abstraction</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>ABSTRACTION-OPTION</font>)}<br>
+     &nbsp;&nbsp;<font color=firebrick>ABSTRACTION-IDENTIFIER</font> 
+     [<font color=firebrick>TYPE-EXPRESSION</font>]
+     {<font color=firebrick>INHERIT</font>} 
+     [<font color=firebrick>STRING-CONSTANT</font>] <br>
+     <font color=darkorange><b>%Abstraction</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ABSTRACTION-OPTION></a>
+<p><font color=red>ABSTRACTION-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>transparent</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=species></a>
+<hr>
+<h3> <font color=mediumblue>Creating species</font></h3>
+
+A species declaration create a new species.
+See
+<menu>
+<li>T15. <a href="speciesdcl.html">Creating your own species</a>.
+<li>T16. <a href=famdcl.html>Creating your own parameterized species</a>.
+</menu>
+
+<a name="SPECIES-DECLARATION"></a>
+<p><font color=red>SPECIES-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Species</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>SPECIES-OPTION</font>)}<br> 
+     &nbsp;&nbsp;<font color=firebrick>SPECIES-IDENTIFIER</font> 
+     [<font color=firebrick>TYPE-EXPRESSION</font>] 
+     {<font color=firebrick>INHERIT</font>} 
+     <font color=darkorange><b>=</b></font><br>
+     &nbsp;&nbsp;<font color=firebrick>TYPE-CASES</font> 
+     [<font color=firebrick>STRING-CONSTANT</font>]<br>
+    <font color=darkorange><b>%Species</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=SPECIES-OPTION></a>
+<p><font color=red>SPECIES-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DEFINE-OPTION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noEqual</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noDollar</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>imperative</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>ranked</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>transparent</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>partial</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noCast</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noPull</b></font>
+    </font></td>
+  </tr>
+</table>
+<a name=species></a>
+
+<a name=TYPE-CASES></a>
+<p><font color=red>TYPE-CASES</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     [ "<font color=darkorange><b>|</b></font>" ] 
+     <font color=firebrick>TYPE-CASE</font> 
+     {"<font color=darkorange><b>|</b></font>" 
+     <font color=firebrick>TYPE-CASE</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name="TYPE-CASE"></a>
+<p><font color=red>TYPE-CASE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>TYPE-EXPR</font> 
+     {<font color=firebrick>TYPE-EXPR</font>}
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     [<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>DEFINE-OPTION</font>)] 
+     <font color=firebrick>IDENTIFIER</font> 
+     [<font color=firebrick>TYPE-EXPR</font> 
+     {<font color=firebrick>TYPE-EXPR</font>}]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>TYPE-EXPR</font> 
+     <font color=firebrick>BINARY-OPERATOR</font> 
+     <font color=firebrick>TYPE-EXPR</font> 
+     {<font color=firebrick>TYPE-EXPR</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=expect-species></a>
+<hr>
+<h3> <font color=mediumblue>Expecting species</font></h3>
+
+An expect-species declarations promises a species that is to
+be defined later.  See
+<menu>
+<li>T15. <a href="speciesdcl.html#expect">Expecting species</a>.
+<li>T16. <a href="famdcl.html#expectfam">Expecting parameterized species</a>.
+</menu>
+
+<a name="EXPECT-SPECIES-DECLARATION"></a>
+<p><font color=red>EXPECT-SPECIES-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Expect</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>SPECIES-OPTION</font>)}<br> 
+     &nbsp;&nbsp;<font color=darkorange><b>species</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     [<font color=firebrick>TYPE-EXPR</font>]
+     [<font color=firebrick>STRING-CONSTANT</font>] <br>
+     <font color=darkorange><b>%Expect</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=class></a>
+<hr>
+<h3> <font color=mediumblue>Creating classes</font></h3>
+
+A class declaration creates a class, combining an abstraction and
+a species.  See
+<menu>
+<li>D14. <a href=classes.html>Classes and object-oriented programming</a>
+</menu>
+
+<a name="CLASS-DECLARATION"></a>
+<p><font color=red>CLASS-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Class</b></font><br> 
+     &nbsp;&nbsp;<font color=firebrick>IDENTIFIER</font> 
+     [<font color=firebrick>TYPE-EXPR</font>] 
+     [<font color=firebrick>INHERIT</font>] 
+     [<font color=firebrick>STRING-CONSTANT</font>]
+     {<font color=firebrick>CLASS-PART</font>} <br>
+     <font color=darkorange><b>%Class</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name="CLASS-PART"></a>
+<p><font color=red>CLASS-PART</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>CONST-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>VAR-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPECT-DECLARATION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=relate></a>
+<hr>
+<h3> <font color=mediumblue>Describing the abstraction hierarchy</font></h3>
+
+A relate declaration is used to indicate relationships among
+data abstractions.  See
+<menu>
+ <li>T17. <a href="genusdcl.html#relate">Relate declarations</a>.
+ <li>T18. <a href="commdcl.html#addfamcomm">Relate declarations (parameterized)</a>.
+</menu>
+
+<a name="RELATE-DECLARATION"></a>
+<p><font color=red>RELATE-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Relate</b></font>
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>RELATE-OPTION</font>)}<br>
+     &nbsp;&nbsp;<font color=firebrick>TYPE-CASES</font> 
+     <font color=darkorange><b>isKindOf</b></font> 
+     <font color=firebrick>IDENTIFIER-LIST</font><br>
+     <font color=darkorange><b>%Relate</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Relate</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>MEET-OPTION</font>)}<br>
+     &nbsp;&nbsp;<font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>&amp;</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>=</b></font> 
+     <font color=firebrick>MEET</font><br>
+     <font color=darkorange><b>%Relate</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name="MEET"></a>
+<p><font color=red>MEET</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     "<font color=darkorange><b>(</b></font>"
+     <font color=firebrick>IDENTIFIER</font> 
+     "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+    "<font color=darkorange><b>(</b></font>" 
+    "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>[</b></font>" 
+     <font color=firebrick>IDENTIFIER</font> 
+     "<font color=darkorange><b>]</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>&lt;:</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>:&gt;</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+   "<font color=darkorange><b>&lt;:#</b></font>" 
+   <font color=firebrick>IDENTIFIER</font> 
+   "<font color=darkorange><b>#:&gt;</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>&lt;:%</b></font>" 
+     <font color=firebrick>IDENTIFIER</font> 
+     "<font color=darkorange><b>%:&gt;</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=RELATE-OPTION></a>
+<p><font color=red>RELATE-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noExpect</b></font> 
+     ["<font color=darkorange><b>{</b></font>" 
+     <font color=firebrick>IDENTIFIER-LIST</font> 
+     "<font color=darkorange><b>}</b></font>"]
+    </font></td>
+  </tr>
+</table>
+
+<a name=MEET-OPTION></a>
+<p><font color=red>MEET-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>RELATE-OPTION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>ahead</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=default></a>
+<hr>
+<h3> <font color=mediumblue>Specifying defaults for abstractions</font></h3>
+
+A default declaration is used to indicate how type variables should
+be assigned default types when necessary.  See
+<menu>
+<li>T24. <a href="defaultdcl.html">Defaults</a>
+</menu>
+
+<a name="DEFAULT-DECLARATION"></a>
+<p><font color=red>DEFAULT-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Default</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>DEFAULT-OPTION</font>)}<br>
+     &nbsp;&nbsp;<font color=firebrick>IDENTIFER</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>DEFAULT</font> <br>
+     <font color=darkorange><b>%Default</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name="DEFAULT"></a>
+<p><font color=red>DEFAULT</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>?</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=DEFAULT-OPTION></a>
+<p><font color=red>DEFAULT-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>dangerous</b></font>
+    </font></td>
+  </tr>
+</table>
+<a name=species></a>
+
+<!--  ======================= -->
+<a name=definitiondcls></a>
+<hr>
+<h2><font color=mediumblue>Declarations that create, name or expect items</font></h2>
+
+<a name=bringdcl></a>
+<hr>
+<h3> <font color=mediumblue>Bring declarations</font></h3>
+
+A bring declaration defines something by using its representation.
+See
+<menu>
+<li>D10. <a href=bringdcl.html>Bring declarations and expression</a>
+</menu>
+
+<a name=BRING-DECLARATION></a>
+<p><font color=red>BRING-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Bring</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>DEFINE-OPTION</font>)} <br>
+     &nbsp;&nbsp;<font color=firebrick>BRING</font> <br>
+     <font color=darkorange><b>%Bring</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=BRING></a>
+<p><font color=red>BRING</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font> 
+     [<font color=darkorange><b>from</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER-LIST</font> 
+     [<font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>] 
+     <font color=darkorange><b>by</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     [<font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=constdcl></a>
+<hr>
+<h3> <font color=mediumblue>Constant definitions (in classes only)</font></h3>
+
+A const declaration is used to define a constant that belongs
+to an object.  It is only used in classes.  See
+<menu>
+<li>D14. <a href=classes.html#const>Classes and object-oriented programming</a>
+</menu>
+
+<a name=CONST-DECLARATION></a>
+<p><font color=red>CONST-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Const</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>DEFINE-OPTION</font>)}<br>
+     &nbsp;&nbsp;<font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font> <br>
+     <font color=darkorange><b>%Const</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=definedcl></a>
+<hr>
+<h3> <font color=mediumblue>Item definitions</font></h3>
+
+Define and let declarations give names to items in the
+outer (global) scope.  See
+<menu>
+<li>D7. <a href=letdcl.html>Let and define declarations</a>
+</menu>
+
+<p><font color=red>DEFINE-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Define</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>DEFINE-OPTION</font>)}<br>
+     &nbsp;&nbsp;{<font color=firebrick>DEFINE-EXTRA</font>} 
+     <font color=firebrick>DEFINE-BODY</font> <br>
+     <font color=darkorange><b>%Define</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Let</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>DEFINE-OPTION</font>)}<br>
+     &nbsp;&nbsp;{<font color=firebrick>DEFINE-EXTRA</font>} 
+     <font color=firebrick>DEFINE-BODY</font> <br>
+     <font color=darkorange><b>%Let</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=DEFINE-EXTRA></a>
+<p><font color=red>DEFINE-EXTRA</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>species</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>description</b></font> 
+     <font color=firebrick>STRING-CONSTANT</font>
+    </font></td>
+  </tr>
+</table>
+
+<p><font color=red>DEFINE-BODY</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPRESSION</font> <font color=firebrick>IS</font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>by</b></font> 
+     [<font color=firebrick>BASIC-CHOOSE-MODE</font>] 
+     <font color=firebrick>DEFINE-BY-CASES</font> 
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>constructor</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     [<font color=darkorange><b>then</b></font> 
+     <font color=firebrick>EXPRESSION</font>] 
+    </font></td>
+  </tr>
+</table>
+
+<p><font color=red>IS</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>=</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>&lt;--</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>&lt;--?</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=DEFINE-BY-CASES></a>
+<p><font color=red>DEFINE-BY-CASES</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     {<font color=firebrick>DEFINE-CASE</font>} 
+     [<font color=firebrick>DEFINE-ELSE</font>] 
+     [<font color=firebrick>DEFINE-THEN</font>]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Await</b></font> 
+     [<font color=darkorange><b>&amp;</b></font>] 
+     [<font color=firebrick>EXPRESSION-LIST</font>] 
+     <font color=darkorange><b>then</b></font> 
+     <font color=firebrick>DEFINE-BY-CASES</font> 
+     <font color=darkorange><b>%Await</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Atomic</b></font> 
+     <font color=firebrick>DEFINE-BY-CASES</font> 
+     <font color=darkorange><b>%Atomic</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>CutHere</b></font> 
+     <font color=firebrick>DEFINE-BY-CASES</font> 
+     <font color=darkorange><b>%CutHere</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Unique</b></font> 
+     <font color=firebrick>DEFINE-BY-CASES</font> 
+     <font color=darkorange><b>%Unique</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<p><font color=red>DEFINE-CASE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>case</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=firebrick>IS</font> <font color=firebrick>EXPRESSION</font> 
+     [<font color=darkorange><b>when</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<p><font color=red>DEFINE-ELSE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     [<font color=darkorange><b>case</b></font>] 
+     <font color=darkorange><b>else</b></font> 
+     <font color=firebrick>EXPRESSION</font> <font color=firebrick>IS</font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<p><font color=red>DEFINE-THEN</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>then</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=DEFINE-OPTION></a>
+<p><font color=red>DEFINE-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>assume</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>copy</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>default</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>irregular</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noExport</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>override</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>private</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>protected</b></font> 
+    ["<font color=darkorange><b>{</b></font>" 
+    <font color=firebrick>IDENTIFIER-LIST</font> 
+    "<font color=darkorange><b>}</b></font>"]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>underride</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=exceptiondcl></a>
+<hr>
+<h3> <font color=mediumblue>Creating new exceptions</font></h3>
+
+An exception declaration creates a new kind of exception.  See
+<menu>
+<li>D9. <a href=exceptiondcl.html>Exception declarations</a>
+</menu>
+
+<a name=EXCEPTION-DECLARATION></a>
+<p><font color=red>EXCEPTION-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Exception</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>EXCEPTION-OPTION</font>)}<br> 
+     &nbsp;&nbsp;[<font color=darkorange><b>trap</b></font>] 
+     <font color=firebrick>IDENTIFIER</font> 
+     [<font color=firebrick>TYPE-EXPR</font>] 
+     [<font color=firebrick>STRING-CONSTANT</font>] <br>
+     <font color=darkorange><b>%Exception</b></font> 
+    </font></td>
+  </tr>
+</table>
+
+<a name=EXCEPTION-OPTION></a>
+<p><font color=red>DEFINE-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>private</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>protected</b></font> 
+     ["<font color=darkorange><b>{</b></font>" 
+    <font color=firebrick>IDENTIFIER-LIST</font> 
+    "<font color=darkorange><b>}</b></font>"]
+    </font></td>
+  </tr>
+</table>
+
+<a name=expectdcl></a>
+<hr>
+<h3> <font color=mediumblue>Expectations and anticipations</font></h3>
+
+Expect and anticipate declarations are used to indicate what will
+be defined elsewhere, and to control polymorphism.
+See
+<menu>
+<li>D5. <a href=expectdcl.html>Expectations and anticipations</a>
+</menu>
+
+<a name=EXPECT-DECLARATION></a>
+<p><font color=red>TEAM-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Expect</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>EXPECT-OPTION</font>)} <br>
+     &nbsp;&nbsp;<font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font> 
+     [<font color=firebrick>STRING-CONSTANT</font>] <br>
+     <font color=darkorange><b>%Expect</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Anticipate</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>EXPECT-OPTION</font>)}<br>
+     &nbsp;&nbsp;<font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font> 
+     [<font color=firebrick>STRING-CONSTANT</font>] <br>
+     <font color=darkorange><b>%Anticipate</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=EXPECT-OPTION></a>
+<p><font color=red>EXPECT-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DEFINE-OPTION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>ahead</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>assume</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>from</b></font> 
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>imported</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>incomplete</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>missing</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noAuto</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noDescription</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noExport</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>pattern</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>strong</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=teamdcl></a>
+<hr>
+<h3> <font color=mediumblue>Teams</font></h3>
+
+A team is a collection of mutually recursive definitions.
+See
+<menu>
+<li>D8. <a href=teamdcl.html>Team declarations</a>
+</menu>
+
+<a name=TEAM-DECLARATION></a>
+<p><font color=red>TEAM-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Team</b></font> 
+     <font color=firebrick>TEAM-PART</font> 
+     {<font color=firebrick>TEAM-PART</font>} 
+     <font color=darkorange><b>%Team</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=TEAM-PART></a>
+<p><font color=red>TEAM-PART</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ADVISE-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DEFINE-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DESCRIPTION-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LINE</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=vardcl></a>
+<hr>
+<h3> <font color=mediumblue>Creating variables and arrays</font></h3>
+
+A var declaration is used for creating variables and arrays in the
+outer (global) scope and in classes, and for creating unknowns.  See
+<menu>
+<li>E18. <a href="boxexpr.html#varexpr">Var expressions</a>
+<li>E19. <a href="unknowns.html#logicvar">Unknowns</a>
+<li>D14. <a href=classes.html#vardcl>Classes and object-oriented programming</a>
+</menu>
+
+<a name=VAR-DECLARATION></a>
+<p><font color=red>VAR-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Var</b></font> 
+     <font color=firebrick>VAR-BODY</font> 
+     <font color=darkorange><b>%Var</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=VAR-BODY></a>
+<p><font color=red>VAR-BODY</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>VAR-OPTION</font>)} 
+     <font color=firebrick>VAR-LIST</font> 
+     [<font color=darkorange><b>holding</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>] 
+     [[<font color=darkorange><b>all</b></font>] 
+     <font color=darkorange><b>:=</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=VAR-LIST></a>
+<p><font color=red>VAR-LIST</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>VAR-MEMBER</font> 
+     {"<font color=darkorange><b>,</b></font>" 
+     <font color=firebrick>VAR-MEMBER</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=VAR-MEMBER></a>
+<p><font color=red>VAR-MEMBER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     [<font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>] 
+     [ "<font color=darkorange><b>(</b></font>" 
+     <font color=firebrick>DIMENSION-LIST</font> 
+     "<font color=darkorange><b>)</b></font>" ]
+    </font></td>
+  </tr>
+</table>
+
+<a name=DIMENSION-LIST></a>
+<p><font color=red>DIMENSION-LIST</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DIMENSION</font> 
+     {"<font color=darkorange><b>,</b></font>" 
+     <font color=firebrick>DIMENSION</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=DIMENSION></a>
+<p><font color=red>DIMENSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>*</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=VAR-OPTION></a>
+<p><font color=red>VAR-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>logic</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>nonshared</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>shared</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>unknown</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>protected</b></font> 
+     ["<font color=darkorange><b>{</b></font>" IDENTIFIER-LIST 
+     "<font color=darkorange><b>}</b></font>"]
+    </font></td>
+  </tr>
+</table>
+
+<!--  ======================= -->
+<a name=miscdcls></a>
+<hr>
+<h2><font color=mediumblue>Miscellaneous declarations</font></h2>
+
+<a name=advisedcl></a>
+<hr>
+<h3> <font color=mediumblue>Advise declarations</font></h3>
+
+An advise declaration is used to control how compilation is
+done, and which warnings are shown.  See
+<menu>
+<li>D17. <a href=advisedcl.html>Advise declarations</a>
+</menu>
+
+<a name=ADVISE-DECLARATION></a>
+<p><font color=red>ADVISE-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Advise</b></font> 
+     <font color=firebrick>ADVICE</font> 
+     [<font color=firebrick>ALL-OR-ONE</font>] 
+     <font color=darkorange><b>%Advise</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ALL-OR-ONE></a>
+<p><font color=red>ALL-OR-ONE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>all</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>one</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ADVICE></a>
+<p><font color=red>ADVICE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>echo</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noecho</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>show</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noshow</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>showExpansions</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noshowExpansions</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>showlocals</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noshowlocals</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>trackTrappedFailure</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>notrackTrappedFailure</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>warn</b></font> 
+     {<font color=firebrick>WARNING</font>}
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>nowarn</b></font> 
+     {<font color=firebrick>WARNING</font>}
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>tro</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>notro</b></font> 
+     [<font color=firebrick>IDENTIFIER-LIST</font>]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>overloads</b></font> 
+     <font color=firebrick>NATURAL-CONSTANT</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=WARNING></a>
+<p><font color=red>WARNING</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>behavior</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>defaults</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>indent</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>missingDefinition</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>notExhaustive</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>shadow</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>unused</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=assumedcl></a>
+<hr>
+<h3> <font color=mediumblue>Assumptions</font></h3>
+
+Assume declarations are used to control type inference.  See
+<menu>
+<li>E20. <a href="tagexpr.html#assume">Assume declarations</a>
+</menu>
+
+<a name=ASSUME-DECLARATION></a>
+<p><font color=red>ASSUME-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Assume</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font 
+     color=firebrick>ASSUME-OPTION</font>)} <br>
+     &nbsp;&nbsp;<font color=firebrick>ASSUMPTION</font> <br>
+     <font color=darkorange><b>%Assume</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ASSUMPTION></a>
+<p><font color=red>ASSUMPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=darkorange><b>pattern</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font>
+     <font color=darkorange><b>?</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>NATURAL-CONSTANT</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>REAL-CONSTANT</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ASSUME-OPTION></a>
+<p><font color=red>ASSUME-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>noExport</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=contextdcl></a>
+<hr>
+<h3> <font color=mediumblue>Creating contexts</font></h3>
+
+A context declaration creates a context that allows you to
+refer to some things by short names.  See
+<menu>
+<li>D13. <a href=contextdcl.html>Creating and using contexts</a>
+</menu>
+
+<a name=CONTEXT-DECLARATION></a>
+<p><font color=red>CONTEXT-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Context</b></font> <br>
+     &nbsp;&nbsp;[<font color=darkorange><b>extension</b></font>] 
+     <font color=firebrick>IDENTIFIER</font> 
+     {<font color=firebrick>INHERIT</font>} 
+     {<font color=firebrick>CONTEXT-CASE</font>} <br>
+     <font color=darkorange><b>%Context</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CONTEXT-CASE></a>
+<p><font color=red>CONTEXT-CASE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>case</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>case</b></font> 
+     <font color=darkorange><b>bring</b></font> 
+     <font color=firebrick>IDENTIFIER-LIST</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=descriptiondcl></a>
+<hr>
+<h3> <font color=mediumblue>Descriptions</font></h3>
+
+A description declaration is used to attach a description
+(comment) to something.  See
+<menu>
+<li>D4. <a href=descriptiondcl.html>Descriptions and description declarations</a>
+</menu>
+
+<a name=DESCRIPTION-DECLARATION></a>
+<p><font color=red>DESCRIPTION-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Description</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>DESCRIPTION-OPTION</font>)}<br> 
+     &nbsp;&nbsp;<font color=firebrick>DESCRIPTION</font> <br>
+     <font color=darkorange><b>%Description</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=DESCRIPTION></a>
+<p><font color=red>DESCRIPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     [<font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font>] 
+     <font color=firebrick>STRING-CONSTANT</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>STRING-CONSTANT</font> 
+     <font color=firebrick>STRING-CONSTANT</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=DESCRIPTION-OPTION></a>
+<p><font color=red>DESCRIPTION-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>ahead</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>imported</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=execute></a>
+<hr>
+<h3> <font color=mediumblue>Execute declarations</font></h3>
+
+An execute declaration is used to force computation to be done.
+It is similar to a main program, except that you can have any
+number of execute declarations.  See
+<menu>
+<li>D3. <a href="executedcl.html">Execute declarations </a>
+</menu>
+
+<a name="EXECUTE-DECLARATION"></a>
+<p><font color=red>EXECUTE-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Execute</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Execute</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ifdcl></a>
+<hr>
+<h3> <font color=mediumblue>Conditional compilation</font></h2>
+
+You can choose whether to compile a collection of declarations
+based on the values of some variables.  See
+<menu>
+<li>D18. <a href=ifdcl.html>Conditional compilation</a>
+</menu>
+
+<p><font color=red>IF-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>If</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     [<font color=darkorange><b>then</b></font> 
+     <font color=firebrick>DECLARATIONS</font>] 
+     [<font color=darkorange><b>else</b></font> 
+     <font color=firebrick>DECLARATIONS</font>] 
+     <font color=darkorange><b>%If</b></font>
+    </font></td>
+  </tr>
+</table>
+</font>
+
+<a name=imports></a>
+<hr>
+<h3> <font color=mediumblue>Import and directory declarations</font></h3>
+
+Import declarations are used to import other packages, such as
+library packages.  Directory declarations are used to control
+where the compiler looks for packages to import.  See
+<menu>
+<li>D11. <a href=packages.html#import>Importing packages</a>
+<li>D11. <a href=packages.html#directorydcl>Directory declarations</a>
+</menu>
+
+<a name="IMPORT-DECLARATION"></a>
+<p><font color=red>IMPORT-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Import</b></font> 
+     [<font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>from</b></font>] 
+     <font color=firebrick>STRING-CONSTANT</font> 
+     <font color=darkorange><b>%Import</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name="DIRECTORY-DECLARATION"></a>
+<p><font color=red>DIRECTORY-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Directory</b></font> 
+    <font color=firebrick>STRING-CONSTANT</font> 
+     <font color=darkorange><b>%Directory</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Directory</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>%Directory</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Directory</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>=</b></font> 
+     <font color=firebrick>STRING-CONSTANT</font> 
+     <font color=darkorange><b>%Directory</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=missingdcl></a>
+<hr>
+<h3> <font color=mediumblue>Missing declarations</font></h3>
+
+Missing declarations are used when you do not intend to fully
+define a polymorphic identifier, and want to avoid compiler
+warnings.  See
+<menu>
+<li>D6. <a href=missingdcl.html>Missing declarations</a>
+</menu>
+
+<a name=MISSING-DECLARATION></a>
+<p><font color=red>MISSING-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Missing</b></font>
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>MISSING-OPTION</font>)}<br>
+     &nbsp;&nbsp;<font color=firebrick>IDENTIFIER-LIST</font> 
+     <font color=darkorange><b>:</b></font> 
+     <font color=firebrick>TYPE-EXPR</font> <br>
+     <font color=darkorange><b>%Missing</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=MISSING-OPTION></a>
+<p><font color=red>MISSING-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>imported</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>strong</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=operatordcl></a>
+<hr>
+<h3> <font color=mediumblue>Operator declarations</font></h3>
+
+Operator declarations define unary and binary operators, and
+indicate the precedence of binary operators.  See
+<menu>
+<li>E5. <a href=applyexpr.html#operator>Operator declarations</a>
+</menu>
+
+<a name=OPERATOR-DECLARATION></a>
+<p><font color=red>OPERATOR-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Operator</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>OPERATOR-OPTION</font>)} <br>
+     &nbsp;&nbsp;[<font color=darkorange><b>open</b></font>] 
+     <font color=firebrick>IDENTIFIER</font>
+     [ "<font color=darkorange><b>(</b></font>" 
+     <font color=firebrick>BINARY-OPERATOR</font> 
+     "<font color=darkorange><b>)</b></font>" ] <br>
+     <font color=darkorange><b>%Operator</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=OPERATOR-OPTION></a>
+<p><font color=red>OPERATOR-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>override</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=patterndcl></a>
+<hr>
+<h3> <font color=mediumblue>Creating pattern forms</font></h3>
+
+A pattern declaration allows you to create new kinds of patterns.
+See
+<menu>
+<li>D15. <a href=patternmatch2.html#patterndcl>Pattern declarations</a>
+</menu>
+
+<a name=PATTERN-DECLARATION></a>
+<p><font color=red>PATTERN-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Pattern</b></font> 
+     {<font color=firebrick>OPTIONS</font>(<font
+     color=firebrick>PATTERN-OPTION</font>)} <br>
+     &nbsp;&nbsp;[<font color=firebrick>DEFINE-EXTRA</font>] 
+     <font color=firebrick>PATTERN-RULE</font> <br>
+     <font color=darkorange><b>%Pattern</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=PATTERN-RULE></a>
+<p><font color=red>PATTERN-RULE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>=</b></font> 
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=PATTERN-OPTION></a>
+<p><font color=red>PATTERN-OPTION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>incomplete</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>tag</b></font> 
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=expanddcl></a>
+<hr>
+<h3> <font color=mediumblue>Inline expansions</font></h3>
+
+An expand declaration calls for some expressions to be replaced
+by others by the compiler.
+See
+<menu>
+<li>D15. <a href=expanddcl.html>Expand declarations</a>
+</menu>
+
+<a name=EXPAND-DECLARATION></a>
+<p><font color=red>EXPAND-DECLARATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Expand</b></font> 
+     &nbsp;&nbsp;[<font color=firebrick>DEFINE-EXTRA</font>] 
+     <font color=firebrick>PATTERN-RULE</font> <br>
+     <font color=darkorange><b>%Expand</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=expressions></a>
+<hr>
+<h2> <font color=mediumblue>Expressions and expression lists</font></h2>
+
+<a name=EXPRESSION></a>
+<p><font color=red>EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>NATURAL-CONSTANT</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>REAL-CONSTANT</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>CHARACTER-CONSTANT</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>STRING-CONSTANT</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     [<font color=firebrick>IDENTIFIER-MODIFIER</font>] 
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>PATTERN-VARIABLE</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>target</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>exception</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>?</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>EXPRESSION</font> 
+      <font color=darkorange><b>:</b></font> 
+      <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>speciesAsValue</b></font> 
+      <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>(</b></font>" 
+     [<font color=firebrick>EXPRESSION-LIST</font>] 
+     "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>APPLY-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ASSUME-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ATOMIC-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>AWAIT-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>BOX-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>BRING-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>CHOOSE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>CONTEXT-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>CUTHERE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DEFINE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>FOR-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>FUNCTION-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IF-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LIST-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LOOP-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>MATCH-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>OPEN-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ROLE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>STREAM-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>TEAM-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>TEST-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>TRAPPING-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>TRY-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>VAR-DECLARATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>WHILE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>WRAP-EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=EXPRESSION-LIST></a>
+<p><font color=red>EXPRESSION-LIST</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPRESSION</font> 
+     {"<font color=darkorange><b>,</b></font>" 
+     <font color=firebrick>EXPRESSION</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=idmod></a>
+<hr>
+<h3> <font color=mediumblue>Identifier modifiers</font></h3>
+
+Identifier modifiers are used to indicate properties of an
+identifier.  Modifier <b>missing</b> indicates that no warning should
+be given about a missing type for this identifier.  Modifier
+<b>pattern</b> indicates that this identifier should be treated like a
+pattern function or constant, even if it normally would not be.
+See
+<menu>
+<li>D6. <a href="missingdcl.html#warn">Missing</a>
+<li>D15. <a href="patternmatch2.html#force">Pattern</a>
+</menu>
+
+<a name=IDENTIFIER-MODIFIER></a>
+<p><font color=red>IDENTIFIER-MODIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>missing</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>pattern</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=apply></a>
+<hr>
+<h3> <font color=mediumblue>Applying functions</font></h3>
+
+There are several ways to indicate that a function should be
+applied to an argument.  See
+<menu>
+<li>E5. <a href="applyexpr.html">Applying functions</a>
+</menu>
+Operator precedence is not indicated by this grammar.  See
+the <a href="applyexpr.html#precedence">operator precedence table</a>.
+
+<a name=APPLY-EXPRESSION></a>
+<p><font color=red>APPLY-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>EXPRESSION</font> 
+      <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>EXPRESSION</font> 
+      "<font color=darkorange><b>|</b></font>" 
+      <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>UNARY-OPERATOR</font> 
+      [<font color=darkorange><b>:</b></font> 
+      <font color=firebrick>TYPE-EXPR</font>] 
+      <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>EXPRESSION</font> 
+      <font color=firebrick>BINARY-OPERATOR</font> 
+      <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>PROCEDURE-APPLICATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>ASK-EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=PROCEDURE-APPLICATION></a>
+<p><font color=red>PROCEDURE-APPLICATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>PROCEDURE-IDENTIFIER</font> 
+      [<font color=firebrick>EXPRESSION-LIST</font>] 
+      <font color=darkorange><b>%</b></font><font color=firebrick>PROCEDURE-IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ASK-EXPRESSION></a>
+<p><font color=red>ASK-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Ask</b></font> 
+     [<font color=firebrick>ABSTRACTION-IDENTIFIER</font>] 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Ask</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=atomic></a>
+<hr>
+<h3> <font color=mediumblue>Atomic Expressions</font></h3>
+
+An atomic expression prevents its body from running concurrently
+with the body of any other atomic expression.  It is used for
+syncronizing threads.  See
+<menu>
+<li>E17. <a href="streams.html#atomic">Atomic expressions</a>
+
+</menu>
+
+<a name=ATOMIC-EXPRESSION></a>
+<p><font color=red>ATOMIC-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Atomic</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Atomic</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=await></a>
+<hr>
+<h3> <font color=mediumblue>Lazy evaluation</font></h3>
+
+Await expressions are used to defer evaluation of an expression
+until its value is needed.  See
+<menu>
+<li>E14. <a href="lazyexpr.html">Lazy evaluation</a>
+</menu>
+
+<a name=AWAIT-EXPRESSION></a>
+<p><font color=red>AWAIT-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Await</b></font> 
+     [<font color=darkorange><b>&amp;</b></font>] 
+     [<font color=firebrick>EXPRESSION-LIST</font>] 
+     <font color=darkorange><b>then</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Await</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>(:</b></font>" 
+     [<font color=darkorange><b>&amp;</b></font>] 
+     <font color=firebrick>EXPRESSION-LIST</font> 
+     "<font color=darkorange><b>:)</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=boxes></a>
+<hr>
+<h3> <font color=mediumblue>Box expressions</font></h3>
+
+Box expressions provide a convenient way to create boxes
+within expressions.  See
+<menu>
+<li>E18. <a href="boxexpr.html">Variables (boxes)</a>
+</menu>
+
+<a name=BOX-EXPRESSION></a>
+<p><font color=red>BOX-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>&lt;:</b></font> 
+     [<font color=firebrick>EXPRESSION</font>] 
+     "<font color=darkorange><b>:&gt;</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>&lt;:#</b></font>" 
+     [<font color=firebrick>EXPRESSION</font>] 
+     "<font color=darkorange><b>#:&gt;</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>&lt;:%</b></font>" 
+     [<font color=firebrick>EXPRESSION</font>] 
+     "<font color=darkorange><b>%:&gt;</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=defineexpr></a>
+<hr>
+<h3> <font color=mediumblue>Expressions that name things</font></h3>
+
+Bring, define and let expressions are used to give names to data
+items.  Relets are used to rebind those names.  Teams are used
+for mutually recursive definitions.  See
+<menu>
+<li>E9. <a href="naming.html">Giving things names</a>
+<li>D10. <a href=bringdcl.html>Bring declarations and expressions</a>
+</menu>
+
+<a name=BRING-EXPRESSION></a>
+<p><font color=red>BRING-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Bring</b></font> 
+     <font color=firebrick>BRING</font> 
+     <font color=darkorange><b>%Bring</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=DEFINE-EXPRESSION></a>
+<p><font color=red>DEFINE-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Define</b></font> 
+     <font color=firebrick>DEFINE-BODY</font> 
+     <font color=darkorange><b>%Define</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Let</b></font> 
+     <font color=firebrick>DEFINE-BODY</font> 
+     <font color=darkorange><b>%Let</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Relet</b></font> 
+     <font color=firebrick>DEFINE-BODY</font> 
+     <font color=darkorange><b>%Relet</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=TEAM-EXPRESSION></a>
+<p><font color=red>TEAM-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Team</b></font> 
+     <font color=firebrick>DEFINE-EXPRESSION</font> 
+     {<font color=firebrick>DEFINE-EXPRESSION</font>} 
+     <font color=darkorange><b>%Team</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=conditional></a>
+<hr>
+<h3> <font color=mediumblue>Conditional expressions and exception handling</font></h3>
+
+If expressions are used to make a decision based on whether a
+condition is true or false.  Try expressions are used to make a 
+decision based on whether or not evaluation of an expression
+succeeded.  
+
+<p>Choose expressions are a general form of multi-way branch
+that can be used to test a variety of different kinds of condtions.
+See
+<menu>
+<li>E12. <a href="conditional.html">Conditionals</a>
+<li>E16. <a href="failure.html#catch">Handling failure</a>
+</menu>
+
+<a name=IF-EXPRESSION></a>
+<p><font color=red>IF-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>If</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     [<font color=darkorange><b>then</b></font> 
+      <font color=firebrick>EXPRESSION</font>] 
+     [<font color=darkorange><b>else</b></font> 
+     <font color=firebrick>EXPRESSION</font>] 
+     <font color=darkorange><b>%If</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=TRY-EXPRESSION></a>
+<p><font color=red>TRY-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Try</b></font> 
+     {<font color=firebrick>TRY-MODE</font>} 
+     <font color=firebrick>EXPRESSION</font> 
+     [<font color=darkorange><b>then</b></font> 
+     <font color=firebrick>EXPRESSION</font>] 
+     [<font color=darkorange><b>else</b></font> 
+     <font color=firebrick>EXPRESSION</font>] 
+     <font color=darkorange><b>%Try</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=TRY-MODE></a>
+<p><font color=red>TRY-MODE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>catchingEachThread</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>catchingTermination</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHOOSE-EXPRESSION></a>
+<p><font color=red>CHOOSE-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Choose</b></font> 
+     [<font color=firebrick>CHOOSE-MODE</font>] 
+     <font color=firebrick>CHOOSE-CASES</font>
+     <font color=darkorange><b>%Choose</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHOOSE-MODE></a>
+<p><font color=red>CHOOSE-MODE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>BASIC-CHOOSE-MODE</font> 
+     [<font color=darkorange><b>matching</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=BASIC-CHOOSE-MODE></a>
+<p><font color=red>BASIC-CHOOSE-MODE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>all</b></font> 
+     [<font color=darkorange><b>mixed</b></font>]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>first</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>one</b></font> 
+     [<font color=darkorange><b>mixed</b></font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHOOSE-CASES></a>
+<p><font color=red>CHOOSE-CASES</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     {<font color=firebrick>CHOOSE-CASE</font>} 
+     [<font color=firebrick>CHOOSE-ELSE</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHOOSE-CASE></a>
+<p><font color=red>CHOOSE-CASE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>CHOOSE-GUARD</font> 
+     {<font color=firebrick>CHOOSE-GUARD</font>} 
+     <font color=firebrick>CHOOSE-CASE-BODY</font> 
+     [<font color=darkorange><b>when</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHOOSE-GUARD></a>
+<p><font color=red>CHOOSE-GUARD</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>case</b></font> 
+     [<font color=darkorange><b>do</b></font> 
+     [<font color=firebrick>TRY-MODE</font>]] 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHOOSE-CASE-BODY></a>
+<p><font color=red>CHOOSE-CASE-BODY</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     {<font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font>} 
+     <font color=darkorange><b>Subcases</b></font> 
+     [<font color=firebrick>CHOOSE-MODE</font>] 
+     <font color=firebrick>CHOOSE-CASES</font> 
+     <font color=darkorange><b>%Subcases</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHOOSE-ELSE></a>
+<p><font color=red>CHOOSE-CASE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     [<font color=darkorange><b>case</b></font>] 
+     <font color=darkorange><b>else</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=contextexpr></a>
+<hr>
+<h3> <font color=mediumblue>Context expressions</font></h3>
+
+A context expression allows you to use short names for things
+within the context.  See
+<menu>
+<li>D13. <a href=contextdcl.html>Creating and using contexts</a>
+</menu>
+
+<a name=CONTEXT-EXPRESSION></a>
+<p><font color=red>CONTEXT-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Context</b></font> 
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Context</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=cuthereexpr></a>
+<hr>
+<h3> <font color=mediumblue>CutHere expressions</font></h3>
+
+Cuthere expressions are used to control how backtracking is cut
+by function Cut.  See
+<menu>
+<li>E17. <a href="streams.html#cut">Cutting collections of threads</a>
+</menu>
+
+<a name=CUTHERE-EXPRESSION></a>
+<p><font color=red>CUTHERE-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>CutHere</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%CutHere</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=functionexpr></a>
+<hr>
+<h3> <font color=mediumblue>Function expressions</font></h3>
+
+Function expressions create anonymous functions.  See
+<menu>
+<li>E11. <a href="funcexpr.html#funcexpr">Function expressions</a>
+</menu>
+
+<a name=FUNCTION-EXPRESSION></a>
+<p><font color=red>FUNCTION-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>(</b></font>" 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=listexpr></a>
+<hr>
+<h3> <font color=mediumblue>List expressions</font></h3>
+
+List expressions are a convenient way to write lists.  See
+<menu>
+<li>E7. <a href="listexpr.html">List expressions</a>
+</menu>
+
+<a name=LIST-EXPRESSION></a>
+<p><font color=red>LIST-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>[</b></font>" 
+     [<font color=firebrick>EXPRESSION-LIST</font> 
+     [<font color=darkorange><b>&amp;</b></font> 
+     <font color=firebrick>EXPRESSION</font>]] 
+     "<font color=darkorange><b>]</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>[:</b></font>" 
+     [<font color=darkorange><b>&amp;</b></font>] 
+     <font color=firebrick>EXPRESSION</font> 
+     "<font color=darkorange><b>:]</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=loop></a>
+<hr>
+<h3> <font color=mediumblue>Loops</font></h3>
+
+There are three kinds of loop.  The while loop is a standard
+while loop.  The for loop is convenient for looping over the
+members of a list.  The general loop construct is for
+more involved loops, with exits at arbitrary points, and
+possibly several control variables.  See
+<menu>
+<li>E13. <a href="loop.html">Loops</a>
+</menu>
+
+<a name=WHILE-EXPRESSION></a>
+<p><font color=red>WHILE-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>While</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%While</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=FOR-EXPRESSION></a>
+<p><font color=red>FOR-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>For</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>from</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%For</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-EXPRESSION></a>
+<p><font color=red>LOOP-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Loop</b></font> 
+     [<font color=firebrick>EXPRESSION</font> 
+     <b>=</b> <font color=firebrick>EXPRESSION</font>] 
+     <font color=firebrick>[CHOOSE-MODE</font>] 
+     <font color=firebrick>LOOP-CASES</font> 
+     <font color=darkorange><b>%Loop</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-CASES></a>
+<p><font color=red>LOOP-CASES</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     {<font color=firebrick>LOOP-CASE</font>} 
+     [<font color=firebrick>LOOP-ELSE</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-CASE></a>
+<p><font color=red>LOOP-CASE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LOOP-EXIT-GUARD</font> 
+     {<font color=firebrick>LOOP-EXIT-GUARD</font>} 
+     <font color=firebrick>EXPRESSION</font> 
+     [<font color=darkorange><b>when</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LOOP-CONTINUE-GUARD</font> 
+     {<font color=firebrick>LOOP-CONTINUE-GUARD</font>} 
+     [<font color=firebrick>EXPRESSION</font>] 
+     [<font color=darkorange><b>continue</b></font> 
+     [<font color=firebrick>EXPRESSION</font>]] 
+     [<font color=darkorange><b>when</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LOOP-SUBCASES-GUARD</font> 
+     {<font color=firebrick>LOOP-SUBCASES-GUARD</font>} 
+     <font color=firebrick>LOOP-SUBCASES</font> 
+     [<font color=darkorange><b>when</b></font> 
+     <font color=firebrick>EXPRESSION</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-ELSE></a>
+<p><font color=red>LOOP-ELSE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>exitcase</b></font> 
+     <font color=darkorange><b>else</b></font> 
+     [<font color=darkorange><b>do</b></font> 
+     [<font color=firebrick>TRY-MODE</font>]] 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>loopcase</b></font> 
+     <font color=darkorange><b>else</b></font> 
+     [<font color=darkorange><b>do</b></font> 
+     [<font color=firebrick>TRY-MODE</font>]] 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     [<font color=firebrick>EXPRESSION</font>] 
+     [<font color=darkorange><b>continue</b></font> 
+     [<font color=firebrick>EXPRESSION</font>]]
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     [<font color=darkorange><b>case</b></font>] 
+     <font color=darkorange><b>else</b></font> 
+     <font color=firebrick>LOOP-SUBCASES</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-EXIT-GUARD></a>
+<p><font color=red>LOOP-EXIT-GUARD</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>exitcase</b></font> 
+     [<font color=darkorange><b>do</b></font> 
+     [<font color=firebrick>TRY-MODE</font>]] 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-CONTINUE-GUARD></a>
+<p><font color=red>LOOP-CONTINUE-GUARD</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>loopcase</b></font> 
+     [<font color=darkorange><b>do</b></font> 
+     [<font color=firebrick>TRY-MODE</font>]] 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-SUBCASES-GUARD></a>
+<p><font color=red>LOOP-SUBCASES-GUARD</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>case</b></font> 
+     [<font color=darkorange><b>do</b></font> 
+     [<font color=firebrick>TRY-MODE</font>]] 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOOP-SUBCASES></a>
+<p><font color=red>LOOP-SUBCASES</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     {<font color=darkorange><b>do</b></font> 
+     <font color=firebrick>EXPRESSION</font>} 
+     <font color=darkorange><b>Subcases</b></font> 
+     [<font color=firebrick>CHOOSE-MODE</font>] 
+     <font color=firebrick>LOOP-CASES</font> 
+     <font color=darkorange><b>%Subcases</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=match></a>
+<hr>
+<h3> <font color=mediumblue>Pattern matching</font></h3>
+
+Match expressions call for explicit pattern matches.  See
+<menu>
+<li>E10. <a href="patternmatch.html">Pattern matching</a>
+</menu>
+
+<a name=MATCH-EXPRESSION></a>
+<p><font color=red>MATCH-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Match</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>=</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Match</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Extract</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>from</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Extract</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=open></a>
+<hr>
+<h3> <font color=mediumblue>Opening the scope</font></h3>
+
+Open expressions are used to open the scope of expressions that
+normally have closed scope.  See
+<menu>
+<li>E9. <a href="naming.html#open">Open expressions</a>
+</menu>
+
+<a name=OPEN-EXPRESSION></a>
+<p><font color=red>OPEN-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     "<font color=darkorange><b>(</b></font>" 
+     <font color=firebrick>EXPRESSION-LIST</font> 
+     "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>ASK-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>ATOMIC-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>CHOOSE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>CUTHERE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>DEFINE-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>IF-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>LOOP-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>MATCH-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>PROCEDURE-APPLICATION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>TRAPPING-EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>open</b></font> 
+     <font color=firebrick>TRY-EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=roleexpr></a>
+<hr>
+<h3> <font color=mediumblue>Using roles</font></h3>
+
+Role expressions can be used to build or take apart data items
+by indicating how differently named fields are filled in.
+They are not yet documented.
+
+<a name=ROLE-EXPRESSION></a>
+<p><font color=red>ROLE-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>=&gt;&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>{:</b></font>" 
+     <font color=firebrick>SELECTOR-LIST</font> 
+     "<font color=darkorange><b>:}</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPRESSION</font> 
+     "<font color=darkorange><b>/{:</b></font>" 
+     <font color=firebrick>SELECTOR-LIST</font> 
+     "<font color=darkorange><b>:}</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=SELECTOR-LIST></a>
+<p><font color=red>SELECTOR-LIST</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>SELECT-PART</font> 
+     {"<font color=darkorange><b>,</b></font>" 
+     <font color=firebrick>SELECT-PART</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=SELECT-PART></a>
+<p><font color=red>SELECT-PART</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font> 
+     <font color=darkorange><b>=&gt;&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=stream></a>
+<hr>
+<h3> <font color=mediumblue>Stream expressions</font></h3>
+
+Stream expressions are used for backtracking.  Mix expressions
+are used to create multiple threads exploring different
+alternatives in a computation.  See
+<menu
+<li>E17. <a href="streams.html">Backtracking and multiple threads</a>
+</menu>
+
+<a name=STREAM-EXPRESSION></a>
+<p><font color=red>STREAM-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Stream</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     {<font color=darkorange><b>then</b></font> 
+     <font color=firebrick>EXPRESSION</font>} 
+     <font color=darkorange><b>%Stream</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Mix</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     {<font color=darkorange><b>with</b></font> 
+     <font color=firebrick>EXPRESSION</font>} 
+     <font color=darkorange><b>%Mix</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=testexpr></a>
+<hr>
+<h3> <font color=mediumblue>Tests and assertions</font></h3>
+
+A Test is used to ensure that a condition is true before
+proceeding with a thread.  See
+<menu>
+<a href="failure.html#braceelse">E16. Causing and handling failure</a>
+</menu>
+
+<a name=TEST-EXPRESSION></a>
+<p><font color=red>TEST-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     "<font color=darkorange><b>{</b></font>" 
+     <font color=firebrick>EXPRESSION</font> 
+     [<font color=darkorange><b>else</b></font> 
+     <font color=firebrick>EXPRESSION</font>] 
+     "<font color=darkorange><b>}</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=trap></a>
+<hr>
+<h3> <font color=mediumblue>Controlling trapping</font></h3>
+
+Trap expressions and untrap expressions are used to control
+which exceptions are trapped.  See
+<menu>
+<li>E15. <a href=failure.html#untrap>Untrap expressions</a>
+<li>E15. <a href=failure.html#trap>Trap expressions</a>
+</menu>
+
+<a name=TRAPPING-EXPRESSION></a>
+<p><font color=red>TRAPPING-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Trap</b></font> 
+     <font color=firebrick>TRAPPABLE</font> 
+     <font color=darkorange><b>=&gt;</b></font> 
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Trap</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>Untrap</b></font> 
+     <font color=firebrick>TRAPPABLE</font> 
+     <font color=darkorange><b>=&gt;</b></font>
+     <font color=firebrick>EXPRESSION</font> 
+     <font color=darkorange><b>%Untrap</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=TRAPPABLE></a>
+<p><font color=red>TRAPPABLE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>all</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>EXPRESSION-LIST</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=wrap></a>
+<hr>
+<h3> <font color=mediumblue>Wrapping expressions</font></h3>
+
+Wrap expressions are used to create items of secondary species.
+The wrap attaches a tag to the item, indicating its primary species.
+See
+<menu>
+<li>T20. <a href="secondary.html#create">Wrap expressions</a>
+<li>T23. <a href="stdconstraint.html#ltlt">Wrap patterns</a>
+</menu>
+
+<a name=WRAP-EXPRESSION></a>
+<p><font color=red>WRAP-EXPRESSION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&lt;&lt;</b></font> 
+      <font color=firebrick>EXPRESSION</font> 
+      <font color=darkorange><b>&gt;&gt;</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>?&lt;&lt;</b></font> 
+      <font color=firebrick>EXPRESSION</font> 
+      <font color=darkorange><b>&gt;&gt;?</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=typeexpr></a>
+<hr>
+<h2> <font color=mediumblue>Type expressions</font></h2>
+
+A type expression describes a (polymorphic) type.  See
+<menu>
+<li>T1. <a href="types.html">Type system: overview</a>
+</menu>
+
+<a name=TYPE-EXPR></a>
+<p><font color=red>TYPE-EXPR</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>SIMPLE-TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>FAMILY</font> <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      "<font color=darkorange><b>(</b></font>" 
+      <font color=firebrick>TYPE-EXPR-LIST</font> 
+      "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      "<font color=darkorange><b>[</b></font>" 
+      <font color=firebrick>TYPE-EXPR</font> 
+      "<font color=darkorange><b>]</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&lt;:</b></font> 
+      <font color=firebrick>TYPE-EXPR</font> 
+      <font color=darkorange><b>:&gt;</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&lt;:#</b></font> 
+      <font color=firebrick>TYPE-EXPR</font> 
+      <font color=darkorange><b>#:&gt;</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&lt;:%</b></font> 
+      <font color=firebrick>TYPE-EXPR</font> 
+      <font color=darkorange><b>%:&gt;</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      "<font color=darkorange><b>{</b></font>" 
+      <font color=firebrick>SIMPLE-TYPE-EXPR</font> 
+      "<font color=darkorange><b>}</b></font>"
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>TYPE-EXPR</font> 
+      <font color=darkorange><b>-&gt;</b></font> 
+      <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      [<font color=firebrick>OPTIONS</font>(<font 
+      color=firebrick>DEFINE-OPTION</font>)] 
+      <font color=firebrick>IDENTIFIER</font> 
+      <font color=darkorange><b>=&gt;&gt;</b></font> 
+      <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>TYPE-EXPR</font> 
+      <font color=darkorange><b>constraint</b></font> 
+      "<font color=darkorange><b>(</b></font>" 
+      <font color=firebrick>CONSTRAINT-LIST</font> 
+      "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=SIMPLE-TYPE-EXPR></a>
+<p><font color=red>SIMPLE-TYPE-EXPR</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>SPECIES-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>TYPE-VARIABLE</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      "<font color=darkorange><b>(</b></font>" 
+      "<font color=darkorange><b>)</b></font>"
+    </font></td>
+  </tr>
+</table>
+
+<a name=CONSTRAINT-LIST></a>
+<p><font color=red>CONSTRAINT-LIST</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>CONSTRAINT</font> 
+      {"<font color=darkorange><b>,</b></font>" 
+      <font color=firebrick>CONSTRAINT</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=CONSTRAINT></a>
+<p><font color=red>CONSTRAINT</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>TYPE-EXPR</font> 
+      <font color=firebrick>CONSTRAINT-RELATION</font> 
+      <font color=firebrick>TYPE-EXPR</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CONSTRAINT-RELATION></a>
+<p><font color=red>CONSTRAINT-RELATION</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&lt;=</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&lt;&lt;=</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&gt;=</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>&gt;&gt;=</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=FAMILY></a>
+<p><font color=red>FAMILY</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>FAMILY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>FAMILY-VARIABLE</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=TYPE-EXPR-LIST></a>
+<p><font color=red>TYPE-EXPR-LIST</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+      <font color=firebrick>TYPE-EXPR</font> 
+      {"<font color=darkorange><b>,</b></font>" 
+      <font color=firebrick>TYPE-EXPR</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=miscrules></a>
+<hr>
+<h2> <font color=mediumblue>Miscellaneous</font></h2>
+
+<a name=IDENTIFIER-LIST></a>
+<p><font color=red>IDENTIFIER-LIST</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFER</font> 
+     {"<font color=darkorange><b>,</b></font>" 
+     <font color=firebrick>IDENTIFIER</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=tokens></a>
+<hr>
+<h2> <font color=mediumblue>Identifiers and constants</font></h2>
+
+The following describe tokens.  There cannot be any spaces in
+tokens, so you need to interpret these rules a little differently
+from the syntactic rules above.
+
+<a name=IDENTIFIER></a>
+<p><font color=red>IDENTIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>SYMBOLIC-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>MY</font> 
+     [<font color=darkorange><b>-</b></font>] 
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>MY</font> 
+     [<font color=darkorange><b>-</b></font>] 
+     <font color=firebrick>SYMBOLIC-IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ORDINARY-IDENTIFIER></a>
+<p><font color=red>ORDINARY-IDENTIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LETTER</font> 
+     {<font color=firebrick>IDENTIFIER-CHARACTER</font>}
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>_</b></font> 
+     {<font color=firebrick>IDENTIFIER-CHARACTER</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=PROCEDURE-IDENTIFIER></a>
+<p><font color=red>PROCEDURE-IDENTIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>UPPER-CASE-LETTER</font> 
+     {<font color=firebrick>IDENTIFIER-CHARACTER</font>}
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>My</b></font> 
+     [<font color=darkorange><b>-</b></font>] 
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>My</b></font> 
+     [<font color=darkorange><b>-</b></font>] 
+     <font color=firebrick>SYMBOLIC-IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=IDENTIFIER-CHARACTER></a>
+<p><font color=red>IDENTIFIER-CHARACTER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LETTER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DIGIT</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>_</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>?</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>'</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>!</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=SYMBOLIC-IDENTIFIER></a>
+<p><font color=red>SYMBOLIC-IDENTIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>SYMBOLIC-ID-START-CHARACTER</font> 
+     {<font color=firebrick>SYMBOLIC-ID-CHARACTER</font>}
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>::</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=SYMBOLIC-ID-START-CHARACTER></a>
+<p><font color=red>SYMBOLIC-ID-START-CHARACTER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>#</b></font> | 
+     <font color=darkorange><b>+</b></font> | 
+     <font color=darkorange><b>-</b></font> | 
+     <font color=darkorange><b>*</b></font> | 
+     <font color=darkorange><b>/</b></font> | 
+     <font color=darkorange><b>^</b></font> |
+     <font color=darkorange><b>!</b></font> |
+     <font color=darkorange><b>=</b></font> |
+     <font color=darkorange><b>&lt;</b></font> | 
+     <font color=darkorange><b>&gt;</b></font> | 
+     <font color=darkorange><b>@</b></font> | 
+     <font color=darkorange><b>&amp;</b></font> | 
+     <font color=darkorange><b>~</b></font> |
+     <font color=darkorange><b>$</b></font> | 
+     <font color=darkorange><b>_</b></font> |
+     <font color=darkorange><b>\</b></font> 
+    </font></td>
+  </tr>
+</table>
+
+<a name=SYMBOLIC-ID-CHARACTER></a>
+<p><font color=red>SYMBOLIC-ID-CHARACTER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>SYMBOLIC-ID-START-CHARACTER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>?</b></font> |
+     <font color=darkorange><b>'</b></font> | 
+     <font color=darkorange><b>%</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=MY></a>
+<p><font color=red>MY</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>my</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>My</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=PATTERN-VARIABLE></a>
+<p><font color=red>PATTERN-VARIABLE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>?</b></font> 
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>?</b></font> 
+     <font color=firebrick>MY</font> 
+     [<font color=darkorange><b>-</b></font>] 
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=UNARY-OPERATOR></a>
+<p><font color=red>UNARY-OPERATOR</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=BINARY-OPERATOR></a>
+<p><font color=red>BINARY-OPERATOR</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>:=</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>_butIfFail_</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>_and_</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+      <font color=darkorange><b>_or_</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>_implies_</b></font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>_where_</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=ABSTRACTION-IDENTIFIER></a>
+<p><font color=red>ABSTRACTION-IDENTIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=SPECIES-IDENTIFIER></a>
+<p><font color=red>SPECIES-IDENTIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=FAMILY-IDENTIFIER></a>
+<p><font color=red>FAMILY-IDENTIFIER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=TYPE-VARIABLE></a>
+<p><font color=red>TYPE-VARIABLE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     [<font color=firebrick>ORDINARY-IDENTIFIER</font>] 
+     <font color=firebrick>VARIABLE-MARKER</font> 
+     [<font color=darkorange><b>~</b></font>] 
+     <font color=firebrick>ORDINARY-IDENTIFIER</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     [<font color=firebrick>ORDINARY-IDENTIFIER</font>] 
+     <font color=firebrick>VARIABLE-MARKER</font> 
+     [<font color=darkorange><b>~</b></font>] 
+     <font color=darkorange><b>?</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=VARIABLE-MARKER></a>
+<p><font color=red>VARIABLE-MARKER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>`</b></font> |
+     <font color=darkorange><b>``</b></font> |
+     <font color=darkorange><b>`*</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHARACTER-CONSTANT></a>
+<p><font color=red>CHARACTER-CONSTANT</font>
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>'</b></font> 
+     <font color=firebrick>CHARACTER</font> 
+     <font color=darkorange><b>'</b></font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=CHARACTER></a>
+<p><font color=red>CHARACTER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <i>any character except \</i>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>"\{"</b> 
+     <font color=firebrick>NATURAL-CONSTANT</font>
+     <font color=darkorange><b>"}"</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>\n</b></font> |
+     <font color=darkorange><b>\t</b></font> |
+     <font color=darkorange><b>\"</b></font> |
+     <font color=darkorange><b>\\</b></font> 
+    </font></td>
+  </tr>
+</table>
+
+<a name=STRING-CONSTANT></a>
+<p><font color=red>STRING-CONSTANT</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>SHORT-STRING-CONSTANT</font>
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>LONG-STRING-CONSTANT</font>
+    </font></td>
+  </tr>
+</table>
+
+<a name=SHORT-STRING-CONSTANT></a>
+<p><font color=red>SHORT-STRING-CONSTANT</font>
+
+A short string constant is surrounded by double quote markers (&quot;).
+The entire string constant must be on one line.
+Any characters can occur within it.  The special sequences that can
+occur in a character constant can also appear in a short string constant.
+
+<a name=LONG-STRING-CONSTANT></a>
+<p><font color=red>LONG-STRING-CONSTANT</font>
+
+A long string constant can occupy several lines.
+It begins at %&quot;, and continues to the end of the line.
+Consecutive lines after that whose first non-white characters
+are %" are appended to the constant, with a newline character at the end of
+each line.
+
+<p>If a line ends on a backslash (\), 
+then no newline character is added to that line.
+
+<p>The special sequences that can
+occur in a character constant can also appear in a long string constant.
+In a long string constant, quotes (&quot;) do not need to be
+preceded by a backslash.
+
+<a name=NATURAL-CONSTANT></a>
+<p><font color=red>NATURAL-CONSTANT</font> ::=
+<table>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DIGIT</font> {<font color=firebrick>DIGIT</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=REAL-CONSTANT></a>
+<p><font color=red>REAL-CONSTANT</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=firebrick>DIGIT</font> {<font color=firebrick>DIGIT</font>} 
+     <font color=darkorange><b>.</b></font> 
+     <font color=firebrick>DIGIT</font> {<font color=firebrick>DIGIT</font>} 
+     [<font color=firebrick>EXPONENT</font>]
+    </font></td>
+  </tr>
+</table>
+
+<a name=EXPONENT></a>
+<p><font color=red>EXPONENT</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>e</b></font> 
+     <font color=firebrick>DIGIT</font> 
+     {<font color=firebrick>DIGIT</font>}
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>E</b></font> 
+     <font color=firebrick>DIGIT</font> 
+     {<font color=firebrick>DIGIT</font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=LINE></a>
+<p><font color=red>LINE</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>====</b></font> 
+     {<font color=darkorange><b>=</b></font>}
+    </font></td>
+  </tr>
+</table>
+
+<a name=characters></a>
+<hr>
+<h3> <font color=mediumblue>Character classifications</font></h3>
+
+<a name=LETTER></a>
+<p><font color=red>LETTER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     LOWER-CASE-LETTER
+    </font></td>
+  </tr>
+  <tr>
+    <td valign=top>|</td> 
+    <td valign=top><font color=black>
+     UPPER-CASE-LETTER
+    </font></td>
+  </tr>
+</table>
+
+<a name=LOWER-CASE-LETTER></a>
+<p><font color=red>LOWER-CASE-LETTER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>a</b></font> | 
+     <font color=darkorange><b>b</b></font> | 
+     <font color=darkorange><b>c</b></font> | 
+     <font color=darkorange><b>d</b></font> | 
+     <font color=darkorange><b>e</b></font> | 
+     <font color=darkorange><b>f</b></font> | 
+     <font color=darkorange><b>g</b></font> | 
+     <font color=darkorange><b>h</b></font> | 
+     <font color=darkorange><b>i</b></font> | 
+     <font color=darkorange><b>j</b></font> | 
+     <font color=darkorange><b>k</b></font> | 
+     <font color=darkorange><b>l</b></font> | 
+     <font color=darkorange><b>m</b></font> |
+     <br>
+     <font color=darkorange><b>n</b></font> | 
+     <font color=darkorange><b>o</b></font> | 
+     <font color=darkorange><b>p</b></font> | 
+     <font color=darkorange><b>q</b></font> | 
+     <font color=darkorange><b>r</b></font> | 
+     <font color=darkorange><b>s</b></font> | 
+     <font color=darkorange><b>t</b></font> | 
+     <font color=darkorange><b>u</b></font> | 
+     <font color=darkorange><b>v</b></font> | 
+     <font color=darkorange><b>w</b></font> | 
+     <font color=darkorange><b>x</b></font> | 
+     <font color=darkorange><b>y</b></font> | 
+     <font color=darkorange><b>z</b></font> 
+    </font></td>
+  </tr>
+</table>
+
+<a name=UPPER-CASE-LETTER></a>
+<p><font color=red>UPPER-CASE-LETTER</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>A</b></font> | 
+     <font color=darkorange><b>B</b></font> | 
+     <font color=darkorange><b>C</b></font> | 
+     <font color=darkorange><b>D</b></font> | 
+     <font color=darkorange><b>E</b></font> | 
+     <font color=darkorange><b>F</b></font> | 
+     <font color=darkorange><b>G</b></font> | 
+     <font color=darkorange><b>H</b></font> | 
+     <font color=darkorange><b>I</b></font> | 
+     <font color=darkorange><b>J</b></font> | 
+     <font color=darkorange><b>K</b></font> | 
+     <font color=darkorange><b>L</b></font> | 
+     <font color=darkorange><b>M</b></font> |
+     <br>
+     <font color=darkorange><b>N</b></font> | 
+     <font color=darkorange><b>O</b></font> | 
+     <font color=darkorange><b>P</b></font> | 
+     <font color=darkorange><b>Q</b></font> | 
+     <font color=darkorange><b>R</b></font> | 
+     <font color=darkorange><b>S</b></font> | 
+     <font color=darkorange><b>T</b></font> | 
+     <font color=darkorange><b>U</b></font> | 
+     <font color=darkorange><b>V</b></font> | 
+     <font color=darkorange><b>W</b></font> | 
+     <font color=darkorange><b>X</b></font> | 
+     <font color=darkorange><b>Y</b></font> | 
+     <font color=darkorange><b>Z</b></font>  
+    </font></td>
+  </tr>
+</table>
+
+<a name=DIGIT></a>
+<p><font color=red>DIGIT</font> ::=
+<table>
+  <tr>
+    <td valign=top></td> 
+    <td valign=top><font color=black>
+     <font color=darkorange><b>0</b></font> | 
+     <font color=darkorange><b>1</b></font> | 
+     <font color=darkorange><b>2</b></font> | 
+     <font color=darkorange><b>3</b></font> | 
+     <font color=darkorange><b>4</b></font> | 
+     <font color=darkorange><b>5</b></font> | 
+     <font color=darkorange><b>6</b></font> | 
+     <font color=darkorange><b>7</b></font> | 
+     <font color=darkorange><b>8</b></font> | 
+     <font color=darkorange><b>9</b></font> 
+    </font></td>
+  </tr>
+</table>
+
+<hr>
+<center>
+<a href="scheme.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="indx.html">Next</a>
+</center>
+</body>
+</HTML>
+
+

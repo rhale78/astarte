@@ -1,0 +1,594 @@
+%% File: srchtree.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================================
+Package 		Astarte_SearchTreeImp
+
+			Implements "srchtree"
+=======================================================================
+
+=======================================================================
+%% A binary search tree is either an empty tree or is a node 
+%% containing a key, a left subtree and a right subtree.  
+%% The number of nodes in each tree is stored at its root
+%% for fast retrieval.
+=======================================================================
+
+Extension
+  Species{transparent,noEqual}
+    BinarySearchTree(`a) =
+	 emptyTree |
+	 treeof (leftSubtree  ~> BinarySearchTree(`a),
+		 rightSubtree ~> BinarySearchTree(`a),
+		 key          ~> `a,
+		 nonemptySize ~> Natural)
+  %Species
+%Extension
+
+=======================================================================
+
+========================================================================
+%% 			size
+========================================================================
+
+Let size ?t =
+  Choose first
+    case emptyTree?(t) => 0
+    else               => nonemptySize(t)
+  %Choose
+%Let
+
+========================================================================
+%% 			BALANCING SEARCH TREES
+========================================================================
+%% The following functions are defined so that the balance operation
+%% only needs to be defined for trees that are heavy to one side.
+%% The other side follows by symmetry.  To implement the symmetry,
+%% we use functions normalTreeParts, reverseTreeParts, normalMakeTree
+%% and reverseMakeTree.
+%%
+%% normalTreeParts  extracts the parts of a tree node
+%%		    (left subtree, right subtree, key, size)
+%%		    in their normal order.
+%%
+%% ReverseTreeParts extracts them in the order
+%% 		    (right subtree, left subtree, key, size).
+%%
+%% normalMakeTree   is a constructor that takes its parameters in
+%%                  the order (left subtree, right subtree, key, size)
+%%
+%% reverseMakeTree  is a constructor that takes it parameters in
+%%                  the order (right subtree, left subtree, key, size)
+=======================================================================
+
+Let
+  normalTreeParts       	     = untreeof;
+  normalMakeTree                     = treeof;
+  reverseTreeParts(treeof(?l,?r,?p)) = (r,l,p);
+  reverseMakeTree (?l,?r,?p)         = treeof(r,l,p);
+%Let
+
+========================================================================
+Description{ahead} balance
+  %" balance(x,l,r) produces a balanced version of tree
+  %"
+  %"          x
+  %"         / \
+  %"        l   r
+  %"
+  %" We use weight-balanced trees to avoid storing and computing heights.
+  %" (We want the weights anyway, since the weight gives a fast
+  %" implementation of the size function.)
+  %" The balance condition is that sibling trees differ in size by
+  %" at most a factor of three, except that an empty tree can only
+  %" have another empty tree or a singleton tree as a sibling.  So,
+  %" except for the special case for empty trees, at least 1/4 of the
+  %" nodes in the subtrees are on each side.  It is assumed that l
+  %" and r are already balanced.  Also, it is assumed that the tree
+  %" rooted at x was obtained from a balanced tree by inserting or
+  %" deleting a single node.
+%Description
+
+Define balance(?x, ?l, ?r) =
+  Let sz_l = size(l).
+  Let sz_r = size(r).
+  Let sz_t = sz_l + sz_r + 1.    %% Size of the whole tree.
+
+  Choose first
+
+    %%---------------------------------------------------------------
+    %% We only need to rebalance if there is are at least three
+    %% nodes in the tree, and if l and r differ by more than a
+    %% factor of three.  If no rebalancing is required, then just
+    %% build the tree.
+    %%---------------------------------------------------------------
+
+    case sz_t < 3 _or_ (3*sz_l >= sz_r _and_ 3*sz_r >= sz_l) =>
+	treeof(l,r,x,sz_t)
+
+    %%---------------------------------------------------------------
+    %% Rebalancing is necessary.  Without loss of generality, suppose
+    %% that the left subtree is larger than the right subtree;
+    %% otherwise swap.  Refer to the tree after a possible swap of
+    %% sides as the logical tree.
+    %%
+    %% lside      is the logical left subtree,
+    %% c          is the logical right subtree,
+    %% treeParts  is the logical part extractor, and
+    %% makeTree   is the logical tree constructor
+    %%---------------------------------------------------------------
+
+    do Match(?lside, ?c, ?treeParts, ?makeTree) =
+	 If sz_l > sz_r
+	   then (l, r, normalTreeParts,  normalMakeTree)
+	   else (r, l, reverseTreeParts, reverseMakeTree)
+	 %If
+       %Match
+
+    %%---------------------------------------------------------------
+    %% The logical tree is
+    %%
+    %%                  x
+    %%                 / \
+    %%      lside --> y   c
+    %%               / \
+    %%              a   b
+    %%
+    %% where a, b and c are subtrees.  We already have c from above,
+    %% and x from the parameters.  From above, lside is the tree
+    %% rooted at y.  Get a, b and y, and the sizes of the subtrees.
+    %%---------------------------------------------------------------
+
+    Match(?a,?b,?y,?)        = treeParts(lside).
+    Match(?sz_a,?sz_b,?sz_c) = (size(a), size(b), size(c)).
+
+    %%---------------------------------------------------------------
+    %% Let w be the size of tree lside (the tree rooted
+    %% at y).  Notice that 3*sz_c < w, or a rotation on this side
+    %% would not have been called for.  So 3*sz_c <= w-1.  But the
+    %% tree rooted at x is the result of single insertion or deletion.
+    %% The tree must must have been balanced before the insertion or
+    %% deletion.  For an insertion that implies that 3*sz_c >= w-1.
+    %% For a deletion (which will have been from tree c) that implies
+    %% that 3*(sz_c + 1) >= w, or 3*sz_c >= w-3.  In any event,
+    %%
+    %%    (*)   w-3 <= 3*sz_c <= w-1
+    %%---------------------------------------------------------------
+
+    %%---------------------------------------------------------------
+    %% A single rotation is called for if sz_b < 2*sz_a and sz_a =/= 1,
+    %% or if b and c are both empty.  In that case, the tree becomes
+    %%
+    %%                  y
+    %%                 / \
+    %%                a   x
+    %%                   / \
+    %%                  b   c
+    %%
+    %% The resulting tree will satisfy the balance condition for the
+    %% following reason.  I will ignore special cases of empty trees --
+    %% they work out.
+    %%
+    %%
+    %% (1) The new tree rooted at x will need to satisfy
+    %%     3*sz_b >= sz_c >= sz_b/3 in order to be balanced.  We
+    %%     demonstrate the two inequalities.
+    %%
+    %%     (a) sz_b >= (w-1)/4 >= (w-1)/9 by the balance condition at tree
+    %%         lside.  So 9*sz_b >= w-1 >= 3*sz_c by (*), so 3*sz_b >= sz_c.
+    %%
+    %%     (b) sz_b <= w-3 <= 3*sz_c by (*), since sz_a > 1.
+    %%         So sz_c >= sz_b/3.
+    %%
+    %% (2) The new tree rooted at y will need to satisfy
+    %%     3*sz_a >= sz_b + sz_c + 1 >= sz_a/3 in order to be balanced.
+    %%     The two inequalities are handled separately.
+    %%
+    %%     (a) Notice that sz_a > (w-1)/3, since otherwise the condition
+    %%         2*sz_a > sz_b for the single rotation to be performed would
+    %%         not be met.  Since sz_c <= (w-1)/3, it must be the case
+    %%         that sz_a > sz_c, i.e. sz_a >= sz_c + 1.  So
+    %%
+    %%           s_a + 2*s_a >= s_c + 1 + 2*s_a
+    %%                       >  s_c + 1 + s_b
+    %%
+    %%         since s_b < 2*s_a.  That establishes the first inequality.
+    %%
+    %%      (b) Since tree lside is balanced, s_a <= 3*s_b.  So surely
+    %%          s_a <= 3*(s_b + s_c + 1).  That establishes the second
+    %%          inequality.
+    %%---------------------------------------------------------------
+
+    case (sz_b < sz_a + sz_a  _and_  sz_a =/= 1) _or_
+	 (emptyTree? b _and_ emptyTree? c) =>
+
+      makeTree(a, makeTree(b, c, x, sz_b + sz_c + 1), y, sz_t)
+
+    %%---------------------------------------------------------------
+    %% A double rotation is called for if b is not empty and either
+    %% sz_b >= 2*sz_a or sz_a = 1.
+    %% In this case, assume that tree b has the form
+    %%
+    %%	              z
+    %%               / \
+    %%              bl  br
+    %%
+    %% so that the tree that we are building is
+    %%
+    %%                x
+    %%               / \
+    %%              y   c
+    %%             / \
+    %%            a   z
+    %%               / \
+    %%              bl  br
+    %%
+    %% In this case the tree becomes
+    %%
+    %%                   z
+    %%                 /   \
+    %%               y       x
+    %%              / \     / \
+    %%             a   bl  br  c
+    %%
+    %% Here is a demonstration that the new tree is balanced, again
+    %% ignoring special cases for empty subtrees, which work out.
+    %% The case where sz_a = 1 is easily checked.
+    %%
+    %% Again use w for the size of the tree rooted at y before the
+    %% rotation.  Notice that, by the condition that s_b >= 2*s_a,
+    %% it must be the case that s_b >= 2(w-1)/3.
+    %%
+    %% (1) The tree rooted at x in the new tree is balanced.  That is,
+    %%     3*sz_br >= sz_c >= sz_br/3.
+    %%
+    %%     (a) sz_br >= (sz_b - 1)/4 by the balance condition at b.  So
+    %%         sz_br >= (2*(w-1)/3 - 1)/4 = (w-1)/6 - 1/4.  So
+    %%
+    %%         3*sz_br >= (w-1)/2 - 3/4
+    %%                 >= sz_c
+    %%
+    %%         For w > 5.  Values of w < 5 are easy to check, since then
+    %%         sz_c must be 1.
+    %%
+    %%      (b) sz_br < 9(w-1)/16, since only 3/4 can go in one
+    %%          direction.  But 3*sz_c <= w-3 <= 9(w-1)/16 < sz_br
+    %%          for all w.
+    %%
+    %% (2) The new tree must be balanced at the node rooted at y.  So
+    %%     we need 3*sz_a >= sz_bl >= sz_a/3.
+    %%
+    %%     (a) sz_bl <= 9(w-1)/16.  But sz_a >= (w-1)/4.  So
+    %%         3*sz_a >= 3(w-1)/4 > 9(w-1)/16 for all w.
+    %%
+    %%     (b) sz_bl >= (w-1)/6 - 1/4, by reasoning similar to the above
+    %%         for sz_br.  Also, sz_a < (w-1)/3, or a single rotation
+    %%         would have been done instead.  So
+    %%            3*sz_bl >= (w-1)/2 - 3/4 >= (w-1)/3
+    %%         for all w >= 6.  But w < 6, and 2*sz_a <= sz_b implies
+    %%         that sz_a <= 1.  We have already noted those special cases.
+    %%
+    %% (3) The new tree must be balanced at its root.  So we need
+    %%     3*(sz_a + sz_bl + 1) >= sz_br + sz_c + 1 >= (sz_a + sz_bl + 1)/3.
+    %%
+    %%     From above, we have
+    %%          (w-1)/4       <= sz_a  <= (w-1)/4
+    %%          (w-1)/6 - 1/4 <= sz_bl <  9(w-1)/16
+    %%          (w-1)/6 - 1/4 <= sz_br <  9(w-1)/16
+    %%          (w-3)/3       <= sz_c  <= (w-1)/3
+    %%
+    %%     The inequalities needed follow directly from substitution
+    %%     using these inequalities, for all w >= 4, which are the
+    %%     only cases of interest.
+    %%---------------------------------------------------------------
+
+    case not emptyTree? b =>
+	makeTree(makeTree(a, bl,y,sz_a + size(bl) + 1),
+		makeTree(br,c, x,sz_c + size(br) + 1),
+		z, sz_t) |
+
+	   Match (?bl, ?br, ?z, ?) = treeParts(b).
+
+    %%---------------------------------------------------------------
+    %% Control will get here if it initially appears that a rotation is
+    %% needed, but it turns out that b is an empty tree, and c is not.
+    %% In that case, you can check that the tree is already balanced.
+    %%---------------------------------------------------------------
+
+    else => treeof(l,r,x,sz_t)
+
+  %Choose
+%Define
+
+========================================================================
+%%			 member
+========================================================================
+
+Let member ?keyCompare ?t ?k =
+  Loop ?current = t
+    first matching current
+
+    exitcase emptyTree => fail binarySearchTreeX
+
+    case treeof(?lft, ?rgt, ?theRootLabel, ?) =>
+      Subcases
+	do Let c = keyCompare(k, theRootLabel).
+
+	exitcase c == equal => theRootLabel
+	loopcase c == less  => continue lft
+	loopcase else       => continue rgt
+      %Subcases
+  %Loop
+%Let
+
+========================================================================
+%%			 insertIfNotPresent
+========================================================================
+
+Define insertIfNotPresent ?compareKeys ?t ?x =
+  Choose first matching t
+
+    case emptyTree  => treeof(emptyTree, emptyTree, x, 1)
+
+    case treeof(?l, ?r, ?theRootLabel, ?) =>
+      Subcases
+	do Let c = compareKeys(x, theRootLabel).
+
+	case c == equal => t
+	case c == less  => balance(theRootLabel,
+				   insertIfNotPresent compareKeys l x,
+				   r)
+	else            => balance(theRootLabel,
+				   l,
+				   insertIfNotPresent compareKeys r x)
+      %Subcases
+  %Choose
+%Define
+
+========================================================================
+%%			 insertReplacing
+========================================================================
+
+Define insertReplacing ?compareKeys ?t ?x =
+  Choose first matching t
+
+    case emptyTree  => treeof(emptyTree, emptyTree, x, 1)
+
+    case treeof(?l, ?r, ?theRootLabel, ?sz) =>
+      Subcases
+	do Let c = compareKeys(x, theRootLabel).
+
+	case c == equal => treeof(l,r,x,sz)
+	case c == less  => balance(theRootLabel,
+				   insertReplacing compareKeys l x,
+				   r)
+	else            => balance(theRootLabel,
+				   l,
+				   insertReplacing compareKeys r x)
+      %Subcases
+  %Choose
+%Define
+
+========================================================================
+%%			 insertUpdating
+========================================================================
+
+Define insertUpdating ?compareKeys ?t ?x ?update_f =
+  Choose first matching t
+
+    case emptyTree  => treeof(emptyTree, emptyTree, x, 1)
+
+    case treeof(?l, ?r, ?theRootLabel, ?sz) =>
+      Subcases
+	do Let c = compareKeys(x, theRootLabel).
+
+	case c == equal => treeof(l, r, update_f theRootLabel, sz)
+	case c == less  => balance(theRootLabel,
+				   insertUpdating compareKeys
+				      l x update_f,
+				   r)
+	else            => balance(theRootLabel,
+				   l,
+				   insertUpdating compareKeys
+				       r x update_f)
+      %Subcases
+  %Choose
+%Define
+
+========================================================================
+%% 			delete
+========================================================================
+
+Define delete ?keyCompare ?t ?k =
+  Choose first matching t
+
+    case emptyTree => emptyTree
+
+    case treeof(?l,?r,?theRootLabel,?) =>
+      Subcases
+	do Let c = keyCompare(k, theRootLabel).
+
+	%%------------------------------------------------
+	%% Case where the key to be deleted is in the root.
+	%%------------------------------------------------
+
+	case c == equal =>
+	  Subcases
+
+	     %%--------------------------------------------
+	     %% Deletion from a leaf: return an empty tree
+	     %%--------------------------------------------
+
+	     case emptyTree? l _and_ emptyTree? r => emptyTree
+
+	     %%------------------------------------------------------
+	     %% If the right subtree is larger, then delete the largest
+	     %% key from the right subtree, and put it in the root.
+	     %%------------------------------------------------------
+
+	     case size(l) <= size(r) => balance(m, l, r') |
+					 Match (?m,?r') = extractMin(r).
+
+	     %%------------------------------------------------------
+	     %% If the left subtree is larger, then delete the smallest
+	     %% key from the left subtree, and put it in the root.
+	     %%------------------------------------------------------
+
+	     else                    => balance(m, l', r) |
+					 Match (?m,?l') = extractMax(l).
+	  %Subcases
+
+	%%------------------------------------------------------
+	%% When the key to be deleted is not in the root, do the
+	%% deletion from one of the subtrees.
+	%%------------------------------------------------------
+
+	case c == less =>
+	  balance(theRootLabel, delete keyCompare l k, r)
+
+	else =>
+	  balance(theRootLabel, l, delete keyCompare r k)
+      %Subcases
+  %Choose
+%Define
+
+========================================================================
+%% 			min
+========================================================================
+
+Let min ?t =
+  If emptyTree? t then fail binarySearchTreeX
+  else 
+    Loop ?tt = t
+      do Match treeof(?l, ?, ?theRootLabel, ?) = tt.
+      
+      exitcase emptyTree? l => theRootLabel
+      
+      loopcase else => continue l
+    %Loop
+  %If
+%Let
+
+========================================================================
+%% 			max
+========================================================================
+
+Let max ?t =
+  If emptyTree? t then fail binarySearchTreeX
+  else 
+    Loop ?tt = t
+      do Match treeof(?, ?r, ?theRootLabel, ?) = tt.
+      
+      exitcase emptyTree? r => theRootLabel
+      
+      loopcase else => continue r
+    %Loop
+  %If
+%Let
+
+========================================================================
+%% 			extractMin
+========================================================================
+
+Define extractMin(?t) =
+  Choose first matching t
+
+    case emptyTree => fail binarySearchTreeX
+
+    case treeof(?l, ?r, ?theRootLabel, ?) =>
+      Subcases
+	case emptyTree?(l) => (theRootLabel, r)
+
+	else               => (m, balance(theRootLabel, l', r)) |
+				Match (?m, ?l') = extractMin(l).
+      %Subcases
+  %Choose
+%Define
+
+========================================================================
+%% 			extractMax
+========================================================================
+
+Define extractMax(?t) =
+  Choose first matching t
+
+    case emptyTree => fail binarySearchTreeX
+
+    case treeof(?l, ?r, ?theRootLabel, ?) =>
+      Subcases
+	case emptyTree?(r) => (theRootLabel, l)
+
+	else               => (m, balance(theRootLabel, l, r')) |
+				 Match (?m, ?r') = extractMax(r).
+      %Subcases
+  %Choose
+%Define
+
+========================================================================
+%%			 toList
+========================================================================
+%% toListHelp(s,rest) produces toList(s) ++ rest.
+
+Define toListHelp by
+  case toListHelp(emptyTree, ?rest) = rest
+  case toListHelp(treeof(?l, ?r, ?theRootLabel, ?), ?rest) =
+    toListHelp(l, [theRootLabel & (:toListHelp(r, rest):)])
+%Define
+
+Let toList ?s = toListHelp(s, []).
+
+========================================================================
+%% 			eagerToList
+========================================================================
+
+Define eagerToListHelp by
+  case eagerToListHelp(emptyTree, ?rest) = rest
+  case eagerToListHelp(treeof(?l, ?r, ?theRootLabel, ?), ?rest) =
+    eagerToListHelp(l, [theRootLabel & eagerToListHelp(r, rest)])
+%Define
+
+Let eagerToList ?s = eagerToListHelp(s, []).
+
+========================================================================
+%% 			==
+========================================================================
+
+Let (?t == ?t')  =  (toList(t) == toList(t')).
+
+========================================================================
+%% 			each
+========================================================================
+
+Let each by one
+  case each(emptyTree) = fail testX
+  case each(treeof(?l,?r,?k,?)) =
+    Stream each l then k then each r %Stream
+%Let
+
+========================================================================
+%% 			eachMixed
+========================================================================
+
+Let eachMixed by one
+  case eachMixed(emptyTree) = fail testX
+  
+  case eachMixed(treeof(?l,?r,?k,?)) =
+    Mix eachMixed l with k with eachMixed r %Mix
+%Let
+
+========================================================================
+%%			 ^^
+========================================================================
+
+Let{underride} ^^ by first
+  case ^^(emptyTree) = emptyTree
+  
+  case ^^(treeof(?l, ?r, ?k, ?sz)) = treeof(^^ l, ^^ r, ^^ k, sz)
+%Let
+
+========================================================================
+%Package
+

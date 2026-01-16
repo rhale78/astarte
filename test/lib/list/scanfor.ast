@@ -1,0 +1,75 @@
+Package testscanfor 
+
+%% Test function scanForChar
+
+Import "misc/check".
+Import "collect/string".
+
+Let hSet = set "h".
+
+Execute
+  Let a = "hello".
+  Match (?n1,?suff1,?c1) = scanForChar(a, 'x', hSet, true).
+  Line[$n1, "  ", $suff1, " ", [c1]].
+  Check["0  \"hello\" x"].
+  Match (?n2,?suff2,?c2) = scanForChar(a, 'x', set "l", true).
+  Line[$n2, "  ", $suff2, " ", [c2]].
+  Check["2  \"llo\" e"].
+  Match (?n3,?suff3, ?c3) = scanForChar(a, 'x', set "he", false).
+  Line[$n3, "  ", $suff3, " ", [c3]].
+  Check["2  \"llo\" e"].
+  Match (?n4,?suff4, ?c4) = scanForChar(a, 'x', set "n", true).
+  Line[$n4, "  ", $suff4, " ", [c4]].
+  Check["5  \"\" o"].
+%Execute
+
+Execute
+  Let b = "h" ++ "el" ++ "lo".
+  Let a = pack b.
+  Match (?n1,?suff1,?c1) = scanForChar(a, 'x', hSet, true).
+  Line[$n1, "  ", $suff1, " ", [c1]].
+  Check["0  \"hello\" x"].
+  Match (?n2,?suff2,?c2) = scanForChar(a, 'x', set "l", true).
+  Line[$n2, "  ", $suff2, " ", [c2]].
+  Check["2  \"llo\" e"].
+  Match (?n3,?suff3, ?c3) = scanForChar(a, 'x', set "he", false).
+  Line[$n3, "  ", $suff3, " ", [c3]].
+  Check["2  \"llo\" e"].
+  Match (?n4,?suff4, ?c4) = scanForChar(a, 'x', set "n", true).
+  Line[$n4, "  ", $suff4, " ", [c4]].
+  Check["5  \"\" o"].
+%Execute
+
+Execute
+  Let a = ['h', 'e', 'l', 'l', 'o'].
+  Match (?n1,?suff1,?c1) = scanForChar(a, 'x', set "h", true).
+  Line[$n1, "  ", $suff1, " ", [c1]].
+  Check["0  \"hello\" x"].
+  Match (?n2,?suff2,?c2) = scanForChar(a, 'x', set "l", true).
+  Line[$n2, "  ", $suff2, " ", [c2]].
+  Check["2  \"llo\" e"].
+  Match (?n3,?suff3, ?c3) = scanForChar(a, 'x', set "he", false).
+  Line[$n3, "  ", $suff3, " ", [c3]].
+  Check["2  \"llo\" e"].
+  Match (?n4,?suff4, ?c4) = scanForChar(a, 'x', set "n", true).
+  Line[$n4, "  ", $suff4, " ", [c4]].
+  Check["5  \"\" o"].
+%Execute
+
+Execute
+  Let a = "h" ++ "el" ++ "lo".
+  Match (?n1,?suff1,?c1) = scanForChar(a, ' ', set "h", true).
+  Line[$n1, "  ", $suff1, " ", [c1]].
+  Check["0  \"hello\"  "].
+  Match (?n2,?suff2, ?c2) = scanForChar(a, ' ', set "l", true).
+  Line[$n2, "  ", $suff2, " ", [c2]].
+  Check["2  \"llo\" e"].
+  Match (?n3,?suff3, ?c3) = scanForChar(a, ' ', set "he", false).
+  Line[$n3, "  ", $suff3, " ", [c3]].
+  Check["2  \"llo\" e"].
+  Match (?n4,?suff4, ?c4) = scanForChar(a, ' ', set "n", true).
+  Line[$n4, "  ", $suff4, " ", [c4]].
+  Check["5  \"\" o"].
+%Execute
+
+%Package

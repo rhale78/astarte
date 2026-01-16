@@ -1,0 +1,80 @@
+%% File: pattern/stringp.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 2000 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==============================================================
+Package 		Astarte_StringP
+
+			Interface
+================================================================
+
+================================================================
+%% This package provides first-class equivalents of the
+%% patterns in string.ast.
+================================================================
+
+Import "pattern/pattern".
+Import "pattern/listpat".
+Import "collect/string".
+
+Expect
+  dollar_P	: ListPatternFunction(`a -> String)
+  
+  		%" Pattern function *(dollar_P) is equivalent to pattern
+		%" function $, but dollar_P is a first-class pattern
+		%" function.
+		;
+		
+  hex_P		: ListPatternFunction(Natural -> String)
+  
+  		%" Pattern function *hex_P is equivalent to pattern
+		%" function hex, but hex_P is a first-class pattern
+		%" function.
+		;
+		
+  white_P	: ListPatternConstant(String)
+  
+  		%" Pattern constant *white_P is equivalent to
+		%" pattern constant white, but it is a first-class
+		%" pattern constant.
+		;
+		
+  theWS_P	: ListPatternFunction(String -> String)
+  
+  		%" Pattern function *theWS_P is equivalent to
+		%" pattern function theWS, but is a first-class
+		%" pattern function.
+		;
+
+  theLine_P	: ListPatternFunction(String -> String)
+  
+  		%" Pattern function *theLine_P is equivalent to
+		%" pattern function theLine, but is a first-class
+		%" pattern function.
+		;
+
+  theString_P	: ListPatternFunction(String -> String)
+  
+  		%" Pattern function *theString_P is equivalent to
+		%" pattern function theString, but is a first-class
+		%" pattern function.
+		;
+
+  theId_P	: ListPatternFunction(`a -> String)
+  
+  		%" Pattern function *theId_P is equivalent to
+		%" pattern function theId, but is a first-class
+		%" pattern function.
+		;
+
+  theBalanced_P	: (Char,Char) -> ListPatternFunction(String -> String)
+  
+  		%" Pattern function *(theBalanced_P (l,r) is equivalent
+		%" to pattern function theBalanced(l,r), but is a 
+		%" first-class pattern function.
+		;
+%Expect
+
+%Package

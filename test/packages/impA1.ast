@@ -1,0 +1,11 @@
+Package impA1
+
+%% Part of impA0 test.
+
+Export
+
+Expect v: Natural.
+Expect u: Natural.
+Import "impA2".
+
+%Package

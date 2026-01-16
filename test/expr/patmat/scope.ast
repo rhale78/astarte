@@ -1,0 +1,10 @@
+Package patmatscope 
+
+%% Test scoping with pattern matching
+
+Execute
+  Let x = 1.
+  Match ?x = 1.
+%Execute
+
+%Package

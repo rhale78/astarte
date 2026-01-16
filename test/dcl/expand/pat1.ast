@@ -1,0 +1,16 @@
+Package testpat1
+
+%% Test pattern matching error checking
+
+Pattern f ?x ?x => Match ?x = target..
+
+Pattern g (?x, x) => Match ?x = target..
+
+Pattern h(?x) => Let x = target..
+
+Pattern i(?x, ?y) => Match ?x = target..
+
+Pattern j(?x) => Match ?x = target..
+
+%Package
+

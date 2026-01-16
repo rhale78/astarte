@@ -1,0 +1,53 @@
+# Size is in show/printrts.h
+  0 \Trapped exception 
+  1 \Instruction that caused the trap: 
+  2 Instruction argument(s) [Internal form]:\
+  3 \  ------------------------------------------------------\ |Note: the computation has used optimizations that     |\ |might result in losses of stack frames and losses of  |\ |identifier bindings in what follows.  To avoid losing |\ |information, rerun with option -t on the command line.|\  ------------------------------------------------------\\
+  4                      CONFIGURATION\
+  5 ======================================================\
+  6  Above is deferred evaluation from following\
+  7 Cannot open ast.rts for writing\
+  8     -----------------------------------------------\
+  9 No activation!\
+ 10 There are coroutines\\
+ 11     Function             Package               Line\    --------             -------               ----\
+ 12 State for preceding activations (Unlisted boxes are empty):\
+ 13 \Nonshared Boxes\
+ 14 \Shared Boxes\
+ 15 Continue?(y|Y|n|N|w|d|?) 
+ 16 y -- continue\Y -- continue, with limit removed\n -- abort, showing configuration on file ast.rts\N -- abort without showing configuration\w -- show configuration to ast.rts and ask again\d -- enter debug interaction mode\
+ 17 backTo n	Move back to the activation n back on the list of\		activations that are waiting for deferred evaluations.\config		Show entire configuration on stderr.\configOn f	Show entire configuration on file f.\c or cont	Resume running program.\frame n		Show the stack frame n down from the top.\help		Show this information.\helpBreak	Show information about controlling breaks.\quit		Stop the program.\stack		Show the run-time stack, one line per frame.\term		Force the current thread to terminate \		(exception TERMINATE_EX) and resume execution.\top		Show the top stack frame.\waiting		Show the activations that are awaiting deferred evaluations.\
+ 18 Dumping configuration to ast.rts.\
+ 19             Non-function Globals\
+ 20           **** Active Thread ****\\
+ 21 The active threads are as follows.\
+ 22 The program has deadlocked.\
+ 23 The following threads are also active.\
+ 24 (The run-time stack is shown deepest level first.  Each frame\ shows the function, the package where the function is defined,\ and the line number in that package.  The values of bound names\ are shown in each frame.)\\
+ 25 \(Dump cut off due to size.)\
+ 26 Start debugger in what package [%s]? 
+ 27 The program is not currently running.\
+ 28 Unknown command\
+ 29 Break all functions in package %s [y]? 
+ 30 The program has terminated.\
+ 31 \-----------At [%s]:%s (line %d)\
+ 32 Really stop the program? 
+ 33 About to bind %s: 
+ 34 \    = 
+ 35 %s returns 
+ 36 Fail 
+ 37 exception 
+ 38 Resuming after failure.\
+ 39 Beginning deferred evaluation.\
+ 40 Ending deferred evaluation.\
+ 41 Starting function %s.\
+ 42 Doing assignment.\
+ 43 Doing print.\
+ 44 Starting execute.\
+ 45 There are no waiting activations.\
+ 46 (Source file is more recent than .aso file)\
+ 47 %s is not one of the loaded packages.  Type none for no package.\
+ 48 There is no such waiting activation.\
+ 49  result: 
+ 50 breakApplies    Break the program at each function application.\breakFail	Break the program at each failure.\breakLazy	Break the program at start and stop of deferred evaluation.\breakLets	Break the program at each let or lazylet.\breakFun f	Add f to the list of breakable functions.  If any functions\		are in this list, then only those functions respond\		to break requests.\breakPackage p	Add package p to the list of breakable packages.\		All functions definined in these packages are\		implicitly in the breakable function list.\\nobreakApplies	Stop breaking the program at each function application.\nobreakFail	Stop breaking the program at each failure.\nobreakLazy	Stop breaking the program at start and stop\		of deferred evaluation.\nobreakLets	Stop breaking the program at each let or lazylet.\nobreakFun f	Remove f from the list of breakable functions.\nobreakPackage p Remove p from the list of breakable packages.\\restrictTo p	Add p to the list of restriction packages.  Breaks\		only happen in these packages, regardless of what\		any other lists say.\
+51      Result type: 

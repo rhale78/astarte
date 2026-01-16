@@ -1,0 +1,376 @@
+%% File: system.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===========================================================
+Package 		Astarte_SystemImp
+
+			Implements "system"
+=============================================================
+
+Directory standard.
+Import "collect/string".
+Import "collect/sort".
+Import "collect/search".
+
+================================================================
+Extension
+  Species FileStatusType =
+    (fstatIsDirectory? ~> Boolean,	%% Is the file a directory?
+     fstatSize         ~> Natural,	%% The file size.
+     fstatModTime      ~> Natural,	%% The modification time.
+     fstatPermissions  ~>		%% File mode
+        (fstatReadable?   ~> Boolean,  %% Readable by me?
+         fstatWritable?   ~> Boolean,  %% Writeable by me?
+         fstatExecutable? ~> Boolean), %% Executable by me?
+     fstatOwner        ~> Natural,	%% File's owner
+     fstatGroup        ~> Natural)	%% File's group
+  %Species
+  
+  Species{noEqual,noDollar} File = makeFile 
+    (s_pathname! ~> <:String:>, 
+     s_status!   ~> <:FileStatusType:>)
+  %Species
+%Extension
+
+=================================================================
+%%			pathname
+=================================================================
+
+Let pathname(?f) =
+  Let name_l = @s_pathname!(f).
+  {not nil? name_l else noFileX("")}
+  Value name_l.
+%Let
+
+=================================================================
+%%			absolute? (package local)
+=================================================================
+%% absolute?(p_fname) is true if string p_fname is an absolute
+%% path name.  An absolute name starts with / or \ or has the
+%% form x:\ or x:/, for a character x.
+
+Let absolute? by first
+  case absolute?('/' :: ?)     = true
+  case absolute?('\\' :: ?)    = true
+  case absolute?([?,':' & ?r]) = head(r) == '/' _or_ head(r) == '\\'  
+  case absolute?(?)            = false
+%Let
+
+=================================================================
+%%		makeAbsoluteName (package local)
+=================================================================
+%% makeAbsolutePath(p_dir, p_file) produces the absolute path
+%% of file p_file in directory p_dir.  Each of the parameters
+%% is a string.
+
+Let makeAbsolutePath(?p_dir, ?p_file) =
+  
+  If absolute?(p_file) 
+    then pack p_file
+    else
+      %%----------------------------------------------------
+      %% Get the directory as an absolute path.
+      %% Be sure that the directory does not end on \ or /.
+      %%----------------------------------------------------
+      
+      Let l_dir = 
+        If absolute?(p_dir)
+          then p_dir
+	  else getCwd() ++ "/" ++ p_dir
+        %If
+      %Let
+      
+      Let l_dir_last = last(l_dir).
+      While l_dir_last == '/' _or_ l_dir_last == '\\' do
+        Relet l_dir = allButLast(l_dir).
+      %While
+      
+      %%--------------------------------------
+      %% Hook the directory to the file name.
+      %%--------------------------------------
+      
+      Value pack(l_dir ++ "/" ++ p_file).
+  %If
+%Let
+
+=================================================================
+%%			/
+=================================================================
+
+Let ?p_dir / ?p_file =
+  file(makeAbsolutePath(pathname p_dir, p_file))
+%Let
+
+=================================================================
+%%		getFileStatus (package local)
+=================================================================
+%% If the file status box has not been filled in, then fill it
+%% in by getting file status information from the operating
+%% system.  Return the file status.
+
+Let getFileStatus(?f) =
+  Let l_status! = s_status!(f).
+  If emptyBox?(l_status!) then UpdateStatus(f). %If
+  Value @l_status!.
+%Let
+
+=================================================================
+%%			file
+=================================================================
+
+Let file(?p_name) =
+  Let f = makeFile(<:makeAbsolutePath(getCwd(), p_name):>, <::>).
+  UpdateStatus f.
+  Value f.
+%Let
+
+=================================================================
+%%			UpdateStatus
+=================================================================
+
+Let UpdateStatus(?f). =
+  Assign s_status!(f) := fileStatusType(basicFileStatus(pathname f)).
+%Let
+
+=================================================================
+%%			fileExists
+=================================================================
+
+Let fileExists? ?fname_p =
+    Try
+        Untrap noFileX("") =>
+          Ignore basicFileStatus(fname_p).
+        %Untrap
+      then true
+      else false
+    %Try
+%Let
+
+=================================================================
+%%			filename
+=================================================================
+
+Let filename(?f) =
+  Let l_path = pathname f.
+  
+  %%------------------------------------------------------
+  %% Remove a "c:" or such from the front of the name, if
+  %% it is present.
+  %%------------------------------------------------------
+  
+  Try
+    Match [?, ':' & ?r] = l_path.
+  then
+    Relet l_path = r.
+  %Try
+  
+  %%------------------------------------------------------
+  %% Now get everything after the last / or \.  If there
+  %% is no / or \, take the whole name.
+  %%------------------------------------------------------
+
+  Match (?,?l_fname) = maybeFindLastMember("\\/",true) l_path.
+  Value If nil? l_fname then l_path else tail(l_fname) %If.
+%Let
+
+=================================================================
+%%			basename
+=================================================================
+
+Let basename(?f) =
+  Let l_fname = filename f.
+  Choose
+  
+    %%-----------------------------------------------------
+    %% If the name contains only dots, then leave it alone.
+    %%-----------------------------------------------------
+    
+    case do Match (span "." ?) = l_fname. => l_fname
+    
+    %%-----------------------------------------------------
+    %% Otherwise, find the last dot, if there is one.
+    %%-----------------------------------------------------
+    
+    do Match (?n,?suf) = maybeFindLastMember(".", true) l_fname.
+        
+    %%-----------------------------------------------------
+    %% If there is no dot, then return the name unchanged.
+    %%-----------------------------------------------------
+    
+    case nil? suf => l_fname
+    
+    %%-----------------------------------------------------
+    %% If there is a dot, get the prefix up to but not
+    %% including the dot.
+    %%-----------------------------------------------------
+    
+    else => l_fname##(0,n)
+    
+  %Choose
+%Let
+
+=================================================================
+%%			direct
+=================================================================
+
+Let direct(?f) =
+  
+  %%--------------------------------------------------------------
+  %% Find the last / or \ in the path.  n is the index just after
+  %% that / or \, or is 0 if there is none.
+  %%--------------------------------------------------------------
+  
+  Let l_path = pathname f.
+  Match (?n,?suf) = findLastMember("\\/", true) l_path.
+  
+  %%----------------------------------------------------------------------
+  %% Now extract the directory.  It is everything up to the / or \,
+  %% excluding the / or \, as long as there is another / or \ within 
+  %% the directory.  Otherwise, it includes the / or \.
+  %%----------------------------------------------------------------------
+  
+  Choose first
+    case nil? suf => getCwd()
+    
+    do Let l_res = l_path##(0, n).
+       Match (?,?l_restOfDir) = maybeFindMember("\\/", true) l_res.
+     
+    case nil? l_restOfDir => file(l_path##(0,n+1))
+    
+    else => file(l_res)
+  %Choose
+%Let
+
+=================================================================
+%%			ext
+=================================================================
+
+Let ext(?f) =
+  Let l_path = pathname f.
+  Match (?n,?l_ext) = findLastMember("\\/.",true) l_path.
+  
+  If n > 0 _and_ l_path#_(n--1) == '.'
+    then l_ext
+    else ""
+  %If
+%Let
+
+=================================================================
+%%			ChangeDirectory
+=================================================================
+
+Let ChangeDirectory = (ChangeDirectory) _o_ pathname.
+
+=================================================================
+%%			RemoveDirectory
+=================================================================
+
+Let RemoveDirectory ?d. = 
+  RemoveDirectory (pathname d).
+  EmptyBox s_status! d.
+%Let
+
+=================================================================
+%%			RemoveFile
+=================================================================
+
+Let RemoveFile ?f. = 
+  RemoveFile (pathname f).
+  EmptyBox s_status! f.
+%Let
+
+=================================================================
+%%			RenameFile
+=================================================================
+
+Let RenameFile(?f,?s). = 
+  RenameFile(pathname f, s).
+  Assign s_pathname!(f) := makeAbsolutePath(getCwd(), s).
+%Let
+
+=================================================================
+%%			getCwd
+=================================================================
+
+Let getCwd() = file(getCwd()).
+
+=================================================================
+%%			infile
+%%			outfile
+%%			WriteFile
+%%			AppendToFile
+=================================================================
+
+Let
+  infile ?m ?f   = basicInfile(pathname f, m);
+  infile ?f      = basicInfile(pathname f, []);
+  outfile ?m ?f  = basicOutfile(pathname f, m);
+  outfile ?f     = basicOutfile(pathname f, []);
+  WriteFile ?m, ?f, ?s.  = WriteFile m, (pathname f), s.;
+  WriteFile ?f, ?s.      = WriteFile [], (pathname f), s.;  
+  AppendToFile ?f, ?s.	 = WriteFile [appendMode], (pathname f), s.
+%Let
+
+=================================================================
+%%			directory?
+%%			readable?
+%%			writable?
+%%			executable?
+%%			owner
+%%			group
+%%			size
+%%			modTime
+=================================================================
+Let 
+  directory?  = fstatIsDirectory? _o_ getFileStatus;
+  readable?   = fstatReadable? _o_ getFileStatus;
+  writable?   = fstatWritable? _o_ getFileStatus;
+  executable? = fstatExecutable? _o_ getFileStatus;
+  owner       = fstatOwner _o_ getFileStatus;
+  group       = fstatGroup _o_ getFileStatus;
+  size	      = fstatSize _o_ getFileStatus;
+  modTime     = fstatModTime _o_ getFileStatus;
+%Let
+=================================================================
+
+=================================================================
+%%			== (for File)
+=================================================================
+
+Let ?f1 == ?f2 = pathname(f1) == pathname(f2).
+
+=================================================================
+%%			$ (for File)
+=================================================================
+
+Let $(?f) = "(file " ++ $pathname(f) ++ ")".
+
+====================================================================
+%%			system
+====================================================================
+
+Let system ?cmd ?s = doCmd(cmd, s).
+
+Let system ?cmd ?s = doCmd(wsExplode cmd, s).
+
+====================================================================
+%%			dirList
+====================================================================
+
+Let dirList(?dir) = map file (sort (<=) (basicDirList(pathname dir))).
+
+====================================================================
+%%			sysEnviron
+====================================================================
+
+Let sysEnviron = sysEnvironF().
+
+====================================================================
+
+%Package
+
+
+

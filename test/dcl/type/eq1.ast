@@ -1,0 +1,12 @@
+Package eqtest 
+
+%% Test definition of equality with types
+%% Equality cannot be defined For these types, so there
+%% should be a complaint.
+
+Extension
+  Species T1 = fun Natural -> Natural.
+  Species T2 = val Natural | fun2 Natural -> Natural | val2 Natural.
+%Extension
+
+%Package

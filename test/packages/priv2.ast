@@ -1,0 +1,7 @@
+Package priv2 export
+
+Import{private} "priv3".
+
+Let y = f(2).
+
+%Package

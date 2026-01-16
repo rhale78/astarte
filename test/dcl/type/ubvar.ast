@@ -1,0 +1,21 @@
+Package ubvar 
+
+%% Test unbound variables in type declarations
+
+Extension
+  Species TA = `a.
+%Extension
+
+Extension
+  Species FA(`a) = (`a,`b).
+%Extension
+
+Extension
+  Species TB = t1(Natural) | t2(`a).
+%Extension
+
+Extension
+  Species FB(`a) = f1(Natural,`a) | f2(Natural, `b).
+%Extension
+
+%Package

@@ -1,0 +1,14 @@
+Package impA2
+
+%% Part of impA0 test.
+
+Export
+
+Let v:Natural = 3.
+Expect u: Natural.
+
+Implementation
+
+Let u = 4.
+
+%Package

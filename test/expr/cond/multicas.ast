@@ -1,0 +1,21 @@
+Package multicase 
+
+%% Test Choose with multiple cases
+
+Execute
+  Choose first
+    case 1 > 2 
+    case 1 > 3 => Writeln["BAD"].
+      
+    case do {1 > 2}
+    case 1 < 2  => Writeln["GOOD"].
+
+    case 1 == 1
+    else        => Writeln["BAD"].
+  %Choose
+
+%Execute
+
+%Package
+
+  

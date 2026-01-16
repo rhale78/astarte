@@ -1,0 +1,34 @@
+Package teststream4 
+
+%% Test streams
+
+Define runlong() = For ? from 1 _upto_ 1000 do ()..
+
+
+Execute
+  Writeln["Should print ((5 - 6) | (7 - 8)) - ((9 - 10) | (11 - 12))"].
+  Writeln["where - is Stream and | is Mix.\n"].
+  Try
+    Let x = 
+      Stream 
+        Mix 
+          Stream 5 then 6 | runlong().
+        with
+          Stream 7 then 8.
+        %Mix
+      then 
+        Mix 
+          Stream 9 then 10.
+        with
+          Stream 11 then 12.
+        %Mix
+      %Stream
+    %Let
+    Write[$x, "\n"].
+    {false}
+  %Try
+%Execute
+
+%Package
+
+ 

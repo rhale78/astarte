@@ -1,0 +1,204 @@
+<HTML>
+<head>
+<title>Astarte: random access lists</title>
+</head>
+<body>
+<center>
+<a href="bitvec.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="symbol.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LC12. Random Access Lists </font></h1>
+</center>
+
+<menu>
+  <li><a href=#main>Random access lists (functional arrays)</a>
+  <li><a href=#convert>Conversions between functional arrays and lists</a>
+  <li><a href=#basic>Basic operations</a>
+  <li><a href=#other>Other operations</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Random access lists (functional arrays)</font></h2>
+
+You can use packed lists (stored as arrays, and created by function 
+<a href="listlib.html#pack">pack</a>) to achieve
+random access in lists.  Operations such as subscripting into
+packed lists are efficient.  However, they do not allow you to
+make changes to lists.  Operations, #= (which replaces a member
+of a list), although relatively fast on a packed list, disrupts
+the structure of the list, so that it is no longer packed.  The
+more of these that you do, the farther the list structure will
+stray from a simple array form.
+
+<p>Package <a href="ast/collect/funarr.ast">collect/funarr.ast</a>
+provides a family FunArr of <i>functional arrays</i>.  
+FunArr(T) is similar to [T]; it provides an alternate representation
+of lists.
+These support efficient updates (including operation #=) without
+the structure being damaged.
+
+<p>FunArr supports rapid subscripting, modification by subscript and
+extension (adding something to the end of the array).  
+It is used for cases where you want to use lists, but need
+to work on them in a way similar to the way you work on an array,
+making modifications to particular values.
+Family FunArr belongs to 
+<a href=stdcomm.html>COLLECTION</a>.
+
+<p> The operations work identically to the corresponding operations
+on lists.
+
+<a name=convert></a>
+<hr>
+<h2><font color=mediumblue> Conversions between functional arrays and lists</font></h2>
+
+<dl>
+<a name=toFunArr></a>
+<p><dt><font color=red>toFunArr</font>
+<dd>: [`a] -&gt; FunArr(`a)
+<p><font color=#D00090>toFunArr(x)</font> 
+is a functional array holding the same members as list x.
+
+<a name=toList></a>
+<p><dt><font color=red>toList</font>
+<dd>: FunArr(`a) -&gt; [`a]
+<p> <font color=#D00090>toList(x)</font> 
+is the list whose members are the same as the members
+of functional array x.  Function toList is lazy.
+
+<a name=eagerToList></a>
+<p><dt><font color=red>eagerToList</font>
+<dd>: FunArr(`a) -&gt; [`a]
+<p> This is the same as toList, but it is eager.
+</dl>
+
+<a name=basic></a>
+<hr>
+<h2><font color=mediumblue> Basic operations </font></h2>
+
+<dl>
+<a name=emptyFunArr></a>
+<p><dt><font color=red>emptyFunArr</font>
+<dd>: FunArr(`a)
+<p> emptyFunArr is an empty functional array.
+
+<a name=nilq></a>
+<p><dt><font color=red>nil?</font>
+<dd>: FunArr(`a) -&gt; Boolean
+<p> <font color=#D00090>nil?(x)</font> 
+is true just when x is an empty functional array.
+
+<a name=plusslash></a>
+<p><dt><font color=red>+/</font>
+<dd>: (FunArr(`a),`a) -&gt; FunArr(`a)
+<p> <font color=#D00090>x +/ z</font> is array x with z added to the end.
+It takes time logarithmic in the length of x.
+<p>Example:
+<font color=#D00090> toFunArr[2,3] +/ 4</font> = toFunArr[2,3,4].
+
+<a name=allButLast></a>
+<p><dt><font color=red>allButLast</font>
+<dd>: FunArr(`a) -&gt; FunArr(`a)
+<p><font color=#D00090>allButLast(x)</font> 
+is the result of removing the last member of
+functional array x.  It takes time logarithmic in the length of x.
+
+<a name=sharp></a>
+<p><dt><font color=red>#</font>
+<dd>: (FunArr(`a), Natural) -&gt; `a
+<p> <font color=#D00090>x # k</font> 
+is the k-th member of array x, numbering from 1.
+If k = 0 or x has fewer than k members then this operation
+fails with exception subscriptX.
+This operation takes time logarithmic in the length of x.
+<p>Example:
+<font color=#D00090>toFunArr[20,30,40] # 2</font> = 30.
+
+<a name=sharpzero></a>
+<p><dt><font color=red>#_</font>
+<dd>: (FunArr(`a), Natural) -&gt; `a
+<p> <font color=#D00090>x #_ k</font> 
+is the k-th member of array x, numbering from 0.
+If x has fewer than k+1 members then this operation
+fails with exception subscriptX.
+This operation takes time logarithmic in the length of x.
+<p>Example:
+<font color=#D00090>toFunArr[20,30,40] # 2</font> = 40.
+
+<a name=sharpeq></a>
+<p><dt><font color=red>#=</font>
+<dd>: (FunArr(`a), (Natural, `a)) -&gt; FunArr(`a)
+<p> <font color=#D00090>x #= (k,v)</font> 
+is the result of replacing the k-th member of array x
+by v, where indexing is from 1.  
+If k = 0 or x has fewer than k-1 members then x #= (k,v)
+fails with exception subscriptX.  If x has exactly
+k-1 members then x #= (k,v) is equivalent to x +/ v.
+This operation takes time logarithmic in the length of x.
+<p>Example:
+<font color=#D00090>toFunArr[20,30,40] #= (2,50)</font> = 
+toFunArr[20,50,40].
+<br><font color=#D00090>toFunArr[20,30,40] #= (4,50)</font> =
+toFunArr[20,30,40,50].
+
+<a name=sharpzeroeq></a>
+<p><dt><font color=red>#_=</font>
+<dd> (FunArr(`a), (Natural, `a)) -&gt; FunArr(`a)
+<p> <font color=#D00090>x #_= (k,v)</font> 
+is the result of replacing the k-th member of array x
+by v, where indexing is from 0.
+If x has fewer than k members then x #_= (k,v)
+fails with exception subscriptX.  If x has exactly
+k members then x #_= (k,v) is equivalent to x +/ v.
+This operation takes time logarithmic in the length of x.
+<p>Example:
+<font color=#D00090>toFunArr[20,30,40] #_= (2,50)</font> = 
+toFunArr[20,30,50].
+
+<a name=length></a>
+<p><dt><font color=red>length</font>
+<dd>: FunArr(`a) -&gt; Natural
+<p> <font color=#D00090>length(x)</font> 
+is the number of members of functional array x.
+</dl>
+
+<a name=other></a>
+<hr>
+<h2><font color=mediumblue> Other operations </font></h2>
+
+<dl>
+<p><dt><font color=red><tt>==</tt></font>
+<dd>: (FunArr(EQ`a), FunArr(EQ`a)) -&gt; Boolean
+<p> Two functional array are equal just when they contain exactly
+the same members, in the same order.
+
+<a name=map></a>
+<p><dt><font color=red>map</font>
+<dd>: (`a -&gt; `b) -&gt; FunArr(`a) -&gt; FunArr(`b)
+<p> This is similar to map for lists.
+<p>Example:
+<font color=#D00090>map (?x =&gt; x + 1) (toFunArr[20,30])</font>
+= toFunArr[21,31].
+</dl>
+
+<hr>
+<center>
+<a href="bitvec.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=collectlib.html>Collection Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="symbol.html">Next</a>
+</center>
+</body>
+</HTML>

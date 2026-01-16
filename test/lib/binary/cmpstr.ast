@@ -1,0 +1,29 @@
+Package cmpstr
+
+Import "misc/check".
+
+Execute
+  Line[$(compare("abc", "abc"))].
+  Check["equal"].
+  Line[$(compare("abc", "afa"))].
+  Line["less"].
+
+  Let a = "aabcd".    %% CSTR_TAG
+  Let b = "aabcd".    %% CSTR_TAG
+  Let at = tail a.   %% STRING_TAG
+  Let bt = tail b.   %% STRING_TAG
+  Let att = tail at. %% ARRAY_TAG/STRING_TAG
+  Let btt = tail bt. %% ARRAY_TAG/STRING_TAG
+
+  Line[$compare(at, bt)].
+  Check["equal"].
+  Line[$compare(att, btt)].
+  Check["equal"].
+  Line[$compare(at, btt)].
+  Check["less"].
+  Line[$compare(att, bt)].
+  Check["greater"].
+%Execute
+
+
+%Package

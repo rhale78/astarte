@@ -1,0 +1,27 @@
+Package dollar 
+
+%% Test lazyDollar, stringDollar
+
+Directory standard.  Import "misc/check".
+
+Execute
+  Line[$"abc"].
+  Check["\"abc\""].
+
+  Line[$"\"\\"].
+  Check["\"\\\"\\\\\""].
+
+  Writeln["\nLines should be in matching pairs\n"].
+
+  Show (@stdout!), ("hello" ++ (:"goodbye":)). 
+  Writeln[].
+  Writeln["\"hello\"++(lazy Exec-dollar-1)\n"].
+
+  Show (@stdout!), ("hello" ++ (:"goodbye":) ++ "hello again"). 
+  Writeln[].
+  Writeln["\"hello\"++(lazy tree)\n"].
+
+%Execute
+
+%Package
+

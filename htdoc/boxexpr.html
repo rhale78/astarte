@@ -1,0 +1,812 @@
+<HTML>
+<head>
+<title>Astarte: Boxes</title>
+</head>
+<body>
+<center>
+<a href="streams.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="unknowns.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> E18. Boxes </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main>Boxes</a>
+  <li> <a href=#varexpr> Creating and naming boxes: Var expressions and declarations</a>
+  <li> <a href=#arrayexpr> Creating arrays using var expressions and declarations</a>
+  <li> <a href=#boxkind> Flavors of boxes</a>
+  <li> <a href=#create> Creating boxes</a>
+  <li> <a href=#content> Getting the content of a box, and checking for an empty box</a>
+  <li> <a href=#modify> Modifying the content of a box</a>
+  <li> <a href=#pattern> Pattern matching with boxes</a>
+  <li> <a href=#misc> Miscellaneous operations on boxes</a>
+  <li> <a href=#actions> Actions associated with boxes</a>
+  <li> <a href=#polyboxes> Polymorphism and boxes</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Boxes</font></h2>
+
+A box is an item that has a <i>content</i> that can be changed.  
+You can think of
+a box as a variable.  When you store a new value in a variable,
+you change the content of the box.  
+
+<p>Expression <font color=#D00090>&lt;:<i>a</i>:&gt;</font> produces a new
+box whose initial content is <i>a</i>.
+
+<p>A box can be empty, having no content at all.  Expression
+<font color=#D00090>&lt;::&gt;</font> produces a new empty box.
+
+<a name=boxtype></a>
+<h3><font color=mediumblue>The species of a box</font></h3>
+<p> A box containing a value of species <i>T</i> has species
+Box(<i>T</i>), which can be abbreviated &lt;:<i>T</i>:&gt;.
+
+<h3><font color=mediumblue> Changing the content of a box</font></h3>
+
+<p>You can put a new value into a box using an assign statement.
+Statement
+<font color=#D00090>
+<b><pre>
+    Assign x := <i>e</i>.
+</pre></b>
+</font>
+puts the value of expression <i>e</i> into box x.
+
+<h3><font color=mediumblue> Getting the content of a box</font></h3>
+
+<P> Most programming languages take the content of a box implicitly
+for you when the box occurs in a certain context.  
+For example, in
+the programming language C, 
+if you write  x = y, you implicitly take the content of box y, and
+store that into box x.  <b>Astarte <em>never</em> takes the content of a box
+implicitly.</b>  You must do so explicitly by using operator @.
+To set box x to the content of box y, you write
+<font color=#D00090>
+<b><pre>
+     Assign x := @y.
+</pre></b>
+</font>
+Notice that you are taking the content of box y, but not of box x, since
+the assignment is into box x itself.
+
+<P> By convention, boxes have names that begin with a lower case
+letter and end on an exclamation point.  
+For example, there is
+a standard box called <font color=#D00090>precision!</font>.
+
+<P>Most of the operations described here (those from 
+<a href="ast/lang/box.ast">lang/box.ast</a>)
+are available without importing any packages.  Those from other
+packages require that the other packages be imported.  They are noted.
+
+<a name="varexpr"></a>
+<hr>
+<h2><font color=mediumblue> Creating and naming boxes: Var expressions and declarations </font></h2>
+
+Var expressions and declarations can be used to create
+boxes and give them names.  They can also be used to create
+arrays (lists of boxes).  Here are some of the forms.
+More detail can be found in <a href="ast/lang/box.ast">lang/box.ast</a>.
+
+<dl>
+<p><dt><font color="red"> Var <i>x</i>.</font>
+<dd>Bind <i>x</i> to a new empty box.  If this form is used for a
+declaration, it must be possible to determine the species of <i>x</i>
+from other information, such as an assumption.
+
+<p><dt><font color="red"> Var <i>x</i>,<i>y</i>,<i>z</i>.</font>
+<dd>Same as 
+<font color=#D00090>
+<b><pre>
+      Var <i>x</i>. 
+      Var <i>y</i>. 
+      Var <i>z</i>.
+</pre></b>
+</font>
+
+<p><dt><font color="red">Var <i>x</i> holding <i>T</i>.</font> 
+<dd> Same as Var <i>x</i>., but <i>x</i> has species &lt;:<i>T</i>:&gt;.
+This form can be used for expressions or declarations.
+In the case of declarations, species <i>T</i> must not
+be polymorphic.
+
+<p><dt><font color="red"> 
+Var <i>x</i>,<i>y</i>,<i>z</i> holding <i>T</i>.</font>
+<dd>Same as 
+<font color=#D00090>
+<b><pre>
+      Var <i>x</i> holding <i>T</i>. 
+      Var <i>y</i> holding <i>T</i>. 
+      Var <i>z</i> holding <i>T</i>.
+</pre></b>
+</font>
+
+<p><dt><font color="red">Var <i>x</i> := <i>a</i>.</font>
+<dd> Bind <i>x</i> to a new box with initial content <i>a</i>.
+
+<p><dt><font color="red">Var <i>x</i> holding <i>T</i> := <i>a</i>.</font>
+<dd> Same as Var <i>x</i> := <i>a</i>, 
+but <i>x</i> has species &lt;:<i>T</i>:&gt;.
+
+<p><dt><font color="red"> Var <i>x</i>,<i>y</i>,<i>z</i> holding <i>T</i> 
+:= <i>a</i>.</font>
+<dd>Same as 
+<font color=#D00090>
+<b><pre>
+      Let <i>newid</i> = a.
+      Var <i>x</i> holding <i>T</i> := <i>newid</i>. 
+      Var <i>y</i> holding <i>T</i> := <i>newid</i>. 
+      Var <i>z</i> holding <i>T</i> := <i>newid</i>.
+</pre></b>
+</font>
+where newid is some new name.
+
+<p><dt> <font color="red">Var{shared} ...</font>
+<dd>Forces a shared box to be chosen.  (See
+<a href="#boxkind">box flavors</a>.)  This is the default.
+
+<p><dt> <font color="red">Var{nonshared} ...</font>
+<dd>Forces a nonshared box to be chosen.
+
+</dl>
+
+<a name="arrayexpr"></a>
+<hr>
+<h2><font color=mediumblue> Creating arrays using var expressions and declarations </font></h2>
+
+An array is a list of boxes, or a list of lists of boxes, etc.
+The following forms of var expressions and declarations can
+be used to create arrays.
+
+<dl>
+<p><dt><font color="red"> 
+Var <i>x</i>(<i>n</i>) holding <i>T</i> %Var </font>
+<dd>This binds <i>x</i> to an array of <i>n</i> new empty boxes.
+Each of those boxes has species &lt;:<i>T</i>:&gt;.
+Phrase "holding <i>T</i>" is optional for expressions, and only required
+for declarations if the species of the boxes cannot be determined
+by other means.
+
+<p><dt><font color="red"> 
+Var <i>x</i>(*) holding <i>T</i> %Var </font>
+<dd>This binds <i>x</i> to an infinite array of new empty boxes.
+The array is lazy; as much of it will be created as is used.
+
+<p><dt><font color="red"> Var <i>x</i>(<i>n</i>) holding <i>T</i> 
+all := <i>a</i> %Var </font>
+<dd> This binds <i>x</i> to an array of <i>n</i> new boxes, each with initial
+value <i>a</i>.  You can use Var <i>x</i>(*) all := <i>a</i> %Var as well.
+
+<p><dt><font color="red"> Var <i>x</i>(<i>n</i>) holding <i>T</i> 
+:= <i>L</i> %Var </font>
+<dd> This binds <i>x</i> to an array of <i>n</i> new boxes.  The boxes are
+initialized from list <i>L</i>.  The first box gets the first member of
+<i>L</i>, the second box gets the second member of <i>L</i>, etc.
+
+<p>If <i>L</i> is shorter than <i>x</i>, then only a prefix of 
+<i>x</i> is initialized.
+If <i>L</i> is longer than <i>x</i>, then only a prefix of <i>L</i> is used.
+
+<p>This form can be used with infinite arrays as well as
+finite ones, and it is possible to initialize an infinite array from
+an infinite list.
+
+<p><dt><font color="red"> 
+Var <i>x</i>(<i>n</i>,<i>m</i>) holding <i>T</i> %Var </font>
+<dd>This form creates a two-dimensional array of <i>n</i> rows,
+each having <i>m</i> columns.  If there is no initialization, the
+boxes are initially empty.  If there is initialization, then
+the boxes are initialized as given.  
+
+<p>Any of the components can be infinitely long.  
+For example,
+<font color=#D00090>
+<b><pre>
+      Var a(*,*).
+</pre></b>
+</font>
+creates a two dimensional array that is infinite in both dimensions.
+
+<p>Any number of dimensions can be used.  
+For example,
+<font color=#D00090>
+<b><pre>
+      Var threedim(4,4,4) all := 0.
+</pre></b>
+</font>
+creates a three dimensional array all of whose boxes
+initially hold 0.
+</dl>
+
+<a name="boxkind"></a>
+<hr>
+<h2><font color=mediumblue> Flavors of boxes </font></h2>
+
+If you are unfamiliar with threads, then you can skip this part.
+
+<P>There are two flavors of boxes, <em>shared</em> and 
+<em>nonshared</em>.  
+
+<p><b>Shared boxes</b> are shared by all threads.  
+If one thread changes the content
+of a shared box, then that change is visible to all threads.
+
+<P><b>Nonshared boxes</b> are local to a single thread.  When a thread
+forks into two threads, it also forks the nonshared boxes; each 
+new thread gets a copy of all nonshared boxes.
+Any modifications to the content of a nonshared box made by one thread are
+invisible to the other thread.
+
+<p>For example, 
+<font color=#D00090>
+<b><pre>
+  Try
+    Var{shared} x := 2.
+    Stream
+      Assign x := 3.
+    then
+      ()
+    %Stream
+    Writeln[$x].
+    {false}
+  %Try
+</pre></b>
+</font>
+prints
+<b><pre>
+  3
+  3
+</pre></b>
+since the first thread changes the content of box x, and
+that change is visible to the second thread.  However,
+<font color=#D00090>
+<b><pre>
+  Try
+    Var{nonshared} x := 2.
+    Stream
+      Assign x := 3.
+    then
+      ()
+    %Stream
+    Writeln[$x].
+    {false}
+  %Try
+</pre></b>
+</font>
+prints
+<b><pre>
+  3
+  2
+</pre></b>
+since the change done by the first thread to box x is invisible
+to the second thread. 
+
+<font color=brown>
+<P> If a thread <em>t</em> gets access to a nonshared box that was created
+by another thread, then thread <em>t</em> sees that box as it was when the
+box was created.  If the box was initially empty, then thread <em>t</em> sees
+it as empty.  If the box was created with an initial value, then thread
+<em>t</em> sees it as holding that value, regardless of what another
+thread has done to the box.
+</font>
+
+<a name=flavorfun></a>
+<p>Species <font color=#D00090>BoxFlavor</font> has two members, 
+<font color=#D00090>shared</font> and <font color=#D00090>nonshared</font>.
+You can get the flavor of a box using function 
+<font color=#D00090>flavor</font>.  That is,
+<font color=#D00090>
+<b><pre>
+    flavor(b)
+</pre></b>
+</font>
+is the flavor of box b.
+
+<a name="create"></a>
+<hr>
+<h2><font color=mediumblue> Creating boxes </font></h2>
+
+Var expressions and declarations are only one way to create boxes.
+You can also use expressions that produce, as their values, new boxes.
+
+<p>The following functions produce boxes.  All of them are
+standard.
+
+<dl>
+
+<p><dt><font color="red"> &lt;: :&gt; </font>
+<dd>: <:`a:>
+<p><font color="#D00090">&lt;::&gt;</font> is a new, empty shared box.  
+<p>Example: 
+<font color="#D00090">Let b! = &lt;::&gt;.</font>
+
+<p><dt><font color="red"> &lt;:# #:&gt; </font>
+<dd>: <:`a:>
+<p><font color="#D00090">&lt;:# #:&gt;</font> is a new, empty shared box.
+<p>Example: 
+<font color="#D00090">Let b! = &lt;:# #:&gt;.</font>
+
+<p><dt><font color="red"> &lt;:% %:&gt; </font>
+<dd>: <:`a:>
+<p><font color="#D00090">&lt;:% %:&gt;</font> 
+is a new, empty nonshared box.
+<p>Example:
+<font color="#D00090">Let b! = &lt;:% %:&gt;.</font>
+
+<p><dt><font color="red"> &lt;:e:&gt; </font>
+<dd>: <:`a:>
+<p><font color="#D00090">&lt;:e:&gt;</font> 
+is a new shared box whose initial content is the
+value of expression e.  
+<p>Example:
+<font color="#D00090">Let b! = &lt;:0:&gt;.</font>
+
+<p><dt><font color="red"> &lt;:#e#:&gt; </font>
+<dd>: <:`a:>
+<p><font color="#D00090">&lt;:#e#:&gt;</font> 
+is a new shared box whose initial content is the
+value of expression e.  
+<p>Example:
+<font color="#D00090">Let b! = &lt;:# 0 #:&gt;.</font>
+
+<p><dt><font color="red"> &lt;:%e%:&gt; </font>
+<dd>: <:`a:>
+<p><font color="#D00090">&lt;:%e%:&gt;</font> 
+is a new nonshared box whose initial content is the
+value of expression e.  
+<p>Example:
+<font color="#D00090">Let b! = &lt;:% 0 %:&gt;.</font>
+
+<a name=emptyBox></a>
+<p><dt><font color="red"> emptyBox </font>
+<dd>: () -> <:`a:>
+<p><font color="#D00090">emptyBox()</font> 
+is the same as &lt;: :&gt;.
+<p>Example:
+<font color="#D00090">Let b! = emptyBox().</font>
+
+<a name=emptyNonsharedBox></a>
+<p><dt><font color="red"> emptyNonsharedBox </font>
+<dd>: () -> <:`a:>
+<p> <font color="#D00090">emptyNonsharedBox()</font> 
+is the same as &lt;:% %:&gt;.
+<p>Example:
+<font color="#D00090">Let b! = emptyNonsharedBox().</font>
+
+<a name=emptySharedBox></a>
+<p><dt><font color="red"> emptySharedBox </font>
+<dd>: () -> <:`a:>
+<p> <font color="#D00090">emptySharedBox()</font> 
+is the same as &lt;:# #:&gt;.
+<p>Example:
+<font color="#D00090">Let b! = emptySharedBox().</font>
+
+<a name=box></a>
+<p><dt><font color="red"> box </font>
+<dd>: BoxFlavor -> `a -> <:`a:>
+<p> <font color="#D00090">(box flav v)</font> 
+produces a new box holding initial content v.
+The box flavor is given by flav, which can be 
+<font color=#D00090>shared</font> or <font color=#D00090>nonshared</font>.
+<p>Example:
+<font color="#D00090">Let b! = box shared 2.</font>
+
+<a name=new></a>
+<p><dt><font color=red>new</font>
+<dd>: BoxFlavor -> <:`a:>
+<p><font color="#D00090">new(flav)</font> is a new empty box of flavor flav.
+
+<a name=nonsharedBox></a>
+<p><dt><font color="red"> nonsharedBox </font>
+<dd>: `a -> <:`a:>
+<p> <font color="#D00090">nonsharedBox(v)</font> 
+is the same as &lt;:%v%:&gt;.
+<p>Example:
+<font color="#D00090">Let b! = nonsharedBox(2).</font>
+
+<a name=sharedBox></a>
+<p><dt><font color="red"> sharedBox </font>
+<dd>: `a -> <:`a:>
+<p> <font color="#D00090">sharedBox(v)</font> is the same as &lt;:#v#:&gt;.
+<p>Example:
+<font color="#D00090">Let b! = sharedBox(2).</font>
+
+</dl>
+
+<a name="content"></a>
+<hr>
+<h2><font color=mediumblue> Getting the content of a box, and checking for an empty box </font></h2>
+
+<dl>
+<p><dt><font color="red"> @ </font>
+<dd>: <:`a:> -> `a
+<p> <font color="#D00090">@(b)</font> is the current content of box b.
+It fails with exception emptyBoxX if b is empty.
+<p>Example:
+<font color="#D00090">Let x = @b!.</font>
+
+<a name=testAt></a>
+<p><dt><font color="red"> testAt </font>
+<dd>: <:`a:> -> `a
+<p> <font color="#D00090">testAt(b)</font> is the current content of box b.
+It fails with exception testX if b is empty.
+<p>Example:
+<font color="#D00090">Let x = testAt(b!).</font>
+
+<a name=defaultAt></a>
+<p><dt><font color="red"> defaultAt </font>
+<dd>: `a -> <:`a:> -> `a
+<p> <font color="#D00090">defaultAt d b</font> 
+is the current content of box b, if
+box b is nonempty, and is d if b is empty.
+<p>Example:
+<font color="#D00090">Let x = defaultAt 0 b!.</font>
+
+<a name=OptAt></a>
+<p><dt><font color="red"> optAt </font>
+<dd>: <:`a:> -> Optional(`a)
+<p> <font color="#D00090">optAt(b)</font> 
+is value(x) if box b is nonempty and contains x,
+and is noValue if box b is empty.
+See <a href="optional.html">optional</a> for a discussion of
+value and noValue.
+<p>Example:
+<font color="#D00090">Let x = optAt(b!).</font>
+
+<a name=emptyBoxq></a>
+<p><dt><font color="red"> emptyBox? </font>
+<dd>: <:`a:> -> Boolean
+<p> <font color="#D00090">emptyBox?(b)</font> 
+is true just when box b is empty.
+<p>Example:
+<font color="#D00090">If emptyBox?(x!) then ...</font>
+
+</dl>
+
+<a name="modify"></a>
+<hr>
+<h2><font color=mediumblue> Modifying the content of a box </font></h2>
+
+Typically, you use Assign to change the content of a box.  A few
+other operations are provided as well.
+
+<dl>
+<p><dt><font color="red"> Assign </font>
+<dd>: (<:`a:>, `a) -> ()
+<p> <font color="#D00090">Assign b := v %Assign</font> 
+sets the content of box b to x.
+It also performs any actions that are associated with box b.  See 
+<a href=#actions>actions</a>,
+below.
+<p>Example:
+<font color="#D00090">Assign b! := 4.</font>
+
+<p><dt><font color="red"> Assign! </font>
+<dd>: (<:`a:>, `a) -> ()
+<p> <font color="#D00090">Assign! b := v %Assign!</font> 
+sets the content of box b to x.
+It does not perform actions that are associated with box b.  See 
+<a href=#actions>actions</a>, below.
+<p>Example:
+<font color="#D00090">Assign! b! := 4.</font>
+
+<p><dt><font color="red"> AssignInit </font>
+<dd>: (<:`a:>, `a) -> ()
+<p> <font color="#D00090">AssignInit b := v %AssignInit</font> sets the 
+<em>initial</em> content of box b to x.  You generally do not use this
+directly.  Use Var or &lt;:i:&gt;.
+<p>Example:
+<font color="#D00090">AssignInit b! := 4.</font>
+
+<a name=EmptyBoxp></a>
+<p><dt><font color="red"> EmptyBox </font>
+<dd>: <:`a:> -> ()
+<p> <font color="#D00090">EmptyBox(b).</font> makes b empty.  
+It also performs actions associated
+with box b.
+<p>Example:
+<font color="#D00090">EmptyBox(x!).</font>
+
+<p><dt><font color="red"> EmptyBox! </font>
+<dd>: <:`a:> -> ()
+<p> <font color="#D00090">EmptyBox!(b).</font>
+makes b empty, but does not perform any actions
+associated with the box.
+<p>Example:
+<font color="#D00090">EmptyBox!(x!).</font>
+
+<a name=OptAssign></a>
+<p><dt><font color="red"> OptAssign </font>
+<dd>: (<:`a:>, Optional(`a)) -> ()
+<p> <font color="#D00090">OptAssign b := v %OptAssign</font> assigns
+b := x if v = value(x), and makes b empty if v is noValue.
+See <a href="optional.html">optional</a> for a discussion of
+value and noValue.
+
+<a name=Swap></a>
+<p><dt><font color="red"> Swap </font>
+<dd>: (<:`a:>, <:`a:>) -> ()
+<p> <font color="#D00090">Swap(x,y) %Swap</font> 
+swaps the contents of boxes x and y.
+If either is empty, the other becomes empty.
+<p>Example:
+<font color="#D00090">Swap(b1!,b2!).</font>
+
+<a name=AddTo></a>
+<p><dt><font color="red"> AddTo </font>
+<dd>: (<:REAL`a:>, REAL`a) -> ()
+<p> <font color="#D00090">Addto(b,x) %AddTo</font> 
+adds x to the content of box b.
+<p>Example:
+<font color="#D00090">AddTo (b!,2).</font>
+
+<a name=Decrement></a>
+<p><dt><font color="red"> Decrement </font>
+<dd>: <:INTEGER`a:> -> ()
+<p> <font color="#D00090">Decrement(b) %Decrement</font> 
+subtracts 1 from the content
+of box b.
+<p>Example: If box b! contains 5, and you do
+<font color="#D00090">Decrement b! %Decrement</font>, 
+then b! holds 4 afterwards.
+
+<a name=Increment></a>
+<p><dt><font color="red"> Increment </font>
+<dd>: <:INTEGER`a:> -> ()
+<p> <font color="#D00090">Increment(b) %Increment</font> 
+adds 1 to the content of box b.
+<p>Example: If box b! contains 5, and you do
+<font color="#D00090">Increment b! %Increment</font>, 
+then b! holds 6 afterwards.
+
+</dl>
+
+<a name="pattern"></a>
+<hr>
+<h2><font color=mediumblue> Pattern matching with boxes </font></h2>
+
+<dl>
+<p><dt><font color="red"> @! </font>
+<dd> Pattern @! is used to put the result of a pattern match into
+a box rather than just giving the result a name.
+Statement 
+<font color=#D00090>
+<b><pre>
+    Match @!(x) = t %Match
+</pre></b>
+</font> 
+has the same effect as 
+<font color=#D00090>
+<b><pre>
+    Assign x := t %Assign
+</pre></b>
+</font>
+<p>Example: 
+<font color="#D00090">Match ( @!(x!), ?y ) = (2,3).</font> 
+puts 2 into box x!.
+
+<p><dt><font color="red"> &lt;: :&gt;, &lt;:# #:&gt;, &lt;:% %:&gt; </font>
+<dd> Statement
+<font color=#D00090>
+<b><pre>
+    Match &lt;::&gt; = t %Match
+</pre></b>
+</font> 
+succeeds only when t is an empty box.  
+Pattern <font color=#D00090>&lt;::&gt;</font> 
+matches any flavor of box.
+Patterns <font color=#D00090>&lt;:# #:&gt;</font> and 
+<font color=#D00090>&lt;:% %:&gt;</font> are similar, 
+but restrict the flavor
+of the box to shared and nonshared, respectively.
+<p>Example:
+<font color="#D00090">Match (&lt;: :&gt;, ?y) = (&lt;: :&gt;,2).
+</font> 
+succeeds.
+
+<p><dt><font color="red"> &lt;:p:&gt;, &lt;:#p#:&gt;, &lt;:%p%:&gt; </font>
+<dd> Statement
+<font color=#D00090>
+<b><pre>
+    Match &lt;:p:&gt; = <i>t</i> %Match
+</pre></b>
+</font> 
+succeeds only when
+<i>t</i> is a nonempty box, and it matches pattern p against the
+contents of that box.  Pattern <font color=#D00090>&lt;:p:&gt;</font>
+will match any flavor of box.
+Patterns <font color=#D00090>&lt;:#p#:&gt;</font> 
+and <font color=#D00090>&lt;:%p%:&gt;</font> are similar, but restrict
+the kind of box to shared and nonshared, respectively.
+<p>Example:
+<font color="#D00090">Match (&lt;:?x:&gt;, ?y) = (&lt;:2:&gt;,3).</font> 
+binds identifier x to 2.
+
+</dl>
+
+<a name="misc"></a>
+<hr>
+<h2><font color=mediumblue> Miscellaneous operations on boxes </font></h2>
+
+<dl>
+<p><dt><font color=red> $ </font>
+<dd>: <:`a:> -> String
+<p> If b is a shared box, then <font color="#D00090">$(b)</font> 
+is "shared <i>n</i>", where
+<i>n</i> is the number internally assigned to the box.  If b is
+nonshared, then $(b) is "nonshared <i>n</i>".  Be careful using
+this; the garbage collector reassigns internal box numbers, causing
+the result of $(b) to change.  See FreezeBoxRanks, below.
+
+<a name=eq></a>
+<p><dt><font color="red"> _eq_ </font>
+<dd>: (<:`a:>,<:`a:>) -> Boolean
+<p> The equality operator <tt>==</tt> cannot be used with boxes.
+(This is because it is likely that there will be confusion as
+to whether x <tt>==</tt> y is asking whether 
+x and y are the same box or whether
+their contents are the same.)  To compare two boxes for equality, use
+operator _eq_.  a _eq_ b is true if a and b are the same box.
+<p>Example:
+<font color="#D00090">If x! _eq_ y! then ...</font>
+
+<a name=neq></a>
+<p><dt><font color="red"> _neq_ </font>
+<dd>: (<:`a:>,<:`a:>) -> Boolean
+<p> <font color="#D00090">a _neq_ b</font> 
+is true if a and b are not the same box.
+<p>Example: 
+<font color="#D00090">If x! _neq_ y! then ...</font>
+
+<font color=brown>
+<a name=rankBox></a>
+<p><dt><font color="red"> rankBox </font>
+<dd>: <:`a:> -> Natural
+<p> <font color="#D00090">rankBox(b)</font> 
+is a natural number that you can think
+of as the "address" of box b.  Be careful: the rank of a box can
+change when the garbage collector runs.  See FreezeBoxRanks.
+
+<a name=FreezeBoxRanks></a>
+<p><dt><font color="red"> FreezeBoxRanks </font>
+<dd>: Boolean -> ()
+<p> <font color="#D00090">FreezeBoxRanks(true).</font> 
+tells the system to
+suppress moving boxes to new locations, so that their ranks do not
+change.  If you use this for a long interval, you 
+cripple the garbage collector, and cause memory to become
+fragmented.  FreezeBoxRanks(false). allows the garbage collector
+to move boxes.
+</font>
+</dl>
+
+<a name="actions"></a>
+<font color=brown>
+<hr>
+<h2> <font color=mediumblue>Actions associated with boxes </font></h2>
+
+<p><dt><font color="red"> OnAssign </font>
+<dd>: (&lt;:`a:&gt;, (Optional(`a), Optional(`a)) -&gt; ()) -> ()
+<p> OnAssign attaches an action to a box, so that the
+action will be performed when the box has its contents changed.  
+Statement
+<font color=#D00090>
+<b><pre>
+    OnAssign(<i>b</i>,<i>f</i>) %OnAssign 
+</pre></b>
+</font>
+attaches action <i>f</i> to box <i>b</i>.  
+
+<p>Specifically, suppose that <i>b</i> currently contains value
+<i>u</i>, and  Assign <i>b</i> := <i>v</i> %Assign is evaluated.  Then
+f(value(<i>u</i>), value(<i>v</i>)) is evaluated <em>after the
+assignment was done</em>.  If <i>b</i> was empty before the
+assignment, then f(noValue, value(<i>v</i>)) is 
+evaluated.  See <a href=optional.html>optional</a> for 
+a discussion of value and noValue.
+
+<p> When EmptyBox(<i>b</i>) %EmptyBox is done, if <i>b</i> is not
+already empty (and contains <i>u</i>), 
+then f(value(<i>u</i>), noValue) is
+evaluated after making box <i>b</i> empty.  If <i>b</i> was already
+empty, the action is not done.
+
+<p>You can attach more than one action to a box.  Each
+call to onAssign adds another function.  The functions
+are evaluated in the order in which they were added.
+
+<p>For example, suppose you write
+<font color=#D00090>
+<b><pre>
+     Let zorkAction by
+
+       case zorkAction(value ?a, value ?b) = 
+         Writeln["I am changing zork! from ", $a, " to ", $b].
+
+       case zorkAction(noValue, value ?b) =
+         Writeln["I am changing zork! from empty to ", $b].
+
+       case zorkAction(value ?a, noValue) =
+         Writeln["I am emptying zork!"].
+
+       else =>
+	 Writeln["This should not happen"].
+     %Let
+
+     Var zork! holding Natural.
+     OnAssign(zork!, zorkAction).
+</pre></b>
+</font>
+Then if you do <font color=#D00090>Assign zork! := 5.</font>, 
+then expression zorkAction(noValue,value(5)) will be
+evaluated implicitly.  
+
+<p>Action functions must return () as their values.
+
+</dl>
+</font>
+
+<a name=polyboxes></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Polymorphism and boxes </font></h2>
+
+You will need to read about <a href="types.html#polymorphism">polymorphism</a>
+to understand this section.  
+
+<p>Expression &lt;::&gt; returns a new, empty box of any desired
+species.  So, if you declare
+<font color=#D00090>
+<b><pre>
+      Let x = &lt;::&gt;.
+</pre></b>
+</font>
+the declaration of x is polymorphic.  Since polymorphism
+is just overloading in Astarte, you get infinitely 
+many <em>different</em> boxes, one for each species.
+This can be confusing.  If you store a value into one
+of those boxes named x, you do not alter another one.
+For example, doing
+<font color=#D00090>
+<b><pre>
+  Assign x: &lt;:Natural:&gt; := 2.
+  Assign x: &lt;:Integer:&gt; := 8.
+  Writeln[$ @(x:&lt;:Natural:&gt;)].
+  Writeln[$ @(x:&lt;:Integer:&gt;)].
+</pre></b>
+</font>
+prints
+<b><pre>
+  2
+  8
+</pre></b>
+since the two boxes called x 
+(one of species &lt;:Natural:&gt;, the other of species
+&lt;:Integer:&gt;) are different boxes.
+
+<p>To avoid this confusion, use 
+<a name="#varexpr">var declarations</a>.  They
+do not allow polymorphism, to suppress this possible
+source of confusion.
+</font>
+
+<hr>
+<center>
+<a href="streams.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="unknowns.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,36 @@
+Package testIf3 
+
+%% Test scoping of If exprs.
+
+Import "misc/check".
+
+%% Basic scoping 
+
+Execute
+  Let d =
+    If Let a = 1. (a > 2)
+      then Let b = a + 3. b
+      else Let c = a + 4. c
+    %If
+  %Let
+  Line[d $$ 5].
+  Check["    5"].
+%Execute
+
+%% Open If with fail
+
+Execute
+  Let a = 1.
+  open If a == 1 then
+    Let b = 0.
+  else
+    Let c = 2.
+    Line[$c].
+    Check["2"].
+    {false}
+  %If
+  Line[$b].
+  Check["0"].
+%Execute
+    
+%Package

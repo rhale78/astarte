@@ -1,0 +1,10 @@
+Package execute2 export
+
+%% Test Execute exprs.  
+
+Execute
+  Writeln["Execute in execute2.ast"].
+%Execute
+
+%Package
+

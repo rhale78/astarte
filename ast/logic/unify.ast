@@ -1,0 +1,221 @@
+%% File: unify.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%========================================================
+Package 		Astarte_Unify 
+
+			Interface
+==========================================================
+
+==============================================================
+%% Implement unification, using unknowns, and related operations.
+%%
+%% Unification is provided either with or without an occur check.
+%%
+%% Unification only goes into the structure of pairs and lists --
+%% it assumes that all other types of object are atomic.  You
+%% can change that by overriding the defaults.  If you do,
+%% you should override each of:
+%%    Unify
+%%    Unify?
+%%    hasUnknowns?
+%%    freeze
+%%    occurCheck
+%% For examples on how to do that, see the implementations of
+%% these operations for lists and ordered pairs.
+%%
+%% Note that hasUnknowns? and freeze do not find unknowns that
+%% are within individuals that unification considers atomic.
+==============================================================
+
+==========================================================
+
+Directory standard.
+Import "collect/set".
+
+=========================================
+
+Operator
+  ==!		(==);
+  ==!?		(==);
+  _in!_		(_in_);
+  _inMixed!_	(_in_);
+%Operator
+
+========================================
+
+Expect
+  ==!        : (EQ`a, EQ`a) -> Boolean
+
+	     %" x ==! y is true if Unify(x,y). succeeds.
+	     ;
+
+  ==!?	     : (EQ`a, EQ`a) -> Boolean
+
+	     %" x ==!? y is true if Unify?(x,y). succeeds.
+	     ;
+
+  _in!_      : (EQ`a, SET`s(EQ`a)) -> Boolean
+
+	     %" x _in!_ s is true if x is a member of set s.  If possible,
+	     %" x will be unified (without an occur check) with each
+	     %" member of s, and all solutions will be returned as
+	     %" a stream.  If x has no unknowns, then a set lookup
+	     %" will be used.
+	     ;
+
+  _inMixed!_ : (EQ`a, SET`s(EQ`a)) -> Boolean
+
+	     %" _inMixed!_ is similar to _in!_, but the solution is
+	     %" returned as a mixed stream.
+	     ;
+
+  {default}:
+
+  freeze     : `a -> `a
+
+	     %" freeze(x) is the same as x, but the bindings of unprotected
+	     %" unknowns are frozen.  Use this when you want to pass an
+	     %" object that might contain bound nonshared unknowns from one
+	     %" thread to another.
+	     ;
+	     
+  hasUnknowns?	: `a -> Boolean
+
+		%" hasUnknowns?(x) is true if x has any unknowns in it.
+		%" Be careful not to apply this to a circular structure,
+		%" since it will not terminate then.
+		;
+
+  occurCheck : `a -> `b -> Boolean
+  
+  	     %" occurCheck(u,x) is true if unknown u occurs inside x.
+	     %" This only goes into the structures of pairs and lists
+	     %" by default to look for u, but you can change that.
+	     ;
+
+  Unify     : pot__fail__testX ~>
+	       (EQ`a, EQ`a) -> ()
+
+	     %" Unify(x,y). attempts to make x and y the same by binding
+	     %" unprotected unknowns.  By default, it goes only into the
+	     %" structure of pairs and lists.  
+	     %"
+	     %" Unify does not perform an occur-check, so it might
+	     %" create cyclic structures.
+	     %"
+	     %" If unification of x and y is impossible, Unify(x,y).
+	     %" fails with exception testX.
+	     ;
+
+  Unify?    : pot__fail__testX ~>
+	       (EQ`a, EQ`a) -> ()
+
+	     %" Unify? is similar to Unify, but it performs an
+	     %" occur-check.  It cannot create cyclic structures.
+	     ;
+
+  {override}:
+
+  Unify,
+  Unify?		: ([EQ`a], [EQ`a]) -> ();
+  Unify,
+  Unify?		: ((EQ`a,EQ`b), (EQ`a,EQ`b)) -> ();
+  hasUnknowns?		: [`a] -> Boolean;
+  hasUnknowns?		: (`a,`b) -> Boolean;
+  freeze		: [`a] -> [`a];
+  freeze		: (`a,`b) -> (`a,`b);
+  occurCheck		: `a -> [`b] -> Boolean;
+  occurCheck		: `a -> (`b,`c) -> Boolean;
+%Expect
+
+=============================================================
+%% The definitions below of active and active? are not used. Instead,
+%% active puts pattern matching in unification mode without an occur
+%% check, and active? puts it in unification mode with occur check. 
+%% These definitions are needed to make the compiler recognize
+%% active and active? in patterns.
+=============================================================
+
+Assume active, active?:pattern.
+
+Description {ahead}:
+
+  active	: `a -> `a
+  
+  		%" #{unify-pattern} Match active(p) = t. matches pattern 
+		%" p against target t, but in a unification context, 
+		%" where unification will be done in place of equality
+		%" tests.  The unification is done without an
+		%" occur check.
+		;
+  
+  active?	: `a -> `a
+  
+  		%" #{unify-pattern} Match active?(p) = t. matches pattern 
+		%" p against target t, but in a unification context, 
+		%" where unification will be done in place of equality
+		%" tests.  The unification is done with an
+		%" occur check.
+		;
+  
+  ::		: (`a, [`a]) -> `a
+  
+  		%" #{unify-pattern} When :: is used in a pattern
+		%" in a unification context, it tries to force
+		%" the target to be a nonempty list.  For example,
+		%" if v is an unbound unknown, then
+		%"
+		%"   Match active(?h :: ?t) = v.
+		%"
+		%" will bind v to a list whose head and tail
+		%" are unknown, and will bind h and t to those
+		%" two unknowns.
+		;
+		
+  nil		: [`a]
+  
+  		%" #{unify-pattern} When nil is used as a pattern
+		%" constant in a unification context, it tries
+		%" to force the target to be nil.
+		;
+		
+%Description
+===================================================
+Pattern
+
+  %%----------------------------------------
+  %% 			::
+  %%----------------------------------------
+
+  {tag ::, ==!, ==!?}
+
+  ::(?x) =>
+    Match ?x = activeListToPair(target).;
+
+  %%----------------------------------------
+  %% 			nil
+  %%----------------------------------------
+
+  {tag nil, ==!, ==!?}
+
+  nil => {activeNil? target};
+
+  %%----------------------------------------
+  %% 			active
+  %%----------------------------------------
+
+  active(?x) => Match ?x = target.;
+
+  %%----------------------------------------
+  %% 			active?
+  %%----------------------------------------
+
+  active?(?x) => Match ?x = target.
+%Pattern
+
+%Package
+

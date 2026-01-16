@@ -1,0 +1,387 @@
+<HTML>
+<head>
+<title>Astarte: compiling and running</title>
+</head>
+<body>
+<center>
+<a href="index.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="asthelp.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> M1. Compiling and Running Programs Under Unix</font></h1>
+</center>
+
+<menu>
+  <li> <a href=#commandloc>Command locations</a>
+  <li> <a href=#compiling>Compiling a program</a>
+  <li> <a href=#mostastc> Most used options for astc</a>
+  <li> <a href=#lessastc> Less used options for astc</a>
+  <li> <a href=#directoriesseach> Directories to search</a>
+  <li> <a href=#runprogram> Running a program</a>
+  <li> <a href=#mostusedastr> Most used options for astr</a>
+  <li> <a href=#lessusedastr> Less used options for astr</a>
+
+</menu>
+
+<a name=commandloc></a>
+<hr>
+<h2><font color=mediumblue> Command locations </font></h2>
+
+You will need to have the directories containing the binaries
+(astc, astr and asthelp) in your path.  See
+<a href=setup.html>setting up</a> for how to set up your path.
+
+<a name=compiling></a>
+<hr>
+<h2><font color=mediumblue> Compiling a program</font></h2>
+
+There are two ways to compile your program.  You can either use
+the compiler directly or you can use the interpreter; it will compile
+files as needed.  You can jump ahead to the
+<a href="#interpreter">interpreter</a> if you prefer to use
+that method.  (<b>Beginning users:</b> this is the recommended approach.)
+
+<p>The compiler is called astc.  Name your program with extension .ast.  
+When you compile myprog.ast, the compiler will produce
+file myprog.aso, holding byte-code for the program.
+To compile myprog.ast, use
+<pre>
+      astc myprog
+</pre>
+
+<a name=mostastc></a>
+<h3><font color=mediumblue> Most used options for astc </font></h3>
+
+The following options are supported.  Put them before the
+name of the program, as in
+<pre>
+      astc -l myprog
+</pre>
+Most options have a short form beginning with a single dash and
+a long form beginning with two dashes.  Some options have only one form.
+<dl>
+<p><dt> --help
+<dd> Print a synopsis of the command options.  If this option is
+used, nothing is done except printing the synopsis.
+
+<p><dt> -i, --no-check-indent
+<dd> Suppress indentation warnings.
+
+<p><dt> -k, --no-check-exhaustive
+<dd> Suppress warnings about patterns not being exhaustive.
+
+<p><dt> -l, --no-listing
+<dd> Do not print a listing.  (This option is dash-ell.)
+Normally, a listing is written to standard output.
+
+<p><dt> -s, --show
+<dd> Cause the results of type inference to be dumped when there
+is a type error.  This can help you understand why a type error
+has occurred.
+
+<p><dt> -1
+<dd> Stop at the first declaration that causes an error.  (This option
+is dash-one.)
+</dl>
+
+<a name=lessastc></a>
+<font color=brown>
+<h3><font color=mediumblue> Less used options for astc</font></h3>
+
+<dl>
+<dt> -a, --report-imports
+<dd> Show reports of definitions, including those made in imported
+packages, but excluding those done in the standard package.  For
+example, if a function f: Natural -&gt; Natural is defined, a report
+of this will be placed in the listing.  See -A and -d.
+
+<p><dt> -A, --Report-imports
+<dd> Show reports of definitions, including those made in imported
+packages, and including those done in the standard package.  For
+example, if a function f: Natural -&gt; Natural is defined, a report
+of this will be placed in the listing.  See -a and -d.
+
+<p><dt> -b, --behavior
+<dd> Turn on behavior checking.  This is currently not recommended,
+since behavior checking is not fully implemented.
+
+<p><dt> -c, --start-in-comment
+<dd> Start reading the package as if in a long comment initially.
+The package will actually begin at the first occurrence of &gt;&gt;&gt;&gt;.
+
+<p><dt> -d, --abbreviated-listing
+<dd> Suppress a listing, as for -l, but show all reported definitions
+made in this package.
+For example, if a function ghost of type Natural -&gt; Natural is defined,
+a line of the form
+<pre>
+   -------&gt; ghost : Natural -&gt; Natural
+</pre>
+is printed.  See -a and -A.
+
+<p><dt> -e, --expert
+<dd> Use short error messages.  Normally, longer, more descriptive
+error messages are used.
+
+<p><dt> -e&lt;file&gt;
+<dd> Append all error messages to file &lt;file&gt;.  These are written
+in addition to the error messages in the listing, if a listing is
+written.
+
+<p><dt> -E&lt;file&gt;
+<dd> Write all error messages to file &lt;file&gt;, emptying that file
+first.  These are written
+in addition to the error messages in the listing, if a listing is
+written.
+
+<p><dt> -f, --full-listing
+<dd> Do a full listing.  This is used when compiling a package that
+has separate interface and implementation parts.  Normally the
+compiler will only list the implementation part, 
+when compiling the implementation.  Option
+-f causes both interface and implementation to be listed.
+
+<p><dt> -F, --Full-listing
+<dd> Do a very full listing.  This causes all imported files, including
+the standard package, to be listed the first time they are encountered.  
+This listing can be quite large.
+
+<p><dt> -I&lt;dir&gt;, --import&lt;dir&gt;
+<dd> Check directory &lt;dir&gt; when looking for imports, in addition to
+those already being searched.  This directory is added to the front
+of the search path.
+
+<p><dt> -L&lt;file&gt;, --listing&lt;file&gt;
+<dd> Produce listing in the given file.  Normally, the listing is
+to the standard output.
+
+<p><dt> -ns
+<dd> This option should only be used to compile standard.ast.
+It suppresses the normal automatic import of standard.ast.
+
+<p><dt> -nw, --no-warn
+<dd> Suppress all warnings.
+
+<p><dt> -pN
+<dd> Pattern and expand rules are kinds of macros, and involve doing
+expansions.  Normally, expansions are cut off if too deep, to catch
+infinite expansions.  This option allow pattern match/expand 
+substitutions to continue to depth N.
+
+<p><dt> -w, --warn
+<dd> Override any suppressed warnings.  Give the warnings anyway.
+
+</dl>
+</font>
+
+<a name=directoriesseach></a>
+<font color=brown>
+<h3><font color=mediumblue> Directories to search</font></h3>
+
+The compiler will normally look in the current directory and in the
+standard library directory for imports.  You may add a directory
+to import using the -I option.  You can also alter the initial
+directories to search by setting environment variable AST_IMPORTS to a
+colon-separated list of directories.  You can use $ to stand for the
+directory that holds the standard Astarte library.  For example, you can write
+C-shell command
+<pre>
+    setenv AST_IMPORTS .:~/astarte:$
+</pre>
+Be sure to include "." in that
+list to search the current directory.
+</font>
+
+
+<a name=interpreter></a>
+
+<a name=runprogram></a>
+<hr>
+<h2><font color=mediumblue> Running a program </font></h2>
+
+After you have compiled a program, you can run it using command
+astr.  In fact, if a file has not been compiled since it was updated, 
+and you try to run it, the interpreter will ask you if you want to compile it.
+To run myprog.ast (really the compiled version myprog.aso), use
+<pre>
+      astr myprog
+</pre>
+
+<b>Beginning users:</b> there is no need to read the rest of this page.
+It only describes further options for running programs.
+
+<font color=brown>
+<p>Normally, astr looks for file myprog.aso (the compiled version of
+myprog.ast) in the current directory.  You can force astr to look in
+other directories by setting environment variable AST_PATH to a
+colon-separated list of directories to search.  Be sure to include "."
+if you want the current directory searched.
+</font>
+
+<p>You can include options before the name of the program.  Anything
+that occurs after the name of the program is considered to be
+a command line argument to myprog, and is accessible to myprog
+via string <a href="systemlib.html#commandLine">commandLine</a>.  For example, if
+you write
+<pre>
+      astr -t myprog -f
+</pre>
+then option -t is taken as an option to astr, and myprog is run with
+commandLine having value ["myprog", "-f"].  The options for astr are
+as follows.  Most options have a short name that starts with a
+single dash and a long name that starts with two dashes.  Some
+options have only one name.  
+
+<a name=mostusedastr></a>
+<h3><font color=mediumblue> Most used options for astr </font></h3>
+<dl>
+<dt> -d, --debug-at-trap
+<dd> Start the debugger any time an exception is trapped.  See
+option -v.
+
+<p><dt> --help
+<dd> Print a synopsis of the command options.  If this option is
+used, nothing is done except printing the synopsis.
+
+<p><dt> -i&lt;file&gt;, --stdin&lt;file&gt;
+<dd> Redirect the standard input to the named file.  This is
+more effective than having the operating system do the job, and
+allows the program still to communicate with you via the keyboard
+when necessary.
+
+<p>You can have a space after -i if desired, but none is required.
+For example, write 
+<pre>
+     astr -imydata myprog
+</pre>
+or
+<pre>
+     astr -i mydata myprog
+</pre>
+
+<p><dt> -m, --make
+<dd> Compile files that are out of date without asking for
+permission.
+
+<p><dt> -o&lt;file&gt;, -o!&lt;file&gt;, --stdout&lt;file&gt;, 
+--stdout!&lt;file&gt;
+<dd> Redirect the standard output to the named file.  This
+is more effective than having the operating system do the job.
+Forms without ! will ask you whether you want to overwrite 
+an existing file, if the file already exists.  
+Forms with ! will overwrite files without asking.  You will need
+to escape the ! (write \!).
+
+<p>You can have a space after -o if desired, but none is required.
+For example, you can write
+<pre>
+  astr -o\!myout myprog
+</pre>
+or
+<pre>
+  astr -o\! myout myprog
+</pre>
+
+
+<p><dt> -t, --no-optimize
+<dd> Normally, tail recursion is handled without generating a
+new stack frame.  Also, when an identifier binding is no longer accessible
+to the program, it is deleted, possibly before it goes out of scope.
+This can be confusing when you are debugging a program.
+Option -t suppresses both of these behaviors.  So with -t, tail
+recursion is treated as normal recursion and bindings are not 
+removed until they go out of scope.
+
+<p><dt> -v, --debug
+<dd> Enter the debugger to start.  Use this to set breaks and see
+what the program is doing.  Type <i>help</i> to the debugger to see 
+debugging commands that are available.
+</dl>
+
+<a name=lessusedastr></a>
+<font color=brown>
+<h3><font color=mediumblue> Less used options for astr </font></h3>
+
+<dl>
+<p><dt> -e&lt;file&gt;, -e!&lt;file&gt;, --stderr&lt;file&gt;, 
+--stderr!&lt;file&gt;
+<dd> Redirect the standard error output to the named file.  This
+is more effective than having the operating system do the job.
+(Some stderr messages will not be redirected.)  Forms without !
+will ask you whether you want to overwrite an existing file, if the
+file already exists.  Forms with ! will overwrite files without
+asking. You will need to escape the ! (write \!).
+
+<p><dt> -f, --no-check
+<dd> Do not query about out-of-date files.  Load silently, and
+use the existing .aso files wherever possible.
+
+<p><dt> -hN, -h+, --heap-limitN, --heap-limit+
+<dd> Normally, there is a soft limit on the size of the heap.  If the
+program uses more than this number of bytes, the user is asked
+whether the program should continue.  Option -hN sets the 
+soft limit on the size of the heap to N kilobytes.  Option
+-h+ removes the soft limit entirely.  The default limit is
+about 1MB.  For example, to set the heap limit to 2MB, use
+<pre>
+   astr -h2000 myprog
+</pre>
+
+<p><dt> -n, --no-run
+<dd> Only load and link. Do not run.
+
+<p><dt> -pN, --precisionN
+<dd> Set the initial value of box <a href="real.html">precision!</a> to N.
+For example, use
+<pre>
+            astr -p100 myprog
+</pre>
+to cause floating point arithmetic to be done with 100 digits of
+precision by default.
+
+<p><dt> --profile
+<dd> Produce a crude execution profile.
+
+<p><dt> -q, --quick-load
+<dd> Quick load. Suppress tests.
+
+<p><dt> -rtN, --dump-sizeN
+<dd> When a program traps an exception, a dump of the configuration
+is printed.  The dump is limited in size to about one megabyte by
+default.  Use option -rtN to set the limit to N kilobytes.
+
+<p><dt> -riN, --dump-value-sizeN
+<dd> <dd> When a program traps an exception, a dump of the configuration
+is printed.  The display of each item is limited in size by default to 
+500 bytes. Use option -riN to set the limit to N bytes.
+
+<p><dt> -sN, -s+, --stack-sizeN, --stack-size+
+<dd> Normally, there is a soft limit on the number of stack frames
+held by a single thread.  If a thread uses more than this number of 
+stack frames, the user is asked
+whether the program should continue.  Option -sN sets the 
+soft limit on the number of stack frames to N bytes.  For example, use
+<pre>
+            astr -s1000 myprog
+</pre>
+sets the soft limit to 1000 frames.
+Option -s+ removes the soft limit entirely.  The default limit is 400 frames.
+
+</dl>
+</font>
+
+<hr>
+<center>
+<a href="index.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="asthelp.html">Next</a>
+</center>
+
+</body>
+</HTML>
+

@@ -1,0 +1,891 @@
+<HTML>
+<head>
+<title>Astarte: numbers</title>
+</head>
+<body>
+<center>
+<a href="numericlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="modular.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> LN1. Numbers and Operations on Numbers </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#species> Numeric Species</a>
+  <li> <a href=#arithmetic>Basic arithmetic operations</a>
+  <li> <a href=#tostring>Conversion to and from strings</font>
+  <li> <a href=#math>Mathematical operations</a>
+  <li> <a href=#misc>Miscellaneous operations</a>
+</menu>
+
+<a name=species></a>
+<hr>
+<h2><font color=mediumblue> Numeric Species</font></h2>
+
+<dl>
+<a name=Natural></a>
+<p><dt><font color=red>Natural</font>
+<dd> Species Natural contains natural numbers 0,1,2,...  The size of
+a natural number is limited only by the overall amount of memory
+that your computer has, not by the size of a machine word.  So you
+can use large natural numbers.
+
+<p>Natural number constants are written in decimal notation.
+
+<a name=Integer></a>
+<p><dt><font color=red>Integer</font>
+<dd>Species Integer contains integers ..., -2, -1, 0, 1, 2, ...
+The size of an integer is limited only by the overall amount of memory
+that your computer has, not by the size of a machine word.
+
+<p>Integer constants are written in decimal notation, possibly with
+a sign.
+
+<a name=Rational></a>
+<p><dt><font color=red>Rational</font>
+<dd>Species Rational contains rational numbers, stored exactly as
+ratios of integers.
+
+<p>Rational constants are written in decimal notation, with or without
+a decimal point, and with an optional exponent of ten (indicated by E or e).
+If a decimal point is used, there must be at least one digit on either side
+of the decimal point.  Examples are 
+<font color=#D00090>23</font>, <font color=#D00090>1.23</font>, 
+<font color=#D00090>1E-40</font> and <font color=#D00090>2.3e55</font>.
+
+<a name=precision></a>
+<a name=Real></a>
+<p><dt><font color=red>Real</font>
+<dd>Species Real contains real numbers, stored approximately.
+The precision of operations is controlled by the content
+of box <font color=#D00090>precision!</font>.  
+If precision! holds k, then built-in
+operations are carried out to at least k decimal digits
+of precision.  For example, 
+to get 30 digits of precision, you should say
+<font color=#D00090>
+<b><pre>
+    Assign precision! := 30.
+</pre></b>
+</font>
+The precision starts at <font color=#D00090>normalPrecision</font>, 
+which can be set on the command line.  
+By default, normalPrecision is the amount of precision offered by
+the machine double-precision floating point arithmetic.
+You can use normalPrecision in your program.
+
+<p>Real constants are written in decimal notation, with or without
+a decimal point, and with an optional exponent of ten (indicated by E or e).
+If a decimal point is used, there must be at least one digit on either side
+of the decimal point.  Examples are 
+<font color=#D00090>23</font>, <font color=#D00090>1.23</font>, 
+<font color=#D00090>1E-40</font> and <font color=#D00090>2.3e+55</font>.
+
+<a name=Complex></a>
+<p><dt><font color=red>Complex</font>
+<dd>Species Complex contains complex numbers, represented 
+approximately.  You must import 
+<a href="ast/math/complex.ast">math/complex.ast</a>
+to use complex numbers.
+
+<p>The precision of operations is controlled by the content
+of box precision!.  If precision! holds k, then built-in
+operations are carried out to at least k decimal digits
+of precision.
+
+</dl>
+
+<p>All of the operations that follow have a single polymorphic type.
+However, for clarity, in most cases several types are shown.
+
+<a name="arithmetic"></a>
+<hr>
+<h2><font color=mediumblue> Basic arithmetic operations </font></h2>
+
+The first type of each operation is the polymorphic type, provided
+math/math.ast has been imported.  Below that are specific species.
+<dl>
+<p><dt><font color="red"> +</font> 
+<dd>: (SEMIGROUP`a, SEMIGROUP`a) -&gt; SEMIGROUP`a
+<br>: (Natural, Natural) -&gt; Natural
+<br>: (Integer, Integer) -&gt; Integer
+<br>: (Rational, Rational) -&gt; Rational
+<br>: (Real, Real) -&gt; Real
+<br>: (Complex, Complex) -&gt; Complex
+<p><font color=#D00090>n + m</font> is the sum of n and m.
+<p>Example: <font color="#D00090">2+3</font> = 5
+
+<a name=minus></a>
+<p><dt><font color="red"> - (binary) </font>
+<dd>: (GROUP`a, GROUP`a) -&gt; GROUP`a
+<br>: (Integer, Integer) -&gt; Integer
+<br>: (Rational, Rational) -&gt; Rational
+<br>: (Real, Real) -&gt; Real
+<br>: (Complex, Complex) -&gt; Complex
+<p> <font color=#D00090>n - m</font> is the difference of n and m.
+<p>Example: 
+<font color="#D00090">2-3</font> = -1
+
+<p><dt><font color="red"> - (unary)</font>
+<dd>: GROUP`a -&gt; GROUP`a
+<br>: Integer -&gt; Integer
+<br>: Rational -&gt; Rational
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>-n</font> is the negation of n.
+
+<a name=dblminus></a>
+<p><dt><font color="red"> -- </font>
+<dd>: (REAL`a, REAL`a) -&gt; REAL`a
+<br>: (Natural, Natural) -&gt; Natural
+<br>: (Integer, Integer) -&gt; Integer
+<br>: (Rational, Rational) -&gt; Rational
+<br>: (Real, Real) -&gt; Real
+<br>: (Complex, Complex) -&gt; Complex
+<p> <font color=#D00090>n -- m</font> is |n-m|.  
+<p>Example: 
+<font color="#D00090">5--2</font> = 3 and <font color=#D00090>2--5</font> = 3
+
+<a name=monus></a>
+<p><dt><font color="red"> _monus_ </font>
+<dd>: (Natural, Natural) -&gt; Natural
+<p> <font color=#D00090>n _monus_ m</font> is max(0, n-m).
+<p>Example: 
+<font color="#D00090">5 _monus_ 2</font> = 3 and
+<font color=#D00090> 2 _monus_ 5</font> = 0
+
+<a name=star></a>
+<p><dt><font color="red"> * </font>
+<dd>: (SEMIRING`a, SEMIRING`a) -&gt; SEMIRING`a
+<br>: (Natural, Natural) -&gt; Natural
+<br>: (Integer, Integer) -&gt; Integer
+<br>: (Rational, Rational) -&gt; Rational
+<br>: (Real, Real) -&gt; Real
+<br>: (Complex, Complex) -&gt; Complex
+<p> <font color=#D00090>n * m</font> is the product of n and m.
+<p>Example: 
+<font color="#D00090">5 * 2</font> = 10
+
+<a name=slash></a>
+<p><dt><font color="red"> / (binary)</font>
+<dd>: (FIELD`a, FIELD`a) -&gt; FIELD`a
+<br>: (Rational, Rational) -&gt; Rational
+<br>: (Real, Real) -&gt; Real
+<br>: (Complex, Complex) -&gt; Complex
+<p> <font color=#D00090>x / y</font> is the quotient of x and y.
+<p>Example:
+ <font color="#D00090">5 / 2</font> = 2.5
+
+<p><dt><font color="red"> / (unary)</font>
+<dd>: FIELD`a -&gt; FIELD`a
+<br>: Rational -&gt; Rational
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>/x</font> is the reciprocal of x.
+<p>Example:
+ <font color="#D00090">/ 2</font> = 0.5
+
+<a name=dblslash></a>
+<p><dt><font color="red"> // (binary)</font>
+<dd>: (INTEGER`a, INTEGER`b) -&gt; Rational
+<br> <font color=#D00090>n // m</font> is the quotient of n and m.  Here,
+n and m must be integers or natural numbers.
+<p>Example:
+<font color="#D00090">2 // 4</font> = 0.5
+
+<p><dt><font color="red"> // (unary)</font>
+<dd>: INTEGER`a -&gt; Rational
+<p> <font color=#D00090>//n</font> is the reciprocal of n.
+Here, n must be an integer or natural number.
+<p>Example:
+<font color="#D00090">// 2</font> = 0.5
+
+<a name=mod></a>
+<p><dt><font color="red"> _mod_ </font>
+<dd>: (INTEGER`a, Natural) -&gt; Natural
+<br>: (Natural, Natural) -&gt; Natural
+<br>: (Integer, Natural) -&gt; Natural
+<p> <font color=#D00090>n _mod_ m</font> 
+is the remainder when you divide n by m.
+See divide, below.  
+<p>Example: 
+<font color="#D00090">53 _mod_ 10</font> = 3
+
+<a name=div></a>
+<p><dt><font color="red"> _div_ </font>
+<dd>: (INTEGER`a, Natural) -&gt; INTEGER`a
+<br>: (Natural, Natural) -&gt; Natural
+<br>: (Integer, Natural) -&gt; Integer
+<p> <font color=#D00090>n _div_ m</font> 
+is the (natural number) quotient when you divide
+n by m.  See divide, below.
+<p>Example: 
+<font color="#D00090">53 _div_ 10</font> = 5
+
+<a name=divide></a>
+<p><dt><font color="red"> divide </font>
+<dd>: (INTEGER`a, Natural) -&gt; (INTEGER`a, Natural)
+<br>: (Natural, Natural) -&gt; (Natural, Natural)
+<br>: (Integer, Natural) -&gt; (Integer, Natural)
+<p> <font color=#D00090>divide(n,m)</font> = (n _div_ m, n _mod_ m) = (q,r),
+where q and r satisfy 0 &lt;= r &lt; m and q*m + r = n.
+<p>Example: 
+<font color="#D00090">divide(53, 10)</font> = (5,3) and
+<font color="#D00090">divide(-53, 10)</font> = (-6, 7)
+
+<a name=hat></a>
+<p><dt><font color="red"> ^ </font>
+<dd>: (SEMIRING`a, Natural) -&gt; SEMIRING`a
+<br>: (Natural, Natural) -&gt; Natural
+<br>: (Integer, Natural) -&gt; Integer
+<br>: (Rational, Natural) -&gt; Rational
+<br>: (Real, Natural) -&gt; Real
+<br>: (Complex, Natural) -&gt; Real
+<p> <font color=#D00090>x ^ n</font> is x to the power n.
+You must import <a href="ast/math/math.ast">math/math.ast</a>
+to use this.
+<p>Example: 
+<font color="#D00090">10^3</font> = 1000
+
+<a name=hatslash></a>
+<p><dt><font color="red"> ^/ </font>
+<dd>: (FIELD`a, Integer) -&gt; FIELD`a
+<br>: (Rational, Integer) -&gt; Rational
+<br>: (Real, Integer) -&gt; Real
+<br>: (Complex, Integer) -&gt; Real
+<p> <font color=#D00090>x ^/ i</font> 
+is x to the power i.  Here, i must be of species Integer.
+You must import <a href="ast/math/math.ast">math/math.ast</a>
+to use this.
+<p>Example:
+<font color="#D00090">(2)^(-2)</font> = 0.25
+
+<a name=hattilde></a>
+<p><dt><font color="red"> ^~ </font>
+<dd>: (APPROX`a,APPROX`a) -&gt; APPROX`a
+<br>: (Real, Real) -&gt; Real
+<br>: (Complex, Complex) -&gt; Complex
+<p> <font color=#D00090>x ^~ y</font> is x to the power y.  
+(More precisely it returns 
+the principal value of x to the power y.  For example, 4^~(0.5) = 2, not -2.)
+You must import <a href="ast/math/math.ast">math/math.ast</a>
+to use this.
+
+<p>Example: 
+<font color="#D00090">(-2.5)^2</font> = 6.25 and 
+<font color="#D00090">4.0^0.5</font> = 2.0 (approximately)
+
+</dl>
+
+<a name="tostring"></a>
+<hr>
+<h2><font color=mediumblue> Conversion to and from strings </font></h2>
+
+These are special cases of more general polymorphic functions.
+For example, $ and $' have polymorphic type `a -&gt; String.
+<dl>
+
+<a name=dollar></a>
+<p><dt><font color="red"> $ </font>
+<dd>: Natural -&gt; String
+<br>: Integer -&gt; String
+<p> <font color=#D00090>$(n)</font> is the decimal representation of n.
+If box <font color=#D00090>putCommasInNumbers!</font> 
+holds true, then commas will
+be inserted every 3 digits.
+<p>Example: 
+<font color="#D00090">$(14)</font> = "14"
+<p>If you had said
+<font color="#D00090">
+<b><pre>
+    Assign putCommasInNumbers! := true.
+</pre></b>
+</font>
+then you would find that <font color="#D00090">$(1234567)</font> = "1,234,567"
+
+<p><dt><font color="red"> $ </font>
+<dd>: Rational -&gt; String
+<p> <font color=#D00090>$(x)</font> is a string that shows x as a fraction.
+If box putCommasInNumbers! holds true, then commas will
+be inserted every 3 digits.
+<p>Example:
+ <font color="#D00090">$(14.1)</font> = "141/10".
+If the rational number is an integer, it is shown as an integer.
+So <font color=#D00090>$(14.0) = "14"</font>.
+<p>The fraction is always shown in reduced form.  
+So <font color=#D00090>$(6//4)</font> = "3/2".
+
+<p><dt><font color="red"> $ </font>
+<dd>: Real -&gt; String
+<p> <font color=#D00090>$(x)</font> 
+is a string that is a decimal representation of x.
+The number is shown in fixed point format for numbers that look
+good in that format, and in exponential format for very large of very
+small numbers.  The number of digits is determined by the current
+precision, but trailing zeros will not be shown.
+If box putCommasInNumbers! holds true, then commas will
+be inserted every 3 digits.
+<p>Example: 
+<font color="#D00090">$(14.10)</font> = "14.1"
+
+<p><dt><font color="red"> $ </font>
+<dd>: Complex -&gt; String
+<p> <font color=#D00090>$(z)</font> is a string that shows z.
+<p>Example:
+ <font color="#D00090">$(complex(2.2,4.0))</font> = 
+"(2.2+i*4)"
+
+<a name=dollarprime></a>
+<p><dt><font color="red"> $' </font>
+<dd>: Natural -&gt; String
+<br>: Integer -&gt; String
+<br>: Rational -&gt; String
+<br>: Real -&gt; String
+<p> <font color="#D00090">$'(n)</font> 
+is similar to $(n), but commas are inserted every three digits
+(on the left side of the decimal point, if there is one.)
+<p>Example: 
+<font color="#D00090">$'(140000)</font> = "140,000"
+
+<a name=dollardollar></a>
+<p><dt><font color="red"> $$ </font>
+<dd>: (Natural, Natural) -&gt; String
+<br>: (Integer, Natural) -&gt; String
+<br>: (Rational, Natural) -&gt; String
+<p> <font color="#D00090">n $$ k</font> 
+is similar to $(n), but is padded on the left with blanks if
+necessary to make k characters.  Of $(n) has more than k characters,
+then there is no padding, and no characters are removed.
+<p>Example: 
+<br><font color="#D00090">14 $$ 4</font> = "&nbsp;&nbsp; 14" 
+<br><font color="#D00090">14 $$ 1</font> = "14"
+<br><font color="#D00090">14.1:Rational $$ 8</font> = "&nbsp;&nbsp; 141/10" 
+
+<p><dt><font color="red"> $$ </font>
+<dd>: (Real, Natural) -&gt; String
+<p> <font color=#D00090>x $$ k</font> 
+is a string that shows the value of x, in exponential
+format, using a total of k characters.  The exponent is three
+digits, but will use more if necessary.  The exponent is adjusted so that
+there is one digit is to the
+left of the decimal point.
+<p>Example: 
+<font color="#D00090">14.12 $$ 12</font> = " 1.4120E+001"
+
+<p><dt><font color="red"> $$ </font>
+<dd>: (Complex, Natural) -&gt; String
+<p> <font color=#D00090>z $$ k</font> 
+is a string that shows complex number z, but
+uses k characters for each of the real and imaginary parts.
+<p>Example:
+ <font color="#D00090">complex(2.2,4.0) $$ 12</font> = 
+"( 2.2000E+000+ i* 4.0000E+000)"
+
+<a name=dollardollarprime></a>
+<p><dt><font color="red"> $$' </font>
+<dd>: (Natural, Natural) -&gt; String
+<br>: (Integer, Natural) -&gt; String
+<br>: (Rational, Natural) -&gt; String
+<br>: (Real, Natural) -&gt; String
+<br>: (Complex, Natural) -&gt; String
+<p> <font color="#D00090">x $$' k</font> 
+is the same as x $$ k, but the number has commas every
+three digits from the right.  The commas are counted in the
+number of characters.
+<p>Example: 
+<font color=#D00090>1000 $$' 6</font> = "&nbsp;1,000"
+
+<p><dt><font color="red"> $$ </font>
+<dd>: (Rational, Natural, Natural) -&gt; String
+<br>: (Real, Natural, Natural) -&gt; String
+<p> <font color=#D00090>x $$ (n,k)</font> 
+is the (approximate) decimal representation of x,
+using at least n total characters, with k characters to the right
+of the decimal place.
+<p>Example:
+ <font color="#D00090">14.1 $$ (8,2)</font> = "&nbsp;&nbsp;&nbsp; 14.10" 
+
+<p><dt><font color="red"> $$ </font>
+<dd>: (Complex, Natural, Natural) -&gt; String
+<p> <font color=#D00090>z $$ (n,k)</font> 
+is the (approximate) decimal representation of z,
+using at least n total characters, with k characters to the right
+of the decimal place, for each of the real and imaginary parts.
+<p>Example:
+<font color="#D00090">complex(2.2,4.0) $$ (8,2)</font> = 
+"(&nbsp;&nbsp;&nbsp;&nbsp; 2.20+ i*&nbsp;&nbsp;&nbsp;&nbsp; 4.00)"
+
+<p><dt><font color="red"> $$' </font>
+<dd>: (Rational, Natural, Natural) -&gt; String
+<br>: (Real, Natural, Natural) -&gt; String
+<br>: (Complex, Natural, Natural) -&gt; String
+<p> <font color=#D00090>x $$' (n,k)</font> 
+is the similar to x $$ (n,k), but the number has commas every
+three digits from the right.  Parameter n is the total number of characters
+to use, including commas.
+<p>Example:
+ <font color="#D00090">1234567.1234 $$' (15,4)</font> = "&nbsp;1,234,567.1234"
+
+<p><dt><font color="red"> $$ </font>
+<dd>: (Rational, Natural, Natural, Natural) -&gt; String
+<br>: (Real, Natural, Natural, Natural) -&gt; String
+<p> <font color=#D00090>x $$ (n,k,e)</font> is the (approximate) decimal representation of x,
+in exponential format,
+using at least n total characters, with k characters to the right
+of the decimal place, and using e characters for the exponent (not including
+the sign or the E).
+<p>Example:
+ <font color="#D00090">14.1 $$ (12,2,3)</font> 
+= "&nbsp;&nbsp;&nbsp; 1.41E+001" 
+
+<p><dt><font color="red"> $$ </font>
+<dd>: (Complex, Natural, Natural, Natural) -&gt; String
+<p> <font color=#D00090>z $$ (n,k,e)</font> 
+is the (approximate) decimal representation of z,
+in exponential format,
+using at least n total characters, with k characters to the right
+of the decimal place, and using e characters for the exponent,
+for each of the real and imaginary parts.
+<p>Example:
+ <font color="#D00090">14.1 $$ (12,2,3)</font> = 
+"(&nbsp;&nbsp;&nbsp; 2.20E+001+ i*&nbsp;&nbsp;&nbsp; 4.00E+000)" 
+
+<p><dt><font color="red"> $$' </font>
+<dd>: (Rational, Natural, Natural, Natural) -&gt; String
+<br>: (Real, Natural, Natural, Natural) -&gt; String
+<br>: (Complex, Natural, Natural, Natural) -&gt; String
+<p> <font color=#D00090>x $$' (n,k,e)</font> is identical to x $$ (n,k,e).
+
+<a name=naturalToHex></a>
+<p><dt><font color="red"> naturalToHex </font>
+<dd>: (Natural, Natural) -&gt; String
+<p> <font color="#D00090">naturalToHex(n, k)</font> 
+is the hexadecimal representation of n, in at least k 
+characters, padded with blanks on the left if necessary.
+If more then k digits are necessary to write the number, more will be used.
+<p>Example: 
+<font color="#D00090">
+naturalToHex(26, 0)</font> = "1A"
+
+<a name=naturalToBinary></a>
+<p><dt><font color="red"> naturalToBinary </font>
+<dd>: (Natural, Natural) -&gt; String
+<p> <font color="#D00090">naturalToBinary(n, k)</font> 
+is the binary representation of n, in at least k 
+characters, padded with blanks on the left if necessary.
+If more than digits are necessary to write the number, more will be used.
+<p>Example: <font color="#D00090">
+naturalToBinary(26, 0)</font> = "11010"
+
+<a name=stringToNatural></a>
+<p><dt><font color="red"> stringToNatural </font>
+<dd>: String -&gt; Natural
+<p> <font color="#D00090">stringToNatural(s)</font> 
+is the number that decimal numeral x represents.
+<p>Example: 
+<font color="#D00090">stringToNatural("14")</font> = 14
+
+<a name=stringToInteger></a>
+<p><dt><font color="red"> stringToInteger </font>
+<dd>: String -&gt; Integer 
+<p> <font color=#D00090>stringToInteger(s)</font> 
+is the number that decimal numeral x represents.
+<p>Example: 
+<font color="#D00090">stringToInteger("14")</font> = 14
+
+<a name=stringToRational></a>
+<p><dt><font color="red"> stringToRational </font>
+<dd>: String -&gt; Rational
+<p> <font color=#D00090>stringToRational(s)</font> 
+is the number that decimal numeral x represents.
+<p>Example:
+<font color="#D00090">stringToRational("14.1")</font> = 14.1
+
+<a name=stringToReal></a>
+<p><dt><font color="red"> stringToReal </font>
+<dd>: String -&gt; Real
+<p> <font color=#D00090>stringToReal(s)</font> 
+is the number that decimal numeral x represents.
+<p>Example: 
+<font color="#D00090">stringToReal("14.1")</font> = 14.1
+
+<a name=hexToNatural></a>
+<p><dt><font color="red"> hexToNatural </font>
+<dd>: String -&gt; Natural
+<p> <font color="#D00090">hexToNatural(s)</font> 
+is the number that hexadecimal numeral x represents.
+<p>Example: 
+<font color="#D00090">hexToNatural("1A")</font> = 26
+
+<a name=binaryToNatural></a>
+<p><dt><font color="red"> binaryToNatural </font>
+<dd>: String -&gt; Natural
+<p> <font color="#D00090">binaryToNatural(s)</font> 
+is the number that binary numeral x represents.
+<p>Example: 
+<font color="#D00090">octalToNatural("11010")</font> = 26
+
+<a name="pull"></a>
+<p><dt><font color="red"> pull</font>
+<dd>: String -&gt; (Natural,String)
+<br>: String -&gt; (Integer,String)
+<br>: String -&gt; (Rational, String)
+<br>: String -&gt; (Real, String)
+<p> <font color="#D00090">pull(s)</font> 
+extracts a decimal number from the front of string s and
+returns an ordered pair (n,r) where n is the number and r is the suffix
+of s that follows the number.  For example, 
+<font color=#D00090>pull("23 345")</font> = (23, " 345") and
+<font color=#D00090>pull("123.5E10 abcd")</font> = (123.5E10, " abcd").
+
+<p>Any initial white space is skipped over.
+
+<a name=extract></a>
+<p><dt><font color=red> Extract</font>
+<dd> A convenient way to get a number from a string is to put the
+string in a box and used <a href=read.html#dollar>Extract</a>.
+For example, if box b contains "999 abc" then
+<font color=#D00090>
+<b><pre>
+  Extract [$(?n)] from b.
+</pre></b>
+</font>
+binds n to 999 and leaves box b holding " abc".
+</dl>
+
+<a name="math"></a>
+<hr>
+<h2><font color=mediumblue> Mathematical operations </font></h2>
+
+You must import <a href="ast/math/math.ast">math/math.ast</a>
+to use the following.
+
+<dl>
+
+<a name=cos></a>
+<p><dt><font color="red"> cos </font>
+<dd>: APPROX`a -&gt; APPROX`a
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>cos(x)</font> 
+is the (approximate) cosine of x, where
+x is in radians.
+
+<a name=exp></a>
+<p><dt><font color="red"> exp </font>
+<dd>: APPROX`a -&gt; APPROX`a
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>exp(x)</font> is (approximately) e to the x.
+
+<a name=invtan></a>
+<p><dt><font color="red"> invtan </font>
+<dd>: Real -&gt; Real
+<p> <font color=#D00090>invtan(x)</font> 
+is (approximately) the inverse tangent of x (in radians).
+
+<a name=ln></a>
+<p><dt><font color="red"> ln </font>
+<dd>: APPROX`a -&gt; APPROX`a
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>ln(x)</font> 
+is (approximately) the natural logarithm of x.
+
+<a name=log></a>
+<p><dt><font color="red"> log </font>
+<dd>: APPROX`a -&gt; APPROX`a -&gt; APPROX`a
+<br>: Real -&gt; Real -&gt; Real
+<br>: Complex -&gt; Complex -&gt; Complex
+<p> <font color=#D00090>log b x</font> 
+is (approximately) the logarithm to base b of x.
+
+<a name=magnitude></a>
+<p><dt><font color="red"> magnitude </font>
+<dd>: Complex -&gt; Real
+<p> <font color=#D00090>magnitude(z)</font> 
+is (approximately) the magnitude of z.
+
+<a name=pi></a>
+<p><dt><font color="red"> pi </font>
+<dd>: () -&gt; Real
+<p> <font color=#D00090>pi()</font> is (approximately) pi.
+
+<a name=sin></a>
+<p><dt><font color="red"> sin </font>
+<dd>: APPROX`a -&gt; APPROX`a
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>sin(x)</font> 
+is the (approximate) sine of x where x is
+in radians.
+
+<a name=sqrt></a>
+<p><dt><font color="red"> sqrt </font>
+<dd>: APPROX`a -&gt; APPROX`a
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>sqrt(x)</font> 
+is (approximately) the (principal) square root of x.
+
+<a name=tan></a>
+<p><dt><font color="red"> tan </font>
+<dd>: APPROX`a -&gt; APPROX`a
+<br>: Real -&gt; Real
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>tan(x)</font> 
+is the (approximate) tangent of x, where x
+is in radians.
+
+</dl>
+
+<a name="misc"></a>
+<hr>
+<h2><font color=mediumblue> Miscelleneous operations </font></h2>
+
+<dl>
+
+<a name=tilde></a>
+<p><dt><font color="red"> ~ </font>
+<dd>: REAL`a -&gt; Real
+<p> <font color=#D00090>~(x)</font> 
+is the result of converting x to species Real.
+Here, x can be of any standard numeric species.
+If x already has species Real, then x is rounded to the
+current precision.
+<p>Example: 
+<font color="#D00090">~15</font> = 15.0
+
+<a name=abs></a>
+<p><dt><font color="red"> abs </font>
+<dd>: RRING`a -&gt; RRING`a
+<br>: Integer -&gt; Integer
+<br>: Rational -&gt; Rational
+<br>: Real -&gt; Real
+<p> <font color=#D00090>abs(x)</font> is the absolute value of x.
+<p>Example: 
+<font color="#D00090">abs(-15)</font> = 15
+
+<a name=absCeiling></a>
+<p><dt><font color="red"> absCeiling </font>
+<dd>: RFIELD`a -&gt; Natural
+<br>: Rational -&gt; Natural
+<br>: Real -&gt; Natural
+<p> <font color=#D00090>absCeiling(x)</font> 
+is the absolute value of the ceiling of x.
+See ceiling, below.
+
+<a name=absFloor></a>
+<p><dt><font color="red"> absFloor </font>
+<dd>: RFIELD`a -&gt; Natural
+<br>: Rational -&gt; Natural
+<br>: Real -&gt; Natural
+<p> <font color=#D00090>absFloor(x)</font> 
+is the absolute value of the floor of x.
+See floor, below.
+
+<a name=ceiling></a>
+<p><dt><font color="red"> ceiling </font>
+<dd>: RFIELD`a -&gt; Integer
+<br>: Rational -&gt; Integer
+<br>: Real -&gt; Integer
+<p> <font color=#D00090>ceiling(x)</font> 
+is the smallest integer that is not smaller than x.
+<p>Example:
+ <font color="#D00090">ceiling(-15.8)</font> = -15
+
+<a name=compl></a>
+<p><dt><font color="red"> complex </font>
+<dd>: (Real, Real) -&gt; Complex
+<p> <font color=#D00090>complex(r,s)</font> 
+is complex number with real part r and
+imaginary part s.  
+
+<p><dt><font color="red"> complex </font>
+<dd>: REAL`a -&gt; Complex
+<br>: Complex -&gt; Complex
+<p> <font color=#D00090>complex(x)</font> is the
+number x converted to species Complex.  This operation is
+overloaded.
+
+<a name=denominator></a>
+<p><dt><font color="red"> denominator </font>
+<dd>: Rational -&gt; Natural
+<p> <font color=#D00090>denominator(x)</font> 
+is the denominator of the reduced form of fraction x.
+The denominator is of species Natural.
+<p>Example:
+ <font color="#D00090">denominator(2//3)</font> = 3
+
+<a name=factors></a>
+<p><dt><font color="red"> factors </font>
+<dd>: Natural -&gt; [Natural]
+<p> <font color="#D00090">factors(n)</font> 
+is list of the prime factors of n, in
+nondescending order.  The product of the numbers in this list
+is n.  To use this, you must import
+<a href="ast/math/prime.ast">math/prime.ast</a>
+
+<a name=floor></a>
+<p><dt><font color="red"> floor </font>
+<dd>: RFIELD`a -&gt; Integer
+<br>: Rational -&gt; Integer
+<br>: Real -&gt; Integer
+<p> <font color=#D00090>floor(x)</font> 
+is the largest integer that is not larger than x.
+<p>Example:
+ <font color="#D00090">floor(-15.8)</font> = -16
+
+<a name=fromPolar></a>
+<p><dt><font color="red"> fromPolar </font>
+<dd>: (Real, Real) -&gt; Complex
+<p> <font color=#D00090>fromPolar(r,theta)</font> is z where
+z = r*e^(i*theta).
+
+<a name=gcd></a>
+<p><dt><font color="red"> gcd </font>
+<dd>: (INTEGER`a,INTEGER`a) -&gt; INTEGER`a
+<br>: (Natural, Natural) -&gt; Natural
+<br>: (Integer, Integer) -&gt; Integer
+<p> <font color="#D00090">gcd(m,n)</font> 
+is the greatest common divisor of m and n.
+<p>Example: <font color="#D00090">gcd(15, 35)</font> = 5
+
+<a name=im></a>
+<p><dt><font color="red"> im </font>
+<dd>: Complex -&gt; Real
+<p> <font color=#D00090>im(z)</font> is imaginary part of z.
+
+<a name=natconst></a>
+<p><dt><font color=red>natconst </font>
+<dd>: Natural -&gt; NUMBER`a
+<br>: Natural -&gt; Natural
+<br>: Natural -&gt; Integer
+<br>: Natural -&gt; Rational
+<br>: Natural -&gt; Real
+<br>: Natural -&gt; Complex
+<p> Function natconst allows you to use constants such
+as 1 as various kinds of numbers.
+
+<a name=numerator></a>
+<p><dt><font color="red"> numerator </font>
+<dd>: Rational -&gt; Integer
+<p> <font color=#D00090>numerator(x)</font> 
+is the numerator of the reduced form of fraction x.
+It has species Integer.
+<p>Example:
+<font color="#D00090">numerator(2//3)</font> = 2
+
+<a name=oddq></a>
+<p><dt><font color="red"> odd? </font>
+<dd>: INTEGER`a -&gt; Boolean
+<br>: Natural -&gt; Boolean
+<br>: Integer -&gt; Boolean
+<p> <font color="#D00090">odd?(n)</font> is true if n is odd.
+<p>Example: <font color="#D00090">odd?(12)</font> = false
+
+<a name=primeq></a>
+<p><dt><font color="red"> prime? </font>
+<dd>: Natural -&gt; Boolean
+<p> <font color="#D00090">prime?(n)</font> 
+is true just when n is prime.  To use this function, you 
+must import
+<a href="ast/math/prime.ast">math/prime.ast</a>
+
+<a name=ratconst></a>
+<p><dt><font color=red>ratconst </font>
+<dd>: Rational -&gt; NFIELD`a
+<br>: Rational -&gt; Rational
+<br>: Rational -&gt; Real
+<br>: Rational -&gt; Complex
+<p> Function ratconst allows you to use constants such
+as 1.0 as various kinds of numbers.
+
+<a name=re></a>
+<p><dt><font color="red"> re </font>
+<dd>: Complex -&gt; Real
+<p> <font color=#D00090>re(z)</font> is real part of z.
+
+<a name=round></a>
+<p><dt><font color="red"> round </font>
+<dd>: RFIELD`a -&gt; Integer
+<br>: Rational -&gt; Integer
+<br>: Real -&gt; Integer
+<p> <font color=#D00090>round(x)</font> the (or an) integer closest to x.
+<p>Example:
+<font color="#D00090">round(12.6)</font> = 13
+
+<a name=sign></a>
+<p><dt><font color="red"> sign </font>
+<dd>: RRING`a -&gt; Integer
+<br>: Integer -&gt; Integer
+<br>: Rational -&gt; Integer
+<br>: Real -&gt; Integer
+<p> <font color=#D00090>sign(n)</font> 
+is -1 if n < 0, 0 if n = 0, and 1 if n > 0.
+
+<a name=toPolar></a>
+<p><dt><font color="red"> toPolar </font>
+<dd>: Complex -&gt; (Real, Real)
+<p> <font color=#D00090>toPolar(z)</font> 
+is (r,theta) where z = r*e^(i*theta).
+
+<a name=toSqPolar></a>
+<p><dt><font color="red"> toSqPolar </font>
+<dd>: Complex -&gt; (Real, Real)
+<p> <font color=#D00090>toSqPolar(z)</font> 
+is (r,theta) where z = sqrt(r)*e^(i*theta).
+
+<a name=unit></a>
+<p><dt><font color=red>unit</font>
+<dd>: SEMIRING`a
+<br>: Natural
+<br>: Integer
+<br>: Rational
+<br>: Real
+<br>: Complex
+<p> <font color="#D00090">unit</font> = 1.  
+
+<a name=zero></a>
+<p><dt><font color=red>zero</font>
+<dd>: SEMIGROUP`a
+<br>: Natural
+<br>: Integer
+<br>: Rational
+<br>: Real
+<br>: Complex
+<p> <font color="#D00090">zero</font> = 0.  
+
+<a name=zeroq></a>
+<p><dt><font color="red"> zero? </font>
+<dd>: SEMIGROUP`a -&gt; Boolean
+<br>: Natural -&gt; Boolean
+<br>: Integer -&gt; Boolean
+<br>: Rational -&gt; Boolean
+<br>: Real -&gt; Boolean
+<br>: Complex -&gt; Boolean
+<p> <font color="#D00090">zero?(n)</font> is true if n = 0.
+<p>Example: 
+<font color="#D00090">zero?(12)</font> = false
+</dl>
+
+<hr>
+<center>
+<a href="numericlib.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=numericlib.html>Numeric Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="modular.html">Next</a>
+</center>
+</body>
+</HTML>

@@ -1,0 +1,17 @@
+Package indent
+
+%% test indent checking
+
+Execute
+  Ignore
+    [];
+    [];
+  %Ignore
+
+  Open If 0 == 1
+   then Writeln["Bad"].
+   else Writeln["Good"].
+  %If
+%Execute
+
+%Package

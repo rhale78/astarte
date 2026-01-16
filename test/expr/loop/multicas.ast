@@ -1,0 +1,29 @@
+Package multicase 
+
+%% Test multiple cases
+
+Execute
+  Writeln["Should print GOOD, then 1 2 3 4 on separate lines, then Finished: good"].
+  Choose first
+    case 1 > 2 
+    case 1 > 3 => Writeln["BAD"].
+      
+    case do {1 > 2}
+    case 1 < 2  => Writeln["GOOD"].
+
+    case 1 == 1
+    else        => Writeln["BAD"].
+  %Choose
+
+  Loop ?k = 1 first
+    exitcase k < 0
+    exitcase k > 4 => Writeln["Finished: good"].
+ 
+    loopcase k < 2
+    loopcase do {k >= 2 _and_ k <= 4} => Writeln[$k]. continue k+1
+  %Loop
+%Execute
+
+%Package
+
+  

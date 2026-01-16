@@ -1,0 +1,112 @@
+# debug/debug.h/NUM_DEBUG_MSG_S holds number of lines
+  0 freeing list %p 
+  1 head string = %s, ref cnt = %ld\
+  2 kind = %d, ref cnt = %ld\
+  3 free_type: freeing the following type (addr %p)\
+  4 Creating constraint V >= T (gg = %d) where (V,T) are as follows.\
+  5   Found in first list\
+  6   Found in second list\
+  7   Unknown var: returning null\
+  8 key = %s num = %d var_num = %d tok = %d (ext:%d,exp:%d,opq:%d)\
+  9 \Type_id_table:\
+ 10 key = (%s, %s), val = %s
+ 11 \Intersection_table:\
+ 12 Type (address: %p), hash %ld st %d\
+ 13 %s (%d)[rc=%d hrm=%d sn=%d std=%d sp=%d dfm=%d\
+ 14 frz=%d free=%d cpy=%d]\
+ 15 Computed join of %s and %s is %s.\
+ 16 Join table: join of %s and %s is %s.\
+ 17 Unification has failed due to inconsistent constraint cycles.\
+ 18 Constraint restriction failed.\
+ 19 have_bound: recording binding\
+ 20 Basic_unify(rec %d): binding variable %p(kind %d) to 
+ 21 Basic_unify: unifying the following\
+ 22 binding null vars %p and %p to variable %p\
+ 23 binding null var %p to 
+ 24 ***Rejecting: family/nonfamily!  This should not have happened!***\
+ 25 Basic_unify: have detected a cycle\
+ 26 Basic_unify: failed to unify the following species\
+ 27 Basic_unify: result is 
+ 28 Undo_bindings: undoing binding of %p\
+ 29 Undo_bindings: rebinding function %p from hermit\
+ 30 Unify: %p, %p (record = %d)\
+ 31 Unify returns false\
+ 32 Unification has failed due to a cycle:\
+ 33 Unify returns true: 
+ 34 \Overlapping the following species (full = %d)\
+ 35 Overlap: returning 
+ 36 DISJOINT\
+ 37 BAD\
+ 38 CONTAINED_IN\
+ 39 CONTAINS\
+ 40 EQUAL\
+ 41 write_int: %ld\
+ 42 gen_int: %ld   (loc %p)\
+ 43 ancestor(%s, %s): %d\
+ 44 Closing classes\
+ 45 Unifying constraint cycles.\
+ 46 Done unifying constraint cycles.\
+ 47 Getting ctc for %s(%p): 
+ 48 Found ctc in class_table\
+ 49 Not found, returning null\
+ 50 Found %s, code = %d\
+ 51 Installing new ctc entry for %s(%p)\
+ 52 New genus: %s\
+ 53 New community: %s\
+ 54 %s has number %d\
+ 55 Doing expectation from anticipation\
+ 56 Begin remove_redundant_constraints(rec = %d), type:\ 
+ 57 Extending %s by %s 
+ 58 Adding new species: %s\
+ 59 Adding new family: %s\
+ 60 Expecting species: %s\
+ 61 Expecting family: %s\
+ 62 Installing %s(%d) as a new descendant of %s(%d), 
+ 63 End remove_redundant_constraints\
+ 64 Installing abbreviation %s, token %d, table %p\
+ 65 Abbreviation, tok = %d: %s(%p) = 
+ 66 Checking for cycles\
+ 67 Class table cycle detected at number %d\
+ 68 Remove_redundant_constraints: Binding variable 
+ 69 Forcing an intersection %s & %s = 
+ 70 Cannot force\
+ 71 Finding intersection of %s and %s\
+ 72 Find_intersection: 
+ 73 giving up due to family in genus\
+ 74 intersection list is 
+ 75 have computed an intersection:\
+ 76 Checking associativity\
+ 77 ===checking associativity for(%s,%s,%s)(%s)\
+ 78 End of check for (%s,%s,%s)(%s)\
+ 79 tag_name_to_tag_num: name = %s, species = 
+ 80 pat species is not an identifier, returning -1\
+ 81 Could not find tag\
+ 82 Tag is %d\
+ 83 tag_num_to_tag_name: num = %d, t = 
+ 84 Could not find %d\
+ 85 Name is %s\
+ 86 Intersection: %s with %s = 
+ 87 Intersect dcl:classes are closed!\classes are %s and %s\
+ 88 Full_get_intersection: 
+ 89 a = %s(%d), b = %s(%d)\
+ 90  to wrap type 
+ 91 Remove_redundant_constraints: updating constraint for V to L as follows\
+ 92 Begin reduce_constraints on\
+ 93 going to intersect table\
+ 94 End reduce constraints, result is\
+ 95 undo_bindings: replacing constraints of variable %p\
+ 96 undo_bindings: rebinding NULL variable at %p\
+ 97 Performing disjointness test\
+ 98 Disjoint: returning %d\\
+ 99 \Here is the meet table.\
+100 %15s & %15s = %15s\
+101 patch_hierarchy: Adding %s to %s & %s = %s\
+102 \Here is the join table.\
+103 %15s | %15s = %15s\
+104 Binding function type %p to hermit.\
+105 Done creating constraint.\
+106 Adding ahead meet for %s and %s = %s(%s,%s)\
+107 Forcing variable %p to primary due to >>= constraint.
+108 Begin check_constraint, gg = %d\ ub = 
+109 \  lb = 
+110 End check_constraint, result = %d\

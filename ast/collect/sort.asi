@@ -1,0 +1,121 @@
+%% File: sort.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%====================================================================
+Package 		Astarte_SortImp
+
+			Implements "sort"
+======================================================================
+
+====================================================================
+%% 			mergeHelp
+====================================================================
+
+%%-----------------------------------------------------------------
+%% Merge lists a and b, which are sorted by relation cmp.  If
+%% rd is true, then remove duplicates.  eqf should be the equality
+%% testing function when rd is true, and is not used when
+%% rd is false.
+%%-----------------------------------------------------------------
+
+Let mergeHelp ?rd ?eqf ?cmp (?a, ?b) = f_merge(a,b) |
+  Define f_merge(?l1,?l2) =
+    Await l1,l2 then
+      Choose first
+        case nil? l1 => l2
+        case nil? l2 => l1
+        do Let h1 = head l1.
+	   Let h2 = head l2.
+        case rd _and_ eqf(h1, h2)  => h1 :: f_merge(tail l1, tail l2)
+        case cmp(h1, h2)           => h1 :: f_merge(tail l1, l2)
+        else                       => h2 :: f_merge(l1, tail l2)
+      %Choose
+    %Await
+  %Define
+%Let
+
+====================================================================
+%%			mergeSortedLists
+====================================================================
+
+Let falsef = constf false.
+
+Let mergeSortedLists = mergeHelp false falsef.
+
+====================================================================
+%%			mergeSortedListsRemovingDuplicates
+====================================================================
+
+Let mergeSortedListsRemovingDuplicates = mergeHelp true.
+
+====================================================================
+%%			 mergesort
+====================================================================
+
+%%-----------------------------------------------------------------
+%% (mergesort mg (l,k)) sorts the first k members of list l into
+%% ascending order, using mg to merge sorted lists.
+%% It returns a pair (a,b), where a is the
+%% result of the sort, and b is the remainder of l
+%% (the result of deleting the first k members of l).
+%%
+%% REQUIREMENT: List l must be nonempty.
+%%-----------------------------------------------------------------
+
+Define mergesort ?mg (?l, ?k) =
+  If k == 1 then
+    ([head l], tail l)
+  else
+    Let half = k _div_ 2.
+    Match (?m1, ?rest1) = mergesort mg (l, half).
+    Match (?m2, ?rest2) = mergesort mg (rest1, k -- half).
+    (mg(m1, m2), rest2)
+  %If
+%Define
+
+====================================================================
+%%			sorted?
+====================================================================
+
+Let sorted? ?rel ?l =
+  If nil? l _or_ nil? (tail l) then true else
+    Loop [?a, ?b & ?rest] = l first
+      exitcase not(rel(a,b)) => false
+      exitcase nil? rest     => true
+      loopcase else          => continue [b & rest]
+    %Loop
+  %If
+%Let
+
+====================================================================
+%%			basicsort
+====================================================================
+
+Let basicsort ?mg ?cmp ?l =
+  Choose first
+    case nil? l => nil
+    case sorted? cmp l => l
+    else               => left(mergesort (mg cmp) (l, length l))
+  %Choose
+%Let
+
+====================================================================
+%%			sort
+====================================================================
+
+Let sort = basicsort mergeSortedLists.
+
+====================================================================
+%%			sortRemovingDuplicates
+====================================================================
+
+Let sortRemovingDuplicates ?eqf =
+  basicsort (mergeSortedListsRemovingDuplicates eqf)
+%Let
+
+====================================================================
+
+%Package

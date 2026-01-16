@@ -1,0 +1,11 @@
+Package abbrevvar
+
+%% Test abbreviations in variable domains
+
+Abbrev NUM = REAL.
+
+Expect myplus: (NUM`a,NUM`a) -> NUM`a.
+
+Let myplus = +.
+
+%Package

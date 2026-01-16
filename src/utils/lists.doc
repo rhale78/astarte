@@ -1,0 +1,78 @@
+/***************************************************************
+ * File:    utilities/lists.doc
+ * Purpose: Description of facilities for linked lists.
+ * Author:  Karl Abrahamson
+ ***************************************************************/
+
+ Lists of various types are provided, with a few basic operations.  
+ To add a new list kind, modify type list_union, add a new 
+ discriminator, make a new cons function, and modify function 
+ set_head in lists.c.
+
+ ****************************************************************
+ *			FUNCTIONS				*
+ ****************************************************************
+
+cons functions
+--------------
+
+general_cons(h,t,k)	returns cons(h,t), where h has kind k. */
+
+str_cons(h,t)		This and the other cons functions perform 
+expr_cons(h,t)		specialized conses.
+type_cons(h,t)
+ctc_cons(h,t)
+gic_cons(h,t)
+int_cons(h,t)
+file_cons(h,t)
+
+
+General functions
+-----------------
+
+append(a,b)		returns the concatenation of lists a and b.
+
+reverse_list(l)		returns the reversal of l.
+
+str_member(s,l)		is n if s occurs in l at position n, where the first
+			member of l is at position 1.  Returns 0 if s does
+			not occur in l.
+			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			Equality tests are done by ==, so strings must be
+			in the string table
+			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+int_member(n,l)		is true just when integer n is a member of list l.
+
+pop(s)			pops list s, as a stack.
+
+subscript(l,n)		Returns the n^th tail of l.  If n = 1, returns l, else
+			returns subscript(tail(l), n-1).  Returns nil
+			if l has fewer than n members.
+
+Reference count management for members
+--------------------------------------
+
+bump_head(k,h)	  	does a bump on h, where h has type HEAD_TYPE
+ 			and k tells its kind.
+ 
+drop_head(k,h)	  	does a drop on h, where h has type HEAD_TYPE
+ 			and k tells its kind.
+ 
+set_head(l,k,h)	  	sets the kind of list cell l to k, and the head
+ 			to h.
+ 
+
+Storage management
+------------------
+
+allocate_list()		returns a pointer to a new list cell.
+
+set_list(x,l)		Set variable x to l.  x is double indirect.  To
+			achieve the effect of an assignment x = l, do
+			SET_LIST(x,l).
+
+bump_list(l)		Increment the reference count of list l.
+
+drop_list(l)		Decrement the reference count of list l, and
+			free l if the reference count goes to 0.

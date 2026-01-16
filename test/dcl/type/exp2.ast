@@ -1,0 +1,12 @@
+Package exp2 
+
+Import "exp1".
+
+Execute
+  Let x = myType(2).
+  Writeln[$x].
+  If x == myType(2) then Writeln["Good"]. else Writeln["Bad"]..
+%Execute
+
+%Package
+

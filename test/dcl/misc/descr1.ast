@@ -1,0 +1,25 @@
+Package descr1
+
+%% Test descriptions in let and team dcls.
+
+Export
+
+Let
+  description "TestDescr1 is a function"
+  
+  testDescr1(?x) = x
+%Let
+
+Team
+  Define
+    description "TestDescr2 is a function"
+    testDescr2(?x) = x
+  %Define
+  
+  Define
+    description "TestDescr3 is a function"
+    testDescr3(?x) = x
+  %Define
+%Team
+
+%Package

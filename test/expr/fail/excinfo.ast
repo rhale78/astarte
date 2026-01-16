@@ -1,0 +1,10 @@
+Package excinfo
+
+%% Test exception info for requireX.
+
+Execute
+  Writeln["Should fail with exception requireX(\"test\")."].
+  Fail(requireX("test")).
+%Execute
+
+%Package

@@ -1,0 +1,35 @@
+Package append
+
+%% Test logic programming sort of append.
+
+Import "logic/unify".
+
+Define Append by all
+  case Append(nil,    ?a, ?a).     <- ()
+  case Append(?h::?t, ?a, ?h::?r). <- Append(t, a, r).
+%Define
+
+Execute
+  Var{logic} x.
+
+  Append([1,2],[3,4],x).
+  Writeln[$x].
+
+  Var{logic} a,b.
+
+  Try
+    Append(a,b,[1,2,3,4]).
+    Writeln[$a, $b].
+    {false}
+  %Try
+
+  %% The following should deadlock.
+  
+  Writeln["Should deadlock now.\n"].
+  
+  Var{logic} c holding Natural.
+  Writeln[$c].
+  
+%Execute
+
+%Package

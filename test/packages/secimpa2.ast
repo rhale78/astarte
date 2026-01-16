@@ -1,0 +1,7 @@
+Package secimp2 export
+
+%% Test second imports.  The top level is secimpa0.ast.
+
+Import "secimpa4".
+
+%Package

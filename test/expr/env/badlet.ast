@@ -1,0 +1,34 @@
+Package lett 
+
+%% Test erroneous lets, relets
+
+%% Recursive Let
+
+Execute
+  Let factorial(?n) = If n == 0 then 1 else n*factorial(n--1) %if.
+%Execute
+
+%% Nonlocal Relet
+
+Execute
+  Let f(?x) =
+    Let g(?y) =
+      Relet x = y.
+    %Let
+    (x | g(3))
+  %Let
+
+  Ignore(f 4).
+%Execute
+
+%% Relet to global
+
+Let glo = 1.
+
+Execute
+  Relet glo = 2.
+%Execute
+
+%Package
+
+  

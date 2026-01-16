@@ -1,0 +1,62 @@
+Package trybox 
+
+%% Test restoring of nonshared boxes after try.
+
+Import "misc/check".
+
+Exception thisEx.
+
+%% Long try
+
+Let P(?a). = Line["1. ", $a]..
+
+Execute
+  Var{nonshared} x := 0.
+  Try
+    Assign x := 1.
+    P(@x).
+    Check["1. 1"].
+    {false else thisEx}
+  else
+    Line["2. ", $(@x)].
+    Check["2. 0"].
+    Line[$exception].
+    Check["trybox.thisEx"].
+  %Try
+%Execute
+
+%% Quick try
+
+Execute
+  Var{nonshared} x := 0.
+  Try
+    Assign x := 1.
+    {false else thisEx}
+  else
+    Line["3. ", $(@x)].
+    Check["3. 0"].
+    Line[$exception].
+    Check["trybox.thisEx"].
+  %Try
+%Execute
+
+%% Quick try with pause.
+
+Execute
+  Var{nonshared} x := 0.
+  Try
+    Assign x := 1.
+    Pause().
+    Line["4. ", $(@x)].
+    Check["4. 1"].
+    Assign x := 2.
+    {false else thisEx}
+  else
+    Line["5. ", $(@x)].
+    Check["5. 0"].
+    Line[$exception].
+    Check["trybox.thisEx"].
+  %try
+%Execute
+
+%Package

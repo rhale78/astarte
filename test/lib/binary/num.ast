@@ -1,0 +1,12 @@
+Package num
+
+%% Test numerical operations
+
+Import "misc/check".
+
+Execute
+    Line [123456789 _div_ 10 $$ 20].
+    Check["            12345678"].
+%Execute
+
+%Package

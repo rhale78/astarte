@@ -1,0 +1,13 @@
+Package pipedollar
+
+%% Test $ for outfiles, pipes.
+
+Execute
+  Match (?, ?pout:Outfile(Natural)) = pipe().
+  Let fin = outfile("test.txt").
+  Writeln["Should show file test.txt, then the write end of a pipe.\n"].
+  Writeln[$fin].
+  Writeln[$pout].
+%Execute
+
+%Package

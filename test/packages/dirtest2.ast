@@ -1,0 +1,6 @@
+Package dirtest2 export
+
+%%Import "collect/string".
+Directory standard.
+Import "collect/string".
+%Package

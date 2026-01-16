@@ -1,0 +1,267 @@
+Package testlist 
+
+%% Assorted list operations
+
+Import "misc/check"; "collect/boxes"; "collect/listfun"; "collect/search".
+
+Operator head; tail.
+
+Execute
+  FreezeBoxRanks(true).
+  Let a:[Natural] = [].
+  Let b = [3,4].
+  Let c = [1,2 & b].
+  Line[$a, " ", $b, " ", $c].
+  Check["[] [3,4] [1,2,3,4]"].
+%Execute
+
+Let bst ?b = If b then "T" else "F"..
+Operator bst.
+
+Execute
+  %% Head, tail, length, nil? on various forms of list
+
+  Let a = [1].          	%% pair
+  Let b = [1,2].        	%% triple
+  Let c = [1,2,3].      	%% quad
+  Let d = [1,2,3,4].    	%% quint
+  Let e = [1,2,3,4,5].  	%% hex
+  Let f = e ++ e.         	%% append
+  Let g = pack(f).   		%% normal array (bytes)
+  Let gg = pack[1,2,3,4,1000].  %% normal array
+  Let h:[Box(Natural)]    = nonsharedArray(5).    %% nonshared array
+  Let i:[Box(Natural)]    = sharedArray(5).	%% shared array
+  Let j = [:Stream 1 then 2 then 3 %stream:].
+  Let j1 = [:Stream 1 then 2 then 3 %stream:].
+  Let j2 = [:Stream 1 then 2 then 3 %stream:].
+  Let j3 = [:Stream 1 then 2 then 3 %stream:].
+  Let k = e##(1,3).		%% lazy
+  Let l = (:[1,2,3]:).		%% lazy
+  Let m = "abcde". 		%% constant string
+  Let n = pack['a','b','c'].	%% built string
+  Let nn = pack[true,false,false,true]. %% built string
+  Let nnn = n ++ n ++ n.        %% append of built strings
+  Let p :[Box(Natural)] = infiniteSharedArray(). %% Infinite array
+  Let pp:[Box(Natural)] = infiniteSharedArray(). %% Second infinite array
+
+  %%-------------------------------------------------------------------
+  %% head
+
+  Writeln["head tests"].
+
+  Line[$head a, $head b, $head c, $head d, $head e, $head f, 
+	   $head g, $head gg, $head j, $head k, $head l, [head m], [head n],
+	   bst head nn, [head nnn]]
+  %Line
+  Check["11111111121aaTa"].
+
+  Let hrank = rankBox(head h).
+  Let irank = rankBox(head i).
+  Let prank = rankBox(head p).
+  Line[$head h, $head i, $head p].
+  Check["(nonsharedBox ", $hrank, ")(sharedBox ", $irank, ")(sharedBox ", $prank, ")"].
+
+  Line[$head(1 _upto_ 10)].
+  Check["1"].
+
+  %%-------------------------------------------------------------------
+  %% tail
+
+  Writeln["tail tests"].
+
+  Line[$tail a, $tail b, $tail c, $tail d, $tail e].
+  Check["[][2][2,3][2,3,4][2,3,4,5]"].
+
+  Line[$tail f, $tail g, $tail gg, $tail j, $tail j1, $tail k].
+  Check["[2,3,4,5,1,2,3,4,5][2,3,4,5,1,2,3,4,5][2,3,4,1000][2,3][2,3][3,4]"].
+
+  Line[$tail l, $tail m, $tail n, $tail nn, $tail nnn].
+  Check["[2,3]\"bcde\"\"bc\"[false,false,true]\"bcabcabc\""].
+
+  Line[$tail h].
+  Check["[nonshareds ", $(hrank + 1), "..", $(hrank + 4), "]"].
+
+  Line[$tail i].
+  Check["[shareds ", $(irank + 1), "..", $(irank + 4), "]"].
+
+  Line[$head tail p].
+  Check["(sharedBox ", $(prank + 1), ")"].
+
+  Line[$tail(1 _upto_ 10), $tail(tail(1 _upto_ 10))].
+  Check["[2,3,4,5,6,7,8,9,10][3,4,5,6,7,8,9,10]"].
+
+  %%-------------------------------------------------------------------
+  %% length
+
+  Writeln["length tests"].
+
+  Line[$length a, $length b, $length c, $length d, $length e,
+	   $length f, $length g, $length h, $length i, $length j,
+	   $length k, $length l, $length m, $length n, $length nn,
+	   $length j2,$length gg, $length nnn]
+  %Line
+  Check["12345101055333534359"].
+
+  Line[$length f, $length f].
+  Check["1010"].
+
+  Line[$length(1 _upto_ 10), " ", $length(1 _upto_ 2000)].
+  Check["10 2000"].
+
+  %%-------------------------------------------------------------------
+  %% nil?
+
+  Writeln["nil? tests"].
+
+  Line[bst nil? (nil:[Natural]), 
+	   bst nil? a, bst nil? b, bst nil? c, bst nil? d, bst nil? e,
+	   bst nil? f, bst nil? g, bst nil? h, bst nil? i, bst nil? j,
+	   bst nil? k, bst nil? l, bst nil? m, bst nil? n, bst nil? nn,
+	   bst nil? p, bst nil? pp, bst nil? j3, bst nil? gg, bst nil? nnn]
+  %Line
+  Check["TFFFFFFFFFFFFFFFFFFFF"].
+
+%Execute
+
+Execute
+  Let a = [1].          	%% pair
+  Let b = [1,2].        	%% triple
+  Let c = [1,2,3].      	%% quad
+  Let d = [1,2,3,4].    	%% quint
+  Let e = [1,2,3,4,5].  	%% hex
+  Let f = e ++ e.         	%% append
+  Let g = pack(f).   		%% normal array (bytes)
+  Let gg = pack[1,2,3,4,1000].  %% normal array
+  Let h:[Box(Natural)]  = nonsharedArray(5). 	%% nonshared array
+  Let i:[Box(Natural)]  = sharedArray(5).	%% shared array
+  Let j = [:Stream 1 then 2 then 3 %stream:].
+  Let j4 = [:Stream 1 then 2 then 3 %stream:].
+  Let j5 = [:Stream 1 then 2 then 3 %stream:].
+  Let j6 = [:Stream 1 then 2 then 3 %stream:].
+  Let k = e##(1,3).		%% lazy
+  Let k1 = e##(1,3).		%% lazy
+  Let l = (:[1,2,3]:).		%% lazy
+  Let m = "abcde". 		%% constant string
+  Let n = pack['a','b','c'].	%% built string
+  Let nn = pack[true,false,false,true]. %% built string
+  Let nnn = n ++ n ++ n.        %% append of built strings
+  Let p:[Box(Natural)] = infiniteSharedArray().	%% Infinite array
+  Let hrank = rankBox(head h).
+  Let irank = rankBox(head i).
+  Let prank = rankBox(head p).
+
+  %%-------------------------------------------------------------------
+  %% #_
+
+  Writeln["#_ tests"].
+
+  Line[$(a#_0), $(b#_0), $(c#_0), $(d#_0), $(e#_0), 
+	   $(f#_0), $(g#_0), $(j#_0), $(k#_0), $(l#_0), [m#_0], [n#_0], 
+	   bst(nn#_0), $(j4#_0), $(gg#_0), [nnn#_0]]
+  %Line
+  Check["1111111121aaT11a"].
+
+  Line[$(h#_0), $(i#_0)].
+  Check["(nonsharedBox ", $hrank, ")(sharedBox ", $irank, ")"].
+
+  Line[$(b#_1), $(c#_1), $(d#_1), $(e#_1), 
+	   $(f#_1), $(g#_1), $(j#_1), $(k#_1), $(l#_1), [m#_1], [n#_1], 
+	   bst(nn#_1), $(gg#_1), [nnn#_1]]
+  %Line
+  Check["222222232bbF2b"].
+
+  Line[$(h#_1), $(i#_1)].
+  Check["(nonsharedBox ", $(hrank + 1), ")(sharedBox ", $(irank + 1), ")"].
+
+  Line[$(c#_2), $(d#_2), $(e#_2), 
+	   $(f#_2), $(g#_2), $(j#_2), $(k#_2), $(l#_2), [m#_2], 
+	   [n#_2], bst(nn#_2), $(gg#_2), [nnn#_2]]
+  %Line
+  Check["33333343ccF3c"].
+
+  Line[$(d#_3), $(e#_3), 
+	   $(f#_3), $(g#_3), [m#_3], 
+	   bst(nn#_3), $(gg#_3), [nnn#_3]]
+  %Line
+  Check["4444dT4a"].
+
+  Line[$(h#_2), $(i#_2)].
+  Check["(nonsharedBox ", $(hrank + 2), ")(sharedBox ", $(irank + 2), ")"].
+
+  Line[$(p#_0), $(p#_4), $(p#_12)].
+  Check["(sharedBox ", $prank, ")(sharedBox ", $(rankBox(p#_4)), ")(sharedBox ", 
+	$(rankBox(p#_12)), ")"]
+  %Check
+
+  Line[$((0 _upto_ 30)#_4), " ", $((0 _upto_ 200)#_199)].
+  Check["4 199"].
+
+  %%-------------------------------------------------------------------
+  %% ##
+
+  Writeln["## tests"].
+
+  Line[$(a##(0,0)), $(b##(0,0)), $(c##(0,0)), $(d##(0,0)), $(e##(0,0)), 
+	   $(f##(0,0)), $(g##(0,0)), $(j##(0,0)), $(k##(0,0)), $(l##(0,0)), 
+	   $(m##(0,0)), $(n##(0,0)), $(nn##(0,0)), $(gg##(0,0)), $(nnn##(0,0))]
+  %Line
+  Check["[][][][][][][][][][]\"\"\"\"[][]\"\""].
+
+  Line[$(h##(0,0)), $(i##(0,0))].
+  Check["[][]"].
+
+  Line[$(a##(0,2)), $(b##(0,2)), $(c##(0,2)), $(d##(0,2)), $(e##(0,2))].
+  Check["[1][1,2][1,2][1,2][1,2]"].
+
+  Line[$(f##(0,2)), $(g##(0,2)), $(j##(0,2)), $(j5##(1,2)),
+	   $(k##(0,2)), $(l##(0,2)), $(gg##(0,2)), $(nnn##(0,2))]
+  %Line
+  Check["[1,2][1,2][1,2][2,3][2,3][1,2][1,2]\"ab\""].
+
+  Line[$(m##(0,2)), $(n##(0,2)), $(nn##(0,2))].
+  Check["\"ab\"\"ab\"[true,false]"].
+
+  Line[$(h##(0,2)), $(i##(0,2))].
+  Check["[nonshareds ", $hrank, "..", $(hrank + 1), "][shareds ", $irank, "..", $(irank + 1), "]"].
+
+  Line[$(a##(1,2)), $(b##(1,2)), $(c##(1,2)), $(d##(1,2)), $(e##(1,2))].
+  Check["[][2][2,3][2,3][2,3]"].
+
+  Line[$(f##(1,2)), $(g##(1,2)), $(j##(1,2)), $(k##(1,2)), $(l##(1,2))].
+  Check["[2,3][2,3][2,3][3,4][2,3]"].
+
+  Line[$(m##(1,2)), $(n##(1,2))].
+  Check["\"bc\"\"bc\""].
+
+  Line[$(h##(1,2)), $(i##(1,2))].
+  Check["[nonshareds ", $(hrank+1), "..", $(hrank+2), 
+	"][shareds ", $(irank+1), "..", $(irank+2), "]" ]
+  %Check
+
+  Line[$(f##(2,6)), $(f##(6,3))].
+  Check["[3,4,5,1,2,3][2,3,4]"].
+
+  Line[$(g##(2,6)), $(g##(6,3)), $(gg##(2,6))].
+  Check["[3,4,5,1,2,3][2,3,4][3,4,1000]"].
+
+  Line[$(p##(2,5))].
+  Check["(a list of 5 boxes)"].
+
+  Line[$(p##(20,5))].
+  Check["(a list of 5 boxes)"].
+ 
+  Line[$(a##(2,largenum)), $(b##(2,largenum)), $(c##(2,largenum)),
+           $(d##(2,largenum)), $(e##(2,largenum)), $(f##(2,largenum)),
+	   $(g##(2,largenum))]
+  %Line
+  Check["[][][3][3,4][3,4,5][3,4,5,1,2,3,4,5][3,4,5,1,2,3,4,5]"].
+
+  Line[$(gg##(2,largenum)), $(j6##(2,largenum)), $(k1##(2,largenum))].
+  Check["[3,4,1000][3][4]"].
+
+  Line[$((0 _upto_ 10)##(5,3)), " ", $((0 _upto_ 1000)##(100,10))].
+  Check["[5,6,7] [100,101,102,103,104,105,106,107,108,109]"].
+%Execute
+
+%Package
+

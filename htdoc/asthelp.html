@@ -1,0 +1,113 @@
+<HTML>
+<head>
+<title>Astarte: asthelp</title>
+</head>
+<body>
+<center>
+<a href="commands.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="overview.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> M2. Getting Function Descriptions </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#standlibrayfunc> Standard and library functions and constructs </a>
+  <li> <a href=#optionsasthelp> Options for asthelp</a>
+  <li> <a href=#gettingdescriptions> Getting your own descriptions</a>
+
+
+</menu>
+<a name=standlibrayfunc></a>
+<hr>
+<h2><font color=mediumblue> Standard and library functions and constructs</font></h2>
+
+The manual entries for functions and other things contain more
+detail than is discussed in this documentation.  Occasionally,
+you might want to look at them to find out more.  
+You can get the manual entry by
+reading the .ast file that contains it, or by using the
+asthelp command.
+
+<p>Command asthelp prints the manual entry or entries of a 
+name.  To find out about function map, you can use command
+<pre>
+    asthelp map
+</pre>
+The output will show where map is defined and the manual entry for
+it.  You can ask for help about
+general constructs as well as about functions, species, etc.
+For example,
+<pre>
+    asthelp Loop
+</pre>
+tells you about the Loop construct.
+
+<a name=optionsasthelp></a>
+<hr>
+<h2><font color=mediumblue> Options for asthelp </font></h2>
+
+<p>The following options are available.  They should be given
+before the name whose manual entry is sought.  For example, you
+might type
+<pre>
+    asthelp -i mapproc
+</pre>
+to get a manual entry for MapProc.  
+
+<dl>
+<dt> -i 
+<dd> Ignore the case of letters.  Without this, case is significant,
+and a search for <i>writeln</i> will not find <i>Writeln</i>.
+
+<p><dt> -s
+<dd> Report information about any name that has the given string as
+a substring.  For example,
+<pre>
+    asthelp -s ite
+</pre>
+will tell you about Writeln, as well as many other functions.
+</dl>
+
+<a name=gettingdescriptions></a>
+<hr>
+<h2><font color=mediumblue> Getting your own descriptions </font></h2>
+
+If you write descriptions in your program, you can get them using
+asthelp.  For example, if you have a function called foo, and you write
+a description of that function, then command
+<pre>
+   asthelp foo
+</pre>
+will show that description.
+
+<font color=brown>
+<p>When you compile a program myprog.ast, the compiler generates
+a file called myprog.asd containing information about what is defined
+in myprog.ast, including the descriptions.  The compiler also writes
+a file called index.asx that contains an index of everything in the
+current directory.
+
+<p> The asthelp command searches the current directory and
+the standard directory for index.asx files.
+
+<p>If you include a file called indexloc.txt in a directory, 
+containing in it the name of another directory (relative to
+the current directory) then index information will be written
+in the index.asx file in that directory instead.  This allows you
+to consolidate information from several directories into
+a single directory.
+</font>
+<hr>
+<center>
+<a href="commands.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="overview.html">Next</a>
+</center>
+</body>
+</HTML>

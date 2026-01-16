@@ -1,0 +1,24 @@
+Package ant1
+
+%% This package tests completeness testing with anticipations.
+%% It should not complain that tst is incomplete.
+
+Export
+
+Extension
+  Abstraction C.
+  Relate REAL isKindOf C.
+  Relate C isKindOf EQ.
+  Relate
+    C & ORDER  = REAL;
+    C & RANKED = Natural;
+  %Relate
+%Extension
+Anticipate tst: {C`a}.
+Expect tst: REAL`a.
+Expect tst: C.
+
+Define tst:REAL`a = 1.
+Define tst:C      = <<1>>.
+
+%Package

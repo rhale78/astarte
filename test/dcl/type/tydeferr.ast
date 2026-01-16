@@ -1,0 +1,18 @@
+Package tydeferr 
+
+%% Test duplicate definitions
+
+Extension
+  Species T1 = Natural.
+  Species T1 = Integer.
+  Species F1(`a) = `a.
+  Species F1(`a) = `a.
+  Abstraction C1.
+  Abstraction C1.
+  Abstraction C2(ANY).
+  Abstraction C2(ANY).
+  Abstraction T1.
+  Species C1 = Integer.
+%Extension
+
+%Package

@@ -1,0 +1,510 @@
+%% File: lang/pattern.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%===============================================================
+Package 		Astarte_Lang_Pattern
+================================================================
+
+================================================================
+%% This package describes the basics of pattern matching.
+%% All of the things described here are available to all packages.
+================================================================
+
+================================================================
+			Export
+================================================================
+
+Description
+
+ "Match"	%" ==============================================
+		%"	  	BASICS
+		%" ==============================================
+		%"
+		%" A basic pattern match has the form
+		%"
+		%"   Match p = t %Match
+		%"
+		%" where p is a *pattern* and t is the *target*.
+		%" Typically, pattern p includes some "pattern 
+		%" variables", which are identifiers that
+		%" are preceded by a question mark.  (There must
+		%" not be space between the question mark and the
+		%" identifier.)  For most pattern forms, the 
+		%" goal is to bind the identifiers that correspond
+		%" to pattern variables to values that would make
+		%" p = t.  For example,
+		%"
+		%"   Match ?x = 2.
+		%"
+		%" binds x = 2.  In some cases, it is not possible
+		%" to choose values for the pattern variables to 
+		%" make the equation true.  In those cases, the
+		%" pattern match fails.  See except.ast for a
+		%" discussion of failure.
+		%"
+		%" ==============================================
+		%"		PATTERN FORMS
+		%" ==============================================
+		%"
+		%" Basic forms of patterns are as follows.
+		%"
+		%"  (p,q)
+		%"	-- Match (p,q) = t %Match matches p 
+		%"	-- against the left member of ordered pair t, 
+		%"	-- and q against the right member of t.  
+		%"	-- For example,
+		%"	--
+		%"	--  Let t = (1,2).
+		%"	--  Match (?x,?y) = t.
+		%"	--
+		%"	-- binds x = 1 and y = 2.
+		%"
+		%"  ? 
+		%"	-- ? is an anonymous pattern variable.  It is
+		%"	-- assumed to indicate a value in which you
+		%"	-- have no interest.  For example,
+		%"	--
+		%"	--  Let t = (1,2).
+		%"	--  Match (?x,?) = p.
+		%"	--
+		%"	-- binds x = 1.  You should be aware that if
+		%"	-- you write
+		%"	--
+		%"	--  Match ? = e.
+		%"	--
+		%"	-- where e is an expression, the expression e
+		%"	-- might not be evaluated at all.  Evaluation
+		%"	-- of e is at the discretion of the compiler.
+		%"
+		%"  c
+		%"	-- An expression that does not contain a
+		%"	-- pattern variable is matched by performing
+		%"	-- an equality check.  If the check yields true
+		%"	-- then the match succeeds.  If the check yields
+		%"	-- false, then the match fails with exception
+		%"	-- testX.  For example,
+		%"	--
+		%"	--  Match 3 = t.
+		%"	--
+		%"	-- is equivalent to {t == 3}.
+		%"
+		%" ==============================================
+		%"		DUPLICATE VARIABLES
+		%" ==============================================
+		%"
+		%" If a pattern variable occurs more than once
+		%" in a pattern, then that variable must have
+		%" the same value at each occurrence.  For
+		%" example, 
+		%"
+		%"    Match (?x,?x) = p.
+		%"
+		%" succeeds (and binds x = 2) if p = (2,2), but
+		%" fails if p = (2,3).
+		%"
+		%" ==============================================
+		%"		COMBINING PATTERNS
+		%" ==============================================
+		%"
+		%" In general, any place where you can put a pattern
+		%" variable, you can put an arbitrary pattern.  For
+		%" example, you know that (?x,?y) is an allowed
+		%" pattern, and ?n + 1 is also an allowed pattern, so
+		%" (?n+1, ?y) must be an allowed pattern as well.
+		%" Nested matches are done in the obvious way.
+		%"
+		%" ==============================================
+		%"		OTHER PATTERN FORMS
+		%" ==============================================
+		%"
+		%" For other patterns, see _also_, _orelse_, _orthen_,
+		%" _orwith_, _where_, + and *.  See lazy,ast, list.ast
+		%" and box.ast for more forms of patterns.  See 
+		%" choose.ast and loop.ast for how to use pattern
+		%" matching is performing choices.
+		%"
+		%" See "Pattern" for how to create new kinds of pattern.
+		;
+
+ _also_		%" #{pattern} 
+ 		%" Match p _also_ q = t %Match matches both
+		%" patterns p and q against target t.  For example,
+		%" 
+		%"   Match ?p _also_ (?x,?y) = t.
+		%"
+		%" binds p to t, x to the left member of t, and y
+		%" to the right member of t.
+		;
+
+ _orelse_	%" #{pattern} 
+ 		%" Match p _orelse_ q = t %Match is equivalent to
+		%" 
+		%"   open Try
+		%"     Match p = t.
+		%"   else
+		%"     Match q = t.
+		%"   %Try
+		%"
+		%" That is, it first tries to match p against t.  If that
+		%" fails, then it matches q against t instead.
+		;
+
+ _orthen_	%" #{pattern}
+ 		%" Match p _orthen_ q = t %Match is equivalent to
+		%"
+		%"   open Stream
+		%"     Match p = t.
+		%"   then
+		%"     Match q = t.
+		%"   %Stream
+		%"
+		%" That is, it produces a stream, first matching p against
+		%" t, and, if backtracked into, matching q against t. 
+		%" See stream.ast.
+		;
+
+ _orwith_	%" #{pattern}
+ 		%" Match p _orwith_ q = t %Match is equivalent to
+		%"
+		%"   open Mix
+		%"     Match p = t.
+		%"   with
+		%"     Match q = t.
+		%"   %Mix
+		%"
+		%" That is, it forks computation into two threads.  In the
+		%" one thread, it matches p against t.  In the other 
+		%" thread, it matches q against t.
+		%" See thread.ast.
+		;
+
+ "_where_"	%" You can use a "_where_" pattern to perform
+		%" additional testing in a pattern match.
+		%"
+		%"   Match p _where_ c = t.
+		%"
+		%" is equivalent to 
+		%"
+		%"   Match p = t.
+		%"   {c}
+		%"
+		%" so that condition c is tested for.  For
+		%" example, you might write
+		%"
+		%"   Match (?x,?y) _where_ x > y = a.
+		%"
+		%" if you only want to match a when x > y.  
+		%" If the test fails, then the match will fail.
+		%" 
+		%" Note: You might find 'when' phrases more convenient
+		%" than 'where' phrases.  See choose.ast.
+		;
+
+ +		%" #{pattern} Match p + c = t %Match requires that t
+		%" have species Natural.  It only succeeds if t >= c,
+		%" and matches p against t -- c.  c must not have any
+		%" pattern variables in it.
+		%"
+		%" You can also write Match c + p = t %Match, with
+		%" the same effect.
+		;
+
+ *		%" #{pattern} Match p * c = t %Match requires that t
+		%" have species Natural.  It only succeeds if t is
+		%" divisible by c, and matches p against t div c.  
+		%" c must not have any pattern variables in it.
+		%"
+		%" You can also write Match c * p = t %Match, with
+		%" the same effect.
+		;
+
+ "Pattern"	%" =============================================
+		%"		BASICS
+		%" =============================================
+		%"
+		%" Declaration
+		%"
+		%"   Pattern f(p) => z %Pattern
+		%"
+		%" indicates that statements of the form
+		%"
+		%"   Match f(p) = target %Match
+		%"
+		%" should be translated to z by the compiler.  Reserved
+		%" word 'target' can be used in z to indicate where
+		%" the actual target should be substituted.  For
+		%" example, declaration
+		%"
+		%"   Pattern mypat(?x) => 
+		%"     Match ?x = mm(target).
+		%"   %Pattern
+		%"
+		%" causes expression
+		%"
+		%"   Match mypat(?s) = n.
+		%"
+		%" to be replaced by
+		%"
+		%"   Match ?x = mm(n).
+		%"
+		%" and expression
+		%"
+		%"   Match mypat(?r,?s) = f(n).
+		%"
+		%" to become
+		%"
+		%"   Match (?r,?s) = mm(f(n)).
+		%"
+		%" If the target occurs more than once in the 
+		%" translation, then the actual target is computed
+		%" only once, and the computed value is substituted
+		%" for 'target'.
+		%"
+		%" ==============================================
+		%"		PATTERN FORMS
+		%" ==============================================
+		%"
+		%" The pattern declaration indicates the form of
+		%" matches that it covers, and the actual match must
+		%" be compatible with the form in the pattern 
+		%" declaration.  Use the following forms in the
+		%" pattern declaration to indicate desired forms
+		%" in the match expression.
+		%"
+		%"   ?	   to indicate that only an anonymous
+		%"	   pattern variable is compatible
+		%"
+		%"   ?x	   to indicate that any pattern
+		%"	   is compatible.  If you use this, then
+		%"	   ?x must occur in the translation.  You
+		%"	   may not use x (without the question mark)
+		%"	   in the translation.
+		%"
+		%"   c     A constant is compatible only with itself.
+		%"	   The constant can be an identifier, but 
+		%"	   is one that already has a value.
+		%"
+		%"   x     An unbound identifier without a question mark
+		%"	   is only compatible with a pattern that has
+		%"	   no pattern variables or pattern functions.
+		%"	   If you use this form, then you can use
+		%"	   x in the translation.
+		%"
+		%"   g(q)  to indicate that only a pattern
+		%"	   that is an application of function g is
+		%"	   compatible.  Here, g is an identifier and
+		%"	   q is a pattern.
+		%"
+		%" For example, declaration
+		%"
+		%"   Pattern f(?,ball(2,?x,y)) =>
+		%"	Match ?x = target + y.
+		%"   %Pattern
+		%"
+		%" is compatible with actual pattern 
+		%" f(?,ball(2,(?r,?s),6+z).  It would not, for
+		%" example, be compatible with pattern 
+		%" f(?a,ball(2,(?r,?s), ?w) for two reasons,
+		%" (1) actual pattern ?a is not compabible with
+		%" formal pattern ?, and (2) actual pattern ?w is
+		%" not compatible with formal pattern y.
+		%"
+		%" ==============================================
+		%"		DUPLICATE VARIABLES
+		%" ==============================================
+		%"
+		%" The pattern in a pattern declaration cannot contain
+		%" the same variable twice.  So use 
+		%"
+		%"   Pattern f(?x,?y) => ... %Pattern
+		%"
+		%" not
+		%"
+		%"   Pattern f(?x,?x) => ... %Pattern.
+		%"
+		%" Duplicate variables in a match are handled
+		%" automatically.  The second and subsequent
+		%" time that an attempt is made to bind a pattern
+		%" variable, a test is performed instead.  For
+		%" example, 
+		%"
+		%"   Match (?x,?x) = p.
+		%"
+		%" is replaced by
+		%"
+		%"     Let z = p.
+		%"     Let x = left(p).
+		%"     {x == right(p)}
+		%"
+		%" ==============================================
+		%" 		CURRIED FUNCTIONS
+		%" ==============================================
+		%"
+		%" Patterns can have several (curried) parameters.
+		%" For example, declaration
+		%"
+		%"   Pattern f ?x (?y,?z) => 
+		%"     Match (?x,?y,?z) = unf(target).
+		%"   %Pattern
+		%"
+		%" indicates that
+		%"
+		%"   Match f 0 (?n,2) = x.
+		%"
+		%" is converted to 
+		%"
+		%"   Match (0,?n,2) = unf(x).
+		%"
+		%" by the compiler. 
+		%"
+		%" ==============================================
+		%"		PATTERN CONSTANTS
+		%" ==============================================
+		%"
+		%" Patterns are either applications of named functions
+		%" or are simply identifiers.  A pattern that is an
+		%" identifier is called a pattern constant.  For
+		%" example, the definition of pattern nil is
+		%"
+		%"   Pattern nil => {nil? target}.
+		%"
+		%" indicating that 
+		%"
+		%"   Match nil = x.
+		%"
+		%" is converted to
+		%"
+		%"   {nil? x}
+		%"
+		%" ==============================================
+		%"		COPYING PATTERN RULES
+		%" ==============================================
+		%"
+		%" You may write
+		%"
+		%"   Pattern f = g.
+		%"
+		%" to cause all currently known pattern rules for
+		%" patterns whose main function is g to become 
+		%" similar rules about f.  For example, if rule
+		%"
+		%"   Pattern g(?x,y) =>
+		%"     Match ?x = ung(target, y).
+		%"   %Pattern
+		%"
+		%" has been given, then Pattern f = g %Pattern causes
+		%" declaration
+		%"
+		%"   Pattern f(?x,y) =>
+		%"     Match ?x = ung(target, y).
+		%"   %Pattern
+		%"
+		%" to be given automatically.
+		%"
+		%" ==============================================
+		%"		RULE SELECTION AND POLYMORPHISM
+		%" ==============================================
+		%"
+		%" When the compiler is considering how to 
+		%" replace a pattern match, it tries the rules
+		%" for the outermost function in the pattern, most
+		%" recent rule first, and selects the first rule
+		%" whose form matches the actual form of the
+		%" pattern.  For example, if you write
+		%"
+		%"    Pattern 
+		%"      f(?x) => Match ?x = unf(target).;
+		%"      f(?x,?y) => Match (?x,?y) = pairUnf(target).
+		%"    %Pattern
+		%"
+		%"  then expression
+		%"
+		%"    Match f(?z) = (1,4).
+		%"
+		%" is replaced as follows.  First, the most recent
+		%" rule f(?x,?y) => Match (?x,?y) = pairunf(target)
+		%" is tried.  Its pattern form, f(?x,?y), is not
+		%" compatible with actual pattern f(?z), so that rule
+		%" is skipped.  Next, rule f(?x) => Match ?x = unf(target)
+		%" is tried.  It is compatible with the actual pattern,
+		%" so the match expression becomes
+		%"
+		%"   Match ?z = unf(1,4).
+		%"
+		%" Type inference is done before pattern matches
+		%" are replaced, and replacements for pattern
+		%" matches cannot limit the polymorphism of a
+		%" declaration.  So no restrictive rule will be
+		%" chosen.  Any rule whose use would limit the
+		%" polymorphism of a declaration is skipped.
+		%"
+		%" The type inference mechanism needs to know what
+		%" (polymorphic) species to assign to each function
+		%" in a pattern.  To account for that, there is a
+		%" requirement that, for every function that is
+		%" the main function in a pattern, there be a most
+		%" general pattern, whose polymorphic species includes
+		%" the species for all other rules.  If you define
+		%" more than one rule for a given function, then it is
+		%" your responsibility to ensure that one of the rules
+		%" has such a most general polymorphic species.
+		%"
+		%" ==============================================
+		%"		EXHAUSTIVENESS TESTING
+		%" ==============================================
+		%"
+		%" When you use a choose-matching construct, or
+		%" a function definition by cases, the compiler
+		%" will attempt to perform an exhaustiveness test,
+		%" to check that all possibilities have been taken
+		%" into account.  In order to do that, the compiler
+		%" needs to know which kinds of things a given pattern
+		%" might match.  You can indicate this information in
+		%" a pattern declaration.  If c is the name of a 
+		%" constructor used in a species declaration, then
+		%" you may write
+		%"
+		%"   Pattern {tag c} ... %Pattern
+		%"
+		%" to indicate that this rule defines a pattern
+		%" that only matches values that were constructed
+		%" by constructor c.  For example, the standard
+		%" constructors for lists are nil and ::.  Here are
+		%" the pattern rules, from standard.ast, for these
+		%" kinds of patterns.
+		%"
+		%"   Pattern
+		%"     {tag ::} ::(?x) => 
+		%"        Match ?x = listToPair(target).;
+		%"
+		%"     {tag nil} nil => {nil? target}
+		%"   %Pattern
+		%"
+		;
+%Description
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+=======================================================================
+Assume f:pattern %Assume	Normally, if c is an expression that
+				contains no pattern variables, then
+				
+				  Match f(c) = t.
+				  
+				is translated to {f(c) == t} for you.
+				This assume declaration indicates that
+				the pattern rules for f should be used,
+				even in the case where the argument of f
+				has no pattern variables.  This assume
+				declaration also indicates that completeness
+				tests for f should be suppressed.  That is
+				because Assume f: pattern %Assume is
+				generally used when there is no computation
+				rule for f.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+%Package

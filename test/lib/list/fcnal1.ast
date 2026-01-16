@@ -1,0 +1,39 @@
+Package testfunctional1 
+
+%% Assorted tests involving functionals
+
+Import "collect/listfun"; "collect/search".
+
+Assume 0: Natural.
+
+Let fact1 ?n = rfold (1,*) (2 _upto_ n).
+
+Execute
+  Writeln["Table of factorials"].
+  For ?i from 0 _upto_ 20 do
+    Writeln[i $$ 4, fact1(i) $$ 30].
+  %For
+%Execute
+
+Let fact2 ?n = unfold (__ + 1) 1 | takeWhile (__ <= n) | lfold(1,*).
+
+Execute
+  Writeln["\nTable of factorials"].
+  For ?i from 0 _upto_ 20 do
+    Writeln[i $$ 4, fact2(i) $$ 30].
+  %For
+%Execute
+
+Let fact3 ?n = unfold (__ + 1) 1 | eagerTakeWhile (__ <= n) | lfold(1,*).
+
+Execute
+  Writeln["\nTable of factorials"].
+  For ?i from 0 _upto_ 20 do
+    Writeln[i $$ 4, fact3(i) $$ 30].
+  %For
+%Execute
+
+%Package
+
+
+

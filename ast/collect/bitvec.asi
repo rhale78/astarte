@@ -1,0 +1,129 @@
+%% File: bitvec.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==================================================
+Package 	Astarte_BitvecImp 
+		
+		implements "bitvec"
+=====================================================
+
+=====================================================
+%%	 	bvNot
+=====================================================
+
+Let bvNot bitvec(?n) = bitvec(-n - 1).
+
+=====================================================
+%% 		bvSetField
+=====================================================
+
+Let bvSetField(?v,?n,?m,?x) =
+
+  (v _bvAnd_ (bvNot l_shmask))  _bvOr_  (l_masked_x _bvShl_ n) |
+  
+    Let l_mask     = bvMask(m).
+    Let l_shmask   = l_mask _bvShl_ n.
+    Let l_masked_x = x _bvAnd_ l_mask.
+%Let
+
+=====================================================
+%% 		$$
+=====================================================
+
+Let (bitvec ?a) $$ ?n = pack
+  Loop (?x, ?result, ?k) = (a, nil, integer n) first
+  
+    exitcase zero? x _and_ k <= 1 => 
+      '0' :: result
+
+    exitcase x == -1 _and_ k <= 1 => 
+      '7' :: result
+
+    do Match (quotient ~> ?q, remainder ~> ?r) = divide(x,8).
+    
+    loopcase else => 
+      continue (q, char(r + rank('0')) :: result, k-1)
+  %Loop
+%Let
+
+=====================================================
+%% 		$
+=====================================================
+
+Let $(?a:Bitvec)  = lazyDollar(a) _butIfFail_ a $$ 0.
+
+=====================================================
+%% 		stringToBitvec
+=====================================================
+
+Let stringToBitvec ?s =
+  If nil? s then bitvec 0 else bitvec result |
+  
+    Let l_firstDigit = head s.
+    Let l_start      = If l_firstDigit >= '4' then -1 else 0 %If.
+    
+    Let result =
+      Loop (?x,?i) = (s, l_start) first
+      
+	exitcase nil? x => i
+	
+	do Match [?h & ?t] = x.
+	   Let l_thisdig = (+(rank h)) - (+(rank '0')).
+	   
+	loopcase else => continue (t, 8*i + l_thisdig)
+      %Loop
+    %Let
+  %If
+%Let
+
+=====================================================
+%% 		bitvec
+=====================================================
+%% bitvec:Natural -> Bitvec is defined above, with
+%% the definition of Bitvec itself.  This definition
+%% is for type (Boolean, [Boolean]) -> Bitvec.
+=====================================================
+
+Let bitvec(?b,?l) = 
+  Let lo =
+    Loop (?i,?r) = (0, l) first matching r
+      exitcase []      => bitvec(integer(i))
+      loopcase ?h::?t  => continue (2*i + rank(h =/= b), t)
+    %Loop
+  %Let
+  
+  If b 
+    then bvNot(lo)
+    else lo
+  %If
+%Let
+
+=====================================================
+%% 		unbitvec
+=====================================================
+
+Let unbitvec(bitvec(?v)) =
+  Let complement?_l     = v < 0.
+  Let not_complement?_l = not complement?_l.
+  
+  If complement?_l then
+    Relet v = unbitvec(bvNot(bitvec(v))).
+  %If
+  
+  Let l =
+    Loop (?r,?k) = ([], v) first
+      exitcase zero? k => r
+      loopcase odd? k  => continue (not_complement?_l :: r, k _div_ 2)
+      loopcase else    => continue (complement?_l :: r, k _div_ 2)
+    %Loop
+  %Let
+  
+  (complement?_l, l)
+%Let
+
+=====================================================
+
+%Package

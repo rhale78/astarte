@@ -1,0 +1,25 @@
+Package testrtv3 
+
+%% Test scoping of dynamic bindings.
+
+Let f(?b, ?a, ?c) =
+  If b then
+    Match ?<<?x:`a>>? = a.
+    Writeln[$x].
+  else
+    Writeln["else branch taken -- no binding."].
+  %If
+  Match ?<<?y:`a>>? = c.
+  Writeln[$y].
+%Let
+
+Execute
+  Let a:REAL = <<2: Integer>>.
+  Let c:REAL = <<3: Natural>>.
+  Writeln["\nShould print else branch taken\nfollowed by 3,2 then fail.\n"].
+  (f(false, a, c))
+  (f(true,  a, c))
+%Execute
+
+%Package
+

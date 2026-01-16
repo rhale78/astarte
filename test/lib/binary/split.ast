@@ -1,0 +1,233 @@
+Package split
+
+%% Test splitting into head/tail for forms of lists.
+
+Import "misc/check".
+
+%% Split: CSTR_TAG, STRING_TAG.
+
+Execute
+  Writeln["CSTR_TAG, STRING_TAG"].
+  Let a = "abcde". %% CSTR_TAG
+  Let b = head a.  
+  Let c = tail a.  %% STRING_TAG
+  Line[[b], " ", c].
+  Check["a bcde"].
+  
+  Let d = "a".     %% CSTR_TAG
+  Let e = head d.
+  Let f = tail d.
+  Line[[e], " ", $f].
+  Check["a \"\""].
+  
+  Let g = head c.
+  Let h = tail c.
+  Line[[g], " ", h].
+  Check["b cde"].
+ 
+  Let i = "ab".
+  Let j = tail(i).
+  Let k = head(j).
+  Let l = tail(j).
+  Line[[k], " ", $l].
+  Check["b \"\""].
+%Execute
+
+%% Split: APPEND_TAG/CSTR_TAG,
+%%        APPEND_TAG/STRING_TAG, 
+%%        ARRAY_TAG/STRING_TAG with follower
+
+Execute
+  Writeln["APPEND_TAG/STRING_TAG"].
+  Let a = "abcde" ++ "fghijk".       %%   APPEND_TAG/CSTR_TAG
+  Let b = tail a.          %% "bcd..."   APPEND_TAG/STRING_TAG
+  Let c = tail b.	   %% "cde..."   ARRAY_TAG/STRING_TAG (follower)
+  Let d = tail c.          %% "def..."
+  Let e = tail d.	   %% "efg..."
+  Let f = tail e.	   %% "fgh..."
+  Let g = tail f.	   %% "gh..."
+  Let h = tail g.          %% "hi..."
+  Let i = tail h.          %% "ijk"
+  Let j = tail i.	   %% "jk"
+  Let k = tail j.	   %% "k"
+  Let l = tail k.	   %% nil
+  Line[[head(a)], [head(b)], [head(c)], [head(d)], [head(e)],
+       [head(f)], [head(g)], [head(h)], [head(i)], [head(j)],
+       [head(k)], $l]
+  %Line
+  Check["abcdefghijk\"\""].
+%Execute
+
+%% Split: ARRAY_TAG/STRING_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/STRING_TAG"].
+  Let a = "abcdefghijk".   %% "abc..." CSTR_TAG
+  Let b = tail a.          %% "bcd..." STRING_TAG
+  Let c = tail b.          %% "cde..." ARRAY_TAG/STRING_TAG
+  Let d = tail c.          %% "def..."
+  Let e = tail d.	   %% "efg..."
+  Let f = tail e.	   %% "fgh..."
+  Let g = tail f.	   %% "gh..."
+  Let h = tail g.          %% "hi..."
+  Let i = tail h.          %% "ijk"
+  Let j = tail i.	   %% "jk"
+  Let k = tail j.	   %% "k"
+  Let l = tail k.	   %% nil
+  Line[[head(a)], [head(b)], [head(c)], [head(d)], [head(e)],
+       [head(f)], [head(g)], [head(h)], [head(i)], [head(j)],
+       [head(k)], $l]
+  %Line
+  Check["abcdefghijk\"\""].
+%Execute
+
+%% Split: APPEND_TAG/ARRAY_TAG/STRING_TAG (no follower)
+
+Execute
+  Writeln["APPEND_TAG/ARRAY_TAG/STRING_TAG"].
+  Let a = "abcdefgh".
+  Let b = tail a.	  %% b...   STRING_TAG
+  Let c = tail b.         %% c...   ARRAY_TAG/STRING_TAG
+  Let c' = c ++ "ijklmn". %%        APPEND_TAG/ARRAY_TAG/STRING_TAG
+  Let d = tail c'.        %% d...
+  Let e = tail d.	  %% e...
+  Let f = tail e.         %% f...
+  Let g = tail f.         %% g...
+  Let h = tail g.         %% h...
+  Let i = tail h.         %% i...
+  Let j = tail i.         %% j...
+  Let k = tail j.	  %% k...
+  Let l = tail k.	  %% l...
+  Let m = tail l.	  %% m...
+  Let n = tail m.	  %% n...
+  Line[[head(a)], [head(b)], [head(c)], [head(d)], [head(e)],
+       [head(f)], [head(g)], [head(h)], [head(i)], [head(j)],
+       [head(k)], [head(l)], [head(m)], [head(n)]]
+  %Line
+  Check["abcdefghijklmn"].
+%Execute
+
+%% Split: APPEND_TAG/ARRAY_TAG/STRING_TAG (follower)
+
+Execute
+  Writeln["APPEND_TAG/ARRAY_TAG/STRING_TAG (follower)"].
+  Let a = "abcdefg" ++ "hijkl".
+  Let b = tail a.         %% b...  APPEND_TAG/STRING_TAG
+  Let c = tail b.         %% c...  ARRAY_TAG/STRING_TAG (follower)
+  Let c' = c ++ "mnop".  %%       APPEND_TAG/ARRAY_TAG/STRING_TAG
+  Let d = tail c'.        %% d...
+  Let e = tail d.	  %% e...
+  Let f = tail e.         %% f...
+  Let g = tail f.         %% g...
+  Let h = tail g.         %% h...
+  Let i = tail h.         %% i...
+  Let j = tail i.         %% j...
+  Let k = tail j.	  %% k...
+  Let l = tail k.	  %% l...
+  Let m = tail l.	  %% m...
+  Let n = tail m.	  %% n...
+  Line[[head(a)], [head(b)], [head(c)], [head(d)], [head(e)],
+       [head(f)], [head(g)], [head(h)], [head(i)], [head(j)],
+       [head(k)], [head(l)], [head(m)], [head(n)]]
+  %Line
+  Check["abcdefghijklmn"].
+%Execute  
+  
+%% Split: ARRAY_TAG/INDIRECT_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG"].
+  Let a = pack[1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000].
+  Let b = tail a.
+  Let c = tail b.
+  Let d = tail c.
+  Let e = tail d.
+  Let f = tail e.
+  Let g = tail f.
+  Let h = tail g.
+  Let i = tail h.
+  Let j = tail i.
+  Let k = tail j.
+  Line[$head(a), " ",
+       $head(b), " ",
+       $head(c), " ",
+       $head(d), " ",
+       $head(e), " ",
+       $head(f), " ",
+       $head(g), " ",
+       $head(h), " ",
+       $head(i), " ",
+       $head(j), " ", $k]
+  %Line
+  Check["1000 2000 3000 4000 5000 6000 7000 8000 9000 10000 []"].
+%Execute
+
+%% Split: ARRAY_TAG/PLACE_TAG (no follower)
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG"].
+  Let a = array shared (8).
+  For ?i from 0 _upto_ 7 do Assign a#_i := i..
+  Let b = a.
+  For ?i from 0 _upto_ 7 do
+    Line[$(@(head(b)))].
+    Check[$i].
+    Relet b = tail(b).
+  %For
+%Execute
+
+%% Split: ARRAY_TAG/BOX_TAG
+
+Execute
+  Writeln["ARRAY_TAG/BOX_TAG"].
+  Let a = array nonshared(8): [Box(Natural)].
+  For ?i from 0 _upto_ 7 do Assign a#_i := i..
+  Let b = a.
+  For ?i from 0 _upto_ 7 do
+    Writeln[i $$ 2, " ", $(@(head(b)))].
+    Line[$(@(head(b)))].
+    Check[$i].
+    Relet b = tail(b).
+  %For
+%Execute  
+
+%% Split: APPEND_TAG/ARRAY_TAG/PLACE_TAG, ARRAY_TAG/PLACE_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/PLACE_TAG (follower)"].
+  Let a = array shared (8) ++ array shared (3).
+  For ?i from 0 _upto_ 10 do Assign a#_i := i..
+  Let b = a.
+  For ?i from 0 _upto_ 10 do
+    Writeln[i $$ 2, " ", $(@(head(b)))].
+    Line[$(@(head(b)))].
+    Check[$i].
+    Relet b = tail(b).
+  %For
+%Execute
+
+%% Split: APPEND_TAG/ARRAY_TAG/INDIRECT_TAG, ARRAY_TAG/INDIRECT_TAG (follower)
+
+Execute
+  Writeln["ARRAY_TAG/INDIRECT_TAG(follower)"].
+  Let a = forceAll(pack[1000,2000,3000,4000,5000]) ++ [6000,7000].
+  Let b = tail a.  %% 2000
+  Let c = tail b.  %% 3000
+  Let d = tail c.  %% 4000
+  Let e = tail d.  %% 5000
+  Let f = tail e.  %% 6000
+  Let g = tail f.  %% 7000
+  Let h = tail g.  %% nil
+  Line[$head(a), " ",
+       $head(b), " ",
+       $head(c), " ",
+       $head(d), " ",
+       $head(e), " ",
+       $head(f), " ",
+       $head(g), " ", $h]
+  %Line
+  Check["1000 2000 3000 4000 5000 6000 7000 []"].
+  
+%Execute
+
+%Package

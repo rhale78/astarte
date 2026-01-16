@@ -1,0 +1,13 @@
+Package testtype 
+
+%% Test type definitions
+
+%% Singleton rhs, no irregular.
+
+Extension
+  Species T1 = Natural.
+  Species T2 = makeT2 Natural.
+%Extension
+
+%Package
+

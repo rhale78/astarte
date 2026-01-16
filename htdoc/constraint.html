@@ -1,0 +1,181 @@
+<HTML>
+<head>
+<title>Astarte: constraints</title>
+</head>
+<body>
+<center>
+<a href="irregular.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdconstraint.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T22. Constraints </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#nature> The nature of constraints</a>
+  <li> <a href=#functype> Constraints involving function types</a>
+  <li> <a href=#rules> Rules for checking constraints</a>
+  <li> <a href=#types> Attaching constraints to types</a>
+  <li> <a href=#light> Light constraints</a>
+</menu>
+
+<a name=nature></a>
+<hr>
+<h2><font color=mediumblue> The nature of constraints </font></h2>
+
+You can attach <font color=blue><i>constraints</i></font> to types.  
+A constraint indicates that
+one species must be greater than or equal to another in the hierarchy.  
+The meaning of <i>A</i> &gt;= <i>B</i> is that either 
+<i>A</i> = <i>B</i> or <i>A</i> can be 
+obtained from <i>B</i> by replacing
+species by secondary species in a way that only goes up in the
+hierarchy.  For example,
+<ul>
+<li> ANY &gt;= REAL (since REAL is a subgenus of ANY).
+<p><li> REAL &gt;= Natural (since Natural is a member of REAL).
+<p><li> (REAL, ANY) &gt;= (Natural, Natural) (since REAL &gt;= Natural 
+and ANY &gt;= Natural).
+<p><li> ANY &gt;= (Natural, ANY)  (since species (Natural, ANY) is a member of
+genus ANY).
+<p><li> [ANY] &gt;= [REAL].
+</ul>
+
+Here are some examples of 
+<b>false</b> inequalities.
+<ul>
+<li> REAL &gt;= ANY  is false, since ANY is not a subgenus of REAL.
+<p><li> REAL &gt;= (Natural, Natural) is false, since genus REAL does not
+include catesian product species.
+<p><li> (REAL, ANY) &gt;= (ANY, REAL) is false, 
+since ANY is not a subgenus of REAL.
+</ul>
+You can think of <i>A</i> &gt;= <i>B</i> as 
+saying that <i>A</i> provides less information
+(or at least no more information)
+about the type of an item that does <i>B</i>.  
+For example ANY &gt;= REAL because
+knowing only that an item belongs to species ANY tells you less about the
+item than knowing that it is a member of species REAL.  Generally, if
+<i>A</i> &gt;= <i>B</i> and you have an item <i>x</i> of species <i>B</i>, 
+then you might reasonbaly 
+expect to be able to use <i>x</i> in a context where an item of 
+species <i>A</i> is expected.
+
+<a name=functype></a>
+<hr>
+<h2><font color=mediumblue> Constraints involving function types </font></h2>
+
+<p>Rules for functions are a bit peculiar because of the way function
+types behave in their domains.  For example, 
+<blockquote>(REAL-&gt;ANY) &gt;= (ANY-&gt;REAL).</blockquote>
+This makes sense if you think about it.  Suppose that you have a
+function f:ANY -&gt; REAL.  Should you be able to use this in a context
+where a function of species REAL-&gt;ANY is required?  The available function
+f can handle, as its parameter, an item with any intrinsic species at all.
+But all that is required in the new context is a function that 
+handles items with an intrinsic species that belongs to 
+genus REAL.  So function f is more general than we require, and will work.
+
+<p>When f returns its result, we know that the result has an intrinsic
+species that belongs to genus REAL.  That is fine, since we need something
+of species ANY, where we do not care what the intrinsic species is.
+
+<a name=rules></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Rules for checking constraints </font></h2>
+
+The following rules indicate those inequalities that are true.  Anything
+that does not follow from these rules is false.
+<ol>
+<li> <i>X</i> &gt;= <i>X</i> for all <i>X</i>.
+<p><li> <i>G</i> &gt;= <i>T</i>  when species <i>T</i> is a member of genus <i>G</i>.
+<p><li> <i>C</i> &gt;= <i>F</i>  when <i>F</i> is a family that is a member of community <i>C</i>.
+<p><li> <i>G</i> &gt;= <i>H</i>  when <i>H</i> is a subgenus of <i>G</i>.
+<p><li> <i>C</i> &gt;= <i>D</i>  when <i>D</i> is a subcommunity of <i>C</i>.
+<p><li> (<i>A</i>,<i>B</i>) &gt;= (<i>C</i>,<i>D</i>) when <i>A</i> &gt;= <i>C</i> and <i>B</i> &gt;= <i>D</i>.
+<p><li> (<i>A</i> -&gt; <i>B</i>) &gt;= (<i>C</i> -&gt; <i>D</i>) when <i>C</i> &gt;= <i>A</i> and <i>B</i> &gt;= <i>D</i>.
+<p><li> <i>X</i>(<i>A</i>) &gt;= <i>Y</i>(<i>A</i>) when <i>X</i> and <i>Y</i> are opaque communities or families
+and <i>X</i> &gt;= <i>Y</i>.
+<p><li> <i>X</i>(<i>A</i>) &gt;= <i>Y</i>(<i>B</i>) when <i>X</i> and <i>Y</i> are transparent communities
+or families and <i>X</i> &gt;= <i>Y</i> and <i>A</i> &gt;= <i>B</i>.
+<p><li> <i>G</i> &gt; <i>X</i>(<i>A</i>) when <i>X</i> is an opaque family or community that is a
+member of subcommunity of genus <i>G</i>.
+<p><li> <i>G</i> &gt; <i>X</i>(<i>A</i>) when <i>X</i> is a transparent family or community that is a
+member of subcommunity of genus <i>G</i>, provided <i>G</i> >= <i>A</i>.
+</ol>
+</font>
+
+<a name=types></a>
+<hr>
+<h2><font color=mediumblue> Attaching constraints to types </font></h2>
+
+To attach a constraint <i>A</i> &gt;= <i>B</i> to a type, just write 
+constraint(<i>A</i> &gt;= <i>B</i>) after the type.  
+For example, the species
+of function wrap is
+<font color=#D00090>
+<b><pre>
+     `a -&gt; ``b constraint(``b &gt;= `a)
+</pre></b>
+</font>
+The parentheses around constraint (``b &gt;= `a) are required.
+The constraint restricts the values that the variables can take on.
+Only values that satisfy the constraints are allowed.  
+For example,
+function wrap can have species Natural -&gt; ANY since constraint 
+ANY &gt;= Natural is satisfied, but it cannot have
+species ANY -&gt; REAL since constraint REAL &gt;= ANY is false.
+
+<p>When types are printed, each constraint is generally stated only
+once, the first time one of its variables is encountered.
+
+<p>If you have multiple constraints, you can use a separate
+constraint phrase for each one.  Alternatively, you can use just
+one constraint phrase, and separate the constraints by commas.
+For example, you can write
+<font color=#D00090>
+<b><pre>
+      `a -&gt; (`b,`c) constraint (`b &gt;= `a, `c &gt;= `a)
+</pre></b>
+</font>
+You can also use &lt;= in constraints if desired.  
+<i>A</i> &lt;= <i>B</i> means the
+same thing as <i>B</i> &gt;= <i>A</i>.
+
+<a name=light></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Light constraints </font></h2>
+
+There is a special form of constraint that does not restrict the
+bindings of variables, but instead indicate how type inference should
+be done.  If you write <i>A</i> &gt;&gt;= <i>B</i>, then the type inference mechanism
+will make sure that variables in <i>B</i> are sufficiently restrictive
+that, for every species <i>C</i> that <i>B</i> might bind to,
+it is possible to bind <i>A</i> to a species <i>D</i> where <i>D</i> &gt;= <i>C</i>.
+
+<p>For example, 
+if you write `a &gt;&gt;= `b and, through the course of
+type inference, `a is restricted to domain REAL, then `b will also
+become restricted to domain REAL.  See 
+<a href=stdconstraint.html#safeUnwrap>safeUnwrap</a> for an 
+example.
+</font>
+
+<hr>
+<center>
+<a href="irregular.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="stdconstraint.html">Next</a>
+</center>
+</body>
+</HTML>

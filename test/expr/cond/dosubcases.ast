@@ -1,0 +1,18 @@
+Package dosubcases
+
+%% Test do before subcases
+
+Execute
+  Choose
+    case 0 == 0 =>
+      do Let x = 1.
+      Subcases
+        case x == 0 => Writeln["Should not happen"].
+	case x > 0  => Writeln["Good"].
+      %Subcases
+    case 0 == 1 =>
+      Writeln["Should not happen"].
+  %Choose
+%Execute
+
+%Package

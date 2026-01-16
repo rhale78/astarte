@@ -1,0 +1,157 @@
+%% File: import.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=============================================================
+Package 	Astarte_Import 
+==============================================================
+
+==============================================================
+%% This package describes how to import and create packages.
+==============================================================
+
+==============================================================
+			Export
+==============================================================
+
+Description
+
+  "Import"	%" Declaration
+		%"
+		%"  Import "s" %Import
+		%"
+		%" cause file s to be imported.  File s should
+		%" contain a package.  If there is no extension on
+		%" s, then extension ".ast" will be added.
+		%"
+		%" If no directory declaration has been given, 
+		%" the current directory and the standard
+		%" directory will be searched.  If a directory
+		%" declaration has been given, then the directory
+		%" given there will be searched.
+		%"
+		%" Normally, an import gets all non-private things
+		%" that are declared in the package that is read.
+		%" you can restrict what is read using a declaration
+		%" of the form
+		%"
+		%"  Import a,b,c from "s" %Import
+		%"
+		%" where here, identifiers a, b and c are imported
+		%" from the package in file s.  You can only restrict
+		%" imports of identifiers that names individuals, such
+		%" as functions.  Every import gets all species, genera,
+		%" etc. that are defined.
+		%"
+		%" Note: Even if you do a restricted import, you cannot
+		%" create definitions that conflict with unimported
+		%" definitions from other packages.  Such conflicting
+		%" definitions will cause trouble when you try to link
+		%" the packages, so they are reported as errors by the
+		%" compiler.
+		%"
+		%" Normally, private declarations in the imported package
+		%" are not made available to the importing package.
+		%" An import of the form
+		%"
+		%"  Import{private} "s" %Import
+		%"
+		%" will read all of the declarations in file s, including
+		%" the private ones.
+		;
+
+ "Directory"	%" Declaration
+		%"
+		%"  Directory "d" %Directory
+		%"
+		%" makes d the current directory for imports.  If
+		%" id is a previously defined directory identifier,
+		%" then declaration
+		%"
+		%"  Directory id %Directory
+		%"
+		%" sets the current directory to the directory 
+		%" referred to by id.
+		%"
+		%" There are two predefined directory identifiers.
+		%" Identifier standard refers to the directory where
+		%" the standard packages reside.  Identifier none
+		%" is used to cancel a directory declaration, and 
+		%" return to the default.
+		%"
+		%" Use a declaration of the form	
+		%"
+		%"  Directory id = "d" %Directory
+		%"
+		%" to define directory identifier id to be directory d.
+		;
+
+ "Package"	%" A package can have one of the following forms.
+		%"
+		%" For a simple package that cannot be imported by
+		%" any other package:
+		%"
+		%"   Package name
+		%"     <declarations>
+		%"   %Package
+		%"
+		%" For a package that can be imported by another 
+		%" package, and that has its implementation contained
+		%" within it:
+		%"
+		%"   Package name export
+		%"     <declarations>
+		%"   implementation
+		%"     <declarations>
+		%"   %Package
+		%"
+		%" In this form, an import will only read up to the
+		%" word 'implementation'.  If there is no implementation
+		%" part, then the word 'implementation' can be omitted.
+		%"
+		%" For a package that is separated into two files, one
+		%" holding the interface and the other holding the
+		%" implementation:
+		%"
+		%"   file.ast:
+		%"
+		%"     Package name interface
+		%"       <declarations>
+		%"     %Package
+		%"
+		%"  file.asi:
+		%"
+		%"    Package name implements "file"
+		%"      <declarations>
+		%"    %Package
+		%"
+		%" A package that imports file will only read file.ast.
+		%" When file.asi is compiled, file.ast will be read
+		%" as the export part.
+		%"
+		%" The package names of file.ast and file.asi should
+		%" not be the same.  The file names, without extension
+		%" are typically the same, but need not be.  For example,
+		%" you can have an interface file called myops.ast, 
+		%" with implementation file called myimp.asi.  The heading
+		%" for myimp.asi would be
+		%"
+		%"   Package myimp implements "myops"
+		%"
+		%" When an import of a package is done, some declarations
+		%" are treated in special ways.  The most important
+		%" is an expect declaration, which
+		%" is understood to indicate that a corresponding
+		%" definition will be made in the imported package,
+		%" either in the export part or the implementation part.
+		%" So the compiler treats the expect declaration
+		%" similarly to a definition, and will not permit
+		%" another package to give conflicting definitions.
+		;
+		
+%Description
+
+%Package
+

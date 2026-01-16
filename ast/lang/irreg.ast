@@ -1,0 +1,70 @@
+%% File: irreg.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=================================================================
+Package 	Astarte_Irregular 
+===================================================================
+
+===================================================================
+%% This package describes irregular functions.
+===================================================================
+
+===================================================================
+			Export
+===================================================================
+
+Description
+
+ "irregular"	%" An irregular function is one where the species of
+ 		%" the function result depends not just on the species
+		%" of the function and its argument, but on the
+		%" value of the argument.  The compiler leaves
+		%" determination of the species of the result of
+		%" an irregular function to run-time.  
+		%"
+		%" You can create an irregular function using mode
+		%" irregular.  If f is an irregular function, write
+		%"
+		%"   Let{irregular} g = f.
+		%"
+		%" to make g be the same irregular function.  Write
+		%"
+		%"   Let{irregular} g(p) = e.
+		%"
+		%" to define an irregular function g, where p is
+		%" a pattern.
+		%"
+		%" There are some restrictions on irregular functions.
+		%"
+		%"  1. A given identifier that names an irregular
+		%"     function cannot name anything else, and cannot
+		%"     be overloaded.
+		%"
+		%"  2. An irregular function can only be applied to
+		%"     an argument or passed as an argument to
+		%"     function irregularFun.
+		;		
+
+ forget		: `a -> `b
+
+		%" forget is the identity function, but it is irregular,
+		%" so the fact that its input and output must have the
+		%" same species is forgotten at compile time.
+		%"
+		%" You can use forget in patterns.
+		;
+
+ {imported}
+ speciesX	: ExceptionSpecies
+
+		%" Exception speciesX occurs when there is a run-time
+		%" species mismatch.
+		;
+
+%Description
+
+%Package
+

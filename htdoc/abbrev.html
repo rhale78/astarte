@@ -1,0 +1,103 @@
+<HTML>
+<head>
+<title>Astarte: abbrev declarations</title>
+<link rel=next href=secondary.html>
+<link rel=prev href=commdcl.html>
+<link rel=start href=index.html>
+<link rel=index href=indx.html>
+</head>
+<body>
+<center>
+<a href="commdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="secondary.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1> <font color=mediumblue>T19. Abbrev Declarations</font> </h1>
+</center>
+
+<menu>
+  <li> <a href=#create>Creating abbreviation</a>
+  <li> <a href=#example>Examples</a>
+  <li> <a href=#variables>Variables in abbreviations</a>
+</menu>
+
+<a name=create></a>
+<hr>
+<h2><font color=mediumblue>Creating abbreviations</font></h2>
+
+Declaration
+<font color=#D00090>
+<b><pre>
+       Abbrev N = T.
+</pre></b>
+</font>
+indicates that identifier N is an abbreviation for type T.  You can
+also use this to abbreviate a family, genus, community, or
+variable.
+
+<a name=example></a>
+<hr>
+<h2><font color=mediumblue>Examples</font></h2>
+
+<font color="#D00090">
+<b><pre>
+       Abbrev Nat = Natural.
+       Abbrev NUM = REAL.
+       Abbrev A = `a.
+       Abbrev B = (REAL`a, REAL`a).
+</pre></b>
+</font>
+
+<a name=variables></a>
+<hr>
+<h2><font color=mediumblue>Variables in abbreviations</font></h2>
+
+
+The variables that you use in an abbreviation are not the same as
+any variables you create elsewhere, regardless of their names.  For
+example, if you write
+<font color=#D00090>
+<b><pre>
+       Abbrev A = `a.
+       Abbrev B = `a.
+</pre></b>
+</font>
+then A and B are different variables, in spite of the fact that
+both were given the name `a in thier declarations.
+
+<p>All occurrences of an abbreviation in a given declaration 
+contain the same variables, and abbreviations can refer to one another.  
+For example, if you write
+<font color=#D00090>
+<b><pre>
+       Abbrev A = `a.
+       Abbrev B = (A,A).
+       Abbrev F = B -&gt; A.
+       Abbrev F' = B -&gt; `a.
+       Abbrev F'' = A -&gt; `a.
+</pre></b>
+</font>
+then F is (`a,`a) -&gt; `a, but F' is (`b,`b) -&gt; `a and
+F'' is (`a -&gt; `b).
+
+<p>Abbreviations used in different declarations always have
+different variables in them.  So using an abbreviation in one
+declaration cannot interfere with another declaration.
+
+<hr>
+<center>
+<a href="commdcl.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=declarations.html>Declarations</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="secondary.html">Next</a>
+</center>
+</body>
+</HTML>

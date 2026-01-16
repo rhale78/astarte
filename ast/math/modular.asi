@@ -1,0 +1,197 @@
+%% File: modular.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=====================================================================
+Package 		Astarte_ModularImp 
+
+			Implements "modular"
+=======================================================================
+
+=======================================================================
+%%			Modular
+=======================================================================
+
+Extension
+  Species {noDollar} Modular = 
+    (
+     remainder ~> Natural, 
+     modulus   ~> Natural
+    )
+  %Species
+%Extension
+
+=======================================================================
+
+Assume 
+  a,b: Modular;
+  n,m,n1,m1,n2,m2: Natural;
+  i: Integer;
+%Assume
+
+=======================================================================
+%% 			_modulo_
+=======================================================================
+
+Let ?x _modulo_ ?m = 
+  Choose first
+    case m == 0 =>
+      Subcases
+        case x < 0 => fail modulusX
+	else       => modular(nabs x, 0)
+      %Subcases
+    else => modular(x _mod_ m, m)
+  %Choose
+%Let
+
+=======================================================================
+%% 			zero
+%%			unit
+=======================================================================
+
+Let zero = modular(0, 0).
+Let unit = modular(1, 0).
+
+=======================================================================
+%% 			$, $$
+=======================================================================
+
+Let $ ?a = "(" ++ $(remainder a) ++ " mod " ++ $(modulus a) ++ ")".
+
+Let ?a $$ ?n = $a $$ n.
+
+=======================================================================
+%% 			zero?
+=======================================================================
+
+Let zero?(modular(?r,?)) = zero? r.
+
+=======================================================================
+%% 			+
+=======================================================================
+
+Let modular(?n1,?m1) + modular(?n2,?m2) =
+  If m1 == 0 _and_ m2 == 0 then
+    modular(n1+n2, 0)
+  else
+    If m1 == 0 _and_ m2 =/= 0 then
+      Relet n1 = n1 _mod_ m2.
+      Relet m1 = m2.
+    %If
+    If m2 == 0 _and_ m1 =/= 0 then
+      Relet n2 = n2 _mod_ m1.
+      Relet m2 = m1.
+    %If
+    If m1 =/= m2 
+      then fail modulusX 
+      else 
+       Let sum_l = n1 + n2.
+       Value modular(If sum_l < m1 then sum_l else sum_l -- m1 %If, m1).
+    %If
+  %If
+%Let
+
+=======================================================================
+%% 			- (binary)
+=======================================================================
+
+Let modular(?n1,?m1) - modular(?n2,?m2) =
+  If m1 == 0 _and_ m2 == 0 then
+    If n1 >= n2
+      then modular(n1--n2, 0)
+      else fail modulusX
+    %If
+  else
+    If m1 == 0 _and_ m2 =/= 0 then
+      Relet n1 = n1 _mod_ m2.
+      Relet m1 = m2.
+    %If
+    If m2 == 0 _and_ m1 =/= 0 then
+      Relet n2 = n2 _mod_ m1.
+      Relet m2 = m1.
+    %If
+    If m1 =/= m2 
+      then fail modulusX 
+      else 
+        Let diff = (integer n1) - (integer n2).
+        Value 
+          modular(natural If diff >= 0 then diff else diff + (+ m1) %If, m1)
+        %Value
+    %If
+  %If
+%Let
+
+=======================================================================
+%% 			- (unary)
+=======================================================================
+
+Let - ?a = -(zero, a).
+
+=======================================================================
+%% 			*
+=======================================================================
+
+Let modular(?n1,?m1) * modular(?n2,?m2) =
+  If m1 == 0 _and_ m2 == 0 then
+    modular(n1*n2, 0)
+  else
+    If m1 == 0 _and_ m2 =/= 0 then
+      Relet n1 = n1 _mod_ m2.
+      Relet m1 = m2.
+    %If
+    If m2 == 0 _and_ m1 =/= 0 then
+      Relet n2 = n2 _mod_ m1.
+      Relet m2 = m1.
+    %If
+    If m1 =/= m2 
+      then fail modulusX 
+      else modular((n1* n2) _mod_ m1, m1)
+    %If
+  %If
+%Let
+
+=======================================================================
+%% 			/ (binary)
+=======================================================================
+
+Let ?a / ?b = a * (/b).
+
+=======================================================================
+%% 			/ (unary)
+=======================================================================
+
+Let /(modular(?n,?m)) =
+  Choose first
+    case n == 0 => fail(domainX "divide by zero")
+    case m == 0 => fail(modulusX)
+    else =>
+      %% The following is the extended Euclid algorithm.
+
+      Loop (?u,?v,?x0,?x1) = (n,m,1,0) first
+
+	exitcase v == 0 =>
+	  Choose first
+	    case u =/= 1 => fail (domainX "no inverse")
+	    else         => x0 _modulo_ m
+	  %Choose
+
+        loopcase else =>
+	  Match (quotient ~> ?q, remainder ~> ?r) = divide(u,v).
+          continue (v, r, x1, x0 - (integer q)*x1)
+      %Loop
+  %Choose
+%Let
+
+=======================================================================
+%% 			_as_
+=======================================================================
+
+Let ?x _as_ ?a = x _modulo_ (modulus a).
+
+Let ?a _as_ (?:Modular) = a.
+=======================================================================
+
+%Package
+

@@ -1,0 +1,35 @@
+Package testifdcl 
+
+%% Test If declarations and conditional compilation
+
+Let deb = false.
+Let tst = true.
+
+If deb then
+  Let aa = 1.
+else
+  Let aa = 2.
+%If
+
+If tst then
+  Let bb = 1.
+else
+  Let bb = 2.
+%If
+
+Execute
+  If aa =/= 2 then Writeln["A is bad"]..
+  If bb =/= 1 then Writeln["B is bad"]..
+%Execute
+
+Let xx = If tst then 0 else 1..
+Let yy = If deb then 0 else 1..
+
+Execute
+  If xx =/= 0 then Writeln["xx is bad"]..
+  If yy =/= 1 then Writeln["yy is bad"]..
+%Execute
+
+%Package
+
+

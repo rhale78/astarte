@@ -1,0 +1,116 @@
+<HTML>
+<head>
+<title>Astarte: standard families</title>
+</head>
+<body>
+<center>
+<a href="stdspecies.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="specexpr.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> T3. Standard Parameterized Species </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#specnoimp> Species that do not require imports</a>
+  <li> <a href=#specimp>  Species that require imports</a>
+</menu>
+
+<a name=specnoimp></a>
+<hr>
+<h2><font color=mediumblue> Species that do not require imports </font></h2>
+
+A parameterized species is also called a <font color=blue><i>family</i></font>.
+The following families are available to all packages.
+
+<dl>
+<a name=list></a>
+<dt> <a href="listlib.html">[<i>T</i>], List(<i>T</i>)</a>
+<dd> Species [<i>T</i>] contains lists whose members have species <i>T</i>.
+For example, 
+[true,false,true] has species [Boolean].  Species [<i>T</i>]
+can also be written List(<i>T</i>).
+
+<a name=optional></a>
+<p><dt> <a href=optional.html>Optional(<i>T</i>)</a>
+<dd> Species Optional(<i>T</i>) holds items that either are an item of
+species <i>T</i> or are the special item noValue.
+
+<a name=outfile></a>
+<p><dt> <a href="iolib.html#output">Outfile(<i>T</i>)</a>
+<dd> Species Outfile(<i>T</i>) contains files that
+hold members of species <i>T</i> and that are opened for output.  
+They are used for writing into files.
+The most commonly used form is Outfile(Char).
+
+<a name=box></a>
+<p><dt> <a href="boxexpr.html">&lt;:<i>T</i>:&gt;, Box(<i>T</i>)</a>
+<dd> Species &lt;:<i>T</i>:&gt; holds boxes that have a content of species
+<i>T</i>.  Species &lt;:<i>T</i>:&gt; can also be written Box(<i>T</i>).
+
+</dl>
+
+<a name=specimp></a>
+<hr>
+<h2><font color=mediumblue> Species that require imports </font></h2>
+
+The following are available by importing library packages.
+<dl>
+
+<a name=denseset></a>
+<dt> <a href=setlib.html>DenseSet(<i>T</i>)</a>
+<dd> Species DenseSet(<i>T</i>) holds sets that are stored as bit vectors.
+Species <i>T</i> must be Natural or an enumerated species.
+Import <a href="ast/collect/denseset.ast">collect/denseset.ast</a>.
+
+<a name=sparseset></a>
+<p><dt> <a href=setlib.html>SparseSet(<i>T</i>)</a>
+<dd> Species SparseSet(<i>T</i>) holds sets that are stored as
+binary search trees.
+Import <a href="ast/collect/sparsset.ast">collect/sparsset.ast</a>.
+
+<a name=linset></a>
+<p><dt> <a href=setlib.html>LinSet(<i>T</i>)</a>
+<dd> Species LinSet(<i>T</i>) holds sets that are stored as lists of
+their members.
+Import <a href="ast/collect/linset.ast">collect/linset.ast</a>.
+
+<a name=sparsetable></a>
+<p><dt> <a href=tablelib.html>SparseTable(<i>K</i>,<i>V</i>)</a>
+<dd> Species SparseTable(<i>K</i>,<i>V</i>) holds tables that have keys
+of species <i>K</i> and associated values of species <i>V</i>.  They
+are represented as binary search trees.
+Import <a href="ast/collect/sparstbl.ast">collect/sparstbl.ast</a>.
+
+<a name=lintable></a>
+<p><dt> <a href=tablelib.html>LinTable(<i>K</i>,<i>V</i>)</a>
+<dd> Species LinTable(<i>K</i>,<i>V</i>) holds tables that have keys
+of species <i>K</i> and associated values of species <i>V</i>.  They
+are represented as lists.
+Import <a href="ast/collect/lintbl.ast">collect/lintbl.ast</a>.
+
+<a name=funarr></a>
+<p><dt> <a href=rlist.html>FunArr(<i>T</i>)</a>
+<dd> Species FunArr(<i>T</i>) is a kind of functional array.
+It is similar in spirit to [<i>T</i>], but it
+uses a representation that makes random access efficient.
+This differs from arrays (lists of boxes) in that a functional
+array is a value, and cannot be changed.  You can create a new
+functional array from an old one by modifying one of its members.
+</dl>
+
+<hr>
+<center>
+<a href="stdspecies.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=types.html>Types</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="specexpr.html">Next</a>
+</center>
+</body>
+</HTML>

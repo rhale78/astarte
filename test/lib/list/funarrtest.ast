@@ -1,0 +1,17 @@
+Package funarrtest
+
+%% Test implementation of functional arrays.
+
+Import "collect/funarr.ast".
+
+Execute
+  Let a = toFunArr [1,2,3,4,5,6,7,8,9].
+  For ?i from 1 _upto_ 9 do
+    If a _ i =/= i then Writeln["Bad: a _ i = ", $(a _ i)]..
+  %For
+  If size(a) =/= 9 then Writeln["Bad: size(a) = ", $size(a)]..
+%Execute
+
+%Package
+
+    

@@ -1,0 +1,17 @@
+Package testpat2 
+
+%% Test pattern matching with constant functions, etc.
+
+Import "misc/check".
+
+Pattern f(idf(?x)) => 
+  Match ?x = target.
+%Pattern
+
+Execute
+  Match f(idf(?a)) = 2.
+  Line[$a].
+  Check["2"].
+%Execute
+
+%Package

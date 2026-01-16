@@ -1,0 +1,7 @@
+Package listt
+
+%% Test List as a family.
+
+Assume nil: List(Natural).
+
+%Package

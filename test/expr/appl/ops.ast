@@ -1,0 +1,50 @@
+Package testops 
+
+%% Test unary and binary operators and procedures
+
+Directory standard.  
+Import "misc/check"; "math/math".
+
+
+Operator sqrt; sqrtt; sqrttt.
+
+Let sqrtt ?a = sqrt a.
+
+Let sqrttt = sqrt.
+
+Operator times(*); timess(*).
+
+Let ?a times ?b = a * b.
+
+Let timess = times.
+
+Define f ?x = x * x.
+
+Execute
+  Line[$(1+2*3^2)].
+  Check["19"].
+  Line[$(1+2 times 3^2)].
+  Check["19"].
+  Line[sqrt f 3 $$ (5,2)].
+  Check[" 3.00"].
+  Line[sqrt sqrt 81 $$ (5,2)].
+  Check[" 3.00"].
+%Execute
+
+Define P ?x. = Moreline[x]..
+
+Execute
+  Line[].
+  P "line1"; "line2"; "line3";.
+  Check["line1line2line3"].
+%Execute
+
+Let Q. = 
+  Writeln["Good"].
+%Let
+
+Execute
+  Q.
+%Execute
+
+%Package

@@ -1,0 +1,79 @@
+Package Testcomplex2
+
+%% Test complex functions
+
+Import "math/complex".
+
+Execute
+  Let z = complex(~0, ~0).
+  Let u = complex(~1, ~0).
+  Let i = complex(~0, ~1).
+  Let pi' = complex(pi(), ~0).
+  Let piOver4 = complex(pi()/4, ~0).
+
+  Write["mag(0)      = ", magnitude(z) $$ 20, "\n"].
+  Write["mag(1)      = ", magnitude(u) $$ 20, "\n"].
+  Write["mag(-1)     = ", magnitude(-u) $$ 20, "\n"].
+  Write["mag(i)      = ", magnitude(i) $$ 20, "\n"].
+  Write["mag(1+i)    = ", magnitude(u+i) $$ 20, "\n"].
+
+  Write["sqrt(0)     = ", sqrt(z)   $$ 20, "\n"].
+  Write["sqrt(2)     = ", sqrt((+2)*u) $$ 20, "\n"].
+  Write["sqrt(-1)    = ", sqrt(-u)  $$ 20, "\n"].
+  Write["sqrt(2i)    = ", sqrt(i+i) $$ 20, "\n"].
+  Write["sqrt(i)     = ", sqrt(i)   $$ 20, "\n"].
+
+  Write["exp(0)      = ", exp(z)     $$ 20, "\n"].
+  Write["exp(1)      = ", exp(u)     $$ 20, "\n"].
+  Write["exp(i)      = ", exp(i)     $$ 20, "\n"].
+  Write["exp(i*pi)   = ", exp(i*pi') $$ 20, "\n"].
+
+  Write["ln(1)       = ", ln(u)    $$ 20, "\n"].
+  Write["ln(i)       = ", ln(i)    $$ 20, "\n"].
+  Write["ln(-1)      = ", ln(-u)   $$ 20, "\n"].
+  Write["ln(-i)      = ", ln(-i)   $$ 20, "\n"].
+  Write["ln(1+i)     = ", ln(u+i)  $$ 20, "\n"].
+  Write["ln(1-i)     = ", ln(u-i)  $$ 20, "\n"].
+  Write["ln(-1+i)    = ", ln(-u+i) $$ 20, "\n"].
+  Write["ln(-1-i)    = ", ln(-u-i) $$ 20, "\n"].
+  Write["ln(exp(i))  = ", ln(exp(i)) $$ 20, "\n"].
+
+  Write["sin(0)      = ", sin(z)       $$ 20, "\n"].
+  Write["sin(pi/4)   = ", sin(piOver4) $$ 20, "\n"].
+  Write["sin(i)      = ", sin(i)       $$ 20, "\n"].
+  Write["sin(1+i)    = ", sin(u+i)     $$ 20, "\n"].
+
+  Write["cos(0)      = ", cos(z)       $$ 20, "\n"].
+  Write["cos(pi/4)   = ", cos(piOver4) $$ 20, "\n"].
+  Write["cos(i)      = ", cos(i)       $$ 20, "\n"].
+  Write["cos(1+i)    = ", cos(u+i)     $$ 20, "\n\n"].
+
+  Write["sin^2(i) + cos^2(i)     = ", sin(i)^2 + cos(i)^2     $$ 20, "\n"].
+  Write["sin^2(1+i) + cos^2(1+i) = ", sin(u+i)^2 + cos(u+i)^2 $$ 20, "\n\n"].
+ 
+  Write["1^1      = ", u^~u          $$ 20, "\n"].
+  Write["1^i      = ", u^~i          $$ 20, "\n"].
+  Write["i^0      = ", i^~z          $$ 20, "\n"].
+  Write["i^2      = ", i^~(u+u)      $$ 20, "\n"].
+  Write["2^0.5    = ", (u+u)^~(u/(+2))  $$ 20, "\n"].
+  Write["i^0.5    = ", i^~(u/(+2))      $$ 20, "\n"].
+  Write["i^-1     = ", i^~(-u)       $$ 20, "\n"].
+  Write["2^-1     = ", (u+u)^~(-u)   $$ 20, "\n"].
+  Write["(-2)^0   = ", (-u-u)^~(z)    $$ 20, "\n"].
+  Write["(-2)^1   = ", (-u-u)^~(u)    $$ 20, "\n"].
+  Write["(-2)^2   = ", (-u-u)^~(u+u)  $$ 20, "\n"].
+  Write["(-2)^31  = ", (-u-u)^~(+31*u) $$ 20, "\n"].  
+  Write["(-i)^0   = ", (-i)^~(z)      $$ 20, "\n"].
+  Write["(-i)^1   = ", (-i)^~(u)      $$ 20, "\n"].
+  Write["(-i)^2   = ", (-i)^~(u+u)    $$ 20, "\n"].
+  Write["(-i)^31  = ", (-i)^~(+31*u)   $$ 20, "\n"].  
+
+  Write["0 = ", $z, "\n"].
+  Write["1 = ", $u, "\n"].
+  Write["i = ", $i, "\n"].
+
+%Execute
+
+%Package
+
+

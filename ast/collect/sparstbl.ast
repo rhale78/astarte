@@ -1,0 +1,118 @@
+%% File: sparstbl.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%======================================================================
+Package 		Astarte_SparseTable
+
+			Interface
+========================================================================
+
+========================================================================
+%% This package provides tables, implementated as binary search trees.
+%% See package table.ast for a description of tables.
+%%
+%% SparseTable(K,V)   is a species for tables that associate values of
+%%		      species V with keys of species K, where K is assumed
+%%		      to be ordered.
+========================================================================
+
+========================================================================
+
+Import "collect/table".
+
+========================================================================
+
+%% Automatic creation of expectations from anticipations in table.ast
+%% are suppressed below because they are too general.  They
+%% presume that tables can handle arbitrary key species in EQ.
+%% We require the key species to be in ORDER here.
+
+Extension
+  Expect{transparent,noEqual} species SparseTable(ORDER`a, `b)
+    %" SparseTable(K,V) is a species of tables that
+    %" hold keys of species K and associated values
+    %" of species V.  These tables are implemented as
+    %" binary search trees.
+  %Expect
+
+  Relate{noExpect} SparseTable isKindOf TABLE.
+%Extension
+
+========================================================================
+
+Abbrev
+  K     = ORDER`k;
+  V     = `v;
+  TblKV = SparseTable(K,V);
+%Abbrev
+
+Expect
+  emptyTable	: TblKV;
+  emptyTable?	: TblKV -> Boolean;
+  toList,
+   eagerToList	: TblKV	-> [(K,V)];
+  size		: TblKV	-> Natural;
+  +/, +//	: (TblKV, K, V) -> TblKV;
+  update	: (TblKV, (K, V), V->V) -> TblKV;
+  _minusKey_	: (TblKV, K) -> TblKV;
+  _in_		: ((K,EQ`c), SparseTable(K,EQ`c)) -> Boolean;
+  _keyMember?_	: (K, TblKV) -> Boolean;
+  memberWithKey	: (K, TblKV) -> (K,V);
+  _at_		: (TblKV, K) -> V;
+  min, max	: TblKV -> (K,V);
+  extractMin,
+    extractMax	: TblKV -> ((K,V), TblKV);
+    
+  sparseTable	: [(K,V)] -> TblKV
+  
+  		%" sparseTable the same as table, but always builds
+		%" a linear table.
+		;
+		
+  sparseMemoize	: (K -> V) -> K -> V
+  
+  		%" sparseMemoize = memoize(emptyTable), where the
+		%" empty table is a sparse table.
+		;
+    
+  {underride}:
+  
+  ^^		: SparseTable(ORDER`ka,`va) -> SparseTable(ORDER`kb,`vb)
+  		   constraint ((ORDER`kb,`vb) >= (ORDER`ka,`va));
+		   
+  downcast	: SparseTable(ORDER`ka,`va) -> SparseTable(ORDER`kb,`vb)
+  		   constraint ((ORDER`kb,`vb) <= (ORDER`ka,`va));
+%Expect
+========================================================================
+
+Abbrev
+  K     = EQ`k;
+  V     = `v;
+  TblKV = SparseTable(K,V);
+%Abbrev
+
+Missing{imported}
+  emptyTable	: TblKV;
+  emptyTable?	: TblKV -> Boolean;
+  toList,
+   eagerToList	: TblKV	-> [(K,V)];
+  size		: TblKV	-> Natural;
+  +/, +//	: (TblKV, K, V) -> TblKV;
+  update	: (TblKV, (K, V), V->V) -> TblKV;
+  _minusKey_	: (TblKV, K) -> TblKV;
+  _in_		: ((K,EQ`c), TABLE`a(K,EQ`c)) -> Boolean;
+  _keyMember?_	: (K, TblKV) -> Boolean;
+  memberWithKey	: (K, TblKV) -> (K,V);
+  _at_		: (TblKV, K) -> V;
+%Missing
+
+========================================================================
+
+
+========================================================================
+%Package
+
+

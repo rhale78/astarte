@@ -1,0 +1,19 @@
+Package overundr
+
+%% Check that an underriding definition can be overridden
+%% by a non-overriding definition.
+
+Import "misc/check".
+
+Let{underride} two = 2.
+
+Let two:Natural = 3.
+
+Execute
+  Line[$(two:Natural)].
+  Check["3"].
+  Line[$(two:Integer)].
+  Check["2"].
+%Execute
+
+%Package

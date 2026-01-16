@@ -1,0 +1,68 @@
+Package eqq
+
+%% Test ==?, =/=?.
+%% Also test compare for wrapped types.
+
+%% ==?, ==??
+
+Execute
+  If 1 ==? true 
+    then Writeln["Bad 1"].
+  %If
+  
+  If 1 =/=? 1
+    then Writeln["Bad 2"].
+  %If
+  
+  If (1:Natural) =/=? (1:Integer)
+    then Writeln["Bad 3"].
+  %If
+  
+  If (1:Natural) =/=? (1:Rational)
+    then Writeln["Bad 4"].
+  %If
+  
+  If <<1:Natural>>:EQ =/= <<1:Rational>> 
+    then Writeln["Bad 5"].
+  %If
+%Execute
+
+%% Compare for wrapped types.
+
+Execute
+  If compare(<<1:Natural>>:REAL, <<1:Rational>>) =/= equal
+    then Writeln["Bad 6"].
+  %If
+  
+  If compare(<<1:Integer>>:ORDER,<<1:Rational>>) =/= equal
+    then Writeln["Bad 7"].
+  %If
+
+  If compare(<<1:Natural>>:ORDER, <<1:Rational>>) =/= equal
+    then Writeln["Bad 8"].
+  %If
+
+  If compare(<<1:Natural>>:ORDER, <<1:Natural>>) =/= equal
+    then Writeln["Bad 9"].
+  %If
+
+  If compare(<<1:Natural>>:REAL, <<2:Rational>>) =/= less
+    then Writeln["Bad 10"].
+  %If
+  
+  If compare(<<1:Integer>>:ORDER, <<2:Rational>>) =/= less
+    then Writeln["Bad 11"].
+  %If
+
+  If compare(<<1:Natural>>:ORDER, <<2:Rational>>) =/= less
+    then Writeln["Bad 12"].
+  %If
+
+  If compare(<<1:Natural>>:ORDER, <<2:Natural>>) =/= less
+    then Writeln["Bad 13"].
+  %If
+
+%Execute
+
+%Package
+

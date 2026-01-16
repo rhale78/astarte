@@ -1,0 +1,28 @@
+Package testdef3 
+
+%% More def tests.
+
+Directory standard.  Import "misc/check".
+
+Define f by first
+  case f [] ?x ?y ?z = (x,y,z,[])
+  case f ?x ?x ?z ?  = (x,x,z,x)
+%Define
+
+Let g by one
+  case g [] ?x = x
+  case g ? ?x = x + 1
+%Let
+
+Execute
+  Line[$(g ([]:[Natural]) 2)].
+  Check["2"].
+  Line[$(g [1] 2)].
+  Check["3"].
+  Line[$(f [] [1] [2] [3])].
+  Check["([1],[2],[3],[])"].
+  Line[$(f [1,2] [1,2] [3] [4])].
+  Check["([1,2],[1,2],[3],[1,2])"].
+%Execute
+
+%Package

@@ -1,0 +1,30 @@
+Package longtestmult 
+
+%% Test integer division for a multitude of sizes of numbers.
+
+Execute
+  Let badcnt = box(0).
+  Loop (?i,?p) = (2,10) perhaps
+  loopcase i < 400 =>
+    Writeln["Product ", $p].
+    Loop (?j,?k,?a,?b) = (1,i--1,10,p _div_ 10) perhaps
+    loopcase k >= 1 =>
+      Match (?q,?r) = divide(a, b).
+      If r < 0 _or_ r >= b _or_ q*b + r =/= a then 
+	Writeln["Bad result:"].
+	Writeln["a       = ", $a].
+        Writeln["b       = ", $b].
+	Writeln["a _div_ b = ", $q].
+        Writeln["a _mod_ b = ", $r].
+        Increment badcnt.
+      else
+	Writeln[j$$5,k$$5].
+      %If
+      continue (j+1, k--1, a*10, b _div_ 10)
+    %Loop
+    continue (i+1, 10*p)
+  %Loop
+  Writeln["\n There were ", $ @badcnt, " bad cases"].
+%Execute
+
+%Package

@@ -1,0 +1,17 @@
+Package rtdflt
+
+%% Check handling of run-time defaults.
+
+Let pr = res |
+  Let res: REAL`a constraint (REAL`a >= REAL`b) = 3.
+  Let tst: REAL`b = 4.
+  Writeln[$tst].
+%Let
+
+Execute
+  Writeln[$(pr: REAL)].
+  Writeln[$(pr: RRING)].
+%Execute
+
+%Package
+

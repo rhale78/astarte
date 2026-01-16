@@ -1,0 +1,181 @@
+%% File: semaphor.asi
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%=================================================================
+Package 		Astarte_SemaphoreImp 
+
+			implements "semaphor"
+===================================================================
+
+===================================================================
+%% 			Semaphore
+===================================================================
+
+%% A semaphore holds (b,next,turn,last) where
+%%   b 		is a flag that is true if the semaphore is locked.
+%%
+%%   next	is the next id number that will be assigned to a
+%%		thread that blocks at a wait.
+%%
+%%   turn	is the id of the thread whose turn it is next, or is
+%%		-1 if nobody is waiting.
+%%
+%%   last	is the largest id of any thread that is waiting for
+%%		the semaphore.
+%%
+%%   turn..last is an implicit queue of waiting threads.
+
+Extension
+  Species{noEqual} Semaphore = 
+    (<:Boolean:>, <:Integer:>, <:Integer:>, <:Integer:>)
+  %Species
+%Extension
+
+===================================================================
+%% 			Wait
+===================================================================
+
+Let Wait ?f. =
+  If not f() then
+    Pause().
+    Loop first
+      exitcase f()  => ()
+      loopcase else => Repause(). continue
+    %Loop
+  %If
+%Let
+
+===================================================================
+%% 			unblockedSemaphore 
+%%			blockedSemaphore
+===================================================================
+
+Let 
+  unblockedSemaphore() = 
+    semaphore (<:#false#:>, <:#1#:>, <:# -1#:>, <:#0#:>);
+
+  blockedSemaphore()   = 
+    semaphore (<:#true#:>,  <:#1#:>, <:# -1#:>, <:#0#:>)
+%Let
+
+===================================================================
+%% 			== for semaphores
+===================================================================
+
+Let semaphore(?inUseB1,?) == semaphore(?inUseB2,?) = 
+  inUseB1 _eq_ inUseB2
+%Let
+
+===================================================================
+%% 			SemWait
+===================================================================
+
+Let SemWait(semaphore(?inuseB, ?nextB, ?turnB, ?lastB)). =
+
+  %%-----------------------------------
+  %% Check the semaphore, and lock it.
+  %%-----------------------------------
+
+  open Atomic
+    Let inuse1 = @(inuseB).
+    Let turn   = @(turnB).
+    Assign inuseB := true.
+  %Atomic
+ 
+  %%-----------------------------------------------------------
+  %% If the semaphore was not previously in use, and nobody is
+  %% waiting for it, then we are done.  Otherwise, wait.
+  %%----------------------------------------------------------
+
+  If inuse1 _or_ turn >= 0 then
+
+    %%----------------------------------------------------------
+    %% If the semaphore was not in use, then we must unlock it, since
+    %% we locked it above.
+    %%----------------------------------------------------------
+
+    If not inuse1 then Assign inuseB := false. %If
+
+    %%----------------------------------------------------------
+    %% Get an identifier, and add it to the end of the implicit queue.
+    %%----------------------------------------------------------
+
+    open Atomic
+      Let myid = @(nextB).
+      Assign nextB := myid + 1.
+      Assign lastB := myid.
+      If turn < 0 
+        then Assign turnB := myid.
+      %If
+    %Atomic
+
+    %%----------------------------------------------------------
+    %% Busy wait until the semaphore becomes available and
+    %% it is myid's turn.
+    %%----------------------------------------------------------
+
+    Pause().
+    Loop perhaps
+
+      %%------------------------------
+      %% Try to get the semaphore.
+      %%------------------------------
+
+      do open Atomic
+            Let inuse2 = @(inuseB).
+	    Assign inuseB := true.
+	 %Atomic
+
+      %%----------------------------------------------------------
+      %% If couldn't get, repause.  Note that the content of inuseB has
+      %% not changed in this case, so no need to restore inuseB.
+      %%----------------------------------------------------------
+
+      loopcase inuse2 => Repause(). continue
+
+      %%----------------------------------------------------------
+      %% If I got the semaphore, check that it is my turn.  Give it
+      %% back up if not.
+      %%----------------------------------------------------------
+
+      do open Atomic
+	   Let whoseTurn = @(turnB).
+	   If myid == whoseTurn 
+	     then 
+		If myid == @(lastB)
+		  then Assign turnB := -1.
+	          else Assign turnB := whoseTurn + 1.
+	        %If 
+	     else Assign inuseB := false.
+	   %If
+	 %Atomic
+
+      loopcase myid =/= whoseTurn => Repause(). continue
+    %Loop
+  %If
+%Let
+
+===================================================================
+%% 			SemSignal
+===================================================================
+
+Let SemSignal semaphore(?inUseB, ?). = 
+  Assign inUseB := false.
+%Let
+
+===================================================================
+%% 			lockable
+===================================================================
+
+Let lockable(?x) = makeLockable(unblockedSemaphore(), x).
+
+===================================================================
+%% 			^^ for Lockable
+===================================================================
+
+Let{underride} ^^(makeLockable(?s,?x)) = makeLockable(s, ^^x).
+  
+%Package

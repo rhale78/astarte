@@ -1,0 +1,56 @@
+Package pulltest
+
+%% Test definitions of pull, and use of Extract.
+
+Import "collect/string".
+Import "misc/check".
+
+Extension
+  Species S = scon1 | scon2(Natural).
+%Extension
+Extension
+  Species T = tcon1 Natural (Natural, Natural).
+%Extension
+
+Execute
+  Var in! := infile("pulltestdata").
+
+  %% Natural
+
+  Extract [$(?a:Natural)] from in!.
+  Line[$a].
+  Check["25"].
+  
+  %% Pair
+  
+  Extract [$(?b:(Natural,Natural))] from in!.
+  Line[$b].
+  Check["(30,35)"].
+  
+  %% List
+  
+  Extract [$(?c:[Natural])] from in!.
+  Extract [$(?d:[Natural])] from in!.
+  Line[$c, $d].
+  Check["[1,2,3][]"].
+  
+  %% Species S
+
+  Writeln["\nBegin test 1"].
+  Extract [$(?e:S), $(?f:S)] from in!.
+  Line[$e, " ", $f].
+  Check["scon1 scon2(46)"].
+  
+  Writeln["\nBegin test 2"].
+  Extract [$(?ee:S)] from in!.
+  Line[$ee].
+  Check["scon2(34)"].
+  
+  %% Species T
+
+  Extract [$(?g:T)] from in!.
+  Line[$g].
+  Check["tcon1(5)(6,7)"].
+%Execute
+
+%Package

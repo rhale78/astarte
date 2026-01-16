@@ -1,0 +1,140 @@
+Package impall
+
+%% Try importing all library packages twice.
+
+%% Round 1.
+
+Import
+  "collect/boxes";
+  "collect/bitvec";
+  "collect/collect";
+  "collect/denseset";
+  "collect/findlist";
+  "collect/funarr";
+  "collect/genarray";
+  "collect/linset";
+  "collect/lintbl";
+  "collect/list";
+  "collect/listfun";
+  "collect/matrix";
+  "collect/pair";
+  "collect/search";
+  "collect/set";
+  "collect/sort";
+  "collect/sparsset";
+  "collect/sparstbl";
+  "collect/string";
+  "collect/table";
+  "lang/boolean";
+  "lang/box";
+  "lang/bracket";
+  "lang/char";
+  "lang/choose";
+  "lang/compare";
+  "lang/except";
+  "lang/expect";
+  "lang/function";
+  "lang/hermit";
+  "lang/hierarch";
+  "lang/import";
+  "lang/irreg";
+  "lang/lazy";
+  "lang/let";
+  "lang/loop";
+  "lang/misc";
+  "lang/operator";
+  "lang/optional";
+  "lang/pattern";
+  "lang/rank";
+  "lang/stream";
+  "logic/symbol";
+  "logic/unify";
+  "logic/unknown";
+  "logic/utils";
+  "math/complex";
+  "math/math";
+  "math/modular";
+  "math/prime";
+  "math/stdnum";
+  "misc/random";
+  "misc/trace";
+  "pattern/listpat";
+  "pattern/pattern";
+  "pattern/stringp";
+  "system/io";
+  "system/system";
+  "thread/channel";
+  "thread/semaphor";
+  "thread/sync";
+  "thread/thread"
+%Import
+
+%% Round 2.
+
+Import
+  "collect/boxes";
+  "collect/bitvec";
+  "collect/collect";
+  "collect/denseset";
+  "collect/findlist";
+  "collect/funarr";
+  "collect/genarray";
+  "collect/linset";
+  "collect/lintbl";
+  "collect/list";
+  "collect/listfun";
+  "collect/matrix";
+  "collect/pair";
+  "collect/search";
+  "collect/set";
+  "collect/sort";
+  "collect/sparsset";
+  "collect/sparstbl";
+  "collect/string";
+  "collect/table";
+  "lang/boolean";
+  "lang/box";
+  "lang/bracket";
+  "lang/char";
+  "lang/choose";
+  "lang/compare";
+  "lang/except";
+  "lang/expect";
+  "lang/function";
+  "lang/hermit";
+  "lang/hierarch";
+  "lang/import";
+  "lang/irreg";
+  "lang/lazy";
+  "lang/let";
+  "lang/loop";
+  "lang/misc";
+  "lang/operator";
+  "lang/optional";
+  "lang/pattern";
+  "lang/rank";
+  "lang/stream";
+  "logic/symbol";
+  "logic/unify";
+  "logic/unknown";
+  "logic/utils";
+  "math/complex";
+  "math/math";
+  "math/modular";
+  "math/prime";
+  "math/stdnum";
+  "misc/random";
+  "misc/trace";
+  "pattern/listpat";
+  "pattern/pattern";
+  "pattern/stringp";
+  "system/io";
+  "system/system";
+  "thread/channel";
+  "thread/semaphor";
+  "thread/sync";
+  "thread/thread"
+%Import
+
+%Package
+

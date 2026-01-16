@@ -1,0 +1,38 @@
+Package misc
+
+%% Test functions
+%%    getStackDepth
+%%    callerName
+
+Import "misc/check".
+
+Let f() =
+  Line[$getStackDepth()].
+  Check["2"].
+  Line[callerName()].
+  Check["misc:g"].
+  5
+%Let
+
+Let g() = 
+  Let x = f().
+  Line[$getStackDepth()].
+  Check["1"].
+  Line[callerName()].
+  Check["Exec-misc-1"].
+  (3 + x)
+%Let
+
+Execute
+  Let y = g().
+  Line[$getStackDepth()].
+  Check["0"].
+  Line[callerName()].
+  Check["nobody"].
+  Ignore y.
+%Execute
+
+%Package
+
+
+

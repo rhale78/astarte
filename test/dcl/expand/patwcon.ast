@@ -1,0 +1,37 @@
+Package patwcon 
+
+%% Test pattern matching with constants and global ids in patterns
+
+Import "misc/check".
+
+Pattern pf(?x,y,0,nil) => Match ?x = y + target..
+
+Execute
+  Match pf(?a,1,0,nil) = 2.
+  Line[$a].
+  Check["3"].
+%Execute
+ 
+Execute
+  Match pf(?a,2,0.0,nil) = 2.5.
+  Line[$a].
+  Check["9/2"].
+%Execute
+
+Pattern pf2(?x,y,0.1,nil) => Match ?x = y + target..
+
+Execute
+  Match pf2(?a,2,01.0E-1, nil) = 2.5.
+  Line[$a].
+  Check["9/2"].
+
+  Match pf2(?b,2,0.1000, nil) = 2.5.
+  Line[$b].
+  Check["9/2"].
+
+  Match pf2(?c,2,0.1000E0, nil) = 2.5.
+  Line[$c].
+  Check["9/2"].
+%Execute
+
+%Package

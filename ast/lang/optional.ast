@@ -1,0 +1,74 @@
+%% File: optional.ast
+%% Author: Karl Abrahamson
+%% Copyright (c) 1998 Karl Abrahamson
+%% All rights reserved
+%% Please see file copyright.txt
+
+%%==============================================================
+Package 	Astarte_Optional 
+================================================================
+
+================================================================
+%% This package describes family Optional and related operations.
+%% These things are available to all packages.
+%%
+%% Species Optional(S) is used when you want to have the option
+%% of having member of species S or of having no value at all.
+%% Use noValue as a non-value, and value(x) as value x.
+================================================================
+
+================================================================
+			Export
+================================================================
+
+Description
+
+ Optional	%" Optional(T) is a species whose member can either be
+		%" a member of species T, or the special value noValue.
+		%" See lang/hierarch.ast for how Optional fits into the
+		%" hierarchy.
+		;
+
+ noValue	: Optional(`a)
+
+		%" noValue is a special value of species Optional(`a)
+		%" indicating a non-value.  It is used where
+		%" you want to indicate that no value is available.
+		;
+
+ noValue?	: Optional(`a) -> Boolean
+
+		%" noValue?(x) is true if x = noValue.
+		;
+
+ value          : `a -> Optional(`a)
+
+		%" Function value converts an object of species T to
+		%" species Optional(T).
+		;
+
+ value?		: Optional(`a) -> Boolean
+
+		%" value?(x) is true if x was created by constructor
+		%" value.  That is, x is not noValue.
+		;
+
+
+ optionalf	: (`a -> `b) -> `a -> Optional(`b)
+
+		%" (optionalf f)(x) is value(f(x)) if f(x) does
+		%" not fail, and is noValue if f(x) fails.
+		%"
+		%" Be careful; optionalf will not catch trapped
+		%" exceptions.
+		;
+
+ unvalue	: Optional(`a) -> `a
+
+		%" unvalue(value(x)) = x.  unvalue(noValue)
+		%" fails with exception testX.
+		;
+
+%Description
+
+%Package

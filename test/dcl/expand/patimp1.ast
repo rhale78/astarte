@@ -1,0 +1,34 @@
+Package patimp1 
+
+%% Test visibility of pattern rules
+
+Import "patimp2".
+Import "misc/check".
+
+Execute
+  Match ff(?a) = 2.
+  Line["a = ", $a].
+  Check["a = 4"].
+  Let b = gg(2).
+  Line["b = ", $b].
+  Check["b = 4"].
+%Execute
+
+Import "patimp3".
+
+Execute
+  Match ff(?c) = 2.
+  Line["c = ", $c].
+  Check["c = 4"].
+  Let d = gg(2).
+  Line["d = ", $d].
+  Check["d = 4"].
+  Let e = hh(3).
+  Line["e = ", $e].
+  Check["e = 7"].
+  Let f = ii(5).
+  Line["f = ", $f].
+  Check["f = 9"].
+%Execute  
+
+%Package

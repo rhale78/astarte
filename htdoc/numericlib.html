@@ -1,0 +1,144 @@
+<HTML>
+<head>
+<title>Astarte: numbers</title>
+</head>
+<body>
+<center>
+<a href="char.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="number.html">Next</a>
+</center>
+<hr>
+
+<center>
+<h1><font color=mediumblue> L4. Numeric Species and Operations </font></h1>
+</center>
+
+<menu>
+  <li> <a href=#main> Numeric Species</a>
+  <li> <a href=#numab> Numeric data abstractions</a>
+  <li> <a href=#topics> Topics</a>
+</menu>
+
+<a name=main></a>
+<hr>
+<h2><font color=mediumblue>Numeric Species</font></h2>
+
+The Astarte library has four primary standard numeric species, and two
+primary nonstandard ones.  The species are as follows.
+<dl>
+<a name=Natural></a>
+<p><dt><font color="red"> <a href=number.html#Natural>Natural</a> </font>
+<dd> Natural numbers 0, 1, 2, 3, ... 
+
+<a name=Integer></a>
+<p><dt><font color="red"> <a href=number.html#Integer>Integer</a> </font>
+<dd> Integers ..., -2, -1, 0, 1, 2, ...
+
+<a name=Rational></a>
+<p><dt><font color="red"> <a href=number.html#Rational>Rational</a> </font>
+<dd> Rational numbers, stored exactly as a ratio of two integers.
+
+<a name=Real></a>
+<p><dt><font color="red"> <a href=number.html#Real>Real</a> </font>
+<dd> Real numbers, stored approximately.
+
+<a name=Complex></a>
+<p><dt><font color="red"> <a href=number.html#Complex>Complex</a>  </font>
+<dd> Complex numbers, stored approximately.
+
+<p><dt><font color="red"> <a href=modular.html>Modular</a>  </font>
+<dd> Numbers on which modular arithmetic is done.
+</dl>
+
+<strong>Important note.</strong>  There is a problem that occurs
+fairly frequently with natural numbers.  When you use natural numbers, you
+cannot subtract, since the result might be negative.  So if n has
+species Natural, then n-1 is not allowed.  Write n--1 instead.
+Operator -- is absolute difference (x--y = |x-y|).
+
+<a name=numab></a>
+<font color=brown>
+<hr>
+<h2><font color=mediumblue> Numeric data abstractions</font></h2>
+
+<p>There is a hierarchy of genera for working with these numeric
+species.  The standard hierarchy includes only the blue genera and
+species.  
+If you import
+<a href="ast/math/math.ast">math/math.ast</a>, 
+then you get the full hierarchy,
+except species Modular and Complex.  
+To get Modular, import 
+<a href="ast/math/modular.ast">math/modular.ast</a>.
+To get Complex, import 
+<a href="ast/math/complex.ast">math/complex.ast</a>.
+Smaller genera are to the right.
+<pre>
+                                                  <font color="blue">Natural</font>
+                                                /
+                                         <font color="blue">INTEGER</font>
+                                        /       \
+                    <font color="blue">ORDER</font>        <font color="blue">RATIONAL</font>         <font color="blue">Integer</font>
+                         \      /       \       /
+                           <font color="blue">REAL</font>          <font color="blue">RATRING</font>
+                          /       \     /       \
+                    NUMBER       _<font color="blue">RRING</font>         _ <font color="blue">Rational</font>
+                   /      \     /       \      /
+           SEMIRING      _ NRING        _<font color="blue">RFIELD</font>
+          /        \    /       \      /       \
+ SEMIGROUP       ___RING       _ NFIELD        _  <font color="blue">Real</font>
+          \     /       \     /        \      /
+           GROUP         FIELD          APPROX
+                              \               \
+                               <font color="red">Modular</font>         \_ <font color="red">Complex</font>
+</pre>
+
+Many operations are shared by several of the species, and they are
+given polymorphic types.  
+For example, the polymorphic type of
+the addition function, +, is (REAL`a,REAL`a) -> REAL`a if
+you do not import math/math.ast, and is extended to
+(SEMIGROUP`a,SEMIGROUP`a) -> SEMIGROUP`a if you do import
+math/math.ast.  In the following, however, the operations
+that are available for each primary numeric species are listed without
+indicating their polymorphic types.  See file 
+<a href=ast/math/stdnum.ast>math/stdnum.ast</a>
+and <a href=ast/math/math.ast>math/math.ast</a> 
+for the polymorphic types.  
+
+<p>Typically, you cannot mix different primary species.  
+For example,
+you can add two natural numbers, or add two integers, but you cannot
+add an integer and a natural number.  See
+<a href="wrapnum.html">secondary numeric species</a>
+for how to mix numeric species using
+secondary species.
+</font>
+
+<a name=topics></a>
+<hr>
+<h2><font color=mediumblue>Topics</font></h2>
+
+<menu>
+<li>LN1. <a href="number.html">Numbers and operations on numbers</a>
+<li>LN2. <a href="modular.html">Modular numbers</a>
+<li>LN3. <a href="numconv.html">Conversions between numeric species</a>
+<li>LN4. <a href="wrapnum.html">Secondary numeric species</a>
+</menu>
+
+<hr>
+<center>
+<a href="char.html">Prev</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=index.html>Main page</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=library.html>Library</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=expressions.html>Expressions</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href=indx.html>Index</a>&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+<a href="number.html">Next</a>
+</center>
+</body>
+</HTML>
+

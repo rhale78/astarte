@@ -1,0 +1,35 @@
+Package imp1 export
+
+%% Test overlap checking.
+
+%% The following overlap in this package.
+
+Let x1:Natural = 0.
+
+Let x1:Natural = 1.
+
+%% Now import some overlapping definitions, given as expectations
+%% in the export parts of the imported packages.  There should
+%% be a complaint about these.
+
+Import "imp2".
+Import "imp3".
+
+%% Now import overlapping definitions, where one is an expectation
+%% and one is a definition.  There should be a complaint here.
+
+Import "imp4".
+Import "imp5".
+
+%% Now try a hidden import.  The rest of this is in the 
+%% implementation part.  Should get a complaint that imp6
+%% defines x4, which is expected here.  So imp6 should
+%% be imported in the export part.
+
+Expect x4: Natural.
+
+implementation
+
+Import "imp6".
+
+%Package

@@ -1,0 +1,12 @@
+Package secimp3 export
+
+%% Test second imports.  The top level is secimpa0.ast.
+
+Extension
+  Abstraction TESTG.
+  Relate TESTG isKindOf ORDER.
+%Extension
+
+Anticipate Show: TESTG`a -> ().
+
+%Package
